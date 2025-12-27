@@ -19,6 +19,12 @@ const router = createRouter({
       name: 'guide',
       component: () => import('@/views/GuideView.vue'),
     },
+      {
+      path: '/guide/:id',
+      name: 'guideInfo',
+      props:true,
+      component: () => import('@/views/GuideInfo.vue'),
+    },
     {
       path: '/member',
       name: '/member',
