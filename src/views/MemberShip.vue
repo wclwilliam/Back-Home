@@ -25,7 +25,7 @@ onMounted(() => {
         <RouterLink 
         v-for="item in memberList"
         :key="item.id"
-        :to="`/member/${item.id}`">Member
+        :to="`/member/${item}`">Member
         {{ item.id }}
         {{ item.title }}
         </RouterLink>
