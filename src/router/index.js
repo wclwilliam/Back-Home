@@ -53,15 +53,10 @@ const router = createRouter({
       component: () => import('@/views/GameView.vue'),
     },
     {
-      path: '/product',
-      name: 'product',
-      component: () => import('@/views/ProductView.vue'),
-    },
-    {
-      path: '/product/:id',
-      name: 'productInfo',
-      props: true,
-      component: () => import('@/views/ProductInfoView.vue'),
+      path: '/member/:id',
+      name: '/memberinfo',
+      props:true,
+      component: () => import('@/views/MemberShipinfo.vue'),
     },
   ],
 })
