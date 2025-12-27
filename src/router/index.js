@@ -15,9 +15,21 @@ const router = createRouter({
       component: () => import('@/views/AboutView.vue'),
     },
     {
+      path: '/about/:id',
+      name: 'aboutInfo',
+      props: true,
+      component: () => import('@/views/AboutInfoView.vue'),
+    },
+    {
       path: '/activity',
       name: 'activity',
       component: () => import('@/views/ActivityView.vue'),
+    },
+    {
+      path: '/activity/:id',
+      name: 'activityInfo',
+      props: true,
+      component: () => import('@/views/ActivityInfoView.vue'),
     },
     {
       path: '/member',
