@@ -1,9 +1,7 @@
 <script setup>
-// 列表
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
 
-// 定義資料 (預設空陣列)
 const productlist = ref([])
 
 // 渲染頁面抓資料
@@ -29,13 +27,31 @@ onMounted(() => {
         </router-link>
       </li>
     </ul>
+    <li>列表一
+      <a href="">測試測試</a>
+    </li>
 
-    <p v-else>載入中...</p>
+    <!-- <p v-else>載入中...</p> -->
   </main>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
+
+h1 {
+  color: $primary-color; 
+  font-weight: bold;
+}
+
 li {
-  margin-bottom: 10px; /* 讓列表不要擠在一起 */
+  margin-bottom: 10px;
+  
+  a {
+    color: $highlight-color3; 
+    text-decoration: none;
+    
+    &:hover {
+      color:$highlight-color2; /* SCSS 的巢狀寫法 */
+    }
+  }
 }
 </style>
