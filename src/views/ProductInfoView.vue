@@ -16,6 +16,8 @@ onMounted(() => {
 </script>
 
 <template>
+    <RouterLink to="/product">返回商品列表</RouterLink>
+    <hr />
   商品詳情
   {{ props.id }}
   {{ info }}
