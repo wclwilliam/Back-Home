@@ -10,3 +10,4 @@ export const useCounterStore = defineStore('counter', () => {
 
   return { count, doubleCount, increment }
 })
+//這是vue的範例

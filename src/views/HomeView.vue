@@ -1,3 +1,5 @@
 <script setup></script>
-<template></template>
+<template>
+    <h1>首頁</h1>
+</template>
 <script lang="scss" scoped></script>
