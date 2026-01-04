@@ -40,6 +40,7 @@ onMounted(() => {
 h1 {
   color: $primary-color; 
   font-weight: bold;
+  font-size: $fs-desktop-heading-giant;
 }
 
 li {

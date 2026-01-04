@@ -1,0 +1,54 @@
+/* src/assets/_variables.scss */
+//全域變數
+
+//顏色變數
+$bg-color:#F4F4F4;
+$primary-color: #153450;
+$secondary-color: #0E6273;
+$text-color: #333333;
+$highlight-color1:#4FA8C3 ;
+$highlight-color2:#E14720 ;
+$highlight-color3:#F4D35E;
+$card-color:#CFDEE0;
+$activity-card-color:#F4F1F1;
+$activity-line-color:#CBCACA;
+$activity-comment-card:#F2F2E8;
+$game-bg-color:#E3D5CA;
+$game-line-color:#7BAAB0;
+$page-number-color:#AAAAAA;
+
+$input-line-color1:#333333;
+$input-line-color2:#0E6273;
+
+$backstage-bar-color:#7BAAB0;
+$backstage-bar-click-color:#F2F2E8;
+$backstage-bar-line-color:#A59E9E;
+$backstage-swipe-color:#F6F6F6;
+
+//字體變數大小
+
+// --- 1. 字體粗細 (Font Weight) ---
+// 對照：Bold=700, SemiBold=600, Medium=500, Regular=400
+$font-weight-bold:     700;
+$font-weight-semibold: 600;
+$font-weight-medium:   500;
+$font-weight-regular:  400;
+
+// --- 2. 字體大小 - 桌機 (Desktop) ---
+$fs-desktop-heading-giant:     48px;
+$fs-desktop-heading-primary:   36px;
+$fs-desktop-heading-secondary: 32px;
+$fs-desktop-heading-tertiary:  24px;
+$fs-desktop-body-large:        18px;
+$fs-desktop-body-default:      16px;
+$fs-desktop-caption:           14px;
+
+// --- 3. 字體大小 - 手機 (Mobile) ---
+$fs-mobile-heading-primary:    28px;
+$fs-mobile-heading-secondary:  24px;
+$fs-mobile-heading-tertiary:   20px;
+$fs-mobile-body-large:         18px; // 與桌機相同
+$fs-mobile-body-default:       16px; // 與桌機相同
+$fs-mobile-game:               14px;
+$fs-mobile-caption:            12px;
+
