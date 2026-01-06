@@ -180,6 +180,7 @@ table {
   border-spacing: 0;
 }
 
+/* src/assets/_variables.scss */
 .btn-solid {
   background-color: #0E6273;
   color: #ffffff;
