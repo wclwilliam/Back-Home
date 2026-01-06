@@ -1,0 +1,74 @@
+.card-container {
+  width: 33.3333%;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  background-color: $card-color;
+  overflow: hidden;
+  .card-pic{
+    width: 100%;
+    height: 348px;
+    object-fit: cover;
+    position: relative;
+    img{
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .status-badge{
+      position: absolute;
+      top: 0;
+      left: 0;
+      padding: 8px 0;
+      background-color: $highlight-color2;
+      color: $activity-card-color;
+      @include font-secondary;
+    }
+    .type-badge{
+      position: absolute;
+      top: 0px;
+      right: 0px;
+      padding: 8px 16px;
+      background-color: $highlight-color3;
+      color: $text-color;
+      @include font-secondary;
+      display: flex;
+      align-items: center;
+    }
+  }
+  .card-info{
+    padding: 24px;
+    .card-title{
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: flex-start;
+      @include font-secondary;
+      color: $text-color;
+      gap: 8px;
+      .bookmark-icon{
+        width: 24px;
+        height: 24px;
+        cursor: pointer;
+      }
+      
+    }
+    .line{
+      width: 120%;
+      height: 1px;
+      background-color: $page-number-color;
+      margin:  16px -24px;
+    }
+    .dateTime,.location,.signUpNum{
+      display: flex;
+      flex-wrap: wrap;
+      @include font-secondary;
+      color: $text-color;
+      margin-bottom: 8px;
+      gap: 8px;
+    }
+    .signUpNum{
+      margin-bottom: 0;
+    }
+  }
+}

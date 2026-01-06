@@ -1,35 +1,17 @@
-<script setup>
-  //列表
-import { computed, ref, onMounted } from 'vue'
-import axios from 'axios'
-//定義資料
-const productList = ref([])
-//頁面渲染完抓資料
-  onMounted(() => {
-  // debugger
-  axios
-    .get('https://fakestoreapi.com/products')
-    .then((response) => {
-      // handle success
-      productList.value = response.data
-    })
-    
-})
-
+<script>
+  import Card from '@/components/card.vue';
 </script>
 <template>
-  <!-- <h1>志工活動</h1> -->
-  <main>
-    <RouterLink 
-    v-for="item in productList" :key="item.id" :to="`/activity/${item.id}`">
-      {{ item.id }}
-      {{ item.title }}
-    </RouterLink>
-  </main>
-  
+  <div class="home-page">
+    <h1>志工活動</h1>
+    
+    <Card 
+      title="2026 新年第一淨：萬里翡翠灣"
+      :imageSrc="Imturtleg"
+      date="2026/01/04(日) 14:00-15:00"
+      location="新北萬里翡翠灣"
+      :progress="65"
+      type="淨灘"
+    />
+  </div>
 </template>
-<style scoped>
-  a {
-    display: block;
-  }
-</style>
