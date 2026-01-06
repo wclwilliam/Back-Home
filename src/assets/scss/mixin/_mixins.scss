@@ -1,0 +1,35 @@
+// 按鈕顏色與框線, border=true走if, 若false走else
+// 定義變數
+$white: #ffffff; 
+$tp: transparent; 
+
+@mixin btnColor($color, $border: true, $hover: true) {
+  @if $border {
+    border: 2px solid $color;
+    background-color: $tp; 
+    color: $color;         
+    transition: 0.3s;      
+
+    @if $hover {
+      &:hover {
+        background-color:  $tp; 
+        color: $color;           
+        border: 2px solid $color;
+      }
+    }
+  } 
+  @else {
+    border: 2px solid $color; 
+    background-color: $color; // 實心背景
+    color: $white;            // ★重點：這裡改成白色 (原本是 $dark)
+    transition: 0.3s;
+
+    @if $hover {
+      &:hover {
+        // Hover 時顏色變深 10% (數值越大越深)
+        background-color: darken($color, 10%); 
+        border-color: darken($color, 10%); // 邊框也要跟著變深才自然
+      }
+    }
+  }
+}
