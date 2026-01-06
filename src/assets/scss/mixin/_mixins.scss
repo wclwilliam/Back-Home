@@ -1,4 +1,5 @@
 @import '../base/font';
+@import '../base/var';
 
 // Giant 大標題 (僅桌機版)
 @mixin font-giant {
@@ -124,4 +125,26 @@
     letter-spacing: 1.5px;
   }
 }
->>>>>>> f64e9d753eba86b4e0e5be2c7079a528b381fe93
+
+// icon mixin
+@mixin icon-style(
+  $fill: $icon-default-fill, 
+  $wght: $icon-default-wght, 
+  $size: $icon-default-size, 
+  $color: $icon-default-color
+) {
+  font-family: $icon-font-family;
+  font-variation-settings:
+    'FILL' #{$fill}, 
+    'wght' #{$wght},
+    'GRAD' 0,
+    'opsz' 24;
+  
+  font-size: $size;
+  color: $color;
+  
+  // 基礎修正（讓 Icon 置中對齊文字）
+  display: inline-block;
+  vertical-align: middle;
+  line-height: 1;
+}
