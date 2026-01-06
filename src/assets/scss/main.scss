@@ -1,0 +1,6 @@
+@import "material-symbols/outlined.css";
+@import "./plugin/reset";
+
+.material-symbols-outlined {
+  @include icon-style();
+}
