@@ -1,0 +1,23 @@
+.HeaderLogo img {
+    height: 100px;
+    display: block;
+}
+
+.wrapper {
+    width: 100%;
+    height: 100px;
+    background-color: $primary-color;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 100%;
+}
+
+
+.HeaderLeft {
+    color: $text-white;
+    font-size: $size-body;
+    display: flex;
+    align-items: center;
+    gap: 55px; 
+}
