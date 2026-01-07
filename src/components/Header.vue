@@ -1,11 +1,15 @@
 <script setup>
-    import { RouterLink} from 'vue-router'
+import { RouterLink } from 'vue-router'
 </script>
 
 <template>
-    <header>
+  <header>
     <div class="wrapper">
-      <nav>
+
+      <div class="HeaderLogo">
+        <img src="../../public/BackHomeLogo.png">
+      </div>
+      <nav class="HeaderLeft">
         <RouterLink to="/">Home</RouterLink>
         <RouterLink to="/about">關於協會</RouterLink>
         <RouterLink to="/guide">認識海龜</RouterLink>
@@ -16,10 +20,9 @@
         <RouterLink to="/product">Product</RouterLink>
       </nav>
     </div>
+
   </header>
 </template>
-    
-    
-<style scoped lang="scss">
-    
-</style>
+
+
+<style scoped lang="scss"></style>

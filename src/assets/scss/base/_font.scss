@@ -19,3 +19,26 @@ $m-size-caption:   rem(12px);
 // 桌機手機共用字體大小
 $size-body-l: rem(18px);
 $size-body: rem(16px);
+
+
+//英文字型
+@font-face {
+  font-family: 'EnFont';
+  src: url('../../fonts/arvo-v23-latin-regular.woff2'); // 路徑請依實際調整
+  font-weight: 400;
+  font-display: swap;
+}
+
+// 中文字型 
+@font-face {
+  font-family: 'ChFont';
+  src: url('../../fonts/noto-sans-tc-v38-latin-regular.woff2')format('woff2'); // 路徑請依實際調整
+  font-weight: 400;
+  font-display: swap;
+}
+
+$font-main: 'EnFont', 'ChFont', "Microsoft JhengHei", "PingFang TC", sans-serif;
+
+html {
+  font-family: $font-main;
+}
