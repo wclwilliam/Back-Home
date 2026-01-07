@@ -1,9 +1,13 @@
-<script>
-  import ActivityCard from '@/components/ActivityCard.vue';
+<script setup>
+  //列表
+import { computed, ref, onMounted } from 'vue'
+// 定義外部傳入的資料
+defineProps([
+  'img','status','type','title','date','location','progress'
+])
 </script>
 <template>
-    <h1>志工活動</h1>
-    
+  
   <div class="card-container">
     <div class="card-pic">
       <img :src="img" :alt="title"/>
@@ -40,3 +44,32 @@
     </div>
   </div>
 </template>
+
+<style src="@/assets/scss/component/_card.scss" lang="scss" scoped>
+  @import "@/assets/scss/components/_card.scss";
+.volunteer-card {
+  @extend %card-base; // 繼承基底樣式
+  .info-row { display: flex; gap: 8px; } // 活動專屬樣式
+}
+  .status-badge{
+      position: absolute;
+      top: 0;
+      left: 0;
+      margin: 16px 0;
+      padding: 8px 16px;
+      background-color: $highlight-color2;
+      color: $activity-card-color;
+      @include font-secondary;
+    }
+    .type-badge{
+      position: absolute;
+      top: 0px;
+      right: 0px;
+      padding: 8px 16px;
+      background-color: $highlight-color3;
+      color: $text-color;
+      @include font-secondary;
+      display: flex;
+      align-items: center;
+    }
+</style>
