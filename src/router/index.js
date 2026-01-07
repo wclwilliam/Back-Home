@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '@/views/HomeView.vue'
+import {authGuard} from './guards.js'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -44,36 +45,39 @@ const router = createRouter({
     },
     {
       path: '/donation',
-      name: '/donation',
+      name: 'donation',
       component: () => import('@/views/DonationView.vue'),
     },
     {
       path: '/member',
-      name: '/member',
+      name: 'member',
       component: () => import('@/views/MemberShip.vue'),
+      meta: { requiresAuth: true },
     },
     {
       path: '/game',
-      name: '/game',
+      name: 'game',
       component: () => import('@/views/GameView.vue'),
     },
     {
       path: '/member/:id',
-      name: '/memberinfo',
+      name: 'memberinfo',
       props:true,
       component: () => import('@/views/MemberShipinfo.vue'),
     },
     {
       path: '/product',
-      name: '/product',
+      name: 'product',
       component: () => import('@/views/ProductView.vue'),
     },
     {
       path: '/product/:id',
-      name: '/productinfo',
+      name: 'productinfo',
       component: () => import('@/views/ProductInfoView.vue'),
     },
   ],
 })
 
-export default router
+router.beforeEach(authGuard);
+
+export default router;
