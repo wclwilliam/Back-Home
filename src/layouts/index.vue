@@ -6,7 +6,7 @@
 
 <template>
     <MainHeader />
-    <MainBanner />
+    <Banner v-if="$route.path !== '/guide'" />
     <RouterView />
     <MainFooter />
 </template>
