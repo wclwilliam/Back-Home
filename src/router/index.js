@@ -15,6 +15,11 @@ const router = createRouter({
       component: () => import('@/views/AboutView.vue'),
     },
      {
+      path: '/news',
+      name: 'news',
+      component: () => import('@/views/NewsView.vue'),
+    },
+     {
       path: '/guide',
       name: 'guide',
       component: () => import('@/views/GuideView.vue'),
@@ -73,6 +78,10 @@ const router = createRouter({
       name: '/productinfo',
       component: () => import('@/views/ProductInfoView.vue'),
     },
+    {
+      path: '/:pathMatch(.*)*',
+      component: () => import('@/views/NotFound.vue')
+    }
   ],
 })
 

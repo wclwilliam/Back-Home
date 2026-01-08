@@ -197,23 +197,6 @@ table {
   border-spacing: 0;
 }
 
-@font-face {
-  font-family: "EnFont";
-  src: url("../../fonts/arvo-v23-latin-regular.woff2");
-  font-weight: 400;
-  font-display: swap;
-}
-@font-face {
-  font-family: "ChFont";
-  src: url("../../fonts/noto-sans-tc-v38-latin-regular.woff2") format("woff2");
-  font-weight: 400;
-  font-display: swap;
-}
-html {
-  font-family: "EnFont", "ChFont", "Microsoft JhengHei", "PingFang TC", sans-serif;
-}
-
-/* src/assets/_variables.scss */
 .btn-solid {
   background-color: #0E6273;
   color: #ffffff;
