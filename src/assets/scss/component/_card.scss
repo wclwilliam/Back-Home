@@ -1,17 +1,13 @@
-.container{
-  padding: 0 16%;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 24px;
+.-on{
+  display: none;
 }
-.card-container{ 
-  width: calc(33.3333% - 24px);
-  display: flex;
-  flex-direction: column;
-  flex-wrap: wrap;
+.cardContainer{ 
+  color: $text-color;
+  cursor: pointer;
   background-color: $card-color;
   overflow: hidden;
-  .card-pic{
+  margin-bottom: 24px;
+  .cardPic{
     width: 100%;
     object-fit: cover;
     position: relative;
@@ -20,73 +16,13 @@
       height: 100%;
       object-fit: cover;
     }
-    .status-badge{
-      position: absolute;
-      top: 0;
-      left: 0;
-      margin: 16px 0;
-      padding: 8px 16px;
-      background-color: $highlight-color2;
-      color: $activity-card-color;
-      @include font-tertiary;
-    }
-    .type-badge{
-      position: absolute;
-      top: 0px;
-      right: 0px;
-      padding: 8px 16px;
-      background-color: $highlight-color3;
-      color: $text-color;
-      @include font-body-bold;
-      display: flex;
-      align-items: center;
-    }
+    
   }
-  .card-info{
+  .cardInfo{
     padding: 24px;
-    .card-title{
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      @include font-tertiary;
-      color: $text-color;
-      gap: 8px;
-      .bookmark-icon{
-        width: 24px;
-        height: 24px;
-        cursor: pointer;
-      }
-      
-    }
-    .line{
-      width: 120%;
-      height: 1px;
-      background-color: $page-number-color;
-      margin:  16px -24px;
-    }
     .rowInfo{
-      display: flex;
-      flex-wrap: wrap;
-      @include font-body-l;
-      color: $text-color;
-      margin-bottom: 8px;
-      gap: 8px;
+      padding: auto 0;
     }
-    .signUpNum{
-      margin-bottom: 0;
     }
-    .card-footer-link{
-      margin-top: 16px;
-      text-align: right;
-      border: 2px solid $secondary-color;
-      a{
-        @include font-body-bold;
-        color: $secondary-color; 
-      }
-      &:hover{
-          background-color: $highlight-color2;
-          color: $primary-color;
-        }
-    }
-  }
+
 }
