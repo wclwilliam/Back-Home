@@ -2,13 +2,13 @@
 import { ref, computed } from 'vue';
 
 const allTurtles = [
-  { id: 1, nameCN: '綠蠵龜', nameEN: 'Green Turtle', type: 'taiwan', img: '/public/GuideView/GreenTurtle.png' },
-  { id: 2, nameCN: '玳瑁', nameEN: 'Hawksbill Turtle', type: 'taiwan', img: '/public/GuideView/HawksbillTurtle.png' },
-  { id: 3, nameCN: '赤蠵龜', nameEN: 'Loggerhead Turtle', type: 'taiwan', img: '/public/GuideView/LoggerheadTurtle.png' },
-  { id: 4, nameCN: '革龜', nameEN: 'Leatherback Turtle', type: 'taiwan', img: '/public/GuideView/LeatherbackTurtle.png' },
-  { id: 5, nameCN: '欖蠵龜', nameEN: 'Olive Ridley Turtle', type: 'taiwan', img: '/public/GuideView/OliveRidleyTurtle.png' },
-  { id: 6, nameCN: '肯氏龜', nameEN: "Kemp's Ridley Turtle", type: 'remote', img: '/public/GuideView/LeatherbackTurtle.png' },
-  { id: 7, nameCN: '平背龜', nameEN: 'Flatback Turtle', type: 'remote', img: '/public/GuideView/LeatherbackTurtle.png' },
+  { id: 1, nameCN: '綠蠵龜', nameEN: 'Green Turtle', type: 'taiwan', img: '/src/assets/image/GuideView/GreenTurtle.png' },
+  { id: 2, nameCN: '玳瑁', nameEN: 'Hawksbill Turtle', type: 'taiwan', img: '/src/assets/image/GuideView/HawksbillTurtle.png' },
+  { id: 3, nameCN: '赤蠵龜', nameEN: 'Loggerhead Turtle', type: 'taiwan', img: '/src/assets/image/GuideView/LoggerheadTurtle.png' },
+  { id: 4, nameCN: '革龜', nameEN: 'Leatherback Turtle', type: 'taiwan', img: '/src/assets/image/GuideView/LeatherbackTurtle.png' },
+  { id: 5, nameCN: '欖蠵龜', nameEN: 'Olive Ridley Turtle', type: 'taiwan', img: '/src/assets/image/GuideView/OliveRidleyTurtle.png' },
+  { id: 6, nameCN: '肯氏龜', nameEN: "Kemp's Ridley Turtle", type: 'remote', img: '/src/assets/image/GuideView/LeatherbackTurtle.png' },
+  { id: 7, nameCN: '平背龜', nameEN: 'Flatback Turtle', type: 'remote', img: '/src/assets/image/GuideView/LeatherbackTurtle.png' },
 ];
 
 
@@ -71,7 +71,7 @@ const turtleSections = computed(() => {
 .turtleBanner {
   width: 100%;
   height: 400px;
-  background-image: url('/public/GuideView/turtleBanner.png');
+  background-image: url('/src/assets/image/GuideView/turtleBanner.png');
   background-size: cover;
   background-position: center;
   display: flex;
