@@ -61,7 +61,7 @@ isModalOpen.value = true
           <div class="auth-content">
             <div class="auth-image">
               <div class="logo-overlay">
-                <img src="../../../public/BackHomeLogo.png" alt="Nectar & Co. Logo" />
+                <img src="../../../public/BackHomeLogo.png" />
               </div>
             </div>
 
@@ -177,7 +177,7 @@ isModalOpen.value = true
   align-items: center;
 
   /* RWD 設定：當螢幕小於 390px (手機) 時隱藏左圖 */
-  @media (max-width: $design-mobile) {
+  @media (max-width: 390px) {
     display: none;
   }
 }
