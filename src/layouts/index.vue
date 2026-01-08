@@ -1,16 +1,12 @@
 <script setup>
-    import MainHeader from '@/components/Header.vue';
-    import MainFooter from '@/components/Footer.vue';
+import MainHeader from '@/components/Header.vue'
+import MainFooter from '@/components/Footer.vue'
 </script>
 
 <template>
-    <MainHeader />
-    <Banner v-if="$route.path !== '/guide'" />
-    <RouterView />
-    <MainFooter />
+  <MainHeader />
+  <RouterView />
+  <MainFooter />
 </template>
-    
-    
-<style scoped lang="scss">
-    
-</style>
+
+<style scoped lang="scss"></style>
