@@ -1,13 +1,19 @@
 <script setup>
-import { RouterLink } from 'vue-router'
+import { RouterLink ,useRouter } from 'vue-router'
+
+const router = useRouter()
+
+const goHome = ()=> {
+  router.push('/');
+}
 </script>
 
 <template>
   <header>
     <div class="wrapper">
 
-      <div class="HeaderLogo">
-        <img src="../../public/BackHomeLogo.png">
+      <div class="HeaderLogo" @click="goHome">
+        <img src="/public/BackHomeLogo.png">
       </div>
       <nav class="HeaderLeft">
         
@@ -26,4 +32,8 @@ import { RouterLink } from 'vue-router'
 </template>
 
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+  .HeaderLogo {
+    cursor: pointer;
+  }
+</style>
