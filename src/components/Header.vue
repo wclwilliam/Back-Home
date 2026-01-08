@@ -45,5 +45,3 @@ const goHome = () => {
   cursor: pointer;
 }
 </style>
-
-<style scoped lang="scss"></style>
