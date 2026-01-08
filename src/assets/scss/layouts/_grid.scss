@@ -1,0 +1,82 @@
+// 變數定義
+$desktop-margin: 240px;
+$desktop-gutter: 24px;
+$mobile-margin: 20px;
+$mobile-gutter: 20px;
+
+$breakpoint-mobile: 390px;
+$breakpoint-desktop: 1920px;
+
+// 容器設定
+.container {
+  width: 100%;
+  margin-right: auto;
+  margin-left: auto;
+  
+  // 手機版樣式
+  padding-right: $mobile-margin;
+  padding-left: $mobile-margin;
+
+  // 桌機版樣式 (通常設為 min-width: 768px 或更高)
+  @media (min-width: 1024px) {
+    max-width: $breakpoint-desktop;
+    padding-right: $desktop-margin;
+    padding-left: $desktop-margin;
+  }
+}
+
+// Row 容器
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  margin-right: ($mobile-gutter / -2);
+  margin-left: ($mobile-gutter / -2);
+
+  @media (min-width: 1024px) {
+    margin-right: ($desktop-gutter / -2);
+    margin-left: ($desktop-gutter / -2);
+  }
+}
+
+// Col 基礎樣式
+[class^="col-"] {
+  position: relative;
+  width: 100%;
+  padding-right: ($mobile-gutter / 2);
+  padding-left: ($mobile-gutter / 2);
+
+  @media (min-width: 1024px) {
+    padding-right: ($desktop-gutter / 2);
+    padding-left: ($desktop-gutter / 2);
+  }
+}
+
+// 桌機版 col-lg-4
+@for $i from 1 through 12 {
+  .col-lg-#{$i} {
+    @media (min-width: 1024px) {
+      flex: 0 0 calc(100% / 12 * #{$i});
+      max-width: calc(100% / 12 * #{$i});
+    }
+  }
+}
+
+// 平板/中螢幕用 col-md-6
+@for $i from 1 through 12 {
+  .col-md-#{$i} {
+    @media (min-width: 768px) and (max-width: 1023px) {
+      flex: 0 0 calc(100% / 12 * #{$i});
+      max-width: calc(100% / 12 * #{$i});
+    }
+  }
+}
+
+// 手機版 4 欄系統 col-sm-4
+@for $i from 1 through 4 {
+  .col-sm-#{$i} {
+    @media (max-width: 1023px) {
+      flex: 0 0 calc(100% / 4 * #{$i});
+      max-width: calc(100% / 4 * #{$i});
+    }
+  }
+}
