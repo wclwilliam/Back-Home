@@ -1,23 +1,43 @@
-.HeaderLogo img {
-    height: 100px;
+.headerLogo {
+    width: fit-content;
+}
+
+.headerLogo img {
+    height: 80px;
     display: block;
 }
 
-.wrapper {
+header {
     width: 100%;
     height: 100px;
     background-color: $primary-color;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    height: 100%;
+
+    .container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        height: 100%;
+
+        .functionWrapper {
+            display: flex;
+            align-items: center;
+
+            .navHeader ul {
+                color: $text-white;
+                font-size: $size-body;
+                display: flex;
+                align-items: center;
+                padding: 0 54px;
+                gap: 54px;
+            }
+        }
+    }
 }
 
+.hamburger {
+    display: none;
+}
 
-.HeaderLeft {
-    color: $text-white;
-    font-size: $size-body;
-    display: flex;
-    align-items: center;
-    gap: 55px; 
+.hamburger.-on {
+    display: block;
 }
