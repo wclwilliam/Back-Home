@@ -1,6 +1,7 @@
 // 容器設定
 .container {
   width: 100%;
+  //max-width: 1440px;
   margin-right: auto;
   margin-left: auto;
   
@@ -15,6 +16,7 @@
     padding-left: $desktop-margin;
   }
 }
+
 
 // Row 容器
 .row {
