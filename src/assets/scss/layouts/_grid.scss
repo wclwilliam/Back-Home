@@ -1,12 +1,3 @@
-// 變數定義
-$desktop-margin: 240px;
-$desktop-gutter: 24px;
-$mobile-margin: 20px;
-$mobile-gutter: 20px;
-
-$breakpoint-mobile: 390px;
-$breakpoint-desktop: 1920px;
-
 // 容器設定
 .container {
   width: 100%;
@@ -19,7 +10,7 @@ $breakpoint-desktop: 1920px;
 
   // 桌機版樣式 (通常設為 min-width: 768px 或更高)
   @media (min-width: 1024px) {
-    max-width: $breakpoint-desktop;
+    max-width: $design-desktop;
     padding-right: $desktop-margin;
     padding-left: $desktop-margin;
   }
@@ -74,9 +65,7 @@ $breakpoint-desktop: 1920px;
 // 手機版 4 欄系統 col-sm-4
 @for $i from 1 through 4 {
   .col-sm-#{$i} {
-    @media (max-width: 1023px) {
       flex: 0 0 calc(100% / 4 * #{$i});
       max-width: calc(100% / 4 * #{$i});
     }
   }
-}
