@@ -1,42 +1,14 @@
-<script>
+<script setup>
   import ActivityCard from '@/components/ActivityCard.vue';
 </script>
 <template>
     <h1>志工活動</h1>
-    
-  <div class="card-container">
-    <div class="card-pic">
-      <img :src="img" :alt="title"/>
-      <div class="status-badge" :class="currentStatus.class">
-        <i class="fa-solid fa-tag"></i>
-        {{status}}
-      </div>
-      <div v-if="type" class="type-badge">
-        <i class="fa-solid fa-tag"></i>
-        {{type}}
-      </div>
-    </div>
-
-    <div class="card-info">
-      <div class="card-title">
-        <span>{{title}}</span>
-        <i class="bookmark-icon material-symbols-outlined">
-        </i>
-      </div>
-      <div class="line"></div>
-      <div class="rowInfo dateTime">
-        <i class="fa-solid fa-tag"></i>
-        <h4>{{date}}</h4>
-      </div>
-      <div class="rowInfo location">
-        <i class="fa-solid fa-tag"></i>
-        <h4>{{location}}</h4>
-      </div>
-      <div class="rowInfo signUpNum">
-        <i class="fa-solid fa-tag"></i>
-        <div>{{progress}}</div>
-        <div>20/40</div>
-      </div>
-    </div>
+    <div class="container">
+  <ActivityCard></ActivityCard>
+  <ActivityCard></ActivityCard>
+  <ActivityCard></ActivityCard>
+  <ActivityCard></ActivityCard>
+  <ActivityCard></ActivityCard>
+  <ActivityCard></ActivityCard>
   </div>
 </template>

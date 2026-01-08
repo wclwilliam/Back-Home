@@ -1,5 +1,11 @@
-%card-base {
-  width: 33.3333%;
+.container{
+  padding: 0 16%;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+}
+.card-container{ 
+  width: calc(33.3333% - 24px);
   display: flex;
   flex-direction: column;
   flex-wrap: wrap;
@@ -7,13 +13,33 @@
   overflow: hidden;
   .card-pic{
     width: 100%;
-    height: 348px;
     object-fit: cover;
     position: relative;
     img{
       width: 100%;
       height: 100%;
       object-fit: cover;
+    }
+    .status-badge{
+      position: absolute;
+      top: 0;
+      left: 0;
+      margin: 16px 0;
+      padding: 8px 16px;
+      background-color: $highlight-color2;
+      color: $activity-card-color;
+      @include font-tertiary;
+    }
+    .type-badge{
+      position: absolute;
+      top: 0px;
+      right: 0px;
+      padding: 8px 16px;
+      background-color: $highlight-color3;
+      color: $text-color;
+      @include font-body-bold;
+      display: flex;
+      align-items: center;
     }
   }
   .card-info{
@@ -22,7 +48,7 @@
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      @include font-secondary;
+      @include font-tertiary;
       color: $text-color;
       gap: 8px;
       .bookmark-icon{
@@ -41,7 +67,7 @@
     .rowInfo{
       display: flex;
       flex-wrap: wrap;
-      @include font-secondary;
+      @include font-body-l;
       color: $text-color;
       margin-bottom: 8px;
       gap: 8px;
@@ -54,7 +80,7 @@
       text-align: right;
       border: 2px solid $secondary-color;
       a{
-        @include font-secondary;
+        @include font-body-bold;
         color: $secondary-color; 
       }
       &:hover{
