@@ -4,8 +4,8 @@ import { computed, ref, onMounted } from 'vue'
 // 定義外部傳入的資料
 </script>
 <template>
-  <div class="col-4 col-md-4 col-lg-4">
-    <div class="cardContainer teamMemberCard">
+  <div class="col-4 col-md-6 col-lg-4">
+    <div class="cardContainer teamCard">
       <div class="cardPic">
         <img src="https://picsum.photos/300/200/?random=10">
       </div>
@@ -34,46 +34,23 @@ import { computed, ref, onMounted } from 'vue'
 <style lang="scss" scoped>
 @import "@/assets/scss/component/_card.scss";
 
-.teamMemberCard {
+.teamCard{
   cursor: default;
-  position: relative;
-
   .cardInfo {
     transition: background-color .8s ease;
 
     margin: 4px 0;
 
-    .cardTitle {
-      text-align: center;
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      @include font-tertiary;
-      color: $text-color;
-      gap: 8px;
-    }
-
     .jobTitle {
       text-align: center;
       @include font-body-l-bold;
     }
-
-    .divider{
-      width: 100%;
-      height: 1px;
-      background-color: $page-number-color;
-    }
-
     .expertise {
       @include font-body-bold;
       color: $text-color;
       margin: 8px 0;
     }
 
-    .txt {
-      @include font-body;
-      color: $text-color;
-    }
   }
 }
 </style>

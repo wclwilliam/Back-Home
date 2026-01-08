@@ -59,13 +59,12 @@ const isEnded = computed(() => props.status === 'ended')
                 </div>
               </div>
             </div> -->
-  <div class="col-4 col-md-4 col-lg-4">
+  <div class="col-4 col-md-6 col-lg-4">
     <div class="cardContainer activityCard">
       <div class="cardPic">
         <img src="https://picsum.photos/300/200/?random=10">
         <div class="statusBadge -on">
           已結束
-  
         </div>
         <div class="typeBadge">
           <span class="material-symbols-outlined">
@@ -125,9 +124,8 @@ const isEnded = computed(() => props.status === 'ended')
   .cardPic {
     .status-badge {
       position: absolute;
-      top: 0;
+      top: 16px;
       left: 0;
-      margin: 16px 0;
       padding: 8px 16px;
       background-color: $highlight-color2;
       color: $activity-card-color;
@@ -153,16 +151,6 @@ const isEnded = computed(() => props.status === 'ended')
       font-size: 40px
     }
 
-    .cardTitle {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      @include font-tertiary;
-      color: $text-color;
-      gap: 8px;
-
-    }
-
     .divider {
       width: 120%;
       height: 1px;
@@ -178,33 +166,6 @@ const isEnded = computed(() => props.status === 'ended')
       margin-bottom: 8px;
       gap: 8px;
 
-      .progress-track-container {
-        margin: auto 0;
-        flex: 1;
-        height: 16px;
-        position: relative;
-        margin-bottom: 30px; // 預留空間給下方的標籤，防止被切掉
-
-        // 1. 灰色底軌
-        .track-bg {
-          position: absolute;
-          width: 100%;
-          height: 100%;
-          border: 1px solid #777;
-          border-radius: 20px;
-        }
-
-        // 2. 深色填充
-        .track-fill {
-          position: absolute;
-          left: 0;
-          top: 0;
-          height: 100%;
-          background-color: $primary-color;
-          border-radius: 20px;
-          width: 60%;
-        }
-
       }
     }
 
@@ -215,7 +176,11 @@ const isEnded = computed(() => props.status === 'ended')
 
   .btn {
     width: 100%;
-    text-align: center;
+    padding: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
     border: 2px solid $secondary-color;
     border-bottom: 2px solid #ffffff00;
     border-right: 0;
@@ -230,6 +195,6 @@ const isEnded = computed(() => props.status === 'ended')
       background-color: $secondary-color;
       color: $text-white;
     }
-  }
+  
 }
 </style>

@@ -4,13 +4,13 @@ import { computed, ref, onMounted } from 'vue'
 // 定義外部傳入的資料
 </script>
 <template>
-  <div class="col-4 col-md-4 col-lg-4">
-    <div class="cardContainer NewsCard">
+  <div class="col-4 col-md-6 col-lg-4">
+    <div class="cardContainer newsCard">
       <div class="cardPic">
         <img src="https://picsum.photos/300/200/?random=10">
       </div>
       <div class="cardInfo">
-        <div class="rowInfo ">
+        <div class="rowInfo metaRow">
           <div class="openDate">2025.12.31</div>
           <div class="typeBadge">異動通知
           </div>
@@ -32,27 +32,17 @@ import { computed, ref, onMounted } from 'vue'
 <style lang="scss" scoped>
 @import "@/assets/scss/component/_card.scss";
 
-.NewsCard {
+.newsCard {
   cursor: pointer;
   position: relative;
 
   .cardInfo {
     transition: background-color .8s ease;
-
     margin: 4px 0;
 
-    .rowInfo {
-      display: flex;
-      flex-wrap: wrap;
+    .metaRow {
       justify-content: space-between;
-      @include font-body-l;
-      color: $text-color;
       margin-bottom: 16px;
-      gap: 8px;
-
-      .openDate {
-        @include font-body;
-      }
 
       .typeBadge {
         padding: 4px 8px;
@@ -60,40 +50,48 @@ import { computed, ref, onMounted } from 'vue'
         color: $text-white;
         @include font-body-bold;
         display: flex;
-        align-items: center;
-
       }
     }
-
-    .cardTitle {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      @include font-tertiary;
-      color: $text-color;
-      gap: 8px;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
+    .cardTitle{
+     display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2; /* 設定顯示的行數 */
+    overflow: hidden;
   }
+  }
+  
 
   .btn {
     position: absolute;
     bottom: 0;
     right: 0;
-    width: 11.206896%;
+    width: 12%;
+    height: 12%;
+    aspect-ratio: 1; // 保持方形比例
     display: flex;
     align-items: center;
     justify-content: flex-start; // 靠右對齊
-    padding-top: 5%; // 右側留白
+    padding-top: 9%; // 右側留白
     // text-align: center;
     clip-path: polygon(0% 100%, 100% 100%, 100% 0);
 
     .arrow {
       color: $text-white;
     }
+  }
+  &:before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    top: -16px;
+    right: -16px;
+    background: #00838d;
+    height: 32px;
+    width: 32px;
+    border-radius: 32px;
+    transform: scale(1);
+    transform-origin: 50% 50%;
+    transition: transform 0.25s ease-out;
   }
 
   &:hover {

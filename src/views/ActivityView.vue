@@ -9,8 +9,12 @@ import RescueCard from '@/components/cards/RescueCard.vue';
   <div class="container">
     <div class="row">
       <RescueCard></RescueCard>
-      <TeamMemberCard></TeamMemberCard>
+      <RescueCard></RescueCard>
       <ActivityCard></ActivityCard>
+      <ActivityCard></ActivityCard>
+      
+      <TeamMemberCard></TeamMemberCard>
+      
       <NewsCard></NewsCard>
       <NewsCard></NewsCard>
       <NewsCard></NewsCard>

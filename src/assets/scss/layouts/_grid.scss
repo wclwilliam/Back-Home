@@ -1,22 +1,21 @@
 // 容器設定
 .container {
+  // 手機版
   width: 100%;
-  //max-width: 1440px;
-  margin-right: auto;
-  margin-left: auto;
-  
-  // 手機版樣式
-  padding-right: $mobile-margin;
-  padding-left: $mobile-margin;
+  margin: 0 auto;
+  padding: 0 $mobile-margin;
 
-  // 桌機版樣式 (通常設為 min-width: 768px 或更高)
+  // 平板版
+  @media (min-width: 768px) {
+    width: calc(100% - 120px);
+  }
+
+  // 桌機版 (通常設為 min-width: 768px 或更高)
   @media (min-width: 1024px) {
-    max-width: $design-desktop;
-    padding-right: $desktop-margin;
-    padding-left: $desktop-margin;
+    // width: calc(100% - 120px);
+    max-width: 1440px;
   }
 }
-
 
 // Row 容器
 .row {
