@@ -70,7 +70,7 @@ const turtleSections = computed(() => {
 <style lang="scss" scoped>
 .turtleBanner {
   width: 100%;
-  height: 400px;
+  height: 720px;
   background-image: url('/src/assets/image/GuideView/turtleBanner.png');
   background-size: cover;
   background-position: center;
