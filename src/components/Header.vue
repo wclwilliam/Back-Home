@@ -11,7 +11,7 @@ const goHome = () => {
 <template>
   <header>
     <div class="container">
-      <div class="HeaderLogo" @click="goHome">
+      <div class="headerLogo" @click="goHome">
         <img src="/public/BackHomeLogo.png" />
       </div>
       <div class="functionWrapper">
