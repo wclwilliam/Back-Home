@@ -84,16 +84,17 @@ const turtleSections = computed(() => {
   flex-direction: column;
   margin-left: 10%;
   width: 100%;
-  max-width: 300px;
+  max-width: 442px;
   gap: 86px;
 }
 
 .turtleBannerInfo h1 {
-  @include font-tertiary;
+  @include font-secondary;
 }
 
 .turtleBannerInfo p {
-  @include font-caption;
+  @include font-body-l ;
+  //text-align: justify;
   width: 100%;
   max-width: 392px
 }
@@ -103,11 +104,11 @@ const turtleSections = computed(() => {
   color: $primary-color;
   text-align: center;
   font-weight: bold;
-  margin-top: 100px;
+  margin-top: 153px;
 }
 
 .container {
-  max-width: 1000px;
+  max-width: 1440px;
   margin: 0 auto;
   text-align: center;
   padding: 40px 20px;
@@ -118,8 +119,9 @@ const turtleSections = computed(() => {
 }
 
 .sub-title {
+ @include font-secondary;
+ color: $primary-color;
   margin-bottom: 50px;
-  color: $primary-color;
   font-weight: bold;
 }
 
@@ -127,17 +129,18 @@ const turtleSections = computed(() => {
 .turtle-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 50px;
+  gap: 48px;
 }
 
 .turtle-card {
-  @include font-body;
+  @include font-tertiary;
   color: $secondary-color;
   font-weight: bold;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
+  width: 448px;
+  gap: 24px;
 }
 
 
