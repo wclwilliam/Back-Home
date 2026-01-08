@@ -1,27 +1,31 @@
 /* scss 編譯過的 註解 */
 
 //變數引入
-@import './base/var';
-@import './base/font';
 @import './base/color';
+@import './base/font';
+@import './base/var';
 @import './plugin/reset';
 
 //函式庫
 @import './mixin/mixins';
+
+// Icon 引入
+@import 'material-symbols/outlined.css';
 
 // 組件
 @import './component/btn';
 @import './component/card';
 
 // 版面配置
+@import './layouts/grid';
 @import './layouts/header';
 @import './layouts/body';
 @import './layouts/footer';
 @import './layouts/login';
 @import './layouts/nav';
 
-
 // 頁面
 @import './page/index';
 @import './page/about';
 @import './page/product';
+
