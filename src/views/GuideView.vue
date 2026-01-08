@@ -104,7 +104,7 @@ const turtleSections = computed(() => {
   color: $primary-color;
   text-align: center;
   font-weight: bold;
-  margin-top: 153px;
+  margin-top: 67px;
 }
 
 .container {
@@ -150,8 +150,16 @@ const turtleSections = computed(() => {
   }
 }
 
+.img-box{
+  width: 448px;
+  height: 299px;
+}
 .img-box img {
   width: 100%;
+  height: 100%;
+  object-fit: cover; 
+  object-position: center;
+
 }
 
 // .GuideTitle {
