@@ -1,6 +1,6 @@
 // Giant 大標題 (僅桌機版)
 @mixin font-giant {
-  @media (min-width: 768px) {
+  @media (min-width: 1200px) {
     font-size: $d-size-giant;
     line-height: 1.3;
     font-weight: 700;
@@ -15,7 +15,7 @@
   font-weight: 700;
   letter-spacing: 2px;
 
-  @media (min-width: 768px) {
+  @media (min-width: 1200px) {
     font-size: $d-size-primary;
     line-height: 1.2;
     letter-spacing: 3px;
@@ -29,20 +29,36 @@
   font-weight: 700;
   letter-spacing: 1px;
 
-  @media (min-width: 768px) {
+  @media (min-width: 1200px) {
     font-size: $d-size-secondary;
     line-height: 1.3;
     letter-spacing: 2px;
   }
 }
 
+// Secondary medium (500) 次要標題
+// (用在未hover的字體,只有font-weight不一樣)
+@mixin font-secondary-md {
+  font-size: $m-size-secondary;
+  line-height: 1.4;
+  font-weight: 500;
+  letter-spacing: 1px;
+
+  @media (min-width: 1200px) {
+    font-size: $d-size-secondary;
+    line-height: 1.3;
+    letter-spacing: 2px;
+  }
+}
+
+// Tertiary 三級標題 (小標題)
 // Tertiary 三級標題 (小標題)-桌機24px手機20px
 @mixin font-tertiary {
   font-size: $m-size-tertiary;
   line-height: 1.4;
   font-weight: 600;
 
-  @media (min-width: 768px) {
+  @media (min-width: 1200px) {
     line-height: 1.3;
     font-size: $d-size-tertiary;
     letter-spacing: 1.5px;
@@ -96,7 +112,7 @@
   font-weight: 400;
   letter-spacing: 0.5px;
 
-  @media (min-width: 768px) {
+  @media (min-width: 1200px) {
     font-size: $d-size-caption;
   }
 }
@@ -108,7 +124,7 @@
   font-weight: 500;
   letter-spacing: 0.5px;
 
-  @media (min-width: 768px) {
+  @media (min-width: 1200px) {
     font-size: $d-size-tertiary;
     line-height: 1.3;
     font-weight: 600;

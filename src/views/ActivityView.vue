@@ -1,35 +1,25 @@
 <script setup>
-  //列表
-import { computed, ref, onMounted } from 'vue'
-import axios from 'axios'
-//定義資料
-const productList = ref([])
-//頁面渲染完抓資料
-  onMounted(() => {
-  // debugger
-  axios
-    .get('https://fakestoreapi.com/products')
-    .then((response) => {
-      // handle success
-      productList.value = response.data
-    })
-    
-})
-
+import ActivityCard from '@/components/cards/ActivityCard.vue';
+import NewsCard from '@/components/cards/NewsCard.vue';
+import TeamMemberCard from '@/components/cards/TeamMemberCard.vue';
+import RescueCard from '@/components/cards/RescueCard.vue';
 </script>
 <template>
-  <!-- <h1>志工活動</h1> -->
-  <main>
-    <RouterLink 
-    v-for="item in productList" :key="item.id" :to="`/activity/${item.id}`">
-      {{ item.id }}
-      {{ item.title }}
-    </RouterLink>
-  </main>
-  
+  <h1>志工活動</h1>
+  <div class="container">
+    <div class="row">
+      <RescueCard></RescueCard>
+      <RescueCard></RescueCard>
+      <ActivityCard></ActivityCard>
+      <ActivityCard></ActivityCard>
+      
+      <TeamMemberCard></TeamMemberCard>
+      
+      <NewsCard></NewsCard>
+      <NewsCard></NewsCard>
+      <NewsCard></NewsCard>
+      <ActivityCard></ActivityCard>
+      <ActivityCard></ActivityCard>
+    </div>
+  </div>
 </template>
-<style scoped>
-  a {
-    display: block;
-  }
-</style>

@@ -1,40 +1,82 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed } from 'vue'
 
 const allTurtles = [
-  { id: 1, nameCN: '綠蠵龜', nameEN: 'Green Turtle', type: 'taiwan', img: '/src/assets/image/GuideView/GreenTurtle.png' },
-  { id: 2, nameCN: '玳瑁', nameEN: 'Hawksbill Turtle', type: 'taiwan', img: '/src/assets/image/GuideView/HawksbillTurtle.png' },
-  { id: 3, nameCN: '赤蠵龜', nameEN: 'Loggerhead Turtle', type: 'taiwan', img: '/src/assets/image/GuideView/LoggerheadTurtle.png' },
-  { id: 4, nameCN: '革龜', nameEN: 'Leatherback Turtle', type: 'taiwan', img: '/src/assets/image/GuideView/LeatherbackTurtle.png' },
-  { id: 5, nameCN: '欖蠵龜', nameEN: 'Olive Ridley Turtle', type: 'taiwan', img: '/src/assets/image/GuideView/OliveRidleyTurtle.png' },
-  { id: 6, nameCN: '肯氏龜', nameEN: "Kemp's Ridley Turtle", type: 'remote', img: '/src/assets/image/GuideView/LeatherbackTurtle.png' },
-  { id: 7, nameCN: '平背龜', nameEN: 'Flatback Turtle', type: 'remote', img: '/src/assets/image/GuideView/LeatherbackTurtle.png' },
-];
-
+  {
+    id: 1,
+    nameCN: '綠蠵龜',
+    nameEN: 'Green Turtle',
+    type: 'taiwan',
+    img: '/src/assets/image/GuideView/GreenTurtle.png',
+  },
+  {
+    id: 2,
+    nameCN: '玳瑁',
+    nameEN: 'Hawksbill Turtle',
+    type: 'taiwan',
+    img: '/src/assets/image/GuideView/HawksbillTurtle.png',
+  },
+  {
+    id: 3,
+    nameCN: '赤蠵龜',
+    nameEN: 'Loggerhead Turtle',
+    type: 'taiwan',
+    img: '/src/assets/image/GuideView/LoggerheadTurtle.png',
+  },
+  {
+    id: 4,
+    nameCN: '革龜',
+    nameEN: 'Leatherback Turtle',
+    type: 'taiwan',
+    img: '/src/assets/image/GuideView/LeatherbackTurtle.png',
+  },
+  {
+    id: 5,
+    nameCN: '欖蠵龜',
+    nameEN: 'Olive Ridley Turtle',
+    type: 'taiwan',
+    img: '/src/assets/image/GuideView/OliveRidleyTurtle.png',
+  },
+  {
+    id: 6,
+    nameCN: '肯氏龜',
+    nameEN: "Kemp's Ridley Turtle",
+    type: 'remote',
+    img: '/src/assets/image/GuideView/LeatherbackTurtle.png',
+  },
+  {
+    id: 7,
+    nameCN: '平背龜',
+    nameEN: 'Flatback Turtle',
+    type: 'remote',
+    img: '/src/assets/image/GuideView/LeatherbackTurtle.png',
+  },
+]
 
 const turtleSections = computed(() => {
   return [
     {
       id: 'section-tw',
       title: '在台灣，我們有機會遇見這 5 位朋友',
-      list: allTurtles.filter(t => t.type === 'taiwan')
+      list: allTurtles.filter((t) => t.type === 'taiwan'),
     },
     {
       id: 'section-remote',
       title: '還有 2 位夥伴，生活在遙遠的彼端',
-      list: allTurtles.filter(t => t.type === 'remote')
-    }
-  ];
-});
-
+      list: allTurtles.filter((t) => t.type === 'remote'),
+    },
+  ]
+})
 </script>
 
 <template>
   <div class="turtleBanner">
     <div class="turtleBannerInfo">
       <h1 class="">你所不知道的海龜</h1>
-      <p>海龜演化足跡可追溯至一億多年前的恐龍時代，是見證地球歷史的「活化石」。然而，全世界目前僅存7種海龜，如今卻全數因棲地喪失、海洋汙染及氣候變遷等衝擊，被 IUCN
-        紅色名錄列為瀕危或易危物種。這些古老的海洋旅人，正處於前所未有的生存危機之中。</p>
+      <p>
+        海龜演化足跡可追溯至一億多年前的恐龍時代，是見證地球歷史的「活化石」。然而，全世界目前僅存7種海龜，如今卻全數因棲地喪失、海洋汙染及氣候變遷等衝擊，被
+        IUCN 紅色名錄列為瀕危或易危物種。這些古老的海洋旅人，正處於前所未有的生存危機之中。
+      </p>
     </div>
   </div>
 
@@ -50,7 +92,7 @@ const turtleSections = computed(() => {
         <div class="turtle-grid">
           <div v-for="turtle in section.list" :key="turtle.id" class="turtle-card">
             <div class="img-box">
-              <img :src="turtle.img" alt="">
+              <img :src="turtle.img" alt="" />
             </div>
             <div class="info">
               <h4>{{ turtle.nameCN }}</h4>
@@ -59,12 +101,8 @@ const turtleSections = computed(() => {
           </div>
         </div>
       </section>
-
     </div>
   </section>
-
-
-
 </template>
 
 <style lang="scss" scoped>
@@ -96,7 +134,7 @@ const turtleSections = computed(() => {
   @include font-body-l ;
   //text-align: justify;
   width: 100%;
-  max-width: 392px
+  max-width: 392px;
 }
 
 .GuideTitle h2 {
@@ -125,7 +163,6 @@ const turtleSections = computed(() => {
   font-weight: bold;
 }
 
-
 .turtle-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -142,7 +179,6 @@ const turtleSections = computed(() => {
   width: 448px;
   gap: 24px;
 }
-
 
 @media (max-width: 768px) {
   .turtle-grid {
