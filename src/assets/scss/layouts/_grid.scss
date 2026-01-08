@@ -42,16 +42,13 @@
     padding-left: ($desktop-gutter / 2);
   }
 }
-
-// 桌機版 col-lg-4
-@for $i from 1 through 12 {
-  .col-lg-#{$i} {
-    @media (min-width: 1024px) {
-      flex: 0 0 calc(100% / 12 * #{$i});
-      max-width: calc(100% / 12 * #{$i});
+// 手機版 4 欄系統 col-sm-4
+@for $i from 1 through 4 {
+  .col-sm-#{$i} {
+      flex: 0 0 calc(100% / 4 * #{$i});
+      max-width: calc(100% / 4 * #{$i});
     }
   }
-}
 
 // 平板/中螢幕用 col-md-6
 @for $i from 1 through 12 {
@@ -63,10 +60,13 @@
   }
 }
 
-// 手機版 4 欄系統 col-sm-4
-@for $i from 1 through 4 {
-  .col-sm-#{$i} {
-      flex: 0 0 calc(100% / 4 * #{$i});
-      max-width: calc(100% / 4 * #{$i});
+// 桌機版 col-lg-4
+@for $i from 1 through 12 {
+  .col-lg-#{$i} {
+    @media (min-width: 1024px) {
+      flex: 0 0 calc(100% / 12 * #{$i});
+      max-width: calc(100% / 12 * #{$i});
     }
   }
+}
+
