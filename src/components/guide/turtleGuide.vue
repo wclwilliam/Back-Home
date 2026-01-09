@@ -1,57 +1,6 @@
 <script setup>
 import { ref, computed } from 'vue'
-
-const allTurtles = [
-    {
-        id: 1,
-        nameCN: '綠蠵龜',
-        nameEN: 'Green Turtle',
-        type: 'taiwan',
-        img: '/src/assets/image/GuideView/GreenTurtle.png',
-    },
-    {
-        id: 2,
-        nameCN: '玳瑁',
-        nameEN: 'Hawksbill Turtle',
-        type: 'taiwan',
-        img: '/src/assets/image/GuideView/HawksbillTurtle.png',
-    },
-    {
-        id: 3,
-        nameCN: '赤蠵龜',
-        nameEN: 'Loggerhead Turtle',
-        type: 'taiwan',
-        img: '/src/assets/image/GuideView/LoggerheadTurtle.png',
-    },
-    {
-        id: 4,
-        nameCN: '革龜',
-        nameEN: 'Leatherback Turtle',
-        type: 'taiwan',
-        img: '/src/assets/image/GuideView/LeatherbackTurtle.png',
-    },
-    {
-        id: 5,
-        nameCN: '欖蠵龜',
-        nameEN: 'Olive Ridley Turtle',
-        type: 'taiwan',
-        img: '/src/assets/image/GuideView/OliveRidleyTurtle.png',
-    },
-    {
-        id: 6,
-        nameCN: '肯氏龜',
-        nameEN: "Kemp's Ridley Turtle",
-        type: 'remote',
-        img: '/src/assets/image/GuideView/LeatherbackTurtle.png',
-    },
-    {
-        id: 7,
-        nameCN: '平背龜',
-        nameEN: 'Flatback Turtle',
-        type: 'remote',
-        img: '/src/assets/image/GuideView/LeatherbackTurtle.png',
-    },
-]
+import { allTurtles } from '@/components/guide/turtleData'
 
 const turtleSections = computed(() => {
     return [
@@ -82,26 +31,26 @@ const turtleSections = computed(() => {
 
     <section class="GuideTitle">
         <h2>海龜圖鑑</h2>
-
         <div class="container">
             <section v-for="section in turtleSections" :key="section.id" class="group-section">
                 <h3 class="sub-title">{{ section.title }}</h3>
-
                 <div class="row">
-                    <div v-for="turtle in section.list" :key="turtle.id" class="col-sm-4 col-md-6 col-lg-4"
-                        style="margin-bottom: 48px;">
-                        <div class="turtle-card">
-                            <div class="img-box">
-                                <img :src="turtle.img" :alt="turtle.nameCN" />
+                    <div v-for="turtle in section.list" :key="turtle.id" class="col-sm-4 col-md-6 col-lg-4" style="margin-bottom: 48px;">
+                        
+                        <router-link :to="`/guide/${turtle.id}`" class="turtle-card-link">
+                            <div class="turtle-card">
+                                <div class="img-box">
+                                    <img :src="turtle.img" :alt="turtle.nameCN" />
+                                </div>
+                                <div class="info">
+                                    <h4>{{ turtle.nameCN }}</h4>
+                                    <p>{{ turtle.nameEN }}</p>
+                                </div>
                             </div>
-                            <div class="info">
-                                <h4>{{ turtle.nameCN }}</h4>
-                                <p>{{ turtle.nameEN }}</p>
-                            </div>
-                        </div>
+                        </router-link>
+
                     </div>
                 </div>
-
             </section>
         </div>
     </section>
@@ -170,6 +119,7 @@ const turtleSections = computed(() => {
     text-align: center;
     width: 100%;
     gap: 24px;
+    cursor: pointer;
 }
 
 .img-box {
