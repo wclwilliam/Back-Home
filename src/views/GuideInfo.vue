@@ -7,10 +7,8 @@ import { allTurtles } from '@/components/guide/turtleData'
 const route = useRoute()
 const router = useRouter()
 
-// 1. 抓取網址上的 ID (例如 guide/1 的 "1")
 const turtleId = parseInt(route.params.id)
 
-// 2. 從資料庫陣列中，找到 id 符合的那一隻海龜
 const turtleInfo = computed(() => {
     return allTurtles.find(t => t.id === turtleId)
 })
