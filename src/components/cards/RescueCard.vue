@@ -1,22 +1,60 @@
 <script setup>
 //列表
-import { computed, ref, onMounted } from 'vue'
+import { computed } from 'vue'
 // 定義外部傳入的資料
+const props = defineProps({
+  id: { type: Number, required: true },//海龜編號
+  image: {type: String , default: 'https://picsum.photos/300/200'},
+  name: { type: String, required: true },// 名字 (阿福)
+  species: { type: String, required: true },//品種(綠蠵龜)
+  description: { type: String, required: true },
+  stage: { type: Number, default: 1 }//階段：1~5
+})
+//計算百分比 (每個階段 20%)
+const progressPercent = computed(() =>{
+  let safeStage = props.stage;
+  if(safeStage < 1) safeStage = 1;
+  if(safeStage > 5) safeStage = 5;
+
+  return safeStage * 20; 
+})
+
+//進度條%
+const progressWidth = computed (() => {
+  return { width: `${progressPercent.value}%`};
+})
+//進度條位置
+const pointStyle = computed(() => {
+  return { left: `${progressPercent.value - 2}%` };
+})
+//進度條文字
+const progressText = computed (() => {
+  let s = props.stage;
+  if (s === 1) return '階段一'
+  if (s === 2) return '階段二'
+  if (s === 3) return '階段三'
+  if (s === 4) return '準備野放'
+  if (s >= 4) return '野放完成'
+  return '階段一'
+})
+
+
+
 </script>
 <template>
-  <div class="col-4 col-md-6 col-lg-4">
+  <div class="col-sm-4 col-md-6 col-lg-4">
     <div class="cardContainer rescueCard">
       <div class="cardPic">
-        <img src="https://picsum.photos/300/200/?random=10">
+        <img :src="image" :alt="name">
       </div>
   
       <div class="cardInfo">
         <div class="cardTitle">
-          <p>阿福 (綠蠵龜)</p>
+          <p>{{name}}({{species}})</p>
         </div>
         <div class="divider"></div>
-        <div class="rowInfo txt">
-          <p>2025年10月發現於澎湖龍門沙灘，遭廢棄漁網纏繞導致左前肢壞死。阿福剛來時極度虛弱，經過截肢手術後，目前正在練習用三隻鰭狀肢游泳，每天的餐費與藥費是牠最大的支柱。</p>
+        <div class="rowInfo description">
+          <p>{{ description }}</p>
         </div>
         <div class="subTitle">
           <p>回到大海之路</p>
@@ -28,12 +66,12 @@ import { computed, ref, onMounted } from 'vue'
           <div class="progress-track-container">
             <div class="track-bg"></div>
   
-            <div class="track-fill" :style="progressStyle"></div>
+            <div class="track-fill" :style="progressWidth"></div>
   
-            <div class="current-point" :style="pointStyle">
+            <div class="current-point" :style="pointStyle" >
               <div class="dot"></div>
               <div class="line"></div>
-              <div class="status-tag">準備野放</div>
+              <div class="status-tag">{{progressText}}</div>
             </div>
           </div>
         </div>
@@ -62,18 +100,18 @@ import { computed, ref, onMounted } from 'vue'
   }
 }
 .progress-track-container {
-
       // 3. 定位點 (跟隨進度)
       .current-point {
         position: absolute;
         top: 50%;
-        left: 58%;
-        transform: translate(-50%, -10%); // 讓點置中於百分比位置
-
+        // left 由 Vue style 控制
+        transform: translate(-50%); 
+        margin-top: -6px;
+        transition: left 0.5s ease;
         display: flex;
         flex-direction: column;
         align-items: center;
-
+        z-index: 5;
         // 圓點
         .dot {
           width: 12px;

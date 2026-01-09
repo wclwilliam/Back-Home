@@ -30,12 +30,14 @@ const btnTxt = computed(() => {
 const progressStyle = computed (() => {
   if(props.maxPeople === 0) return {width: '0%'}
   const percent = (props.currentPeople / props.maxPeople) * 100
-  return {width : `${percent}`}
-})
+  return {width : `${percent}%`}
+});
+
+
 
 </script>
 <template>
-  <div class="col-4 col-md-6 col-lg-4">
+  <div class="col-sm-4 col-md-6 col-lg-4">
     <div class="cardContainer activityCard">
       <div class="cardPic">
         <img :src="image" :alt="title">
@@ -77,7 +79,7 @@ const progressStyle = computed (() => {
           </span>
           <div class="progress-track-container">
             <div class="track-bg"></div>
-            <div v-if="isFulled" class="track-fill" :style="progressStyle"></div>
+            <div  class="track-fill" :style="progressStyle"></div>
           </div>
           <div>{{currentPeople}}/{{ maxPeople }}</div>
         </div>
@@ -96,8 +98,7 @@ const progressStyle = computed (() => {
 <style lang="scss" scoped>
 @import "@/assets/scss/component/_card.scss";
 
-.activityCard {
-  .cardPic {
+.cardPic {
     .status-badge {
       position: absolute;
       top: 16px;
@@ -124,7 +125,7 @@ const progressStyle = computed (() => {
 
   .cardInfo {
     .bookmark {
-      font-size: 40px
+      font-size: 24px
     }
 
     .rowInfo {
@@ -141,7 +142,6 @@ const progressStyle = computed (() => {
     .signUpNum {
       margin-bottom: 0;
     }
-  }
 
   .btn {
     width: 100%;
@@ -164,5 +164,13 @@ const progressStyle = computed (() => {
       background-color: $secondary-color;
       color: $text-white;
     }
-}
+  }
+
+  @media (min-width: 768px) {
+    .cardInfo {
+      .bookmark {
+        font-size: 40px
+      }
+    }
+  }
 </style>
