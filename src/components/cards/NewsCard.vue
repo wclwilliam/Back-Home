@@ -1,22 +1,28 @@
 <script setup>
 //列表
 import { computed, ref, onMounted } from 'vue'
-// 定義外部傳入的資料
+const props = defineProps({
+  id: { type: Number, required: true },
+  image: {type: String , default: 'https://picsum.photos/300/200'},
+  title: { type: String, required: true },
+  typeBadge: { type: String, required: true },
+  date: { type: String, required: true }
+});
+
 </script>
 <template>
-  <div class="col-4 col-md-6 col-lg-4">
+  <div class="col-sm-4 col-md-6 col-lg-4">
     <div class="cardContainer newsCard">
       <div class="cardPic">
-        <img src="https://picsum.photos/300/200/?random=10">
+        <img :src="image">
       </div>
       <div class="cardInfo">
         <div class="rowInfo metaRow">
-          <div class="openDate">2025.12.31</div>
-          <div class="typeBadge">異動通知
-          </div>
+          <div class="openDate">{{date}}</div>
+          <div class="typeBadge">{{typeBadge}}</div>
         </div>
         <div class="cardTitle">
-          守護海洋安全第一：【龜途】2025 綠蠵龜棲地守護淨灘活動延期通知延期通知延
+          {{ title }}
         </div>
   
       </div>
@@ -66,8 +72,7 @@ import { computed, ref, onMounted } from 'vue'
     bottom: 0;
     right: 0;
     width: 12%;
-    height: 12%;
-    aspect-ratio: 1; // 保持方形比例
+    aspect-ratio:0;// 保持方形比例
     display: flex;
     align-items: center;
     justify-content: flex-start; // 靠右對齊
