@@ -53,10 +53,10 @@
 
   }
   .divider {
-      width: 120%;
+      width: calc(100% + 48px);
       height: 1px;
       background-color: $page-number-color;
-      margin: 16px -24px; // 統一間距
+      margin: 16px -24px; 
     }
   .progress-track-container {
         align-items: center;
