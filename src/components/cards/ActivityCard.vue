@@ -3,80 +3,58 @@
 import { computed, ref, onMounted } from 'vue'
 // 定義外部傳入的資料
 const props = defineProps({
-  id: { type: Number, require: true },//活動編號
-  // image: {type: String , default: '/images/default-event.jpg'},
-  title: { type: String, require: true },
+  id: { type: Number, required: true },//活動編號
+  image: {type: String , default: 'https://picsum.photos/300/200'},
+  title: { type: String, required: true },
   status: { type: String, default: 'open' },// 活動的狀態
-  type: { type: String, require: true },//活動類別
-  date: { type: String, require: true },
-  location: { type: String, require: true },
-  progress: { type: String, default: null }//已結束就沒有進度條了
+  type: { type: String, required: true },//活動類別
+  date: { type: String, required: true },
+  location: { type: String, required: true },
+  currentPeople: { type: Number, default: 0 }, 
+  maxPeople: { type: Number, required: true }
 })
 // 活動是否已結束
 const isEnded = computed(() => props.status === 'ended')
+//活動報名是否額滿
+const isFulled = computed(() => {
+  if(!props.maxPeople) return false
+  return props.currentPeople >= props.maxPeople
+})
+// 按鈕顯示文字隨狀態改變
+const btnTxt = computed(() => {
+  if(isEnded.value )return '查看詳情'
+  if(isFulled.value)return '已額滿'
+  return'立即報名' });
 
-// const btnTxt = computed(() => 
-//   if(isEnded.value) return '活動詳情';
-//   // if(){
+// 進度條寬度
+const progressStyle = computed (() => {
+  if(props.maxPeople === 0) return {width: '0%'}
+  const percent = (props.currentPeople / props.maxPeople) * 100
+  return {width : `${percent}%`}
+});
 
-//   // }
-// )
+
 
 </script>
 <template>
-  <!-- <div class="card-container">
-              <div class="card-pic">
-                <img :src="img" :alt="title"/>
-                <div class="status-badge" :class="currentStatus.class">
-                  <i class="fa-solid fa-tag"></i>
-                  {{status}}
-                </div>
-                <div v-if="type" class="type-badge">
-                  <i class="fa-solid fa-tag"></i>
-                  {{type}}
-                </div>
-              </div>
-          
-              <div class="card-info">
-                <div class="card-title">
-                  <span>{{title}}</span>
-                  <i class="bookmark-icon material-symbols-outlined">
-                  </i>
-                </div>
-                <div class="divider"></div>
-                <div class="rowInfo dateTime">
-                  <i class="fa-solid fa-tag"></i>
-                  <h4>{{date}}</h4>
-                </div>
-                <div class="rowInfo location">
-                  <i class="fa-solid fa-tag"></i>
-                  <h4>{{location}}</h4>
-                </div>
-                <div class="rowInfo signUpNum">
-                  <i class="fa-solid fa-tag"></i>
-                  <div>{{progress}}</div>
-                  <div>20/40</div>
-                </div>
-              </div>
-            </div> -->
-  <div class="col-4 col-md-6 col-lg-4">
+  <div class="col-sm-4 col-md-6 col-lg-4">
     <div class="cardContainer activityCard">
       <div class="cardPic">
-        <img src="https://picsum.photos/300/200/?random=10">
-        <div class="statusBadge -on">
+        <img :src="image" :alt="title">
+        <div v-if="isEnded" class="statusBadge ">
           已結束
         </div>
         <div class="typeBadge">
           <span class="material-symbols-outlined">
             sell
           </span>
-          淨灘
+          {{type}}
         </div>
       </div>
   
       <div class="cardInfo">
         <div class="cardTitle">
-          <span>漁網纏繞下的倖存者：截肢海龜的特殊照護需求認識</span>
+          <p>{{ title }}</p>
           <span class="material-symbols-outlined bookmark">
             bookmark_add
           </span>
@@ -86,29 +64,29 @@ const isEnded = computed(() => props.status === 'ended')
           <span class="material-symbols-outlined calendar">
             calendar_today
           </span>
-          <h4>2026/01/04(日) 14:00-15:00</h4>
+          <h3>{{ date }}</h3>
         </div>
         <div class="rowInfo location">
   
           <span class="material-symbols-outlined location">
             location_on
           </span>
-          <h4>新北萬里翡翠灣</h4>
+          <h3>{{ location }}</h3>
         </div>
-        <div class="rowInfo signUpNum">
+        <div v-if="!isEnded" class="rowInfo signUpNum">
           <span class="material-symbols-outlined group">
             group_add
           </span>
           <div class="progress-track-container">
             <div class="track-bg"></div>
-            <div class="track-fill" :style="progressStyle"></div>
+            <div  class="track-fill" :style="progressStyle"></div>
           </div>
-          <div>20/40</div>
+          <div>{{currentPeople}}/{{ maxPeople }}</div>
         </div>
   
       </div>
     <button class="btn  btn-outline btn-solid">
-      立即報名
+      {{btnTxt}}
       <span class="material-symbols-outlined arrow">
         arrow_forward
       </span>
@@ -120,8 +98,7 @@ const isEnded = computed(() => props.status === 'ended')
 <style lang="scss" scoped>
 @import "@/assets/scss/component/_card.scss";
 
-.activityCard {
-  .cardPic {
+.cardPic {
     .status-badge {
       position: absolute;
       top: 16px;
@@ -148,14 +125,7 @@ const isEnded = computed(() => props.status === 'ended')
 
   .cardInfo {
     .bookmark {
-      font-size: 40px
-    }
-
-    .divider {
-      width: 120%;
-      height: 1px;
-      background-color: $page-number-color;
-      margin: 16px -24px;
+      font-size: 24px
     }
 
     .rowInfo {
@@ -172,7 +142,6 @@ const isEnded = computed(() => props.status === 'ended')
     .signUpNum {
       margin-bottom: 0;
     }
-  }
 
   .btn {
     width: 100%;
@@ -195,6 +164,13 @@ const isEnded = computed(() => props.status === 'ended')
       background-color: $secondary-color;
       color: $text-white;
     }
-  
-}
+  }
+
+  @media (min-width: 768px) {
+    .cardInfo {
+      .bookmark {
+        font-size: 40px
+      }
+    }
+  }
 </style>

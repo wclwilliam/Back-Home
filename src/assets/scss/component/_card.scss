@@ -45,7 +45,7 @@
       color: $text-color;
       margin-bottom: 8px;
 
-      &.txt {
+      &.description {
         @include font-body;
         line-height: 1.5;
       }
@@ -53,10 +53,10 @@
 
   }
   .divider {
-      width: 120%;
+      width: calc(100% + 48px);
       height: 1px;
       background-color: $page-number-color;
-      margin: 16px -24px; // 統一間距
+      margin: 16px -24px; 
     }
   .progress-track-container {
         align-items: center;
@@ -81,7 +81,7 @@
           height: 100%;
           background-color: $primary-color;
           border-radius: 20px;
-          width: 60%;
+          // width: 60%;
         }
       }
 
