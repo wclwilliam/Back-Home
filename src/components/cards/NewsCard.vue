@@ -66,8 +66,7 @@ import { computed, ref, onMounted } from 'vue'
     bottom: 0;
     right: 0;
     width: 12%;
-    height: 12%;
-    aspect-ratio: 1; // 保持方形比例
+    aspect-ratio:0;// 保持方形比例
     display: flex;
     align-items: center;
     justify-content: flex-start; // 靠右對齊
