@@ -1,10 +1,11 @@
 .headerLogo {
     width: fit-content;
-}
+    cursor: pointer;
 
-.headerLogo img {
-    height: 80px;
-    display: block;
+    img {
+        height: 80px;
+        display: block;
+    }
 }
 
 header {
@@ -22,22 +23,60 @@ header {
             display: flex;
             align-items: center;
 
-            .navHeader ul {
-                color: $text-white;
-                font-size: $size-body;
-                display: flex;
-                align-items: center;
-                padding: 0 54px;
-                gap: 54px;
+            .navHeader {
+
+                ul {
+                    display: flex;
+                    align-items: center;
+                    padding: 0 54px;
+                    gap: 54px;
+                    color: $text-white;
+                }
+
+                // === 手機版樣式 (當螢幕小於 768px) ===
+                @media (max-width: 768px) {
+                    // 1. 先把它變成全螢幕的蓋版或側邊欄
+                    position: fixed; // 固定在視窗上
+                    top: 0;
+                    right: -100%; // 預設藏在右邊螢幕外面 (隱藏狀態)
+                    width: 100%; // 或是 80%，看設計
+                    height: 100vh; // 佔滿全高
+                    background-color: rgba(0, 0, 0, 0.95); // 深色背景
+                    z-index: 100; // 確保蓋在最上面
+                    transition: right 0.3s ease; // 加上滑入動畫
+
+                    // 2. 調整內部排版
+                    display: flex;
+                    justify-content: center; // 水平置中
+                    align-items: center; // 垂直置中
+
+                    ul {
+                        flex-direction: column; // 改成直向排列
+                        gap: 30px; // 加大間距
+                        padding: 0;
+                        font-size: 24px; // 手機版字體加大
+                    }
+
+                    // 3. 當 Vue 加上 .show-menu class 時的狀態
+                    &.show-menu {
+                        right: 0; // 滑入畫面 (顯示狀態)
+                    }
+                }
             }
+        }
+    }
+
+    .hamburger {
+        display: none; // 電腦版隱藏
+        cursor: pointer;
+        z-index: 101; // 為了確保漢堡按鈕在選單之上 (如果要讓漢堡變成關閉鈕的話)
+
+        @media (max-width: 768px) {
+            display: block; // 手機版顯示
         }
     }
 }
 
-.hamburger {
-    display: none;
-}
-
-.hamburger.-on {
-    display: block;
+.icon-white {
+    @include icon-style($color: $text-white);
 }
