@@ -35,8 +35,19 @@ console.log(imgURL.value);
                 width: 100%;
                 height: 400px;
                 background-position-x: center;
+                
+                display: flex;
+                justify-content: center;
+                align-items: center;
                 h1 {
-                        text-align: center;
+                        font-size: $d-size-primary;
+                        color: $primary-color;
                 }
+        } 
+        @media (min-width: 1920px) {
+          .banner {
+            background-size: 100% 400px;
+            background-repeat: no-repeat;
+            }
         }
 </style>
