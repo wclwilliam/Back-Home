@@ -102,7 +102,6 @@ const goBack = () => {
     display: flex;
     justify-content: start;
     // margin-bottom: 50px;
-    // /* 稍微跟下面的氣泡重疊一點更有設計感 */
     position: relative;
     z-index: 1;
 }
@@ -140,11 +139,8 @@ const goBack = () => {
 
 .bubble {
     background: rgba(255, 255, 255, 0.2);
-    /* 半透明背景 */
     backdrop-filter: blur(5px);
-    /* 毛玻璃效果 */
     border-radius: 50%;
-    /* 圓形 */
     width: 300px;
     height: 300px;
     padding: 40px;
@@ -173,14 +169,4 @@ const goBack = () => {
     min-height: 200px;
 }
 
-.back-btn {
-    // position: absolute;
-    // top: 30px;
-    // left: 30px;
-    padding: 10px 20px;
-    background: transparent;
-    border: 1px solid white;
-    color: white;
-    cursor: pointer;
-}
 </style>
