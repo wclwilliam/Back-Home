@@ -62,8 +62,6 @@ import CircleeeeeeeeeeWilliam from '@/components/CircleeeeeeeeeeWilliam.vue'
   <p>商品總數：{{ listCount }}</p>
 
   <!-- <div class="color"></div> -->
-
-  <CircleeeeeeeeeeWilliam></CircleeeeeeeeeeWilliam>
 </template>
 <style scoped>
 /* .color {
