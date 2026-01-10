@@ -18,7 +18,7 @@ const menuItems = [
   { text: '支持保育', path: '/donation' },
 ]
 
-//漢堡開啟
+//漢堡選單
 const isMenuOpen = ref(false)
 const toggleMenu = () => {
   isMenuOpen.value = !isMenuOpen.value
@@ -32,7 +32,7 @@ const toggleMenu = () => {
         <img src="/BackHomeLogo.png" alt="Logo" />
       </div>
       <div class="functionWrapper">
-        <nav class="navHeader" :class="{ 'show-menu': isMenuOpen }">
+        <nav class="navHeader" :class="{ showMenu: isMenuOpen }">
           <ul>
             <li v-for="item in menuItems" :key="item.path" @click="isMenuOpen = false">
               <RouterLink :to="item.path">{{ item.text }}</RouterLink>
@@ -42,8 +42,10 @@ const toggleMenu = () => {
         <RouterLink to="/member"
           ><span class="material-symbols-outlined icon-white"> account_circle </span></RouterLink
         >
-        <div class="hamburger" @click="toggleMenu">
-          <span class="material-symbols-outlined icon-white">menu</span>
+        <div class="hamburger" :class="{ isActive: isMenuOpen }" @click="toggleMenu">
+          <span class="material-symbols-outlined icon-white">{{
+            isMenuOpen ? 'close' : 'menu'
+          }}</span>
         </div>
       </div>
     </div>
