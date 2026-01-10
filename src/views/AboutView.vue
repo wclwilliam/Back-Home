@@ -30,8 +30,6 @@ const search = () => {
 const listCount = computed(() => {
   return resultList.value.length
 })
-
-import CircleeeeeeeeeeWilliam from '@/components/CircleeeeeeeeeeWilliam.vue'
 </script>
 <template>
   <div class="container">
