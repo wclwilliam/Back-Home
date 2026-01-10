@@ -3,6 +3,8 @@
 import { ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { allTurtles } from '@/components/guide/turtleData'
+import { Swiper, SwiperSlide } from 'swiper/vue';
+import 'swiper/css';
 
 const route = useRoute()
 const router = useRouter()
@@ -20,41 +22,48 @@ const goBack = () => {
 </script>
 
 <template>
+    <h1>swiper測試</h1>
+    <Swiper :slides-per-view="1" :space-between="50">
+        <SwiperSlide>Slide 1</SwiperSlide>
+        <SwiperSlide>Slide 2</SwiperSlide>
+        <SwiperSlide>Slide 3</SwiperSlide>
+    </Swiper>
+
     <div v-if="!turtleInfo" class="error">找不到資料</div>
 
     <div v-else class="detail-page ">
-            <div class="container">
-        <button class="btn btn-outline-white" @click="goBack">回列表</button>
+        <div class="container">
+            <button class="btn btn-outline-white" @click="goBack">回列表</button>
 
-        <div class="detailTitle">
-            <h1>{{ turtleInfo.nameCN }} <span class="en-name">{{ turtleInfo.nameEN }}</span></h1>
-        </div>
-
-        <div class=" detailImage-container">
-            <img :src="turtleInfo.detailImage" :alt="turtleInfo.nameCN" class="main-turtle-img" />
-        </div>
-
-        <main class="bubbles-container">
-            <div class="bubble profile">
-                <h3>物種檔案</h3>
-                <p>{{ turtleInfo.profile }}</p>
+            <div class="detailTitle">
+                <h1>{{ turtleInfo.nameCN }} <span class="en-name">{{ turtleInfo.nameEN }}</span></h1>
             </div>
 
-            <div class="bubble habit">
-                <h3>生活習性</h3>
-                <p>{{ turtleInfo.habit }}</p>
+            <div class=" detailImage-container">
+                <img :src="turtleInfo.detailImage" :alt="turtleInfo.nameCN" class="main-turtle-img" />
             </div>
 
-            <div class="bubble feature">
-                <h3>辨識重點</h3>
-                <p>{{ turtleInfo.feature }}</p>
-            </div>
+            <main class="bubbles-container">
+                <div class="bubble profile">
+                    <h3>物種檔案</h3>
+                    <p>{{ turtleInfo.profile }}</p>
+                </div>
 
-            <div class="bubble status box-shape">
-                <h3>保育現況</h3>
-                <p>{{ turtleInfo.status }}</p>
-            </div>
-        </main>
+                <div class="bubble habit">
+                    <h3>生活習性</h3>
+                    <p>{{ turtleInfo.habit }}</p>
+                </div>
+
+                <div class="bubble feature">
+                    <h3>辨識重點</h3>
+                    <p>{{ turtleInfo.feature }}</p>
+                </div>
+
+                <div class="bubble status box-shape">
+                    <h3>保育現況</h3>
+                    <p>{{ turtleInfo.status }}</p>
+                </div>
+            </main>
         </div>
     </div>
 </template>
@@ -78,7 +87,7 @@ const goBack = () => {
     min-height: 100vh;
     background-size: cover;
     background-position: center;
-    background-image: url('../assets/image/GuideView/DetailBg.jpg');
+    background-image: url('../../public/img/GuideView/DetailBg.jpg');
     position: relative;
     color: white;
     padding: 50px;
@@ -168,5 +177,4 @@ const goBack = () => {
     height: auto;
     min-height: 200px;
 }
-
 </style>

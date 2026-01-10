@@ -4,83 +4,109 @@ export const allTurtles = [
     nameCN: '綠蠵龜',
     nameEN: 'Green Turtle',
     type: 'taiwan',
-    img: '/src/assets/image/GuideView/GreenTurtle.png', 
-    detailImage: '/src/assets/image/GuideView/d-GreenTurtle.png', 
-    profile: '台灣是綠蠵龜重要的棲息地之一，主食為海草和大型藻類。是硬殼海龜中體型最大的一種，成龜體長可達 1 公尺以上，體重可超過 100 公斤。',
-    habit: '小時候是雜食性，長大後轉為專吃海草、藻類的素食者，讓牠們成為維持珊瑚礁和海草床健康的關鍵角色。 有「產卵迴游」的習性，到了繁殖季節，會回到原本出生的沙灘產卵。',
+    img: '/img/GuideView/GreenTurtle.png',
+    detailImage: '/img/GuideView/d-GreenTurtle.png',
+    profile:
+      '台灣是綠蠵龜重要的棲息地之一，主食為海草和大型藻類。是硬殼海龜中體型最大的一種，成龜體長可達 1 公尺以上，體重可超過 100 公斤。',
+    habit:
+      '小時候是雜食性，長大後轉為專吃海草、藻類的素食者，讓牠們成為維持珊瑚礁和海草床健康的關鍵角色。 有「產卵迴游」的習性，到了繁殖季節，會回到原本出生的沙灘產卵。',
     feature: '背甲呈橢圓形或水滴狀，通常是褐色、紅棕色或帶有花紋。兩眼之間有一對「前額鱗」。',
-    status: '根據國際自然保護聯盟 (IUCN) 的最新評估，綠蠵龜的全球保育等級已從「瀕危 (Endangered)」降為「無危 (Least Concern)」，是一個巨大的保育成功案例，但台灣的法律定義中，還是屬於「瀕臨絕種」等級。',
+    status:
+      '根據國際自然保護聯盟 (IUCN) 的最新評估，綠蠵龜的全球保育等級已從「瀕危 (Endangered)」降為「無危 (Least Concern)」，是一個巨大的保育成功案例，但台灣的法律定義中，還是屬於「瀕臨絕種」等級。',
   },
   {
     id: 2,
     nameCN: '玳瑁',
     nameEN: 'Hawksbill Turtle',
     type: 'taiwan',
-    img: '/src/assets/image/GuideView/HawksbillTurtle.jpg',
-    detailImage: '/src/assets/image/GuideView/d-HawksbillTurtle.png',
-    profile: '背甲上的美麗花紋被視為珍貴的裝飾品原料，這種材料被稱為「玳瑁」，也因此得名。體型比綠蠵龜小，成龜體長約 60~80 公分。',
-    habit: '玳瑁是極少數專門以「海綿」為主食的海龜。透過捕食海綿，能避免珊瑚被海綿過度覆蓋而死亡，間接維護了珊瑚礁的健康與多樣性，被稱為「珊瑚礁的守護神」。',
-    feature: '嘴巴呈現明顯的鷹勾狀。兩眼之間有兩對「前額鱗」。背甲殼邊緣呈現鋸齒狀，背上的盾片像屋瓦一樣互相重疊（稱為覆瓦狀排列），花紋呈現琥珀色斑紋。',
-    status: '目前在國際自然保護聯盟 (IUCN) 的紅皮書中，仍屬於「極危 (Critically Endangered)」等級，比瀕危更嚴重，離滅絕僅一步之遙。',
+    img: '/img/GuideView/HawksbillTurtle.jpg',
+    detailImage: '/img/GuideView/d-HawksbillTurtle.png',
+    profile:
+      '背甲上的美麗花紋被視為珍貴的裝飾品原料，這種材料被稱為「玳瑁」，也因此得名。體型比綠蠵龜小，成龜體長約 60~80 公分。',
+    habit:
+      '玳瑁是極少數專門以「海綿」為主食的海龜。透過捕食海綿，能避免珊瑚被海綿過度覆蓋而死亡，間接維護了珊瑚礁的健康與多樣性，被稱為「珊瑚礁的守護神」。',
+    feature:
+      '嘴巴呈現明顯的鷹勾狀。兩眼之間有兩對「前額鱗」。背甲殼邊緣呈現鋸齒狀，背上的盾片像屋瓦一樣互相重疊（稱為覆瓦狀排列），花紋呈現琥珀色斑紋。',
+    status:
+      '目前在國際自然保護聯盟 (IUCN) 的紅皮書中，仍屬於「極危 (Critically Endangered)」等級，比瀕危更嚴重，離滅絕僅一步之遙。',
   },
   {
     id: 3,
     nameCN: '赤蠵龜',
     nameEN: 'Loggerhead Turtle',
     type: 'taiwan',
-    img: '/src/assets/image/GuideView/LoggerheadTurtle.jpg',
-    detailImage: '/src/assets/image/GuideView/d-LoggerheadTurtle.png', 
-    profile: '背甲通常呈現紅棕色或紅褐色；體型僅次於綠蠵龜，是世界第二大的硬殼海龜。 頭部比例在所有海龜中是最大的，脖子很粗壯，是個大頭寶寶。', 
-    habit: '典型的肉食性海龜。有強壯的顎部肌肉，讓牠們擁有驚人的咬合力。赤蠵龜喜歡吃「硬骨頭」，如螃蟹、龍蝦、貝類、海螺等。牠們能輕易咬碎這些動物堅硬的外殼。',
-    feature: '兩眼之間通常有 5 對「前額鱗」。背甲呈現紅褐色或紅棕色，形狀為心形，背上的盾片排列整齊。',
-    status: '根據國際自然保護聯盟 (IUCN) 的評估，赤蠵龜目前屬於「易危 (Vulnerable)」等級。雖然狀況比玳瑁稍微好一點，但仍面臨海洋污染、漁業誤捕等威脅。',
+    img: '/img/GuideView/LoggerheadTurtle.jpg',
+    detailImage: '/img/GuideView/d-LoggerheadTurtle.png',
+    profile:
+      '背甲通常呈現紅棕色或紅褐色；體型僅次於綠蠵龜，是世界第二大的硬殼海龜。 頭部比例在所有海龜中是最大的，脖子很粗壯，是個大頭寶寶。',
+    habit:
+      '典型的肉食性海龜。有強壯的顎部肌肉，讓牠們擁有驚人的咬合力。赤蠵龜喜歡吃「硬骨頭」，如螃蟹、龍蝦、貝類、海螺等。牠們能輕易咬碎這些動物堅硬的外殼。',
+    feature:
+      '兩眼之間通常有 5 對「前額鱗」。背甲呈現紅褐色或紅棕色，形狀為心形，背上的盾片排列整齊。',
+    status:
+      '根據國際自然保護聯盟 (IUCN) 的評估，赤蠵龜目前屬於「易危 (Vulnerable)」等級。雖然狀況比玳瑁稍微好一點，但仍面臨海洋污染、漁業誤捕等威脅。',
   },
   {
     id: 4,
     nameCN: '革龜',
     nameEN: 'Leatherback Turtle',
     type: 'taiwan',
-    img: '/src/assets/image/GuideView/LeatherbackTurtle.png',
-    detailImage: '/src/assets/image/GuideView/d-LeatherbackTurtle.png',
-    profile: '是世界上唯一「沒有硬殼」的海龜。背部是一層像皮革一樣厚實的皮膚，也被稱為「稜皮龜」。 是全世界體型最大的海龜，也是最大的爬蟲類之一，體長可超過 2 公尺，體重可達 500~900 公斤，像一台小型車一樣大!',
-    habit: '肉食性但飲食非常專一，幾乎只吃水母。為了維持巨大身體的能量，每天必須吞食相當於自己體重 70% 甚至更多的水母。藉由巨大的體型和特殊的血管構造，牠們能保持體溫，因此可以游到比其他海龜更寒冷的高緯度海域。',
-    feature: '全身顏色為深黑色或深藍色，佈滿許多白色的小斑點。背部沒有盾片，摸起來像橡膠。背上有 7 條明顯隆起的縱向稜脊。',
-    status: '國際自然保護聯盟 (IUCN) 列為「易危 (Vulnerable)」，但在太平洋的族群（包含台灣周邊）已面臨「極危 (Critically Endangered)」的滅絕危機。',
+    img: '/img/GuideView/LeatherbackTurtle.png',
+    detailImage: '/img/GuideView/d-LeatherbackTurtle.png',
+    profile:
+      '是世界上唯一「沒有硬殼」的海龜。背部是一層像皮革一樣厚實的皮膚，也被稱為「稜皮龜」。 是全世界體型最大的海龜，也是最大的爬蟲類之一，體長可超過 2 公尺，體重可達 500~900 公斤，像一台小型車一樣大!',
+    habit:
+      '肉食性但飲食非常專一，幾乎只吃水母。為了維持巨大身體的能量，每天必須吞食相當於自己體重 70% 甚至更多的水母。藉由巨大的體型和特殊的血管構造，牠們能保持體溫，因此可以游到比其他海龜更寒冷的高緯度海域。',
+    feature:
+      '全身顏色為深黑色或深藍色，佈滿許多白色的小斑點。背部沒有盾片，摸起來像橡膠。背上有 7 條明顯隆起的縱向稜脊。',
+    status:
+      '國際自然保護聯盟 (IUCN) 列為「易危 (Vulnerable)」，但在太平洋的族群（包含台灣周邊）已面臨「極危 (Critically Endangered)」的滅絕危機。',
   },
   {
     id: 5,
     nameCN: '欖蠵龜',
     nameEN: 'Olive Ridley Turtle',
     type: 'taiwan',
-    img: '/src/assets/image/GuideView/OliveRidleyTurtle.png',
-    detailImage: '/src/assets/image/GuideView/d-OliveRidleyTurtle.png',
+    img: '/img/GuideView/OliveRidleyTurtle.png',
+    detailImage: '/img/GuideView/d-OliveRidleyTurtle.png',
     profile: '成龜的背甲通常呈現橄欖綠色 。有時也被稱為「麗龜」。',
-    habit: '集體產卵是欖蠵龜最著名的行為。在繁殖季節，成千上萬隻母龜會在同一時間，湧上同一片沙灘產卵。為不挑食的雜食性，吃螃蟹、蝦子、水母，也會吃藻類。',
-    feature: '牠是所有海龜中體型最小的一種，成龜體長約 60~70 公分，體重約 40~50 公斤，背甲比較扁平，呈現明顯的圓形或心形，盾片數量多且不對稱。',
-    status: '國際自然保護聯盟 (IUCN) 的評估，雖然因為會集體出現，讓數量看起來很多，但因為過度集中在少數幾個沙灘產卵，一旦該沙灘被破壞就會全族覆滅，因此仍被列為「易危 (Vulnerable)」等級。',
+    habit:
+      '集體產卵是欖蠵龜最著名的行為。在繁殖季節，成千上萬隻母龜會在同一時間，湧上同一片沙灘產卵。為不挑食的雜食性，吃螃蟹、蝦子、水母，也會吃藻類。',
+    feature:
+      '牠是所有海龜中體型最小的一種，成龜體長約 60~70 公分，體重約 40~50 公斤，背甲比較扁平，呈現明顯的圓形或心形，盾片數量多且不對稱。',
+    status:
+      '國際自然保護聯盟 (IUCN) 的評估，雖然因為會集體出現，讓數量看起來很多，但因為過度集中在少數幾個沙灘產卵，一旦該沙灘被破壞就會全族覆滅，因此仍被列為「易危 (Vulnerable)」等級。',
   },
   {
     id: 6,
     nameCN: '肯氏龜',
     nameEN: "Kemp's Ridley Turtle",
     type: 'remote',
-    img: '/src/assets/image/GuideView/RidleyTurtle.png', 
-    detailImage: '/src/assets/image/GuideView/d-RidleyTurtle.png',
-    profile: '是世界上體型最小的海龜，比欖蠵龜更小一點點。成龜體長約 60~70 公分，體重很少超過 45 公斤。背甲幾乎是正圓形的，顏色通常呈現灰綠色。',
-    habit: '肯氏龜只住在大西洋和墨西哥灣一帶，是唯一一種不分布於全球的海龜，也是牠最特別的地方。有日間集體產卵的習性，喜歡白天集體上岸產卵，這在海龜界是非常罕見的行為。主要也是肉食性，最愛吃螃蟹。',
-    feature: '雖然長得很像欖蠵龜，但肯氏龜背上通常是穩定的 5 對的盾片。具有強而有力的嘴巴，用來咬碎硬殼。',
-    status: '肯氏龜是目前世界上最瀕危的海龜，被國際自然保護聯盟 (IUCN) 列為「極危 (Critically Endangered)」。',
+    img: '/img/GuideView/RidleyTurtle.png',
+    detailImage: '/img/GuideView/d-RidleyTurtle.png',
+    profile:
+      '是世界上體型最小的海龜，比欖蠵龜更小一點點。成龜體長約 60~70 公分，體重很少超過 45 公斤。背甲幾乎是正圓形的，顏色通常呈現灰綠色。',
+    habit:
+      '肯氏龜只住在大西洋和墨西哥灣一帶，是唯一一種不分布於全球的海龜，也是牠最特別的地方。有日間集體產卵的習性，喜歡白天集體上岸產卵，這在海龜界是非常罕見的行為。主要也是肉食性，最愛吃螃蟹。',
+    feature:
+      '雖然長得很像欖蠵龜，但肯氏龜背上通常是穩定的 5 對的盾片。具有強而有力的嘴巴，用來咬碎硬殼。',
+    status:
+      '肯氏龜是目前世界上最瀕危的海龜，被國際自然保護聯盟 (IUCN) 列為「極危 (Critically Endangered)」。',
   },
   {
     id: 7,
     nameCN: '平背龜',
     nameEN: 'Flatback Turtle',
     type: 'remote',
-    img: '/src/assets/image/GuideView/FlatbackTurtle.png',
-    detailImage: '/src/assets/image/GuideView/d-FlatbackTurtle.png',
-    profile: '背甲不像其他海龜那樣隆起呈圓頂狀，而是特別扁平 ，所以被稱為平背龜。體型中等，成龜體長約 90 公分，介於綠蠵龜與玳瑁之間。',
-    habit: '平背龜是澳洲限定的阿宅，也是牠最獨特的地方。其他海龜小時候都會游到大洋深處度過「迷失的歲月」，成年後還會跨越整個大洋洄游。但平背龜終其一生都只待在澳洲大陸棚的淺海區域，從不游到深海或遠洋。喜歡吃軟軟的東西，例如海參、水母、軟珊瑚等。',
-    feature: '扁平的背部是最大特徵，且邊緣會稍微向上翹起，牠們的殼摸起來比較薄，有一種「蠟質」的光滑感，不像其他硬殼海龜那麼堅硬厚重。背部通常是灰橄欖色或灰色。',
-    status: '在國際自然保護聯盟 (IUCN) 的名單上，是唯一被列為「資料不足 (Data Deficient)」的物種。 因為牠們只住在澳洲，所以全球性的研究資料較少。但在澳洲當地法律中，牠們仍被列為易危 (Vulnerable) 物種。',
+    img: '/img/GuideView/FlatbackTurtle.png',
+    detailImage: '/img/GuideView/d-FlatbackTurtle.png',
+    profile:
+      '背甲不像其他海龜那樣隆起呈圓頂狀，而是特別扁平 ，所以被稱為平背龜。體型中等，成龜體長約 90 公分，介於綠蠵龜與玳瑁之間。',
+    habit:
+      '平背龜是澳洲限定的阿宅，也是牠最獨特的地方。其他海龜小時候都會游到大洋深處度過「迷失的歲月」，成年後還會跨越整個大洋洄游。但平背龜終其一生都只待在澳洲大陸棚的淺海區域，從不游到深海或遠洋。喜歡吃軟軟的東西，例如海參、水母、軟珊瑚等。',
+    feature:
+      '扁平的背部是最大特徵，且邊緣會稍微向上翹起，牠們的殼摸起來比較薄，有一種「蠟質」的光滑感，不像其他硬殼海龜那麼堅硬厚重。背部通常是灰橄欖色或灰色。',
+    status:
+      '在國際自然保護聯盟 (IUCN) 的名單上，是唯一被列為「資料不足 (Data Deficient)」的物種。 因為牠們只住在澳洲，所以全球性的研究資料較少。但在澳洲當地法律中，牠們仍被列為易危 (Vulnerable) 物種。',
   },
 ]

@@ -16,6 +16,10 @@ const turtleSections = computed(() => {
         },
     ]
 })
+
+// const parseAssetsIcon = (fileName) => { 
+//     return new URL(`src/assets/${fileName}`, import.meta.url).href 
+//     }
 </script>
 
 <template>
@@ -39,6 +43,7 @@ const turtleSections = computed(() => {
                         
                         <router-link :to="`/guide/${turtle.id}`" class="turtle-card-link">
                             <div class="turtle-card">
+                                
                                 <div class="img-box">
                                     <img :src="turtle.img" :alt="turtle.nameCN" />
                                 </div>
@@ -60,7 +65,7 @@ const turtleSections = computed(() => {
 .turtleBanner {
     width: 100%;
     height: 720px;
-    background-image: url('/src/assets/image/GuideView/turtleBanner.png');
+    background-image: url('/public/img/GuideView/turtleBanner.png');
     background-size: cover;
     background-position: center;
     display: flex;
