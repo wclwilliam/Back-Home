@@ -6,7 +6,7 @@ import 'leaflet/dist/leaflet.css'
 
 const currentId = ref(1)
 let map = null;
-let currentLayer = null; 
+let currentLayer = null;
 
 // 目前選中的海龜
 const currentTurtleInfo = computed(() => {
@@ -38,10 +38,10 @@ const drawTurtleLayer = (turtle) => {
 onMounted(() => {
     //建立地圖框
     map = L.map('map', {
-    minZoom: 2, 
-    maxBounds: [[-90, -180], [90, 180]], 
-    maxBoundsViscosity: 1.0
-}).setView([20, 0], 2);
+        minZoom: 2,
+        maxBounds: [[-90, -180], [90, 180]],
+        maxBoundsViscosity: 1.0
+    }).setView([20, 0], 2);
 
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
         noWrap: true,
@@ -49,7 +49,7 @@ onMounted(() => {
         maxZoom: 19
     }).addTo(map);
 
-  
+
     setTimeout(() => {
         map.invalidateSize();
         if (currentTurtleInfo.value) {
@@ -87,7 +87,7 @@ watch(currentId, () => {
                     </h2>
                     <!-- <h2 v-else>請選擇海龜</h2> -->
 
-                    <div v-if="currentTurtleInfo.nameCN">
+                    <div v-if="currentTurtleInfo.nameCN" class="mapLabel">
                         <p><span class="label">學名：</span> {{ currentTurtleInfo.ScientificName }}</p>
                         <p><span class="label">分布範圍：</span> {{ currentTurtleInfo.range }}</p>
                         <p><span class="label">棲息地：</span> {{ currentTurtleInfo.habitat }}</p>
@@ -103,7 +103,14 @@ watch(currentId, () => {
 
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
+    h1{
+        color: $primary-color;
+        font-size:$d-size-secondary;
+        font-weight:bold;
+        text-align:center;
+        margin-bottom:50px;
+    }
 .profileList {
     display: flex;
     gap: 37px;
@@ -159,12 +166,20 @@ watch(currentId, () => {
     height: 50%;
     padding: 20px;
     background: #E3D5CA;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 30px;
     box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
     z-index: 2;
+    font-size: $size-body-l;
+    font-weight: bold;
+    color: $text-color;
 }
 
-.label {
-    font-weight: bold;
-    color: #555;
+.mapLabel {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
 }
 </style>
