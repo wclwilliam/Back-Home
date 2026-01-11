@@ -4,12 +4,11 @@ import { allTurtles } from './turtleData.js'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 
-// --- 資料狀態 ---
 const currentId = ref(1)
 let map = null;
-let currentLayer = null; // 用來存目前畫在地圖上的那一層，方便等一下刪除
+let currentLayer = null; 
 
-// 計算目前選中的海龜資料
+// 目前選中的海龜
 const currentTurtleInfo = computed(() => {
     return allTurtles.find(t => t.id === currentId.value) || {}
 })
@@ -19,16 +18,11 @@ const selectTurtle = (id) => {
     currentId.value = id
 }
 
-// --- 核心邏輯：畫出單隻海龜的圖層 ---
-// 這個函式就是原本你那「一大段」的精簡版，改成只畫一隻
+
 const drawTurtleLayer = (turtle) => {
-    // 1. 如果地圖上已經有舊的圖層，先移除它 (不然會越疊越多)
     if (currentLayer) {
         map.removeLayer(currentLayer);
     }
-
-
-    // 3. 建立新的 GeoJSON 圖層
     currentLayer = L.geoJSON(turtle.geometry, {
         style: {
             fillColor: turtle.color || '#153450',
@@ -37,18 +31,14 @@ const drawTurtleLayer = (turtle) => {
             fillOpacity: 0.5
         }
     }).addTo(map);
-
-
     map.fitBounds(currentLayer.getBounds());
 }
 
 
 onMounted(() => {
-    // 1. 建立地圖框
+    //建立地圖框
     map = L.map('map', {
-    // 加入這行：限制使用者不能縮太小，避免看到邊界
     minZoom: 2, 
-    // 建議加上這個：限制最大邊界，不讓使用者拖到太誇張的地方
     maxBounds: [[-90, -180], [90, 180]], 
     maxBoundsViscosity: 1.0
 }).setView([20, 0], 2);
@@ -59,20 +49,19 @@ onMounted(() => {
         maxZoom: 19
     }).addTo(map);
 
-    // 2. 解決地圖載入不完全的問題
+  
     setTimeout(() => {
         map.invalidateSize();
-        // 網頁剛進來時，手動畫一次第一隻海龜
         if (currentTurtleInfo.value) {
             drawTurtleLayer(currentTurtleInfo.value);
         }
     }, 200);
 });
 
-// --- 監聽器 ---
-// 當 currentId 改變時 (使用者點頭像)，自動重畫地圖
+
+// 當 currentId 改變重畫地圖
 watch(currentId, () => {
-    // 因為 currentTurtleInfo 會隨著 ID 自動更新，我們直接拿它來畫
+    // 因為 currentTurtleInfo 隨著 ID 自動更新，直接拿來畫
     drawTurtleLayer(currentTurtleInfo.value);
 });
 
@@ -161,8 +150,7 @@ watch(currentId, () => {
 #map {
     width: 70%;
     height: 100%;
-    /* 關鍵修改：把背景改成跟地圖海洋一樣的顏色 */
-    background: #aad3df; 
+    /* background: #aad3df;  */
     z-index: 1;
 }
 
