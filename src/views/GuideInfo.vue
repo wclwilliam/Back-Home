@@ -41,17 +41,17 @@ onUnmounted(() => {
 <template>
     <div v-if="!turtleInfo" class="error">找不到資料</div>
 
-    <div v-else class="detail-page">
+    <div v-else class="detailPage">
         <div class="container">
             <button class="btn btn-outline-white" @click="goBack">回列表</button>
             <div class="detailTitle">
-                <h1>{{ turtleInfo.nameCN }} <span class="en-name">{{ turtleInfo.nameEN }}</span></h1>
+                <h1>{{ turtleInfo.nameCN }} <span class="enName">{{ turtleInfo.nameEN }}</span></h1>
             </div>
 
             <div v-if="isDesktop" class="bubbles-desktop-grid">
                 
                 <div class="grid-item-image">
-                    <img :src="turtleInfo.detailImage" :alt="turtleInfo.nameCN" class="main-turtle-img" />
+                    <img :src="turtleInfo.detailImage" :alt="turtleInfo.nameCN" class="mainTurtle-img" />
                 </div>
 
                 <div class="bubble profile">
@@ -66,7 +66,7 @@ onUnmounted(() => {
                     <h3>辨識重點</h3>
                     <p>{{ turtleInfo.feature }}</p>
                 </div>
-                <div class="bubble status box-shape">
+                <div class="bubble status boxShape">
                     <h3>保育現況</h3>
                     <p>{{ turtleInfo.status }}</p>
                 </div>
@@ -74,7 +74,7 @@ onUnmounted(() => {
 
             <template v-else>
                 <div class="detailImage-container-mobile">
-                    <img :src="turtleInfo.detailImage" :alt="turtleInfo.nameCN" class="main-turtle-img" />
+                    <img :src="turtleInfo.detailImage" :alt="turtleInfo.nameCN" class="mainTurtle-img" />
                 </div>
 
                 <swiper
@@ -97,7 +97,7 @@ onUnmounted(() => {
                         <h3>辨識重點</h3>
                         <p>{{ turtleInfo.feature }}</p>
                     </swiper-slide>
-                    <swiper-slide class="bubble status box-shape">
+                    <swiper-slide class="bubble status boxShape">
                         <h3>保育現況</h3>
                         <p>{{ turtleInfo.status }}</p>
                     </swiper-slide>
@@ -122,7 +122,7 @@ onUnmounted(() => {
     }
 }
 
-.detail-page {
+.detailPage {
     width: 100%;
     min-height: 100vh;
     background-size: cover;
@@ -140,7 +140,7 @@ onUnmounted(() => {
     margin-bottom: 50px;
 }
 
-.en-name {
+.enName {
     font-size: 1.5rem;
     font-weight: normal;
 }
@@ -155,7 +155,7 @@ onUnmounted(() => {
     z-index: 1;
 }
 
-.main-turtle-img {
+.mainTurtle-img {
     max-width: 100%; 
     height: auto;
     animation: floating 3s ease-in-out infinite;
@@ -240,7 +240,7 @@ onUnmounted(() => {
         grid-row: 2;
     }
 
-    .box-shape {
+    .boxShape {
        
         grid-column: 2 / 4; 
         grid-row: 2;

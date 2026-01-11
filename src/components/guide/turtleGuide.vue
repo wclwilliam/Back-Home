@@ -5,12 +5,12 @@ import { allTurtles } from '@/components/guide/turtleData'
 const turtleSections = computed(() => {
     return [
         {
-            id: 'section-tw',
+            id: 'sectionTw',
             title: '在台灣，我們有機會遇見這 5 位朋友',
             list: allTurtles.filter((t) => t.type === 'taiwan'),
         },
         {
-            id: 'section-remote',
+            id: 'sectionRemote',
             title: '還有 2 位夥伴，生活在遙遠的彼端',
             list: allTurtles.filter((t) => t.type === 'remote'),
         },
@@ -24,6 +24,7 @@ const turtleSections = computed(() => {
 
 <template>
     <div class="turtleBanner">
+        <div class="container">
         <div class="turtleBannerInfo">
             <h1 class="">你所不知道的海龜</h1>
             <p>
@@ -31,20 +32,21 @@ const turtleSections = computed(() => {
                 IUCN 紅色名錄列為瀕危或易危物種。這些古老的海洋旅人，正處於前所未有的生存危機之中。
             </p>
         </div>
+        </div>
     </div>
 
     <section class="GuideTitle">
         <h2>海龜圖鑑</h2>
         <div class="container">
-            <section v-for="section in turtleSections" :key="section.id" class="group-section">
-                <h3 class="sub-title">{{ section.title }}</h3>
+            <section v-for="section in turtleSections" :key="section.id" class="groupSection">
+                <h3 class="subTitle">{{ section.title }}</h3>
                 <div class="row">
                     <div v-for="turtle in section.list" :key="turtle.id" class="col-sm-4 col-md-6 col-lg-4" style="margin-bottom: 48px;">
                         
                         <router-link :to="`/guide/${turtle.id}`" class="turtle-card-link">
-                            <div class="turtle-card">
+                            <div class="turtleCard">
                                 
-                                <div class="img-box">
+                                <div class="imgBox">
                                     <img :src="turtle.img" :alt="turtle.nameCN" />
                                 </div>
                                 <div class="info">
@@ -102,11 +104,11 @@ const turtleSections = computed(() => {
 }
 
 
-.group-section {
+.groupSection {
     margin-bottom: 60px;
 }
 
-.sub-title {
+.subTitle {
     @include font-secondary;
     color: $primary-color;
     margin-bottom: 50px;
@@ -114,7 +116,7 @@ const turtleSections = computed(() => {
     text-align: center;
 }
 
-.turtle-card {
+.turtleCard {
     @include font-tertiary;
     color: $secondary-color;
     font-weight: bold;
@@ -127,12 +129,12 @@ const turtleSections = computed(() => {
     cursor: pointer;
 }
 
-.img-box {
+.imgBox {
     width: 100%;
     height: 100%;
 }
 
-.img-box img {
+.imgBox img {
     width: 100%;
     height: 100%;
     object-fit: cover;
