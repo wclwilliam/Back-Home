@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import Guide from '@/components/guide/turtleGuide.vue';
+import TurtleMap from '@/components/guide/Guidemap.vue';
 
 </script>
 
@@ -8,6 +9,7 @@ import Guide from '@/components/guide/turtleGuide.vue';
 
 
       <Guide></Guide>
+      <TurtleMap></TurtleMap>
 
   </template> 
 
