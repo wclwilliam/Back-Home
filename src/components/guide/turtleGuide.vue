@@ -33,11 +33,11 @@ const turtleSections = computed(() => {
                 <div class="row">
                     <div v-for="turtle in section.list" :key="turtle.id" class="col-sm-4 col-md-6 col-lg-4" style="margin-bottom: 48px;">
                         
-                        <router-link :to="`/guide/${turtle.id}`" class="turtle-card-link">
+                        <router-link :to="`/guide/${turtle.id}`">
                             <div class="turtleCard">
                                 
                                 <div class="imgBox">
-                                    <img :src="turtle.img" :alt="turtle.nameCN" />
+                                    <img :src="turtle.img"/>
                                 </div>
                                 <div class="info">
                                     <h4>{{ turtle.nameCN }}</h4>

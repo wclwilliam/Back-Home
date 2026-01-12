@@ -1,42 +1,24 @@
+<script setup>
+import { ref } from 'vue';
+import LightboxModal from '@/components/guide/LightboxModal.vue'; 
+import { cardData } from '@/components/guide/threatenData'; 
+
+</script>
 <template>
     <section class="flexCard container">
-        <div class="bottomcard">
-            <img src="/public/img/GuideView/threatenBottom1.png" alt="">
-            <div class="overlay">
-                <div class="overlayContent">
-                    <h3>海洋廢棄物</h3>
-                    <p>致命的偽裝，成為體內的利刃</p>
-                </div>
-            </div>
-        </div>
-        <div class="bottomcard">
-            <img src="/public/img/GuideView/threatenBottom2.png" alt="">
-            <div class="overlay">
-                <div class="overlayContent">
-                    <h3>幽靈漁具與混獲</h3>
-                    <p>被遺忘在海裡的兇器<br>無法浮上水面的絕望</p>
-                </div>
-            </div>
-        </div>
-        <div class="bottomcard">
-            <img src="/public/img/GuideView/threatenBottom3.png" alt="">
-            <div class="overlay">
-                <div class="overlayContent">
-                    <h3>棲地破壞與光害</h3>
-                    <p>最漫長的 100 公尺</p>
-                </div>
-            </div>
-        </div>
-        <div class="bottomcard">
-            <img src="/public/img/GuideView/threatenBottom4.png" alt="">
-            <div class="overlay">
-                <div class="overlayContent">
-                    <h3>氣候變遷</h3>
-                    <p>沒有退路的生存戰</p>
-                </div>
-            </div>
-        </div>
+        <div 
+        v-for="item in cardData" 
+        :key="item.id" 
+        class="bottomcard">
+            <img :src="item.image">
 
+            <div class="overlay">
+                <div class="overlayContent">
+                    <h3>{{ item.title }}</h3>
+                    <p v-html="item.title2"></p>
+                </div>
+            </div>
+        </div>
     </section>
 </template>
 
