@@ -1,0 +1,170 @@
+<script setup>
+import { ref, computed, onMounted, watch } from 'vue'
+import { allTurtles } from './turtleData.js'
+import L from 'leaflet'
+import 'leaflet/dist/leaflet.css'
+
+const currentId = ref(1)
+let map = null;
+let currentLayer = null; 
+
+// 目前選中的海龜
+const currentTurtleInfo = computed(() => {
+    return allTurtles.find(t => t.id === currentId.value) || {}
+})
+
+// 切換海龜
+const selectTurtle = (id) => {
+    currentId.value = id
+}
+
+
+const drawTurtleLayer = (turtle) => {
+    if (currentLayer) {
+        map.removeLayer(currentLayer);
+    }
+    currentLayer = L.geoJSON(turtle.geometry, {
+        style: {
+            fillColor: turtle.color || '#153450',
+            weight: 2,
+            color: 'white',
+            fillOpacity: 0.5
+        }
+    }).addTo(map);
+    map.fitBounds(currentLayer.getBounds());
+}
+
+
+onMounted(() => {
+    //建立地圖框
+    map = L.map('map', {
+    minZoom: 2, 
+    maxBounds: [[-90, -180], [90, 180]], 
+    maxBoundsViscosity: 1.0
+}).setView([20, 0], 2);
+
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        noWrap: true,
+        attribution: '&copy; OpenStreetMap contributors',
+        maxZoom: 19
+    }).addTo(map);
+
+  
+    setTimeout(() => {
+        map.invalidateSize();
+        if (currentTurtleInfo.value) {
+            drawTurtleLayer(currentTurtleInfo.value);
+        }
+    }, 200);
+});
+
+
+// 當 currentId 改變重畫地圖
+watch(currentId, () => {
+    // 因為 currentTurtleInfo 隨著 ID 自動更新，直接拿來畫
+    drawTurtleLayer(currentTurtleInfo.value);
+});
+
+</script>
+
+<template>
+    <section class="turtleMap">
+        <div class="container">
+            <h1>海龜棲息地圖</h1>
+            <div class="profileList">
+                <div v-for="turtle in allTurtles" :key="turtle.id" class="turtleProfile"
+                    :class="{ active: currentId === turtle.id }" @click="selectTurtle(turtle.id)">
+                    <img :src="turtle.img" :alt="turtle.nameCN" class="turtleMapImg">
+                </div>
+            </div>
+
+            <div class="map-section">
+                <div id="map"></div>
+
+                <div id="mapInfo">
+                    <h2 v-if="currentTurtleInfo.nameCN">
+                        {{ currentTurtleInfo.nameCN }} ({{ currentTurtleInfo.nameEN }})
+                    </h2>
+                    <!-- <h2 v-else>請選擇海龜</h2> -->
+
+                    <div v-if="currentTurtleInfo.nameCN">
+                        <p><span class="label">學名：</span> {{ currentTurtleInfo.ScientificName }}</p>
+                        <p><span class="label">分布範圍：</span> {{ currentTurtleInfo.range }}</p>
+                        <p><span class="label">棲息地：</span> {{ currentTurtleInfo.habitat }}</p>
+
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+
+</template>
+
+<style scoped>
+.profileList {
+    display: flex;
+    gap: 37px;
+    padding: 20px 0;
+    flex-wrap: wrap;
+}
+
+.turtleProfile {
+    width: 104px;
+    height: 104px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 3px solid transparent;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.turtleMapImg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 85%;
+    display: block;
+}
+
+
+.turtleProfile:hover,
+.turtleProfile.active {
+    border-color: #E14720;
+    transform: scale(1.1);
+}
+
+/* 下半部：地圖與資訊區塊 */
+.map-section {
+    display: flex;
+    /* flex: 1; /* 佔據剩餘空間 */
+    /* position: relative; 為了地圖定位 */
+    /* overflow: hidden;  */
+    height: 500px;
+    gap: 20px;
+}
+
+#map {
+    width: 70%;
+    height: 100%;
+    /* background: #aad3df;  */
+    z-index: 1;
+}
+
+#mapInfo {
+    width: 30%;
+    height: 50%;
+    padding: 20px;
+    background: #E3D5CA;
+    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+    z-index: 2;
+}
+
+.label {
+    font-weight: bold;
+    color: #555;
+}
+</style>

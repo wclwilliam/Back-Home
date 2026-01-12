@@ -56,7 +56,7 @@ export const storyData = {
   baby_q2: {
     question:
       '海中黑影幢幢，妳急需藏身之處。前方是雜亂漂浮的棕色藻叢，另一側則是視野清晰的純淨深海，妳要往哪鑽？',
-      progress: 2,
+    progress: 2,
     options: [
       {
         id: 'move_to_open',
@@ -106,7 +106,7 @@ export const storyData = {
   baby_q3: {
     question:
       '游累了，妳需要歇腳。遠處有一塊平坦穩固的白色浮島，近處則是隨波起伏、糾結雜亂的天然浮木。妳要爬上哪一個？',
-      progress: 3,
+    progress: 3,
     options: [
       {
         id: 'board_white_island',
@@ -136,6 +136,7 @@ export const storyData = {
     healthChange: 0,
     nextId: 'baby_q3_knowledge',
   },
+
   // 幼龜 Q3 - 共通的科普知識
   baby_q3_knowledge: {
     knowledge:
@@ -144,12 +145,299 @@ export const storyData = {
     nextId: 'game_result', // 導向結算頁面
   },
 
+  // --- 少年海龜分支：問題 1 ---
+  teen_q1: {
+    question:
+      '在遷徙的途中，你發現前方有一片漂浮的「幽靈網」。這原本是漁民丟棄或遺失的漁網，它正攔住你的去路，你該如何應對？',
+    progress: 1,
+    options: [
+      {
+        id: 'net_escape',
+        text: '穿越網縫',
+        nextId: 'teen_q1_bad',
+      },
+      {
+        id: 'deep_dive',
+        text: '深潛繞行',
+        nextId: 'teen_q1_good',
+      },
+    ],
+  },
+
+  // 少年海龜 Q1 - 選「穿越網縫」的後果
+  teen_q1_bad: {
+    feedback: '網縫比你想像中更狹窄，堅韌的漁網纏繞住你的鰭肢。你拼命掙扎才得以脫身，但這場意外讓你傷痕累累，且極度虛弱。',
+    warningText: '⚠️ 遭遇幽靈網纏繞，生存機率下降 20%',
+    healthChange: -1, // 右側愛心扣一格
+    nextId: 'teen_q1_knowledge',
+  },
+
+  // 少年海龜 Q1 - 選「深潛繞行」的後果
+  teen_q1_good: {
+    feedback: '你屏住呼吸，向下游入深海，成功繞開了這片致命的網具。雖然你避開了最危險的陷阱，但這讓你感很疲憊。',
+    warningText: '',
+    healthChange: 0,
+    nextId: 'teen_q1_knowledge',
+  },
+
+  // 少年海龜 Q1 - 共通的科普知識
+  teen_q1_knowledge: {
+    knowledge: '「幽靈漁網」（Ghost Nets）是海龜的一大死因。一旦被纏繞，海龜將無法浮上水面呼吸，最終導致溺水死亡。',
+    buttonText: '我知道了，繼續前進',
+    nextId: 'teen_q2', // 導向少年海龜的下一個問題
+  },
+
+  // --- 少年海龜分支：問題 2 ---
+  teen_q2: {
+    question:
+      '在漫長的遷徙路上你感到體力耗盡，前方出現了兩個選擇，你想吃哪個？',
+    progress: 2,
+    options: [
+      {
+        id: 'jellyfish',
+        text: '水母',
+        nextId: 'teen_q2_bad',
+      },
+      {
+        id: 'seaweed',
+        text: '海草',
+        nextId: 'teen_q2_good',
+      },
+    ],
+  },
+
+  // 少年海龜 Q2 - 選「水母」的後果
+  teen_q2_bad: {
+    feedback: '糟糕！我吃掉的是「偽裝的水母」，我以為那是可口的水母，咬下後才發現它是人類丟棄的塑膠袋。',
+    warningText: '⚠️ 誤食海洋漂浮垃圾，生存機率下降 20%',
+    healthChange: -1, // 右側愛心扣一格
+    nextId: 'teen_q2_bad_knowledge',
+  },
+
+  // 少年海龜 Q2 - 選「海草」的後果
+  teen_q2_good: {
+    feedback: '你享受了一頓鮮甜肥美的海草大餐，這些翠綠的能量讓你疲憊的四肢重新煥發活力。',
+    warningText: '',
+    healthChange: 0,
+    nextId: 'teen_q2_good_knowledge',
+  },
+
+  // 少年海龜 Q2 - 選「水母」的科普知識
+  teen_q2_bad_knowledge: {
+    knowledge:
+      '海龜的食道裡有倒鉤狀的構造，一旦吞下塑膠袋就無法吐出。這會導致你的胃部產生「假性飽足感」，讓你不再進食，最終因營養不良或腸道阻塞而虛弱。',
+    buttonText: '我知道了，繼續前進',
+    nextId: 'teen_q3', // 導向少年海龜的下一個問題
+  },
+
+  // 少年海龜 Q2 - 選「海草」的科普知識
+  teen_q2_good_knowledge: {
+    knowledge: '綠蠵龜之所以叫「綠」蠵龜，是因為牠們長期攝取海草與海藻，其中的葉綠素讓牠們的脂肪變成了淡綠色。這是綠蠵龜健康成長的秘密武器！',
+    buttonText: '我知道了，繼續前進',
+    nextId: 'teen_q3', // 導向少年海龜的下一個問題
+  },
+
+  // --- 少年海龜分支：問題 3 ---
+  teen_q3: {
+    question:
+      '你即將抵達故鄉海岸。然而，這片海域異常繁忙，上方傳來震耳欲聾的引擎轟鳴聲。一道白浪花正朝你疾馳而來，你會如何反應？',
+    progress: 3,
+    options: [
+      {
+        id: 'dash_to_shore',
+        text: '加速游向岸邊',
+        nextId: 'teen_q3_bad',
+      },
+      {
+        id: 'quick_dive',
+        text: '迅速下潛',
+        nextId: 'teen_q3_good',
+      },
+    ],
+  },
+
+  // 少年海龜 Q3 - 選「加速游向岸邊」的後果
+  teen_q3_bad: {
+    feedback: '你試圖與鋼鐵巨獸競爭速度，但快艇的螺旋槳比你更快。尖銳的葉片掃過了你的背甲，劇烈的疼痛讓你幾乎失去意識，前進的步伐變得無比沉重。',
+    warningText: '⚠️ 遭遇船隻撞擊，生存機率下降 20%',
+    healthChange: -1, // 右側愛心扣一格
+    nextId: 'teen_q3_bad_knowledge',
+  },
+
+  // 少年海龜 Q3 - 選「迅速下潛」的後果
+  teen_q3_good: {
+    feedback: '你感受到了水壓的劇烈波動，一道巨大的黑色船底從你頭頂掠過。雖然巨大的噪音讓你感到不安，但你成功避開了致命的切削。',
+    warningText: '',
+    healthChange: 0,
+    nextId: 'teen_q3_good_knowledge',
+  },
+
+  // 少年海龜 Q3 - 選「加速游向岸邊」的科普知識
+  teen_q3_bad_knowledge: {
+    knowledge:
+      '成年海龜因體型龐大，水下靈活性不如幼龜，面對高速船隻時往往反應不及。背甲是海龜保護內臟的重要結構，一旦被螺旋槳切裂，不僅會造成大量失血，更可能引發嚴重的細菌感染或「氣泡症」，導致無法下潛覓食。這種傷害往往是致命的。',
+    buttonText: '我知道了，繼續前進',
+    nextId: 'game_result', // 導向結算頁面
+  },
+
+  // 少年海龜 Q3 - 選「迅速下潛」的科普知識
+  teen_q3_good_knowledge: {
+    knowledge:
+      '船隻碰撞是成年海龜在近海棲息地面臨的主要死因。海龜需要浮上水面呼吸及曬太陽調節體溫，這使其極易被高速行駛的快艇或貨輪撞擊。螺旋槳造成的背甲破碎通常是不可逆的重傷。採取下潛避讓，是海龜在人為開發海域中生存的必要智慧。',
+    buttonText: '我知道了，繼續前進',
+    nextId: 'game_result', // 導向結算頁面
+  },
+
+  // --- 成年母龜分支：問題 1 ---
+  adult_q1: {
+    question:
+      '妳即將產卵，回到了熟悉的出生地。忍著長途跋涉的疲憊，妳會選擇哪片沙灘上岸，延續下一代的生命？',
+    progress: 1,
+    options: [
+      {
+        id: 'bright_resort',
+        text: '燈火通明的度假村',
+        nextId: 'adult_q1_bad',
+      },
+      {
+        id: 'dark_wilderness',
+        text: '漆黑寂靜的荒岸',
+        nextId: 'adult_q1_good',
+      },
+    ],
+  },
+
+  // 成年母龜 Q1 - 選「燈火通明的度假村」的後果
+  adult_q1_bad: {
+    feedback: '強光讓妳誤以為那是海面反光，妳在沙灘上迷失方向，繞行許久卻找不到產卵地。最終妳體力耗盡，只能被迫退回大海。',
+    warningText: '⚠️ 生產失敗，生存機率下降 20%',
+    healthChange: -1, // 右側愛心扣一格
+    nextId: 'adult_q1_knowledge',
+  },
+
+  // 成年母龜 Q1 - 選「漆黑寂靜的荒岸」的後果
+  adult_q1_good: {
+    feedback: '雖然爬行艱難，但黑暗讓妳感到安全。避開了人群與燈光的干擾，妳成功抵達沙灘高處，準備挖掘巢穴。',
+    warningText: '',
+    healthChange: 0,
+    nextId: 'adult_q1_knowledge',
+  },
+
+  // 成年母龜 Q1 - 共通的科普知識
+  adult_q1_knowledge: {
+    knowledge: '海龜天生會朝向較亮的水平線大海移動,城市燈火會讓母龜產生錯覺，導致牠們在陸地徘徊，甚至爬向馬路造成意外。',
+    buttonText: '我知道了，繼續前進',
+    nextId: 'adult_q2', // 導向成年母龜的下一個問題
+  },
+
+  // --- 成年母龜分支：問題 2 ---
+  adult_q2: {
+    question:
+      '妳費力爬上沙灘高處，再次找到適合生產的地方。為了讓下一代平安出生，妳必須感知沙地的溫濕度，決定在哪裡挖掘深穴?',
+    progress: 2,
+    options: [
+      {
+        id: 'cool_shade',
+        text: '樹蔭下的涼爽沙地',
+        nextId: 'adult_q2_cool',
+      },
+      {
+        id: 'warm_sunlight',
+        text: '陽光直射的溫暖沙地',
+        nextId: 'adult_q2_warm',
+      },
+    ],
+  },
+
+  // 成年母龜 Q2 - 選「樹蔭下的涼爽沙地」的後果
+  adult_q2_cool: {
+    feedback: '樹蔭下雖然涼爽，但溫度過低會讓這窩卵幾乎全是雄性。在雌性比例急劇下降的現狀下，這對族群的延續並非最佳選擇。',
+    warningText: '',
+    healthChange: 0,
+    nextId: 'adult_q2_cool_knowledge',
+  },
+
+  // 成年母龜 Q2 - 選「陽光直射的溫暖沙地」的後果
+  adult_q2_warm: {
+    feedback: '妳在溫暖的沙地挖出深穴，順利產下百枚卵。這裡的溫度能確保更多雌性小海龜出生，為未來的族群繁衍帶來希望。',
+    warningText: '',
+    healthChange: 0,
+    nextId: 'adult_q2_warm_knowledge',
+  },
+
+  // 成年母龜 Q2 - 選「樹蔭下的涼爽沙地」的科普知識
+  adult_q2_cool_knowledge: {
+    knowledge:
+      '海龜的性別由孵化溫度決定，高溫環境容易孵出母海龜,然而隨著全球氣溫升高，許多沙灘孵出的幾乎全是母龜，嚴重影響性別比例平衡。',
+    buttonText: '我知道了，繼續前進',
+    nextId: 'adult_q3', // 導向少年海龜的下一個問題
+  },
+
+  // 成年母龜 Q2 - 選「陽光直射的溫暖沙地」的科普知識
+  adult_q2_warm_knowledge: {
+    knowledge: '較涼爽的沙溫會孵出雄性海龜,科學家發現，若沙溫低於 29 度，孵化出的後代將以公龜為主。',
+    buttonText: '我知道了，繼續前進',
+    nextId: 'adult_q3', // 導向少年海龜的下一個問題
+  },
+
+  // --- 成年母龜分支：問題 3 ---
+  adult_q3: {
+    question:
+      '產卵耗盡了妳的體力。回到海中，前方漂浮著一群半透明、隨波逐流的物體，看起來非常誘人：',
+    progress: 3,
+    options: [
+      {
+        id: 'eat_instantly',
+        text: '游過去大口吞食',
+        nextId: 'adult_q3_bad',
+      },
+      {
+        id: 'swim_to_seagrass',
+        text: '游向遠處的海草床',
+        nextId: 'adult_q3_good',
+      },
+    ],
+  },
+
+  // 成年母龜 Q3 - 選「游過去大口吞食」的後果
+  adult_q3_bad: {
+    feedback: '妳填飽了肚子，卻感到腹部脹氣，難以潛入深海。這些無法消化的異物佔據了胃部，讓妳的體力恢復變得極其艱難。',
+    warningText: '⚠️ 誤食海洋漂浮垃圾，生存機率下降 20%',
+    healthChange: -1, // 右側愛心扣一格
+    nextId: 'adult_q3_knowledge',
+  },
+
+  // 成年母龜 Q3 - 選「游向遠處的海草床」的後果
+  adult_q3_good: {
+    feedback: '妳忍住誘惑繼續游動。幾天後抵達了綠意盎然的海草床，在那裡享用天然大餐，身體的元氣也迅速恢復。',
+    warningText: '',
+    healthChange: 0,
+    nextId: 'adult_q3_knowledge',
+  },
+
+  // 成年母龜 Q3 - 選「游過去大口吞食」的科普知識
+  adult_q3_bad_knowledge: {
+    knowledge:
+      '海龜很難分辨透明塑膠袋與水母的區別,誤食塑膠會導致腸道阻塞，使海龜因浮力過大無法下潛覓食，最終衰弱死亡。',
+    buttonText: '我知道了，繼續前進',
+    nextId: 'game_result', // 導向結算頁面
+  },
+
+  // 成年母龜 Q3 - 選「游向遠處的海草床」的科普知識
+  adult_q3_good_knowledge: {
+    knowledge:
+      '綠蠵龜啃食海草能幫助生態系新陳代謝,避開人為廢棄物，是野外海龜能否長壽並多次回鄉產卵的關鍵。',
+    buttonText: '我知道了，繼續前進',
+    nextId: 'game_result', // 導向結算頁面
+  },
+
   // --- 生存結算畫面 ---
   game_result: {
     type: 'result', // 標記這是一個結算頁面，方便 Vue 切換不同的 Layout
-    title: '恭喜你奇蹟生還！',
+    baby_title: '恭喜你奇蹟生還！',
+    teen_title: '歡迎回家！你已完成奇蹟之旅',
+    adult_title: '妳已完成最偉大的生命傳承',
     survivalRate: '生存機率:', // 這裡可以直接由程式計算
-    feedback: '在每千隻海龜中，只有一隻能長大成年。妳的謹慎讓妳跨越了第一道難關！',
     buttonText: 'arrow_forward',
     nextId: 'call_to_action', // 導向行動呼籲頁面
   },
@@ -157,7 +445,9 @@ export const storyData = {
   // --- 行動呼籲頁面 ---
   call_to_action: {
     type: 'action',
-    description: '海龜的生存之路不該如此艱難，你的參與能讓奇蹟延續。',
+    baby_description: '跨越千里的生命旅程，需要我們共同守護。',
+    teen_description: '海龜的生存之路不該如此艱難，你的參與能讓奇蹟延續。',
+    adult_description: '海你的選擇守護了牠，你的行動能守護牠們全家。。',
     options: [
       { id: 'donate', text: '支持保育計畫', nextId: 'donation_page' },
       { id: 'volunteer', text: '加入保育志工', nextId: 'volunteer_page' },

@@ -15,11 +15,17 @@ const goHome = () => {
           <div class="logo" @click="goHome">
             <img src="/public/BackHomeLogo.png" alt="Back Home Logo" />
           </div>
-          
+
           <ul class="social-links">
-            <li><a href="#"><i class="fab fa-facebook"></i> Facebook</a></li>
-            <li><a href="#"><i class="fab fa-instagram"></i> Instagram</a></li>
-            <li><a href="#"><i class="fab fa-youtube"></i> Youtube</a></li>
+            <li>
+              <a href="#"><i class="fab fa-facebook"></i> Facebook</a>
+            </li>
+            <li>
+              <a href="#"><i class="fab fa-instagram"></i> Instagram</a>
+            </li>
+            <li>
+              <a href="#"><i class="fab fa-youtube"></i> Youtube</a>
+            </li>
           </ul>
         </div>
 
@@ -82,7 +88,6 @@ const goHome = () => {
   flex-direction: column;
 }
 
-
 /* 社群連結 */
 .social-links {
   list-style: none;
@@ -110,17 +115,15 @@ const goHome = () => {
 
 /* 導覽連結 */
 .footer-nav {
-        ul {
-        display: flex;
-        gap: 30px;
-                li {
-                        color: #ffffff;
-                        text-decoration: none;
-                        white-space: nowrap;
-
-                }
-
-        }
+  ul {
+    display: flex;
+    gap: 30px;
+    li {
+      color: #ffffff;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+  }
 }
 
 /* 分隔線 */
@@ -142,7 +145,7 @@ const goHome = () => {
   .footer {
     padding: 40px 20px;
   }
-  
+
   .footer-main {
     flex-direction: column;
     align-items: center;
