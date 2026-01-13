@@ -1,9 +1,11 @@
 <script setup>
     import Banner from "@/components/Banner.vue";
-    import RescueCard from "@/components/cards/RescueCard.vue";
     import Accordion from "@/components/donation/accordion.vue";
     import donationCom from "@/components/donation/donationCom.vue";
     import MyButton from "@/components/donation/MyButton.vue";
+    import SwiperRescueCards from "@/components/donation/SwiperRescueCards.vue";
+    import AnimationNumber from "@/components/donation/AnimationNumber.vue";
+    import CleanChart from "@/components/donation/CleanChart.vue";
     import { ref } from 'vue';
 
     const selectedYear = ref('');
@@ -18,48 +20,44 @@
                         <div class="rescueChart container">
                             <h2>我們的影響力數據</h2>
                             <section class="rescue-section">
-                            <div class="section-header">
-                                <h3>救援海龜數據</h3>
-                                <div class="select-wrapper">
-                                <select v-model="selectedYear">
-                                    <option value="">選擇年份</option>
-                                    <option value="2023">2023</option>
-                                    <option value="2024">2024</option>
-                                </select>
+                                <div class="section-header">
+                                    <h3>救援海龜數據</h3>
+                                    <div class="select-wrapper">
+                                    <select v-model="selectedYear">
+                                        <option value="">選擇年份</option>
+                                        <option value="2023">2023</option>
+                                        <option value="2024">2024</option>
+                                    </select>
+                                    </div>
                                 </div>
-                            </div>
-        
-                            <div class="stats-grid">
-                                <div class="stat-item">
-                                <span class="label">救援海龜總數</span>
-                                <span class="value">965 <small>隻</small></span>
+            
+                                <div class="stats-grid">
+                                    <div class="stat-item">
+                                    <span class="label">救援海龜總數</span>
+                                    <AnimationNumber value="965" class="value">隻</AnimationNumber>
+                                    </div>
+                                    <div class="stat-item">
+                                    <span class="label">引導入海幼龜</span>
+                                    <AnimationNumber value="624" class="value">隻</AnimationNumber>
+                                    </div>
+                                    <div class="stat-item">
+                                    <span class="label">巡邏海岸線</span>
+                                    <AnimationNumber value="15420" class="value">公里</AnimationNumber>
+                                    </div>
+                                    <div class="stat-item">
+                                    <span class="label">專業醫療手術</span>
+                                    <AnimationNumber value="142" class="value">場</AnimationNumber>
+                                    </div>
                                 </div>
-                                <div class="stat-item">
-                                <span class="label">引導入海幼龜</span>
-                                <span class="value">624 <small>隻</small></span>
-                                </div>
-                                <div class="stat-item">
-                                <span class="label">巡邏海岸線</span>
-                                <span class="value">15,420 <small>公里</small></span>
-                                </div>
-                                <div class="stat-item">
-                                <span class="label">專業醫療手術</span>
-                                <span class="value">142 <small>場</small></span>
-                                </div>
-                            </div>
+                            </section>
+                            <section class="clean-section">
+                                <h3>清除海洋廢棄物</h3>
+                                <CleanChart/>
                             </section>
                         </div>
                         <div class="rescueCards">
                             <h2>最新救援數據</h2>
-                            <RescueCard v-bind="{
-                                id: 1,
-                                image: 'https://picsum.photos/300/200',
-                                name: '阿福',
-                                species:'(綠蠵龜)',
-                                description: '2025年10月發現於澎湖龍門沙灘，遭廢棄漁網纏繞導致左前肢壞死。阿福剛來時極度虛弱，經過截肢手術後，目前正在練習用三隻鰭狀肢游泳，每天的餐費與藥費是牠最大的支柱。',
-                                stage: 2 //階段：1~5
-                                }"
-                                class="col-sm-12 col-md-12 col-lg-12"></RescueCard>
+                            <SwiperRescueCards></SwiperRescueCards>
                         </div>
                         <Accordion/>
                         <div class="report">
@@ -108,13 +106,12 @@
             gap: 32px;
             .rescueChart{
                 width: 100%;
-                height: 727px;
+                // height: 727px;
                 background-color: $secondary-color;
                 padding-top: 24px;
                 padding-bottom: 24px;
                 h2 {
                     text-align: center;
-                    
                     color: #fff;
                 }
                 .rescue-section {
@@ -152,10 +149,12 @@
                         flex-wrap: wrap;
                         width: 100%;
                         gap: 52px 20%;
+                        margin-bottom: 80px;
                         .stat-item {
-                            width: 40%;
+                            min-width: 40%; //暫時
                             color: #fff;
                             display: flex;
+                            align-items: baseline;
                             gap: 4px;
                             .label {
                                 @include font-body-l;
@@ -166,6 +165,13 @@
                                 flex-shrink: 0;
                             }
                         }
+                    }
+                }
+                .clean-section {
+                    h3 {
+                        color: #fff;
+                        text-align: center;
+                        margin-bottom: 36px;
                     }
                 }
             }
@@ -216,6 +222,7 @@
         }
         .mainCom {
             height: 100%;
+            z-index: 999;
         }
     }
 
