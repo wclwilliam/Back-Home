@@ -1,11 +1,28 @@
 <script setup>
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, computed } from 'vue'
 import { gsap } from 'gsap'
 
 const circleRef = ref(null)
 const wave1Ref = ref(null)
 const wave2Ref = ref(null)
 const wave3Ref = ref(null)
+const base = import.meta.env.BASE_URL
+
+const { text, roleId } = defineProps({
+  text: { type: String, default: '' },
+  roleId: { type: String, default: '' },
+})
+
+const roleTurtleMap = {
+  baby: 'game/turtle-baby.png',
+  teen: 'game/turtle-teen-swim.png',
+  adult: 'game/turtle-adult-swim.png',
+}
+
+const turtleSrc = computed(() => {
+  const p = roleTurtleMap[roleId]
+  return p ? base + p : ''
+})
 
 onMounted(() => {
   // GSAP 海浪左右無限循環動畫
@@ -35,6 +52,7 @@ onMounted(() => {
 </script>
 
 <template>
+  <div class="turtle-progress">
   <div class="progress-circle" ref="circleRef">
     <div class="wave-wrapper">
       <div class="wave wave-1" ref="wave1Ref"></div>
@@ -42,30 +60,37 @@ onMounted(() => {
       <div class="wave wave-3" ref="wave3Ref"></div>
     </div>
 
+    <img
+      v-if="turtleSrc"
+      class="turtle-img"
+      :class="`turtle-img--${roleId}`"
+      :src="turtleSrc"
+      alt=""
+    />
+
     <div class="dash-line line-top"></div>
     <div class="dash-line line-bottom"></div>
+    
+  </div>
+  <p>{{ text }}</p>
   </div>
 </template>
 
 <style lang="scss" scoped>
 // 定義變數
-$size: 180px;
+$size: 120px;
 $wave-1: #92cfeb;
 $wave-2: #5ebae3;
 $wave-3: #2aa2d6;
 
 .progress-circle {
-  margin-bottom: 300px;
   position: relative;
   width: $size;
   height: $size;
-  // RWD 處理：使用 min() 確保在小螢幕也能縮放
-  max-width: 90vw;
-  max-height: 90vw;
 
-  border: 8px solid $primary-color;
+  border: 5px solid $primary-color;
   border-radius: 50%;
-  background-color: white; // 預設背景
+  background-color: white;
   overflow: hidden; // 關鍵：裁切掉圓圈外的海浪
   display: flex;
   align-items: center;
@@ -82,7 +107,7 @@ $wave-3: #2aa2d6;
     position: absolute;
     width: 300%;
     height: 300%;
-    top: 50%; 
+    top: 70%; 
     left: -100%;
     border-radius: 40%;
     opacity: 0.8;
@@ -133,5 +158,30 @@ $wave-3: #2aa2d6;
   to {
     transform: rotate(360deg);
   }
+}
+p{
+  @include font-caption;
+  display: inline-block; 
+  background-color: $primary-color;
+  color: $text-white;
+  padding: 4px 8px;
+  border-radius: 50px;
+}
+.turtle-progress{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.turtle-img {
+  position: absolute;
+  z-index: 20;
+  width: 75%;
+  height: auto;
+  object-fit: contain;
+  pointer-events: none;
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.18));
+  bottom: -6%;
 }
 </style>
