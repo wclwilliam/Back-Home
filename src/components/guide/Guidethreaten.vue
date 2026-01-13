@@ -120,7 +120,7 @@ h2 {
     grid-template-columns: 1fr 1.5fr 1fr;
     grid-auto-rows: 240px;
     gap: 10px;
-    //   @media (max-width: 992px) {
+    //   @media (max-width: 768px) {
     //         grid-template-columns: 1fr;
     //     }
 }
@@ -160,7 +160,7 @@ h2 {
     background-image: url(/img/GuideView/threaten1.png);
     background-size: cover;
 
-    @media (max-width: 992px) {
+    @media (max-width: 768px) {
         grid-column: 1 / 3;
     }
 }
@@ -170,7 +170,7 @@ h2 {
     background-image: url(/img/GuideView/threaten2.png);
     background-size: cover;
 
-    @media (max-width: 992px) {
+    @media (max-width: 768px) {
         grid-column: 2/ 4;
         grid-row: 2;
     }
@@ -182,7 +182,7 @@ h2 {
     background-image: url(/img/GuideView/threaten3.png);
     background-size: cover;
 
-    @media (max-width: 992px) {
+    @media (max-width: 768px) {
         grid-column: 1 / 3;
         grid-row: 3;
     }
@@ -194,7 +194,7 @@ h2 {
     background-image: url(/img/GuideView/threaten4.png);
     background-size: cover;
 
-    @media (max-width: 992px) {
+    @media (max-width: 768px) {
         grid-column: 2 / 4;
         grid-row: 4;
     }
@@ -207,7 +207,7 @@ h2 {
     grid-column: 3/ 4;
     grid-row: 1 / 3;
 
-    @media (max-width: 992px) {
+    @media (max-width: 768px) {
         grid-column: 1 / 4;
         grid-row: 5;
         background-position: center 90%;
