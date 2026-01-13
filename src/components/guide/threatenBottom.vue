@@ -1,15 +1,23 @@
 <script setup>
 import { ref } from 'vue';
-import LightboxModal from '@/components/guide/LightboxModal.vue'; 
-import { cardData } from '@/components/guide/threatenData'; 
+import LightboxModal from '@/components/guide/LightboxModal.vue';
+import { cardData } from '@/components/guide/threatenData';
+
+// --- 1. 新增：定義控制燈箱的變數 ---
+// const isModalOpen = ref(false); // 控制開關 (預設關閉)
+// const currentItem = ref({});    // 暫存被點到的那一筆資料
+
+// // --- 2. 新增：開啟燈箱的函式 ---
+// const openModal = (item) => {
+//     console.log("點擊到了:", item.title); // 可以用這行檢查有沒有點擊成功
+//     currentItem.value = item; // 把點到的資料存起來
+//     isModalOpen.value = true; // 打開燈箱
+// };
 
 </script>
 <template>
     <section class="flexCard container">
-        <div 
-        v-for="item in cardData" 
-        :key="item.id" 
-        class="bottomcard">
+        <div v-for="item in cardData" :key="item.id" class="bottomcard" > <!-- @click="openModal(item)" -->
             <img :src="item.image">
 
             <div class="overlay">
@@ -20,6 +28,7 @@ import { cardData } from '@/components/guide/threatenData';
             </div>
         </div>
     </section>
+    <!-- <LightboxModal :isOpen="isModalOpen" :item="currentItem" @close="isModalOpen = false" /> -->
 </template>
 
 <style lang="scss" scoped>

@@ -2,7 +2,6 @@ export const cardData = [
   {
     id: 1,
     image: '/img/GuideView/threatenBottom1.png',
-    //type: 'text',
     title: '海洋廢棄物',
     title2: '致命的偽裝，成為體內的利刃',
     modalTitle: '致命的錯覺：美味水母，還是塑膠袋？',
