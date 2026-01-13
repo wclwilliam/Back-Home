@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, watch,toRaw } from 'vue'
 import { allTurtles } from './turtleData.js'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
@@ -23,6 +23,7 @@ const drawTurtleLayer = (turtle) => {
     if (currentLayer) {
         map.removeLayer(currentLayer);
     }
+    const rawGeometry = toRaw(turtle.geometry);
     currentLayer = L.geoJSON(turtle.geometry, {
         style: {
             fillColor: turtle.color || '#153450',
@@ -31,7 +32,9 @@ const drawTurtleLayer = (turtle) => {
             fillOpacity: 0.5
         }
     }).addTo(map);
-    map.fitBounds(currentLayer.getBounds());
+    if (currentLayer.getBounds().isValid()) {
+        map.fitBounds(currentLayer.getBounds());
+    }
 }
 
 
