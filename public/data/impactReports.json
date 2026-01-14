@@ -1,0 +1,62 @@
+[
+    {
+      "year": 2025,
+      "core_metrics": {
+        "total_rescued_turtles": 988,
+        "hatchlings_guided_to_sea": 624,
+        "patrolled_coastline_km": 24816,
+        "professional_medical_surgeries": 142
+      },
+      "ocean_debris_removed_kg": {
+        "plastic_bottles": 8500,
+        "iron_cans": 1200,
+        "aluminum_cans": 950,
+        "waste_paper": 2100,
+        "glass_bottles": 3400,
+        "styrofoam": 4200,
+        "bamboo_wood": 5800,
+        "ghost_nets_fishing_gear": 12500,
+        "unclassifiable_waste": 3850
+      }
+    },
+    {
+      "year": 2024,
+      "core_metrics": {
+        "total_rescued_turtles": 856,
+        "hatchlings_guided_to_sea": 551,
+        "patrolled_coastline_km": 21500,
+        "professional_medical_surgeries": 128
+      },
+      "ocean_debris_removed_kg": {
+        "plastic_bottles": 6800,
+        "iron_cans": 1100,
+        "aluminum_cans": 850,
+        "waste_paper": 1800,
+        "glass_bottles": 2900,
+        "styrofoam": 3500,
+        "bamboo_wood": 4600,
+        "ghost_nets_fishing_gear": 10200,
+        "unclassifiable_waste": 3050
+      }
+    },
+    {
+      "year": 2023,
+      "core_metrics": {
+        "total_rescued_turtles": 720,
+        "hatchlings_guided_to_sea": 492,
+        "patrolled_coastline_km": 18200,
+        "professional_medical_surgeries": 95
+      },
+      "ocean_debris_removed_kg": {
+        "plastic_bottles": 5400,
+        "iron_cans": 950,
+        "aluminum_cans": 720,
+        "waste_paper": 1400,
+        "glass_bottles": 2200,
+        "styrofoam": 2800,
+        "bamboo_wood": 3900,
+        "ghost_nets_fishing_gear": 8500,
+        "unclassifiable_waste": 2630
+      }
+    }
+  ]

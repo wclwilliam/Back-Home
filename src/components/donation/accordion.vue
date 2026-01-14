@@ -4,10 +4,14 @@ import axios from 'axios';
 
 const items = ref([])
 
-onMounted(() => {
-  axios.get('/public/data/donationAccordion.json').then((response) => {
+onMounted( async () => {
+  try {
+    const base = import.meta.env.BASE_URL
+    const response = await axios.get(base + 'data/donationAccordion.json')
     items.value = response.data
-  })
+  }catch (error){
+    console.log(error)
+  }
 })
 
 // 1. 定義資料

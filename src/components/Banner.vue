@@ -19,7 +19,6 @@ const imgURL = computed(() => {
   const path = new URL(`../assets/image/banner/${props.imgName}Banner.png`, import.meta.url).href;
   return `url("${path}")`;
 });
-console.log(imgURL.value);
 
 </script>
 

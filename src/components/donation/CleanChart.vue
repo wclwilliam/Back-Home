@@ -10,13 +10,32 @@ import {
   ArcElement, 
   CategoryScale 
 } from 'chart.js'
+import { computed } from 'vue';
+
+const props = defineProps({
+  data: {
+    type: Object,
+    default: {
+        plastic_bottles: 850,
+        iron_cans: 1200,
+        aluminum_cans: 950,
+        waste_paper: 2100,
+        glass_bottles: 3400,
+        styrofoam: 4200,
+        bamboo_wood: 5800,
+        ghost_nets_fishing_gear: 12500,
+        unclassifiable_waste: 3850
+      }
+  },
+});
+
 
 // 必須手動註冊 Chart.js 的插件，否則圖表無法顯示
 ChartJS.register(Title, Tooltip, Legend, ArcElement, CategoryScale)
 
 // 定義圖表的數據內容
-const chartData = {
-  // 對應圖片右側的標籤名稱
+const chartData =computed(()=>{
+  return{// 對應圖片右側的標籤名稱
   labels: ['寶特瓶', '鐵罐', '鋁罐', '廢紙', '玻璃瓶', '保麗龍', '竹木', '廢漁具漁網', '無法分類廢棄物'],
   datasets: [
     {
@@ -32,14 +51,24 @@ const chartData = {
         '#376470', // 廢漁具漁網 (深灰)
         '#007F6D'  // 無法分類廢棄物 (翠綠)
       ],
-      // 根據圖片圓餅區塊比例大致分配的數值 (總和建議為 100)
-      data: [12, 11, 11, 11, 11, 11, 11, 11, 11],
-      // 邊框寬度設為 0 以符合圖片中無縫隙的效果
+      // 根據圖片圓餅區塊比例大致分配的數值
+      data: [
+        props.data.plastic_bottles,
+        props.data.iron_cans,
+        props.data.aluminum_cans,
+        props.data.waste_paper,
+        props.data.glass_bottles,
+        props.data.styrofoam,
+        props.data.bamboo_wood,
+        props.data.ghost_nets_fishing_gear,
+        props.data.unclassifiable_waste],
+      // 邊框寬度
       borderWidth: 1,
       radius: '70%' // 預設 100%
     }
-  ]
-}
+  ]}
+  
+}) 
 
 // 定義圖表的配置選項
 const chartOptions = {
@@ -81,7 +110,11 @@ const chartOptions = {
     },
     // 滑鼠移入時顯示的提示框
     tooltip: {
-      enabled: true 
+      enabled: true,
+      callbacks: {
+        // 在數值後加上 "kg"
+        label: (item) => `${item.formattedValue} kg`
+      }
     }
   }
 }

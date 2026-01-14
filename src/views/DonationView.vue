@@ -6,13 +6,84 @@
     import SwiperRescueCards from "@/components/donation/SwiperRescueCards.vue";
     import AnimationNumber from "@/components/donation/AnimationNumber.vue";
     import CleanChart from "@/components/donation/CleanChart.vue";
-    import { ref } from 'vue';
+    import {  ref, onMounted, computed, onUnmounted } from 'vue';
+    import axios from 'axios';
+    import { gsap } from 'gsap';
+    import { ScrollTrigger } from 'gsap/ScrollTrigger';
+    import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
+
+    // 註冊外掛
+    gsap.registerPlugin(ScrollTrigger,ScrollToPlugin);
+
+    const targetComponent = ref(null);
+    const bottomBtn = ref(null);
+    // 點擊按鈕前往捐款組件函式
+    const scrollToTarget = () => {
+    gsap.to(window, {
+        duration: 1,           // 捲動持續時間（秒）
+        scrollTo: {
+        y: targetComponent.value.$el, // 直接傳入 ref.value (DOM 元素)
+        offsetY: 50          // 選擇性：位移量（例如避開固定的 Header）
+        },
+        ease: "power2.inOut"   // 動畫曲線，讓捲動更平滑
+    });
+    };
+
+    onMounted(() => {
+    // 建立 GSAP 動畫：初始狀態設為隱藏（透明度 0 且往下位移）
+    
+    const btnAnim = gsap.fromTo(bottomBtn.value.$el, 
+        { y: 50, opacity: 0, display: 'none' },
+        { y: 0, opacity: 1, display: 'block', duration: 0.3, paused: true }
+    );
+
+    ScrollTrigger.create({
+        trigger: targetComponent.value.$el,
+        start: "top bottom", // 當組件頂部進入視窗底部時
+        end: "bottom top",   // 當組件底部離開視窗頂部時
+        onToggle: (self) => {
+        // self.isActive 代表目標組件是否在畫面中
+        // 當 isActive 為 false 時（不在畫面），播放動畫顯示按鈕；反之倒轉動畫
+        if (!self.isActive) {
+            btnAnim.play();
+        } else {
+            btnAnim.reverse();
+        }
+        }
+    });
+    });
+
+    onUnmounted(() => {
+    // 清理資源防止記憶體洩漏
+    ScrollTrigger.getAll().forEach(t => t.kill());
+    });
 
     const selectedYear = ref('');
+    const impactReports =ref([])
+    
+    onMounted( async () => {
+    try {
+        const base = import.meta.env.BASE_URL
+        const response = await axios.get(base + 'data/impactReports.json')
+        impactReports.value = response.data
+        //進頁面給值
+        selectedYear.value = impactReports.value[0].year
+        
+    }catch (error){
+        console.log(error)
+    }
+    })
+
+    const currentData = computed(() => {
+    return impactReports.value.find(item => item.year === selectedYear.value) || {};
+    });
+
+    
 </script>
 
 <template>
     <Banner  imgName="donation" title="支持保育"/>
+    <MyButton class="btn-xxl mbOnlyBtn" width="100%" ref="bottomBtn" @click="scrollToTarget">立即捐款</MyButton>
     <div class="container">
         <div class="row">
             <div class="col-12 col-md-6 col-lg-6">
@@ -24,9 +95,9 @@
                                     <h3>救援海龜數據</h3>
                                     <div class="select-wrapper">
                                     <select v-model="selectedYear">
-                                        <option value="">選擇年份</option>
-                                        <option value="2023">2023</option>
-                                        <option value="2024">2024</option>
+                                        <option v-for="item in impactReports" :value="item.year" :key="item.year">
+                                            {{item.year}}
+                                        </option>
                                     </select>
                                     </div>
                                 </div>
@@ -34,25 +105,29 @@
                                 <div class="stats-grid">
                                     <div class="stat-item">
                                     <span class="label">救援海龜總數</span>
-                                    <AnimationNumber value="965" class="value">隻</AnimationNumber>
+                                    <!-- <AnimationNumber :value="965" class="value">隻</AnimationNumber> -->
+                                    <AnimationNumber :value="currentData.core_metrics?.total_rescued_turtles || 0" class="value">隻</AnimationNumber>
                                     </div>
                                     <div class="stat-item">
                                     <span class="label">引導入海幼龜</span>
-                                    <AnimationNumber value="624" class="value">隻</AnimationNumber>
+                                    <!-- <AnimationNumber :value="624" class="value">隻</AnimationNumber> -->
+                                    <AnimationNumber :value="currentData.core_metrics?.hatchlings_guided_to_sea || 0" class="value">隻</AnimationNumber>
                                     </div>
                                     <div class="stat-item">
                                     <span class="label">巡邏海岸線</span>
-                                    <AnimationNumber value="15420" class="value">公里</AnimationNumber>
+                                    <!-- <AnimationNumber :value="15420" class="value">公里</AnimationNumber> -->
+                                    <AnimationNumber :value="currentData.core_metrics?.patrolled_coastline_km || 0" class="value">公里</AnimationNumber>
                                     </div>
                                     <div class="stat-item">
                                     <span class="label">專業醫療手術</span>
-                                    <AnimationNumber value="142" class="value">場</AnimationNumber>
+                                    <!-- <AnimationNumber :value="142" class="value">場</AnimationNumber> -->
+                                    <AnimationNumber :value="currentData.core_metrics?.professional_medical_surgeries || 0" class="value">場</AnimationNumber>
                                     </div>
                                 </div>
                             </section>
                             <section class="clean-section">
                                 <h3>清除海洋廢棄物</h3>
-                                <CleanChart/>
+                                <CleanChart :data="currentData.ocean_debris_removed_kg"/>
                             </section>
                         </div>
                         <div class="rescueCards">
@@ -73,7 +148,7 @@
             </div>
             <div class="col-12 col-md-6 col-lg-6">
                 <section class="mainCom">
-                        <donationCom/>
+                        <donationCom ref="targetComponent"/>
                 </section>
             </div>
         </div>
@@ -82,6 +157,16 @@
     
     
 <style scoped lang="scss">
+    .mbOnlyBtn{
+        display: none;
+        @media (width < 768px) {
+                display:block;
+                position: fixed;
+                bottom: 0;
+                z-index: 99;
+            }
+        
+    }
     .container {
         //設定預設樣式
         h2 {
@@ -97,6 +182,7 @@
             //手機板捐款組件在上面
             @media (width < 768px) {
                 flex-direction: column-reverse;
+                margin-top: 32px;
             }
         }
         .otherCom {

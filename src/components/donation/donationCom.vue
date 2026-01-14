@@ -1,6 +1,9 @@
 <script setup>
-import { ref, computed,watch } from 'vue'
+import { ref,reactive, computed,watch } from 'vue'
 import MyButton from './MyButton.vue'
+import { useAuthStore } from '@/stores/auth'
+
+const auth = useAuthStore()
 
 
 const currentStep = ref(1)
@@ -9,11 +12,54 @@ const selectedAmount = ref(1000)
 const customAmount = ref('')
 const payment = ref('ecpay')
 const anonymous = ref(false)
+const form = reactive({
+  userName:'',
+  email: '',
+  phone: '',
+  birthYear: '',
+  identity: '',
+  agree: '',
+})
+const isBlank = reactive({
+  userName:false,
+  email: false,
+  phone: false,
+  birthYear: false,
+  identity: false,
+})
+const errors = reactive({
+  userName:false,
+  email: false,
+  phone: false,
+  birthYear: false,
+  identity: false,
+  agree: false,
+  customAmount: false
+})
 
 const stepLabels = ['選擇金額', '捐款人資料填寫', '捐款完成']
 const amountOptions = {
   monthly: [800, 1000, 1200],
   once: [3000, 5000, 8000]
+}
+
+const isGreater = () => {
+  if (!selectedAmount.value) { //判斷有沒有選金額
+    if (donationType.value === 'once') {
+      if (customAmount.value < 300) {
+        errors.customAmount = true
+      } else {
+        errors.customAmount = false
+      }
+    } else {
+      if (customAmount.value < 100) {
+        errors.customAmount = true
+      } else {
+        errors.customAmount = false
+      }
+    }
+    
+  }
 }
 
 const activeAmountOptions = computed(() => amountOptions[donationType.value])
@@ -22,28 +68,131 @@ const finalAmount = computed(() => {
   return val.toLocaleString()
 })
 
-// const changeDonationType = (type) => {
-//   if (type =='monthly') {
-//     donationType.value = type;
-//     selectedAmount.value = 1000;
-//   } else if (type =='once') {
-//     donationType.value = type;
-//     selectedAmount.value = 5000;
-//   }
-// }
 watch(donationType,(newValue)=>{
+    // 金額預設選中間
     selectedAmount.value = amountOptions[newValue][1];
+    // 輸入值為空
     customAmount.value='';
+    errors.customAmount = false;
+    //付款切回ecpay
+    payment.value='ecpay';
   })
+const goStepTwo = () => {
 
+  if (!errors.customAmount) { //判斷金額是否正確
+    if (auth.isLogin) { //判斷是否登入
+      // 前往第二步
+      currentStep.value = 2
+    } else {
+      auth.isModalOpen = true
+    }
+  }
+
+}
 
 const formFields = [
-  { id: 'name', label: '姓名', type: 'text' },
+  { id: 'userName', label: '姓名', type: 'text' },
   { id: 'email', label: '電子郵件', type: 'email' },
   { id: 'phone', label: '手機號碼', type: 'tel' },
-  { id: 'birth', label: '出生年份', type: 'text' },
-  { id: 'id', label: '身分證字號', type: 'text' }
+  { id: 'birthYear', label: '出生年份(西元)', type: 'text' },
+  { id: 'identity', label: '身分證字號', type: 'text' }
 ]
+//身分證驗證
+function validateTWID(id) {
+  const regex = /^[A-Z][12]\d{8}$/
+  if (!regex.test(id)) return false
+
+  const city = {
+    A:10, B:11, C:12, D:13, E:14, F:15,
+    G:16, H:17, I:34, J:18, K:19,
+    L:20, M:21, N:22, O:35, P:23,
+    Q:24, R:25, S:26, T:27, U:28,
+    V:29, W:32, X:30, Y:31, Z:33
+  }
+
+  // 英文字母轉兩碼
+  const code = city[id[0]].toString().split('').map(Number)
+
+  // 身分證後 9 碼
+  const numbers = id.slice(1).split('').map(Number)
+
+  const idNums = code.concat(numbers)
+
+  // ✅ 正確 11 碼權重
+  const weights = [1,9,8,7,6,5,4,3,2,1,1]
+
+  const sum = idNums.reduce((acc, n, i) => acc + n * weights[i], 0)
+
+  return sum % 10 === 0
+}
+
+
+
+const validators = {
+  userName(value) {
+    return /^[\u4e00-\u9fa5]{1,50}$/.test(value)
+  },
+  email(value) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
+  },
+  phone(value) {
+    return /^09\d{8}$/.test(value)
+  },
+  birthYear(value) {
+    return /^(19|20)\d{2}$/.test(value)
+  },
+  identity(value) {
+    return validateTWID(value);
+  },
+}
+// 格式判斷函式
+const validateField = (field) => {
+  // 先設為false
+  errors[field] = false
+  isBlank[field] = form[field].trim() === ''
+  if (!isBlank[field]) {
+    errors[field] = !validators[field](form[field])
+  }
+  
+}
+//enter跳下個input
+const inputs = ref([])
+
+function focusNext(index, field) {
+  validateField(field)
+  if (!errors[field] && !isBlank[field]) {
+    const next = inputs.value[index + 1]
+    if (next) {
+      next.focus()
+    }
+  }
+}
+
+//立即捐款函式
+const goDonate = () => {
+  if (!form.agree) {
+    errors.agree = true
+  }
+  if (anonymous.value) { //是否匿名
+    validateField('email')
+    
+    if (!errors.email && !isBlank.email && !errors.agree) {
+      currentStep.value = 3
+    }
+  }else {
+    validateField('userName')
+    validateField('email')
+    validateField('phone')
+    validateField('birthYear')
+    validateField('identity')
+    let hasError = Object.values(errors).some(v => v)
+    let hasBlank = Object.values(isBlank).some(v => v)
+    if (!hasError && !hasBlank && !errors.agree) {
+      currentStep.value = 3
+  }
+  }
+
+}
 
 const reset = () => { currentStep.value = 1 }
 </script>
@@ -74,10 +223,6 @@ const reset = () => { currentStep.value = 1 }
           height="71px"
           style="border-left: none;"
         >每月捐款</MyButton>
-        <!-- <button 
-          @click="donationType = 'monthly'"
-          :class="{ active: donationType === 'monthly' }"
-        >每月捐款</button> -->
         <MyButton
           @click="donationType = 'once'"
           class=" btn-xxl"
@@ -86,10 +231,6 @@ const reset = () => { currentStep.value = 1 }
           height="71px"
           style="border-right: none;"
         >單次捐款</MyButton>
-        <!-- <button 
-          @click="donationType = 'once'"
-          :class="{ active: donationType === 'once' }"
-        >單次捐款</button> -->
       </div>
 
       <p class="intro-text">
@@ -100,20 +241,12 @@ const reset = () => { currentStep.value = 1 }
         <MyButton
           v-for="amt in activeAmountOptions" 
           :key="amt"
-          @click="selectedAmount = amt; customAmount = ''"
+          @click="selectedAmount = amt; customAmount = ''; errors.customAmount = false"
           class=" btn-xxl"
           :class="{ 'btn-outline': selectedAmount !== amt }"
           height="76px"
           width="30%"
         >${{ amt.toLocaleString() }}</MyButton>
-        <!-- <button 
-          v-for="amt in activeAmountOptions" 
-          :key="amt"
-          @click="selectedAmount = amt; customAmount = ''"
-          :class="{ active: selectedAmount === amt }"
-        >
-          ${{ amt.toLocaleString() }}
-        </button> -->
       </div>
 
       <div class="input-wrapper">
@@ -122,8 +255,16 @@ const reset = () => { currentStep.value = 1 }
           type="number" 
           placeholder="其他金額" 
           @input="selectedAmount = null"
+          @blur="isGreater"
         />
-        <p v-if="donationType === 'once'" class="error-msg">● 最低捐款金額為:300</p>
+        <p v-if="donationType === 'once'" class="error-msg" v-show="errors.customAmount">
+          <span class="material-symbols-outlined">
+          error
+          </span> 最低捐款金額為:300</p>
+        <p v-if="donationType === 'monthly'" class="error-msg" v-show="errors.customAmount">
+          <span class="material-symbols-outlined">
+          error
+          </span>最低捐款金額為:100</p>
       </div>
 
       <div class="payment-selection">
@@ -135,9 +276,7 @@ const reset = () => { currentStep.value = 1 }
           <input type="radio" v-model="payment" value="linepay"> Line Pay行動支付
         </label>
       </div>
-
-      <!-- <button @click="currentStep = 2" class="btn-submit">我要捐款</button> -->
-      <MyButton @click="currentStep = 2" class=" btn-xxl" width="50%">我要捐款</MyButton>
+      <MyButton @click="goStepTwo" class=" btn-xxl" width="50%">我要捐款</MyButton>
     </div>
 
     <div v-if="currentStep === 2" class="step-content">
@@ -157,30 +296,46 @@ const reset = () => { currentStep.value = 1 }
           <input type="checkbox" v-model="anonymous"> 我要匿名捐款（免填身分資料）
         </label>
         
-        <div class="form-group" v-if="anonymous === false" v-for="field in formFields" :key="field.id">
-          <input :id="field.type" :type="field.type" placeholder=" " class="form-input">
-          <label :for="field.type">{{ field.label }}</label>
-          <p class="error-msg">● 請填入以上資料</p>
+        <div class="form-group" v-if="anonymous === false" v-for="field,index in formFields" :key="field.id">
+          <input :id="field.id" :type="field.type" placeholder=" " class="form-input" @blur="validateField(field.id)" v-model="form[field.id]" :ref="el => inputs[index] = el" @keydown.enter.prevent="focusNext(index,field.id)">
+          <label :for="field.id">{{ field.label }}</label>
+          <p class="error-msg" v-if="isBlank[field.id]">
+            <span class="material-symbols-outlined">
+          error
+          </span>請填入以上資料</p>
+          <p class="error-msg" v-if="errors[field.id]">
+            <span class="material-symbols-outlined">
+          error
+          </span>格式有誤</p>
         </div>
         <div class="form-group" v-if="anonymous === true">
           <input type="text" placeholder="善心人士" class="form-input" disabled>
         </div>
         <div class="form-group" v-if="anonymous === true">
-          <input id="email" type="email" placeholder=" " class="form-input">
+          <input id="email" type="email" placeholder=" " class="form-input" @blur="validateField('email')" v-model="form.email">
           <label for="email">電子郵件</label>
-          <p class="error-msg">● 請填入以上資料</p>
+          <p class="error-msg" v-if="isBlank.email">
+            <span class="material-symbols-outlined">
+          error
+          </span>請填入以上資料</p>
+          <p class="error-msg" v-if="errors.email">
+            <span class="material-symbols-outlined">
+          error
+          </span>格式有誤</p>
         </div>
         <div class="policy-group">
           <label class="checkbox-label policy">
-            <input type="checkbox">
+            <input type="checkbox" v-model="form.agree" @click="errors.agree=false">
             <span>為確保保育資源能精確且即時地投入海洋保護工作，捐款程序一經完成，恕不接受退款申請。 在您按下送出前，請務必再次核對捐款金額與相關資訊。您的每一分善款都將被謹慎運用於海龜救援與棲地守護。若對款項運用有任何疑問，歡迎隨時與我們聯繫，我們將竭誠為您說明。感謝您的慷慨支持！ </span>
           </label>
-          <p class="error-msg">● 您尚未同意保護政策</p> 
+          <p class="error-msg" v-if="errors.agree">
+            <span class="material-symbols-outlined">
+          error
+          </span>您尚未同意保護政策</p> 
 
         </div>
       </div>
-      <MyButton @click="currentStep = 3" class=" btn-xxl" width="50%">立即捐款</MyButton>
-      <!-- <button @click="currentStep = 3" class="btn-submit">立即捐款</button> -->
+      <MyButton @click="goDonate" class=" btn-xxl" width="50%">立即捐款</MyButton>
     </div>
 
     <div v-if="currentStep === 3" class="step-content">
@@ -200,17 +355,26 @@ const reset = () => { currentStep.value = 1 }
         </div>
   
         <div class="photo-box">
-          <img src="https://images.unsplash.com/photo-1544928147-79a2dbc1f389?auto=format&fit=crop&w=600&q=80" alt="Sea Turtle">
+          <img src="https://picsum.photos/300/200" alt="Sea Turtle">
           <div class="caption">您的支持正讓「小翠」這樣的海龜獲得重生。</div>
         </div>
         <MyButton @click="reset" class=" btn-xxl" width="50%">下載收據</MyButton>
-        <!-- <button @click="reset" class="btn-submit">下載收據</button> -->
       </div>
     </div>
   </div>
 </template>
 
 <style lang="scss" scoped>
+//google font
+.material-symbols-outlined {
+  font-variation-settings:
+  'FILL' 1,
+  'wght' 700,
+  'GRAD' 0,
+  'opsz' 20;
+  color: $highlight-color2;
+  font-size: 16px;
+}
 
 .donation-card {
     position: sticky;
@@ -273,7 +437,6 @@ const reset = () => { currentStep.value = 1 }
 }
 
 .step-content {
-  // padding: 24px;
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -326,6 +489,9 @@ const reset = () => { currentStep.value = 1 }
   color: $highlight-color2;
   @include font-body;
   margin-top: 5px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .payment-selection {
