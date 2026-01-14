@@ -3,8 +3,8 @@
 </script>
 
 <template>
- <div class="turtleBanner">
-        <div class="container">
+    <div class="turtleBanner">
+        <!-- <div class="container"> -->
         <div class="turtleBannerInfo">
             <h1 class="">你所不知道的海龜</h1>
             <p>
@@ -12,40 +12,58 @@
                 IUCN 紅色名錄列為瀕危或易危物種。這些古老的海洋旅人，正處於前所未有的生存危機之中。
             </p>
         </div>
-        </div>
+        <!-- </div> -->
     </div>
 </template>
 
-<style  lang="scss" scoped>
+<style lang="scss" scoped>
 .turtleBanner {
     width: 100%;
     height: 720px;
-    background-image: url('/public/img/GuideView/turtleBanner.png');
+    background-image: url('/public/img/GuideView/turtleBanner4.png');
     background-size: cover;
-    background-position: center;
+    background-position: 30%;
     display: flex;
     align-items: center;
+
+    @media (max-width: 768px) {
+        height: 600px;
+         background-position: 35%;
+    }
 }
 
 .turtleBannerInfo {
     color: $text-white;
     display: flex;
     flex-direction: column;
-    margin-left: 10%;
+    margin-left: 15%;
     width: 100%;
     max-width: 442px;
     gap: 86px;
-}
+    @media (max-width: 768px) {
+            gap: 50px;
+        }
 
-.turtleBannerInfo h1 {
-    @include font-secondary;
-}
+    h1 {
+        font-size: $d-size-secondary;
+        font-weight: bold;
 
-.turtleBannerInfo p {
-    @include font-body-l;
-    //text-align: justify;
-    width: 100%;
-    max-width: 392px;
+        @media (max-width: 768px) {
+            font-size: $m-size-tertiary;
+        }
+    }
+
+    p {
+        @include font-body-l;
+        width: 70%;
+
+        //max-width: 392px;
+        @media (max-width: 768px) {
+            font-size: $size-body;
+            //width: 50%;
+            margin-bottom: 60px;
+        }
+    }
 }
 
 </style>

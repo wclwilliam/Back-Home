@@ -14,8 +14,9 @@ export default defineConfig({
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))
     },
-  }, 
+  },
   css: {
+    devSourcemap: true,
     preprocessorOptions: {
       scss: {
         additionalData: `
