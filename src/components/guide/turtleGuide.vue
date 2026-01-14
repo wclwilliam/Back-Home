@@ -65,7 +65,7 @@ const turtleSections = computed(() => {
     color: $primary-color;
     text-align: center;
     font-weight: bold;
-    margin-top: 67px;
+    margin: 67px 0;
 }
 
 

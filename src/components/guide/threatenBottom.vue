@@ -2,22 +2,28 @@
 import { ref } from 'vue';
 import LightboxModal from '@/components/guide/LightboxModal.vue';
 import { cardData } from '@/components/guide/threatenData';
+import { Swiper, SwiperSlide } from 'swiper/vue';
+import { Pagination } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/pagination';
 
-// --- 1. 新增：定義控制燈箱的變數 ---
-// const isModalOpen = ref(false); // 控制開關 (預設關閉)
-// const currentItem = ref({});    // 暫存被點到的那一筆資料
 
-// // --- 2. 新增：開啟燈箱的函式 ---
-// const openModal = (item) => {
-//     console.log("點擊到了:", item.title); // 可以用這行檢查有沒有點擊成功
-//     currentItem.value = item; // 把點到的資料存起來
-//     isModalOpen.value = true; // 打開燈箱
-// };
+const isModalOpen = ref(false); 
+const currentItem = ref({});    
+
+
+const openModal = (item) => {
+ currentItem.value = item; 
+ isModalOpen.value = true; 
+};
+
+//swiper
+const modules = [Pagination];
 
 </script>
 <template>
-    <section class="flexCard container">
-        <div v-for="item in cardData" :key="item.id" class="bottomcard" > <!-- @click="openModal(item)" -->
+    <section class="desktopFlexCard container">
+        <div v-for="item in cardData" :key="item.id" class="bottomcard"   @click="openModal(item)">
             <img :src="item.image">
 
             <div class="overlay">
@@ -28,11 +34,31 @@ import { cardData } from '@/components/guide/threatenData';
             </div>
         </div>
     </section>
-    <!-- <LightboxModal :isOpen="isModalOpen" :item="currentItem" @close="isModalOpen = false" /> -->
+    <LightboxModal :isOpen="isModalOpen" :item="currentItem" @close="isModalOpen = false" />
+
+    <div class="mobileFlexCard">
+      <swiper
+        :modules="modules"
+        :slides-per-view="1.2"  :space-between="20"
+        :centered-slides="true"
+        :pagination="{ clickable: true }"
+      >
+        <swiper-slide v-for="item in cardData" :key="item.id" >
+          <div class="mobileCard">
+            <div class="cardImage">
+              <img :src="item.image" :alt="item.title">
+            </div>
+            <div class="cardContent">
+              <h3>{{ item.modalTitle }}</h3>
+              <p>{{ item.modalDesc}}</p> </div>
+          </div>
+        </swiper-slide>
+      </swiper>
+    </div>
 </template>
 
 <style lang="scss" scoped>
-.flexCard {
+.desktopFlexCard {
     margin: 67px auto;
     display: flex;
     width: 100%;
@@ -96,5 +122,56 @@ import { cardData } from '@/components/guide/threatenData';
         line-height: 1.5;
         text-align: center;
     }
+}
+
+//手機Swiper樣式
+.mobileFlexCard {
+  display: none; 
+  width: 100%;
+  padding: 60px 0;
+
+  .mobileCard {
+    height: 400px;
+    background: $card-color; 
+    overflow: hidden;
+   
+    .cardImage {
+      width: 100%;
+      height: 200px;
+      
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+    }
+
+    .cardContent {
+      padding: 20px;
+      color: $text-color;
+      
+      h3 {
+        margin-bottom: 10px;
+        font-size: $size-body;
+        font-weight: bold;
+        text-align: center;
+      }
+      
+      p {
+        font-size: $m-size-caption;
+        line-height: 1.6;
+      }
+    }
+  }
+}
+
+
+@media (max-width: 768px) {
+  .desktopFlexCard {
+    display: none; 
+  }
+  .mobileFlexCard  {
+    display: block; 
+  }
 }
 </style>
