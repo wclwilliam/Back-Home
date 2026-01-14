@@ -190,6 +190,9 @@ h1 {
     font-size: $size-body-l;
     //font-weight: bold;
     color: $text-color;
+    h2{
+        font-weight: bold;
+    }
 
     @media (max-width: 992px) {
         display: grid;

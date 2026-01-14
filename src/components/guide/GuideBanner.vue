@@ -20,15 +20,15 @@
 .turtleBanner {
     width: 100%;
     height: 720px;
-    background-image: url('/public/img/GuideView/turtleBanner3.png');
+    background-image: url('/public/img/GuideView/turtleBanner4.png');
     background-size: cover;
-    background-position: center;
+    background-position: 30%;
     display: flex;
     align-items: center;
 
     @media (max-width: 768px) {
         height: 600px;
-         background-position: 30%;
+         background-position: 35%;
     }
 }
 
@@ -36,7 +36,7 @@
     color: $text-white;
     display: flex;
     flex-direction: column;
-    margin-left: 5%;
+    margin-left: 15%;
     width: 100%;
     max-width: 442px;
     gap: 86px;
@@ -60,7 +60,8 @@
         //max-width: 392px;
         @media (max-width: 768px) {
             font-size: $size-body;
-            width: 50%;
+            //width: 50%;
+            margin-bottom: 60px;
         }
     }
 }
