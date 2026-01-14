@@ -108,7 +108,6 @@ const reviewData = reactive({
 const setRating = (starCount) => {
   reviewData.rating = starCount
 }
-
 </script>
 <template>
   <div class="container">
@@ -346,7 +345,6 @@ const setRating = (starCount) => {
   padding: 12px 16px;
   border: 1px solid $backstage-bar-line-color;
   background-color: $backstage-swipe-color;
-  border-radius: 4px;
   font-size: 16px;
   color: #333;
   outline: none;
@@ -355,8 +353,6 @@ const setRating = (starCount) => {
 
 .disable {
   background-color: $backstage-bar-line-color;
-  /* 很淡的灰底 */
-  border-radius: 4px;
 }
 
 .info {
@@ -570,7 +566,6 @@ textarea {
   background: #fff; 
   border: 1px solid #ccc; 
   padding: 10px;
-  border-radius: 4px;
   box-shadow: 0 2px 10px rgba(0,0,0,0.1);
 }
 
@@ -582,14 +577,12 @@ textarea {
   justify-content: center;
   align-items: center;
   margin-top: 24px;
-  border-radius: 8px;
 
   .cta-content {
     text-align: center;
     max-width: 500px;
     background-color: $text-white;
     padding: 40px;
-    border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 
     h3 {

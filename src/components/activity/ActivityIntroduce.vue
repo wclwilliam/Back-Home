@@ -271,13 +271,13 @@ const toggleBookmark = () => {
 
 .content-box {
   padding: 24px;
-  min-height: 300px; // 確保高度一致
+  min-height: 200px; // 確保高度一致
   height: 100%;
 }
 
 // 活動簡介 
 .desc-box {
-  background-color: $card-color; // #CFDEE0
+  background-color: $card-color;
 
   .section-text {
     @include font-body;
@@ -321,13 +321,17 @@ const toggleBookmark = () => {
   
   .desc-col {
     border-right: none;
-    border-bottom: 4px solid #fff; // 手機版改為上下分隔
   }
+  .hero-row {
+  flex-wrap: nowrap;
+  
+}
   .details-row{
     flex-direction: row;
   }
   
   .hero-image-col .img-wrapper {
+    flex-direction: row;
     min-height: 250px;
   }
 }

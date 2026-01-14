@@ -113,7 +113,6 @@ const toggleBookmark = (e) => {
 <style lang="scss" scoped>
 @import "@/assets/scss/component/_card.scss";
 .activityCard {
-  margin:  12px;
   cursor: pointer; 
 
   // ✅ 正確寫法：當 hover 整張卡片時，改變裡面的 .btn
@@ -130,6 +129,9 @@ const toggleBookmark = (e) => {
   }
 }
 .cardPic {
+      width: 100%;            
+      aspect-ratio: 4 / 3;    
+      overflow: hidden;
     .statusBadge {
       position: absolute;
       top: 16px;
