@@ -1,0 +1,38 @@
+[
+  {
+    "id": 1,
+    "image": "award_1.png",
+    "year": "2024",
+    "title": "國家永續發展獎"
+  },
+  {
+    "id": 2,
+    "image": "award_2.png",
+    "year": "2025",
+    "title": "亞太環境行動金獎"
+  },
+  {
+    "id": 3,
+    "image": "award_3.png",
+    "year": "2025",
+    "title": "數位公益卓越獎"
+  },
+  {
+    "id": 4,
+    "image": "award_4.png",
+    "year": "2024",
+    "title": "開放數據創新獎"
+  },
+  {
+    "id": 5,
+    "image": "award_5.png",
+    "year": "2025",
+    "title": "年度環境教育推手"
+  },
+  {
+    "id": 6,
+    "image": "award_6.png",
+    "year": "2022",
+    "title": "金點設計獎"
+  }
+]

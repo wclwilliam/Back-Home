@@ -1,3 +1,11 @@
+@import '../base/color';
+@import '../base/font';
+@import '../base/var';
+@import '../mixin/mixins';
+
+
+
+
 .headerLogo {
     width: fit-content;
     cursor: pointer;
@@ -36,6 +44,19 @@ header {
                     padding: 0 clamp(12px, 3vw, 54px);
                     gap: clamp(8px, 3vw, 54px);
                     color: $text-white;
+
+                    a {
+                        padding: 3px 0;
+                        border-bottom: 3px solid transparent;
+                        transition: all 0.1s ease-out;
+                        display: inline-block;
+
+
+                        &:hover,
+                        &.router-link-active {
+                            border-bottom-color: $text-white;
+                        }
+                    }
                 }
 
                 @media (max-width: 768px) {

@@ -1,29 +1,28 @@
 <script setup>
-// 列表
-import { ref, computed, onMounted } from 'vue'
-import axios from 'axios'
-// 1. 定義資料
-const productList = ref([])
-// 2. 請求資料
-onMounted(() => {
-  axios.get('https://fakestoreapi.com/products').then((response) => {
-    // handle success
-    productList.value = response.data
-    //把請求的到的資料丟進productList
-  })
-})
+import AboutBanner from '@/components/about/Banner.vue'
+import AboutIntro from '@/components/about/Intro.vue'
+import AboutExperts from '@/components/about/Experts.vue'
+import AboutPartners from '@/components/about/Partners.vue'
 </script>
 <template>
-  <!-- {{ productList }} -->
-
-  <RouterLink :to="`/about/${product.id}`" v-for="product in productList" :key="product.id">
-    {{ product.id }}. {{ product.title }} / ${{ product.price }}
-    <div><img :src="product.image" alt="" /></div>
-  </RouterLink>
+  <div class="banner">
+    <AboutBanner />
+  </div>
+  <div class="intro">
+    <AboutIntro />
+  </div>
+  <div class="experts">
+    <AboutExperts />
+  </div>
+  <div class="partners">
+    <AboutPartners />
+  </div>
 </template>
 <style scoped>
-img {
-  width: 100px;
-  height: auto;
+.banner {
+  margin: 5.5rem 0;
+}
+.intro {
+  margin: 3.5rem 0;
 }
 </style>

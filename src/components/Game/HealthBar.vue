@@ -2,7 +2,7 @@
 import { computed } from 'vue';
 
 // 定義 Props，讓父組件可以傳入目前的生存機率
-const props = defineProps({
+const { health, maxHealth } = defineProps({
   health: {
     type: Number,
     default: 100
@@ -13,11 +13,20 @@ const props = defineProps({
   }
 });
 
+// const chooseOption = (opt) => {
+//   currentId.value = opt.nextId
+
+//   const nextNode = gameData.value[opt.nextId]
+//   const change = nextNode?.healthChange ?? 0 // -1 / 0
+
+//   health.value = Math.max(0, health.value + change * 20)
+// }
+
 // 計算屬性：將百分比轉換為 5 顆愛心的顯示狀態
 const totalHearts = 5;
 const activeHeartsCount = computed(() => {
   // 每 20% 代表一顆實心愛心
-  return Math.ceil((props.health / props.maxHealth) * totalHearts);
+  return Math.ceil((health / maxHealth) * totalHearts);
 });
 </script>
 
@@ -43,16 +52,14 @@ const activeHeartsCount = computed(() => {
 
 <style lang="scss" scoped>
 // 建議將顏色定義為變數，方便統一管理
-$color-active: #ff4b2b; // 你的 $highlight-color2
 $color-inactive: #e0e0e0; // 未達成時的灰色
-$font-main: 'Noto Sans TC', sans-serif;
 
 .health-bar {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 16px;
+  gap: 8px;
   user-select: none; // 防止使用者選取
 
   &__percentage {
@@ -63,7 +70,7 @@ $font-main: 'Noto Sans TC', sans-serif;
   &__hearts {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 4px;
   }
 
   &__icon {
@@ -80,11 +87,11 @@ $font-main: 'Noto Sans TC', sans-serif;
   }
 
   &__label {
-    @include font-body-bold;
+    @include font-caption;
     color: $text-white;
     background-color: $primary-color;
     padding: 4px 8px;
-    border-radius: 10px;
+    border-radius: 100px;
   }
 }
 </style>

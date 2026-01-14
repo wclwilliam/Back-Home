@@ -40,8 +40,8 @@ console.log(imgURL.value);
                 justify-content: center;
                 align-items: center;
                 h1 {
-                        font-size: $d-size-primary;
                         color: $primary-color;
+                        @include font-primary;
                 }
         } 
         @media (min-width: 1920px) {

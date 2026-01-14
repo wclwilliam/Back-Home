@@ -1,0 +1,177 @@
+<script setup>
+import { ref } from 'vue';
+import LightboxModal from '@/components/guide/LightboxModal.vue';
+import { cardData } from '@/components/guide/threatenData';
+import { Swiper, SwiperSlide } from 'swiper/vue';
+import { Pagination } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/pagination';
+
+
+const isModalOpen = ref(false); 
+const currentItem = ref({});    
+
+
+const openModal = (item) => {
+ currentItem.value = item; 
+ isModalOpen.value = true; 
+};
+
+//swiper
+const modules = [Pagination];
+
+</script>
+<template>
+    <section class="desktopFlexCard container">
+        <div v-for="item in cardData" :key="item.id" class="bottomcard"   @click="openModal(item)">
+            <img :src="item.image">
+
+            <div class="overlay">
+                <div class="overlayContent">
+                    <h3>{{ item.title }}</h3>
+                    <p v-html="item.title2"></p>
+                </div>
+            </div>
+        </div>
+    </section>
+    <LightboxModal :isOpen="isModalOpen" :item="currentItem" @close="isModalOpen = false" />
+
+    <div class="mobileFlexCard">
+      <swiper
+        :modules="modules"
+        :slides-per-view="1.2"  :space-between="20"
+        :centered-slides="true"
+        :pagination="{ clickable: true }"
+      >
+        <swiper-slide v-for="item in cardData" :key="item.id" >
+          <div class="mobileCard">
+            <div class="cardImage">
+              <img :src="item.image" :alt="item.title">
+            </div>
+            <div class="cardContent">
+              <h3>{{ item.modalTitle }}</h3>
+              <p>{{ item.modalDesc}}</p> </div>
+          </div>
+        </swiper-slide>
+      </swiper>
+    </div>
+</template>
+
+<style lang="scss" scoped>
+.desktopFlexCard {
+    margin: 67px auto;
+    display: flex;
+    width: 100%;
+    height: 400px;
+    overflow: hidden;
+}
+
+.bottomcard {
+    flex: 1;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.3s ease;
+    overflow: hidden;
+
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    &:hover {
+        flex: 1.5;
+
+        .overlay {
+            opacity: 1;
+        }
+    }
+}
+
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: all 0.3s ease;
+    background: rgba(0, 0, 0, 0.6);
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.overlayContent {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+    color: white;
+    z-index: 100;
+
+    h3 {
+        font-size: $d-size-tertiary;
+        font-weight: bold;
+    }
+
+    p {
+        font-size: $size-body;
+        font-weight: bold;
+        line-height: 1.5;
+        text-align: center;
+    }
+}
+
+//手機Swiper樣式
+.mobileFlexCard {
+  display: none; 
+  width: 100%;
+  padding: 60px 0;
+
+  .mobileCard {
+    height: 400px;
+    background: $card-color; 
+    overflow: hidden;
+   
+    .cardImage {
+      width: 100%;
+      height: 200px;
+      
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+    }
+
+    .cardContent {
+      padding: 20px;
+      color: $text-color;
+      
+      h3 {
+        margin-bottom: 10px;
+        font-size: $size-body;
+        font-weight: bold;
+        text-align: center;
+      }
+      
+      p {
+        font-size: $m-size-caption;
+        line-height: 1.6;
+      }
+    }
+  }
+}
+
+
+@media (max-width: 768px) {
+  .desktopFlexCard {
+    display: none; 
+  }
+  .mobileFlexCard  {
+    display: block; 
+  }
+}
+</style>

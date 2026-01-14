@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
+import { MENU_ITEMS } from '@/config/menu.js'
 
 //回首頁
 const router = useRouter()
@@ -9,14 +10,7 @@ const goHome = () => {
 }
 
 //動態渲染nav
-const menuItems = [
-  { text: '關於協會', path: '/about' },
-  { text: '最新消息', path: '/News' },
-  { text: '認識海龜', path: '/guide' },
-  { text: '海洋守護', path: '/game' },
-  { text: '志工活動', path: '/activity' },
-  { text: '支持保育', path: '/donation' },
-]
+const menuItems = MENU_ITEMS
 
 //漢堡選單
 const isMenuOpen = ref(false)
@@ -29,7 +23,7 @@ const toggleMenu = () => {
   <header>
     <div class="container">
       <div class="headerLogo" @click="goHome">
-        <img src="/BackHomeLogo.png" alt="Logo" />
+        <img src="/BackHomeLogo.png" alt="Back Home Logo" />
       </div>
       <div class="functionWrapper">
         <nav class="navHeader" :class="{ showMenu: isMenuOpen }">
@@ -52,4 +46,6 @@ const toggleMenu = () => {
   </header>
 </template>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+@import '@/assets/scss/layouts/header.scss';
+</style>
