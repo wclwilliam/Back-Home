@@ -68,8 +68,8 @@ h2 {
 .desktop-grid {
   display: flex;
 
-  @media (max-width: 767px) {
-    display: none; // 小於 768px 隱藏
+  @media (max-width: 1023px) {
+    display: none;
   }
 }
 
@@ -77,8 +77,8 @@ h2 {
 .mobile-swiper {
   display: none;
 
-  @media (max-width: 767px) {
-    display: block; // 小於 768px 顯示
+  @media (max-width: 1023px) {
+    display: block;
   }
 }
 
