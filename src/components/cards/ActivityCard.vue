@@ -1,112 +1,143 @@
 <script setup>
 //列表
-import { computed, ref, onMounted } from 'vue'
-// 定義外部傳入的資料
+import { computed , ref } from 'vue'
+import { useRouter } from 'vue-router'
+
+
+//頁面跳轉
+const router = useRouter()
+const goToDetail = () => {
+  // 跳轉到詳情頁，並帶入該活動的 id
+  router.push({ 
+    name: 'activityInfo', 
+    params: { id: props.event.id } })
+}
+
+
+// 接收外部傳入的資料
 const props = defineProps({
-  id: { type: Number, required: true },//活動編號
-  image: {type: String , default: 'https://picsum.photos/300/200'},
-  title: { type: String, required: true },
-  status: { type: String, default: 'open' },// 活動的狀態
-  type: { type: String, required: true },//活動類別
-  date: { type: String, required: true },
-  location: { type: String, required: true },
-  currentPeople: { type: Number, default: 0 }, 
-  maxPeople: { type: Number, required: true }
+  event: { type: Object, required: true }
 })
-// 活動是否已結束
-const isEnded = computed(() => props.status === 'ended')
-//活動報名是否額滿
+
+//邏輯處理
+const isEnded = computed(() => props.event.status === 'ended')
+
 const isFulled = computed(() => {
-  if(!props.maxPeople) return false
-  return props.currentPeople >= props.maxPeople
+  if (!props.event.maxPeople) return false
+  return props.event.currentPeople >= props.event.maxPeople
 })
-// 按鈕顯示文字隨狀態改變
+
 const btnTxt = computed(() => {
-  if(isEnded.value )return '查看詳情'
-  if(isFulled.value)return '已額滿'
-  return'立即報名' });
+  if (isEnded.value) return '查看詳情'
+  if (isFulled.value) return '已額滿'
+  return '立即報名'
+})
 
-// 進度條寬度
-const progressStyle = computed (() => {
-  if(props.maxPeople === 0) return {width: '0%'}
-  const percent = (props.currentPeople / props.maxPeople) * 100
-  return {width : `${percent}%`}
-});
+const progressStyle = computed(() => {
+  const { currentPeople, maxPeople } = props.event
+  if (!maxPeople || maxPeople === 0) return { width: '0%' }
+  const percent = (currentPeople / maxPeople) * 100
+  return { width: `${percent}%` }
+})
 
+// 收藏功能邏輯 
+const isBookmarked = ref(false) // 是否已收藏
+const isHovering = ref(false) // 是否正在 hover
 
+// 根據狀態決定要顯示哪個 Icon 名稱
+const bookmarkIcon = computed(() => {
+  if (isBookmarked.value) {
+    return isHovering.value ? 'bookmark' : 'bookmark'
+  } else {
+    return isHovering.value ? 'bookmark_add' : 'bookmark'
+  }
+})
 
+const toggleBookmark = (e) => {
+  //防止點愛心時觸發卡片跳轉
+  e.stopPropagation() 
+  isBookmarked.value = !isBookmarked.value
+}
 </script>
 <template>
-  <div class="col-sm-4 col-md-6 col-lg-4">
-    <div class="cardContainer activityCard">
-      <div class="cardPic">
-        <img :src="image" :alt="title">
-        <div v-if="isEnded" class="statusBadge ">
-          已結束
-        </div>
-        <div class="typeBadge">
-          <span class="material-symbols-outlined">
-            sell
-          </span>
-          {{type}}
-        </div>
+    <div class="cardContainer activityCard" @click="goToDetail">
+    <div class="cardPic">
+      <img :src="event.image" :alt="event.title">
+      <div v-if="isEnded" class="statusBadge">已結束</div>
+      <div class="typeBadge">
+        <span class="material-symbols-outlined">sell</span>
+        {{ event.type }}
       </div>
-  
-      <div class="cardInfo">
-        <div class="cardTitle">
-          <p>{{ title }}</p>
-          <span class="material-symbols-outlined bookmark">
-            bookmark_add
-          </span>
-        </div>
-        <div class="divider"></div>
-        <div class="rowInfo dateTime">
-          <span class="material-symbols-outlined calendar">
-            calendar_today
-          </span>
-          <h3>{{ date }}</h3>
-        </div>
-        <div class="rowInfo location">
-  
-          <span class="material-symbols-outlined location">
-            location_on
-          </span>
-          <h3>{{ location }}</h3>
-        </div>
-        <div v-if="!isEnded" class="rowInfo signUpNum">
-          <span class="material-symbols-outlined group">
-            group_add
-          </span>
-          <div class="progress-track-container">
-            <div class="track-bg"></div>
-            <div  class="track-fill" :style="progressStyle"></div>
-          </div>
-          <div>{{currentPeople}}/{{ maxPeople }}</div>
-        </div>
-  
-      </div>
-    <button class="btn  btn-outline btn-solid">
-      {{btnTxt}}
-      <span class="material-symbols-outlined arrow">
-        arrow_forward
+    </div>
+
+    <div class="cardInfo">
+      <div class="cardTitle">
+        <p>{{ event.title }}</p>
+        <span 
+        class="material-symbols-outlined bookmark"
+        :class="{ 'is-active': isBookmarked }"
+        @click="toggleBookmark"
+        @mouseenter="isHovering = true"
+        @mouseleave="isHovering = false"
+      >
+        {{ bookmarkIcon }}
       </span>
+      </div>
+      <div class="divider"></div>
+      <div class="rowInfo dateTime">
+        <span class="material-symbols-outlined calendar">calendar_today</span>
+        <h3>{{ event.date }}</h3>
+      </div>
+      <div class="rowInfo location">
+        <span class="material-symbols-outlined location">location_on</span>
+        <h3>{{ event.location }}</h3>
+      </div>
+      
+      <div v-if="!isEnded" class="rowInfo signUpNum">
+        <span class="material-symbols-outlined group">group_add</span>
+        <div class="progress-track-container">
+          <div class="track-bg"></div>
+          <div class="track-fill" :style="progressStyle"></div>
+        </div>
+        <div>{{ event.currentPeople }}/{{ event.maxPeople }}</div>
+      </div>
+    </div>
+
+    <button class="btn btn-outline btn-solid">
+      {{ btnTxt }}
+      <span class="material-symbols-outlined arrow">arrow_forward</span>
     </button>
-  </div>
   </div>
 </template>
 
 <style lang="scss" scoped>
 @import "@/assets/scss/component/_card.scss";
+.activityCard {
+  margin:  12px;
+  cursor: pointer; 
 
+  // ✅ 正確寫法：當 hover 整張卡片時，改變裡面的 .btn
+  &:hover {
+    .btn {
+      background-color: $secondary-color;
+      color: $text-white;
+      border-color: $secondary-color; // 邊框也要變色
+
+      .arrow {
+        color: $text-white;
+      }
+    }
+  }
+}
 .cardPic {
-    .status-badge {
+    .statusBadge {
       position: absolute;
       top: 16px;
       left: 0;
-      padding: 8px 16px;
+      padding: 8px ;
       background-color: $highlight-color2;
       color: $activity-card-color;
-      @include font-tertiary;
+      @include font-body-bold;
     }
 
     .typeBadge {
@@ -114,7 +145,7 @@ const progressStyle = computed (() => {
       top: 0px;
       right: 0px;
       gap: 8px;
-      padding: 8px 16px;
+      padding: 8px;
       background-color: $highlight-color3;
       color: $text-color;
       @include font-body-bold;
@@ -124,15 +155,39 @@ const progressStyle = computed (() => {
   }
 
   .cardInfo {
-    .bookmark {
-      font-size: 24px
+    .cardTitle {
+      min-height: 3rem;
     }
+    .bookmark {
+    font-size: 24px;
+    cursor: pointer;         
+    transition: all 0.2s ease; 
+    color: $secondary-color;       
+    user-select: none;        
+
+    &:hover {
+      color: $highlight-color2; 
+    }
+
+    &.is-active {
+      color: $highlight-color2; 
+      font-variation-settings: 'FILL' 1; 
+    }
+  }
 
     .rowInfo {
       display: flex;
       flex-wrap: wrap;
       @include font-body-l;
       color: $text-color;
+      margin-bottom: 8px;
+      gap: 8px;
+
+      }
+      .rowInfo.location {
+      display: flex;
+      flex-wrap: nowrap;
+      align-self: start;
       margin-bottom: 8px;
       gap: 8px;
 
@@ -154,17 +209,15 @@ const progressStyle = computed (() => {
     border-bottom: 2px solid #ffffff00;
     border-right: 0;
     border-left: 0;
+    transition: all 0.3s ease;
 
     .arrow {
       color: $secondary-color;
+      transition: color 0.3s ease;
     }
 
-    &:hover {
-      border: 2px solid $secondary-color;
-      background-color: $secondary-color;
-      color: $text-white;
-    }
   }
+  
 
   @media (min-width: 768px) {
     .cardInfo {
