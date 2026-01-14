@@ -62,9 +62,8 @@ onMounted(() => {
 });
 
 
-// 當 currentId 改變重畫地圖
+// currentId 改變重畫地圖
 watch(currentId, () => {
-    // 因為 currentTurtleInfo 隨著 ID 自動更新，直接拿來畫
     drawTurtleLayer(currentTurtleInfo.value);
 });
 
@@ -88,7 +87,7 @@ watch(currentId, () => {
                     <h2 v-if="currentTurtleInfo.nameCN">
                         {{ currentTurtleInfo.nameCN }} ({{ currentTurtleInfo.nameEN }})
                     </h2>
-                    <!-- <h2 v-else>請選擇海龜</h2> -->
+                    
 
                     <div v-if="currentTurtleInfo.nameCN" class="mapLabel">
                         <p><span class="label">學名：</span> {{ currentTurtleInfo.ScientificName }}</p>
@@ -117,7 +116,7 @@ h1 {
 
 .profileList {
     display: flex;
-    gap: 37px;
+    gap: 15px;
     padding: 20px 0;
     flex-wrap: wrap;
 }
@@ -171,7 +170,6 @@ h1 {
     height: 100%;
     @media (max-width: 992px) {
         display: grid;
-        //grid-column: 1;  
         width: 100%;
     }
 }
@@ -188,7 +186,6 @@ h1 {
     gap: 30px;
     box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
     font-size: $size-body-l;
-    //font-weight: bold;
     color: $text-color;
     h2{
         font-weight: bold;

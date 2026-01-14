@@ -120,9 +120,6 @@ h2 {
     grid-template-columns: 1fr 1.5fr 1fr;
     grid-auto-rows: 240px;
     gap: 10px;
-    //   @media (max-width: 768px) {
-    //         grid-template-columns: 1fr;
-    //     }
 }
 
 .card {
@@ -132,9 +129,6 @@ h2 {
     flex-direction: column;
     justify-content: space-between;
     color: white;
-    //transition: transform 0.3s ease;
-    //overflow: hidden;
-    //position: relative;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
 }
 

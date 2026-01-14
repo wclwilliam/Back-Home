@@ -1,11 +1,13 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
-import { useRouter } from 'vue-router' 
+import { useRouter } from 'vue-router'
 import NewsCard from '../components/cards/NewsCard.vue'
 import Banner from "@/components/Banner.vue";
+import clickBar from '@/components/clickBar.vue';
+import searchBox from '@/components/searchBox.vue';
 
-const router = useRouter() 
+const router = useRouter()
 
 
 const newslist = ref([])
@@ -27,7 +29,7 @@ const formatDate = (dateString) => {
   })
 }
 const goToDetail = (id) => {
-  router.push({ 
+  router.push({
     name: 'NewsDetail', // 對應 router/index.js 中的 name
     params: { id: id }  // 傳遞參數
   })
@@ -35,23 +37,17 @@ const goToDetail = (id) => {
 </script>
 
 <template>
-  <Banner  imgName="news" title="最新消息"/>
+  <Banner imgName="news" title="最新消息" />
+
   <main class="container">
-    
+    <clickBar></clickBar>
+    <searchBox></searchBox>
     <div class="row" v-if="newslist.length > 0">
-      
-      <NewsCard 
-        v-for="item in newslist" 
-        :key="item.article_id"
-        :id="item.article_id"
-        :title="item.title"
-        :date="formatDate(item.publish_time)" 
-        :typeBadge="item.category" 
-        :image="item.image_url"
-        @click="goToDetail(item.article_id)"
-        style="cursor: pointer;" 
-      />
-      </div>
+
+      <NewsCard v-for="item in newslist" :key="item.article_id" :id="item.article_id" :title="item.title"
+        :date="formatDate(item.publish_time)" :typeBadge="item.category" :image="item.image_url"
+        @click="goToDetail(item.article_id)" style="cursor: pointer;" />
+    </div>
 
   </main>
 </template>

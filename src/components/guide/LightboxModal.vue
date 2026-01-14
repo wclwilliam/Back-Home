@@ -21,7 +21,7 @@ const handleClose = () => {
       <div class="modalCard">
 
         <button class="closeBtn" @click="handleClose">
-          <span class="material-symbols-outlined arrow">
+          <span class="material-symbols-outlined">
             Close
           </span>
         </button>
