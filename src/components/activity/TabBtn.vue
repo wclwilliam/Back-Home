@@ -1,6 +1,4 @@
 <script setup>
-// 使用 defineModel 接收父層傳來的 v-model 值
-// default: 'current' 代表預設選中「目前活動」
 const activeTab = defineModel({ default: 'current' })
 
 const tabs = [
@@ -24,20 +22,18 @@ const tabs = [
 </template>
 
 <style lang="scss" scoped>
-// 若無全域引入變數，請解除下方註解
-// @import '@/assets/scss/base/_var.scss';
 
 .tab {
   display: flex;
   text-align: center;
   align-items: center;
   margin-bottom: 24px;
-  background-color: $text-white; // 白色背景
+  background-color: $text-white; 
   
   .tabItem {
-    @include font-secondary; // 使用你的字體 Mixin
+    @include font-secondary; 
     cursor: pointer;
-    border: 2px solid $secondary-color; // 邊框色
+    border: 2px solid $secondary-color; 
     flex: 1; // 讓兩個按鈕平均分配寬度
     background-color: $text-white;
     color: $secondary-color;

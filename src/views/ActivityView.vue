@@ -200,7 +200,7 @@ watch(currentTab, () => {
 <style lang="scss" scoped>
 .activity-bg-wrapper {
   margin-top: 5rem;
-  background-image: url('@/assets/image/activity/activityBg.png');
+  background-image: url('../../assets/image/activity/activityBG.png');
   background-repeat: no-repeat;
   background-position: bottom center;
   background-size: cover;
