@@ -1,35 +1,24 @@
 <script setup>
-import { ref } from 'vue'
+const { question, options } = defineProps({
+  question: { type: String, default: '' },
+  options: { type: Array, default: () => [] },
+})
 
-// 定義選項資料
-const options = [
-  { id: 1, text: '幼龜' },
-  { id: 2, text: '少年海龜' },
-  { id: 3, text: '成年母龜' },
-]
+const emit = defineEmits(['choose'])
 
-// 儲存目前選中的 ID
-const selectedId = ref(null)
-
-// 點擊按鈕的動態反應函式
-const handleSelect = (option) => {
-  selectedId.value = option.id
-  console.log('玩家選擇了:', option.text)
-
-  // 這裡可以觸發額外的動態，例如音效或震動
-}
 </script>
 
 <template>
+  
   <div class="game-question-card">
-    <h2 class="question-title">你的旅程將從哪裡開始？</h2>
+    <h2 class="question-title">{{ question }}</h2>
 
     <div class="options-group">
       <button
         v-for="option in options"
         :key="option.id"
         :class="['btn btn-outline-game btn-xl', { 'is-active': selectedId === option.id }]"
-        @click="handleSelect(option)"
+        @click="emit('choose', option)"
       >
         {{ option.text }}
       </button>
@@ -37,21 +26,32 @@ const handleSelect = (option) => {
   </div>
 </template>
 <style lang="scss" scoped>
-  .game-question-card {
-display: flex;
-align-items: center;
-justify-content: center;
-gap: 40px;
-padding: 60px;
-background: #E3D5CA;
-background: linear-gradient(0deg,rgba(227, 213, 202, 1) 25%, rgba(227, 213, 202, 0.8) 33%, rgba(227, 213, 202, 0.9) 68%, rgba(227, 213, 202, 0) 100%);
+.game-question-card {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+  padding: 40px 60px;
+  background: linear-gradient(
+    0deg, rgba(227, 213, 202, 1) 0%, rgba(227, 213, 202, 0.9) 20%, rgba(227, 213, 202, 0.8) 40%, rgba(227, 213, 202, 0.7) 60%,rgba(227, 213, 202, 0.6) 70%, rgba(227, 213, 202, 0.5) 80%, rgba(227, 213, 202, 0) 100%
+  );
+
+  z-index: 100;
 }
+
 .question-title {
   @include font-tertiary; 
+  flex: 1;
+  min-width: 0;
 }
 
 .options-group {
   display: flex;
-  gap: 20px;
+  gap: 32px;
+  flex-shrink: 0;
 }
 </style>

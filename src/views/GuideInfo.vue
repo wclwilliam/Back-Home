@@ -21,8 +21,7 @@ const goBack = () => {
 }
 
 const modules = [Pagination];
-const isDesktop = ref(window.innerWidth >= 992); // 預設值
-
+const isDesktop = ref(window.innerWidth >= 992); 
 
 const updateWidth = () => {
     isDesktop.value = window.innerWidth >= 992;
@@ -97,7 +96,7 @@ onUnmounted(() => {
                         <h3>辨識重點</h3>
                         <p>{{ turtleInfo.feature }}</p>
                     </swiper-slide>
-                    <swiper-slide class="bubble status boxShape">
+                    <swiper-slide class="bubble status">
                         <h3>保育現況</h3>
                         <p>{{ turtleInfo.status }}</p>
                     </swiper-slide>
@@ -110,13 +109,13 @@ onUnmounted(() => {
 
 <style lang="scss" scoped>
 .container {
-    // 手機版
+    // 手機
     width: 100%;
     margin: 0 auto;
     padding: 0 $mobile-margin;
     max-width: 1440px;
 
-    // 平板版
+    // 平板
     @media (min-width: 768px) {
         padding: 0 40px;
     }
@@ -150,7 +149,6 @@ onUnmounted(() => {
     width: 100%;
     display: flex;
     justify-content: start;
-    // margin-bottom: 50px;
     position: relative;
     z-index: 1;
 }
@@ -192,12 +190,12 @@ onUnmounted(() => {
     color: white;
 
     h3 {
-        font-size: 1.5rem;
+        font-size: $d-size-tertiary;
         margin-bottom: 15px;
         font-weight: bold;
     }
     p {
-        font-size: 1rem;
+        font-size: $size-body;
         line-height: 1.6;
     }
 }
@@ -241,7 +239,6 @@ onUnmounted(() => {
     }
 
     .boxShape {
-       
         grid-column: 2 / 4; 
         grid-row: 2;
         width: 70%;
@@ -249,7 +246,6 @@ onUnmounted(() => {
         border-radius: 0;
         backdrop-filter: blur(5px);
         margin-top: 250px;
-        //margin-bottom: 100px;
     }
 }
 
@@ -271,16 +267,10 @@ onUnmounted(() => {
         align-items: center;
         padding: 20px;    
         box-sizing: border-box; 
-    }
-    
-    
-    .box-shape {
-        aspect-ratio: auto;  
-        border-radius: 20px;
-        width: 100%;         
-        max-width: none;    
-        height: auto;       
-        min-height: 200px;  
+       
+        p{
+             font-size: $m-size-caption;
+        }
     }
 }
 
@@ -297,5 +287,10 @@ onUnmounted(() => {
         height: auto; 
         object-fit: contain;
     }
+}
+.btn{
+     padding: 10px 8px;
+     font-size: $m-size-caption;
+     margin-bottom: 20px;
 }
 </style>

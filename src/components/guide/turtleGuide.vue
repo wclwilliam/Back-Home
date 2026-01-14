@@ -23,17 +23,7 @@ const turtleSections = computed(() => {
 </script>
 
 <template>
-    <div class="turtleBanner">
-        <div class="container">
-        <div class="turtleBannerInfo">
-            <h1 class="">你所不知道的海龜</h1>
-            <p>
-                海龜演化足跡可追溯至一億多年前的恐龍時代，是見證地球歷史的「活化石」。然而，全世界目前僅存7種海龜，如今卻全數因棲地喪失、海洋汙染及氣候變遷等衝擊，被
-                IUCN 紅色名錄列為瀕危或易危物種。這些古老的海洋旅人，正處於前所未有的生存危機之中。
-            </p>
-        </div>
-        </div>
-    </div>
+
 
     <section class="GuideTitle">
         <h2>海龜圖鑑</h2>
@@ -41,18 +31,24 @@ const turtleSections = computed(() => {
             <section v-for="section in turtleSections" :key="section.id" class="groupSection">
                 <h3 class="subTitle">{{ section.title }}</h3>
                 <div class="row">
-                    <div v-for="turtle in section.list" :key="turtle.id" class="col-sm-4 col-md-6 col-lg-4" style="margin-bottom: 48px;">
-                        
-                        <router-link :to="`/guide/${turtle.id}`" class="turtle-card-link">
+                    <div v-for="turtle in section.list" :key="turtle.id" class="col-sm-4 col-md-6 col-lg-4"
+                        style="margin-bottom: 48px;">
+
+                        <router-link :to="`/guide/${turtle.id}`">
                             <div class="turtleCard">
-                                
+
                                 <div class="imgBox">
-                                    <img :src="turtle.img" :alt="turtle.nameCN" />
+                                    <img :src="turtle.img" />
                                 </div>
                                 <div class="info">
                                     <h4>{{ turtle.nameCN }}</h4>
                                     <p>{{ turtle.nameEN }}</p>
                                 </div>
+                                <button class="btn btn-solid">
+                                    <span class="material-symbols-outlined arrow">
+                                        arrow_forward
+                                    </span>
+                                </button>
                             </div>
                         </router-link>
 
@@ -64,43 +60,12 @@ const turtleSections = computed(() => {
 </template>
 
 <style lang="scss" scoped>
-.turtleBanner {
-    width: 100%;
-    height: 720px;
-    background-image: url('/public/img/GuideView/turtleBanner.png');
-    background-size: cover;
-    background-position: center;
-    display: flex;
-    align-items: center;
-}
-
-.turtleBannerInfo {
-    color: $text-white;
-    display: flex;
-    flex-direction: column;
-    margin-left: 10%;
-    width: 100%;
-    max-width: 442px;
-    gap: 86px;
-}
-
-.turtleBannerInfo h1 {
-    @include font-secondary;
-}
-
-.turtleBannerInfo p {
-    @include font-body-l;
-    //text-align: justify;
-    width: 100%;
-    max-width: 392px;
-}
-
 .GuideTitle h2 {
     font-size: $d-size-secondary;
     color: $primary-color;
     text-align: center;
     font-weight: bold;
-    margin-top: 67px;
+    margin: 67px 0;
 }
 
 
@@ -139,5 +104,32 @@ const turtleSections = computed(() => {
     height: 100%;
     object-fit: cover;
     object-position: center;
+}
+
+.btn {
+    position: absolute;
+    bottom: 0;
+    right: 10px;
+    width: 12%;
+    aspect-ratio: 0;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding-top: 9%;
+    clip-path: polygon(0% 100%, 100% 100%, 100% 0);
+
+    .arrow {
+        color: $text-white;
+    }
+
+    &:hover {
+        background-color: $secondary-color;
+        border: 2px solid $secondary-color;
+    }
+
+    @media (max-width: 768px) {
+        padding-top: 5%;
+        padding-left: 6%;
+    }
 }
 </style>

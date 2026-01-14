@@ -1,12 +1,12 @@
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, watch, toRaw } from 'vue'
 import { allTurtles } from './turtleData.js'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 
 const currentId = ref(1)
 let map = null;
-let currentLayer = null; 
+let currentLayer = null;
 
 // 目前選中的海龜
 const currentTurtleInfo = computed(() => {
@@ -23,6 +23,7 @@ const drawTurtleLayer = (turtle) => {
     if (currentLayer) {
         map.removeLayer(currentLayer);
     }
+    const rawGeometry = toRaw(turtle.geometry);
     currentLayer = L.geoJSON(turtle.geometry, {
         style: {
             fillColor: turtle.color || '#153450',
@@ -31,17 +32,19 @@ const drawTurtleLayer = (turtle) => {
             fillOpacity: 0.5
         }
     }).addTo(map);
-    map.fitBounds(currentLayer.getBounds());
+    if (currentLayer.getBounds().isValid()) {
+        map.fitBounds(currentLayer.getBounds());
+    }
 }
 
 
 onMounted(() => {
     //建立地圖框
     map = L.map('map', {
-    minZoom: 2, 
-    maxBounds: [[-90, -180], [90, 180]], 
-    maxBoundsViscosity: 1.0
-}).setView([20, 0], 2);
+        minZoom: 2,
+        maxBounds: [[-90, -180], [90, 180]],
+        maxBoundsViscosity: 1.0
+    }).setView([20, 0], 2);
 
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
         noWrap: true,
@@ -49,7 +52,7 @@ onMounted(() => {
         maxZoom: 19
     }).addTo(map);
 
-  
+
     setTimeout(() => {
         map.invalidateSize();
         if (currentTurtleInfo.value) {
@@ -59,9 +62,8 @@ onMounted(() => {
 });
 
 
-// 當 currentId 改變重畫地圖
+// currentId 改變重畫地圖
 watch(currentId, () => {
-    // 因為 currentTurtleInfo 隨著 ID 自動更新，直接拿來畫
     drawTurtleLayer(currentTurtleInfo.value);
 });
 
@@ -85,9 +87,9 @@ watch(currentId, () => {
                     <h2 v-if="currentTurtleInfo.nameCN">
                         {{ currentTurtleInfo.nameCN }} ({{ currentTurtleInfo.nameEN }})
                     </h2>
-                    <!-- <h2 v-else>請選擇海龜</h2> -->
+                    
 
-                    <div v-if="currentTurtleInfo.nameCN">
+                    <div v-if="currentTurtleInfo.nameCN" class="mapLabel">
                         <p><span class="label">學名：</span> {{ currentTurtleInfo.ScientificName }}</p>
                         <p><span class="label">分布範圍：</span> {{ currentTurtleInfo.range }}</p>
                         <p><span class="label">棲息地：</span> {{ currentTurtleInfo.habitat }}</p>
@@ -103,10 +105,18 @@ watch(currentId, () => {
 
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
+h1 {
+    color: $primary-color;
+    font-size: $d-size-secondary;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 50px;
+}
+
 .profileList {
     display: flex;
-    gap: 37px;
+    gap: 15px;
     padding: 20px 0;
     flex-wrap: wrap;
 }
@@ -120,6 +130,11 @@ watch(currentId, () => {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     cursor: pointer;
     transition: all 0.3s ease;
+    
+    @media (max-width: 992px) {
+        width: 70px;
+        height: 70px;
+    }
 }
 
 .turtleMapImg {
@@ -140,31 +155,57 @@ watch(currentId, () => {
 /* 下半部：地圖與資訊區塊 */
 .map-section {
     display: flex;
-    /* flex: 1; /* 佔據剩餘空間 */
-    /* position: relative; 為了地圖定位 */
-    /* overflow: hidden;  */
     height: 500px;
     gap: 20px;
+
+    @media (max-width: 992px) {
+        display: grid;
+        grid-template-columns: 1fr;
+        grid-template-rows: 300px;
+    }
 }
 
 #map {
     width: 70%;
     height: 100%;
-    /* background: #aad3df;  */
-    z-index: 1;
+    @media (max-width: 992px) {
+        display: grid;
+        width: 100%;
+    }
 }
 
 #mapInfo {
     width: 30%;
-    height: 50%;
+    height: 60%;
     padding: 20px;
     background: #E3D5CA;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;   
+    gap: 30px;
     box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
-    z-index: 2;
+    font-size: $size-body-l;
+    color: $text-color;
+    h2{
+        font-weight: bold;
+    }
+
+    @media (max-width: 992px) {
+        display: grid;
+        width: 70%;
+        height: 200px;
+        font-size: $m-size-caption;
+        gap: 2px;
+        margin: auto;
+       
+    }
+
 }
 
-.label {
-    font-weight: bold;
-    color: #555;
+.mapLabel {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
 }
 </style>
