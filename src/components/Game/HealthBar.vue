@@ -13,15 +13,6 @@ const { health, maxHealth } = defineProps({
   }
 });
 
-// const chooseOption = (opt) => {
-//   currentId.value = opt.nextId
-
-//   const nextNode = gameData.value[opt.nextId]
-//   const change = nextNode?.healthChange ?? 0 // -1 / 0
-
-//   health.value = Math.max(0, health.value + change * 20)
-// }
-
 // 計算屬性：將百分比轉換為 5 顆愛心的顯示狀態
 const totalHearts = 5;
 const activeHeartsCount = computed(() => {
@@ -51,9 +42,6 @@ const activeHeartsCount = computed(() => {
 </template>
 
 <style lang="scss" scoped>
-// 建議將顏色定義為變數，方便統一管理
-$color-inactive: #e0e0e0; // 未達成時的灰色
-
 .health-bar {
   display: flex;
   flex-direction: column;
@@ -69,7 +57,7 @@ $color-inactive: #e0e0e0; // 未達成時的灰色
 
   &__hearts {
     display: flex;
-    flex-direction: column;
+    flex-direction: column-reverse; 
     gap: 4px;
   }
 

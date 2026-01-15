@@ -5,7 +5,6 @@ import { Navigation } from 'swiper/modules'
 import 'swiper/css'
 import 'swiper/css/navigation'
 
-const bgSrc = '/game/wave.jpg'
 const base = import.meta.env.BASE_URL
 
 const { startOptions } = defineProps({
@@ -37,10 +36,6 @@ const start = () => {
 }
 </script>
 <template>
-  <div
-      class="bg-image"
-      :style="{ backgroundImage: `url(${bgSrc})` }"
-    />
   <div class="game-screen">
     <div class="turtle-pic">
     <Swiper 
@@ -54,10 +49,9 @@ const start = () => {
     </Swiper>
   </div>
   <button class="btn btn-solid btn-xl" @click="start">開始旅程</button>
-</div>
-<div class="game-question-card">
-    <h2 class="question-title">你的旅程將從哪裡開始？</h2>
 
+  <div class="game-question-card">
+    <h2 class="question-title">你的旅程將從哪裡開始？</h2>
     <div class="options-group">
       <button
         v-for="option in startOptions"
@@ -69,68 +63,24 @@ const start = () => {
       </button>
     </div>
   </div>
+</div>
 </template>
 <style lang="scss" scoped>
-.bg-image {
-  position: absolute;
-  inset: -5%; // 四周外擴 5%，讓背景有「緩衝區」
-  background-size: cover;
-  background-position: center;
-  animation: waveMove 6s ease-in-out infinite;
-  z-index: -1;
-
-  /* 波浪變形層 */
-  &::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: inherit;
-    opacity: 0.35;
-    filter: blur(6px);
-    animation: waveDistort 6s ease-in-out infinite;
-  }
-}
-
-/* 整體微移 */
-@keyframes waveMove {
-  0% {
-    transform: scale(1.05) translateY(0);
-  }
-  50% {
-    transform: scale(1.07) translateY(-8px);
-  }
-  100% {
-    transform: scale(1.05) translateY(0);
-  }
-}
-
-/* 波浪扭曲 */
-@keyframes waveDistort {
-  0% {
-    transform: skewX(0deg) translateX(0);
-  }
-  50% {
-    transform: skewX(2deg) translateX(-30px);
-  }
-  100% {
-    transform: skewX(0deg) translateX(0);
-  }
-}
 .game-screen {
   display: grid;
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: calc(100vh - 100px);
   grid-template-columns: 1fr 1fr 1fr;
-  grid-template-rows: 1fr 1fr;
+  grid-template-rows: 1fr 1fr 25%;
   margin: 0 auto;
-  border: 1px solid $primary-color;
 }
 .turtle-pic {
-  width: 300px;
-  height: auto;
+  width: clamp(140px, 28vw, 380px);
   grid-column: 1 / 2;
   grid-row: 2 / 3;
   justify-self: center;
+  align-self: self-end;
+  transform: translateY(20%);
 }
 .photoSwiper img {
   width: 100%;
@@ -157,27 +107,27 @@ const start = () => {
     color: $text-white;
   }
   .game-question-card {
-  position: fixed;
-  left: 0;
-  bottom: 0;
+  grid-column: 1 / 4;
+  grid-row: 3 / 4;
   width: 100%;
 
+  justify-self: start;
+  align-self: end;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 40px;
-
   padding: 40px 60px;
 
   background: linear-gradient(
     0deg, rgba(227, 213, 202, 1) 0%, rgba(227, 213, 202, 0.9) 20%, rgba(227, 213, 202, 0.8) 40%, rgba(227, 213, 202, 0.7) 60%,rgba(227, 213, 202, 0.6) 70%, rgba(227, 213, 202, 0.5) 80%, rgba(227, 213, 202, 0) 100%
   );
 
-  z-index: 100;
+  z-index: 10;
 }
 
 .question-title {
-  @include font-tertiary; 
+  @include font-body-l-bold; 
 }
 
 .options-group {

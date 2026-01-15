@@ -203,7 +203,7 @@ isModalOpen.value = true //測試用 強制打開燈箱
 .auth-content { display: flex; width: 100%; }
 .auth-image { flex: 1; background-image: url('@/assets/image/auth/beach.png'); background-size: cover; background-position: center; display: flex; justify-content: center; align-items: center; @media (max-width: 390px) { display: none; } }
 .auth-form-side { flex: 1; padding: rem(40px) rem(60px); display: flex; flex-direction: column; justify-content: center;
-  .form-title { font-size: rem(32px); color: $primary-color; margin-bottom: rem(8px); text-align: center; font-weight: bold; }
+  .form-title { @include font-secondary; color: $primary-color; margin-bottom: rem(8px); text-align: center; font-weight: bold; }
   .subtitle { margin-bottom: rem(32px); color: $page-number-color; text-align: center; font-size: rem(16px); }
 }
 

@@ -11,6 +11,7 @@ const emit = defineEmits(['next'])
     <div class="dialog-card-container">
     <div class="dialog-card">
         <div class="dialog-card__content">
+          <div class="slanted-shape"></div>
             <p class="dialog-text">
           {{ text }}
         </p>
@@ -24,7 +25,6 @@ const emit = defineEmits(['next'])
         </button>
         </div>
     </div>
-    <div class="slanted-shape"></div>
     </div>
 </template>
 <style lang="scss" scoped>
@@ -37,12 +37,12 @@ const emit = defineEmits(['next'])
     padding: 40px;
 }
 .dialog-text {
-  @include font-quaternary;
+  @include font-body-l-bold;
   margin: 0;
 }
 .warning-text {
   margin-top: 12px;
-  @include font-quaternary;
+  @include font-body-l-bold;
   color: $highlight-color2;
 }
 .next-btn {
@@ -65,15 +65,15 @@ const emit = defineEmits(['next'])
 }
 
 .slanted-shape {
-    grid-column: 2 / 3;
-    grid-row: 2 / 3;
-    justify-self: end;
-    align-self: center;
-  width: 72px;
-  height: 77px;
-  background-color: $card-color;
-  opacity: 0.9;
-  clip-path: polygon(
+    position: absolute;
+    left: -71px;  
+    top: 50%;   
+    transform: translateY(-50%);
+    width: 72px;
+    height: 77px;
+    background-color: $card-color;
+    opacity: 0.9;
+    clip-path: polygon(
     0% 100%,   // 左下尖角
     60% 40%,    // 左上角
     100% 0%,   // 右上角
