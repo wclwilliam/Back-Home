@@ -215,22 +215,18 @@ const reset = () => { currentStep.value = 1 }
 
     <div v-if="currentStep === 1" class="step-content">
       <div class="tab-group">
-        <MyButton
+        <button
           @click="donationType = 'monthly'"
-          class=" btn-xxl"
-          :class="{ 'btn-outline': donationType !== 'monthly' }"
-          width="50%"
-          height="71px"
+          class="tabBtn"
+          :class="{ 'tabBtn-outline': donationType !== 'monthly' }"
           style="border-left: none;"
-        >每月捐款</MyButton>
-        <MyButton
+        >每月捐款</button>
+        <button
           @click="donationType = 'once'"
-          class=" btn-xxl"
-          :class="{ 'btn-outline': donationType !== 'once' }"
-          width="50%"
-          height="71px"
+          class="tabBtn"
+          :class="{ 'tabBtn-outline': donationType !== 'once' }"
           style="border-right: none;"
-        >單次捐款</MyButton>
+        >單次捐款</button>
       </div>
 
       <p class="intro-text">
@@ -281,10 +277,8 @@ const reset = () => { currentStep.value = 1 }
 
     <div v-if="currentStep === 2" class="step-content">
       <div class="summary-header">
-        <div class="amount-info">
-          <h3 class="type-tag">{{ donationType === 'monthly' ? '每月捐款' : '單次捐款' }}</h3>
-          <p class="amount-display">新台幣 <span class="money">{{ finalAmount }}</span></p>
-        </div>
+        <h3 class="type-tag">{{ donationType === 'monthly' ? '每月捐款' : '單次捐款' }}</h3>
+        <p class="amount-display">新台幣 <span class="money">{{ finalAmount }}</span></p>
         <div class="btn-back-group" @click="currentStep = 1; anonymous=false" >
           <div class="back-arrow"></div>
           <button class="btn-back">其他金額</button>
@@ -365,6 +359,7 @@ const reset = () => { currentStep.value = 1 }
 </template>
 
 <style lang="scss" scoped>
+  $btn-green: #0E6273;
 //google font
 .material-symbols-outlined {
   font-variation-settings:
@@ -448,6 +443,24 @@ const reset = () => { currentStep.value = 1 }
   width: 100%;
   display: flex;
   margin-bottom: 26px;
+  .tabBtn {
+    @include font-tertiary;
+    display: inline-block;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-style: solid;
+    border-width: 2px;
+    width: 50%;
+    height: 71px;
+    background-color: $btn-green;
+    color: #ffffff;
+    border-color: $btn-green;
+  }
+  .tabBtn-outline {
+    background-color: transparent;
+    color: $btn-green;
+    border-color: $btn-green;
+  }
 }
 
 .intro-text {
@@ -528,19 +541,28 @@ const reset = () => { currentStep.value = 1 }
 // 第二步特定樣式
 .summary-header {
   width: 90%;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  margin-bottom: 20px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas: 
+    "tag tag"
+    "amount back";
+  row-gap: 4px;
+  margin-bottom: 12px;
+  @media (width<390px) {
+    grid-template-areas: 
+    "tag back"
+    "amount amount";
+  }
 
   .type-tag { 
     @include font-body-l-bold;
     margin: 0; 
+    grid-area:tag;
   }
   .amount-display {
     @include font-secondary;
-    margin: 5px 0 0 0;
     color: $primary-color;
+    grid-area:amount;
     .money { 
       // 手機
       font-size: $d-size-primary;
@@ -552,6 +574,8 @@ const reset = () => { currentStep.value = 1 }
   .btn-back-group {
     display: flex;
     align-items: center;
+    gap: 4px;
+    grid-area:back;
     cursor: pointer;
     .back-arrow {
       width: 1.25rem;
@@ -566,6 +590,7 @@ const reset = () => { currentStep.value = 1 }
       border: none;
       text-decoration: underline;
       color: $primary-color;
+      padding: 0;
       @include font-body;
     }
   }
@@ -577,6 +602,9 @@ const reset = () => { currentStep.value = 1 }
   display: flex;
   flex-direction: column;
   gap: 24px;
+  @media (width<=768px){
+    gap: 12px;
+  }
   .form-group {
     position: relative;
     label {
@@ -620,7 +648,6 @@ const reset = () => { currentStep.value = 1 }
     align-items: center;
     @include font-body;
     color: $text-color;
-    margin-bottom: 15px;
     gap: 8px;
     cursor: pointer;
     input { 

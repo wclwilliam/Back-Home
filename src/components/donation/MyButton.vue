@@ -47,4 +47,23 @@ const buttonStyle = computed(() => ({
 
 <style scoped lang="scss">
 
+.btn {
+    @include font-body-bold;
+    padding-left: 0;
+    padding-right: 0;
+    
+}
+
+.btn-xs {
+    @include font-caption;
+}
+
+.btn-s {
+    @include font-footer;
+}
+
+.btn-xxl {
+    @include font-tertiary;
+    
+}
 </style>
