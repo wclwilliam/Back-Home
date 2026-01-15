@@ -7,9 +7,12 @@ import Banner from "@/components/Banner.vue";
 import clickBar from '@/components/clickBar.vue';
 import searchBox from '@/components/searchBox.vue';
 
+
+const newsTabs = ['全部', '重要公告', '異動通知'];
+const currentNewsTab = ref('全部');
+
+
 const router = useRouter()
-
-
 const newslist = ref([])
 onMounted(() => {
   axios
@@ -30,8 +33,8 @@ const formatDate = (dateString) => {
 }
 const goToDetail = (id) => {
   router.push({
-    name: 'NewsDetail', // 對應 router/index.js 中的 name
-    params: { id: id }  // 傳遞參數
+    name: 'NewsDetail',
+    params: { id: id }  
   })
 }
 </script>
@@ -40,8 +43,11 @@ const goToDetail = (id) => {
   <Banner imgName="news" title="最新消息" />
 
   <main class="container">
-    <clickBar></clickBar>
-    <searchBox></searchBox>
+    <clickBar 
+        v-model="currentNewsTab" 
+        :tabs="newsTabs" 
+    />
+    <searchBox/>
     <div class="row" v-if="newslist.length > 0">
 
       <NewsCard v-for="item in newslist" :key="item.article_id" :id="item.article_id" :title="item.title"
