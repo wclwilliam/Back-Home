@@ -2,7 +2,6 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '@/views/HomeView.vue'
 import { authGuard } from './guards.js'
 
-
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -20,6 +19,12 @@ const router = createRouter({
       path: '/news',
       name: 'news',
       component: () => import('@/views/NewsView.vue'),
+    },
+    {
+      path: '/news/:id',
+      name: 'NewsDetail',
+      props: true,
+      component: () => import('@/views/NewsDetail.vue'),
     },
     {
       path: '/guide',
@@ -64,6 +69,7 @@ const router = createRouter({
       path: '/game',
       name: 'game',
       component: () => import('@/views/GameView.vue'),
+      meta: { hideFooter: true }
     },
     {
       path: '/member/:id',
@@ -83,11 +89,11 @@ const router = createRouter({
     },
     {
       path: '/:pathMatch(.*)*',
-      component: () => import('@/views/NotFound.vue')
-    }
+      component: () => import('@/views/NotFound.vue'),
+    },
   ],
 })
 
-// router.beforeEach(authGuard);
+router.beforeEach(authGuard)
 
-export default router;
+export default router

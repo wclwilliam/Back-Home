@@ -1,14 +1,27 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
+import axios from 'axios';
+
+const items = ref([])
+
+onMounted( async () => {
+  try {
+    const base = import.meta.env.BASE_URL
+    const response = await axios.get(base + 'data/donationAccordion.json')
+    items.value = response.data
+  }catch (error){
+    console.log(error)
+  }
+})
 
 // 1. 定義資料
-const items = ref([
-  { title: '我的捐款會如何被使用？', content: '您的捐款 85% 將直接用於海龜的實際救援、醫療復健，以及棲地巡邏與淨灘。其餘 15% 用於支持專業的保育研究、教育推廣與行政管理，確保我們的行動能夠持續且高效運行。' },
-  { title: '我是否可以指定捐款的用途？', content: '我們目前設有「海龜醫療基金」和「棲地巡邏基金」兩大選項供您選擇。若您未特別指定，資金將投入當前最緊急且最需要資源的保育項目。' },
-  { title: '我如何確認我的捐款是否用於實際的海龜救援？', content: '我們承諾每年公開經過第三方查核的財務報告，並每月更新捐款徵信與救援行動紀錄。您可以隨時在我們的「捐款徵信」頁面查看資金流向與成果數據。' },
-  { title: '身為一位忙碌的上班族，我還有機會參與志工活動嗎？', content: '絕對可以！我們設有週末淨灘專案及辦公室行政支援的志工機會。許多專案特別安排在非工作時間，讓您能在不影響正職的情況下，也能為海龜貢獻一份心力。' },
-  { title: '志工需要具備專業的海洋知識或特殊技能嗎？', content: '不需要。大部分的淨灘與基礎巡邏工作會提供完整的行前培訓。若是您具備醫療、攝影、數據分析或社群媒體技能，也歡迎告知，我們會安排您參與更專業的支援工作。' },
-]);
+// const items = ref([
+//   { title: '我的捐款會如何被使用？', content: '您的捐款 85% 將直接用於海龜的實際救援、醫療復健，以及棲地巡邏與淨灘。其餘 15% 用於支持專業的保育研究、教育推廣與行政管理，確保我們的行動能夠持續且高效運行。' },
+//   { title: '我是否可以指定捐款的用途？', content: '我們目前設有「海龜醫療基金」和「棲地巡邏基金」兩大選項供您選擇。若您未特別指定，資金將投入當前最緊急且最需要資源的保育項目。' },
+//   { title: '我如何確認我的捐款是否用於實際的海龜救援？', content: '我們承諾每年公開經過第三方查核的財務報告，並每月更新捐款徵信與救援行動紀錄。您可以隨時在我們的「捐款徵信」頁面查看資金流向與成果數據。' },
+//   { title: '身為一位忙碌的上班族，我還有機會參與志工活動嗎？', content: '絕對可以！我們設有週末淨灘專案及辦公室行政支援的志工機會。許多專案特別安排在非工作時間，讓您能在不影響正職的情況下，也能為海龜貢獻一份心力。' },
+//   { title: '志工需要具備專業的海洋知識或特殊技能嗎？', content: '不需要。大部分的淨灘與基礎巡邏工作會提供完整的行前培訓。若是您具備醫療、攝影、數據分析或社群媒體技能，也歡迎告知，我們會安排您參與更專業的支援工作。' },
+// ]);
 
 // 2. 初始值設定為 0 (代表第一格預設打開)
 const activeIndex = ref(0);
@@ -64,7 +77,8 @@ const contentStyle = (index) => {
             align-items: center;
             gap: 40px;
             .faqTitle {
-                font-size: $d-size-secondary;
+                @include font-secondary;
+                color: $primary-color;
             }
             .accordion {
                     width: 100%;
@@ -78,8 +92,9 @@ const contentStyle = (index) => {
                             background-color: #0000;
                             border: none;
                             border-top: 1px solid $secondary-color;
-                            font-size: $size-body-l;
+                            @include font-body-l-bold;
                             color: $primary-color;
+                            line-height: 1.4;
                             &:focus {
                                 z-index: 3;
                                 border-color: $highlight-color1;
@@ -94,7 +109,8 @@ const contentStyle = (index) => {
                                 background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23212529'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
                                 background-repeat: no-repeat;
                                 background-size: 1.25rem;
-                                transition: transform 0.2s ease-in-out;
+                                transition: transform 0.3s ease-in-out;
+                                flex-shrink: 0;
                             }
                         }
                         .accordion-content {
@@ -108,8 +124,8 @@ const contentStyle = (index) => {
                                 /* 關鍵 4：將原本的垂直 Padding 放在這裡 */
                                 p {
                                     padding: 32px 16px;
-                                    letter-spacing: 2px;
-                                    line-height: 32px;
+                                    @include font-body;
+                                    color: $text-color;
                                 }
                             }
                         }

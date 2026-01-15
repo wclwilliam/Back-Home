@@ -117,6 +117,14 @@
   }
 }
 
+// footer資訊-一般預設內文-桌機手機共用14px
+@mixin font-footer {
+  font-size: $d-size-caption;
+  line-height: 1.5;
+  font-weight: 400;
+  letter-spacing: 0.5px;
+}
+
 // Game 手機遊戲對話框
 @mixin font-game {
   font-size: $d-size-caption;
@@ -148,23 +156,34 @@
 }
 
 // icon mixin
-@mixin icon-style(
-  $fill: $icon-default-fill, 
-  $wght: $icon-default-wght, 
-  $size: $icon-default-size, 
-  $color: $icon-default-color
-) {
+@mixin icon-style($fill: $icon-default-fill,
+  $wght: $icon-default-wght,
+  $size: $icon-default-size,
+  $color: $icon-default-color) {
   font-family: $icon-font-family;
-  font-variation-settings:
-    'FILL' #{$fill}, 
-    'wght' #{$wght},
-    'GRAD' 0,
-    'opsz' 24;
-  
+  font-variation-settings: 'FILL'#{$fill},
+  'wght'#{$wght},
+  'GRAD' 0,
+  'opsz' 24;
+
   font-size: $size;
   color: $color;
-  
+
   display: inline-block;
   vertical-align: middle;
   line-height: 1;
+}
+
+@mixin fontawesome-icon-style($size: $icon-default-size,
+  $color: $icon-default-color,
+  $width: $icon-default-size) {
+  font-size: $size;
+  color: $color;
+
+  display: inline-block;
+  vertical-align: middle;
+  line-height: 1;
+
+  width: $width;
+  text-align: center;
 }
