@@ -23,6 +23,16 @@
   "baby_q1": {
     "question": "剛破殼的妳，看見一隻大手伸向眼前。是要接受那份香甜誘人的加工肉塊？還是選擇只在遠處靜靜待著？",
     "progress": 1,
+    "media": {
+      "image": "game/hand-hold-meat.png",
+      "pos": "rb",
+      "size": "lg",
+      "offset": {
+        "x": 0,
+        "y": 0
+      },
+      "anim": "hand-in"
+    },
     "options": [
       {
         "id": "accept",
@@ -54,40 +64,41 @@
     "nextId": "baby_q2"
   },
   "baby_q2": {
-    "question": "海中黑影幢幢，妳急需藏身之處。前方是雜亂漂浮的棕色藻叢，另一側則是視野清晰的純淨深海，妳要往哪鑽？",
+    "question": "到了夜晚，妳抬起頭，前方是整排熱鬧明亮的燈火，另一側則是漆黑、閃著微弱波光的地平線。妳決定朝哪邊加速爬過去？",
     "progress": 2,
+    "bg": "game/baby_q2_bg.png",
     "options": [
       {
         "id": "move_to_open",
-        "text": "游向空曠處",
+        "text": "明亮的燈火",
         "nextId": "baby_q2_bad"
       },
       {
         "id": "dive_to_deep",
-        "text": "潛入深海",
+        "text": "微光地平線",
         "nextId": "baby_q2_good"
       }
     ]
   },
   "baby_q2_bad": {
-    "feedback": "糟糕！妳完全暴露在掠食者的視線中了。漂亮的深藍海域，對你來說其實是危險的競技場。",
-    "warningText": "⚠️ 被大型魚類攻擊，生存機率下降 20%",
+    "feedback": "糟糕！妳跑錯方向了！燈火通明的路上充滿了致命威脅，妳正在遠離生命之海，體力正隨著脫水迅速流失。",
+    "warningText": "⚠️ 脱水，生存機率下降 20%",
     "healthChange": -1,
     "nextId": "baby_q2_bad_knowledge"
   },
   "baby_q2_good": {
-    "feedback": "太棒了！妳找到了專屬的海上育嬰室。這裡有吃又有躲，讓妳在最脆弱的時候能平安長大。",
+    "feedback": "正確的直覺！妳沒有被城市的霓虹燈誘惑，成功辨識出海平面的微光。浪花拍打在妳身上，安全感瞬間提升！",
     "warningText": "",
     "healthChange": 0,
     "nextId": "baby_q2_good_knowledge"
   },
   "baby_q2_bad_knowledge": {
-    "knowledge": "清澈海域雖然「視野好」，但也代表小海龜完全暴露在掠食者（如大型魚類、海鳥）的視線中。",
+    "knowledge": "幼龜具有天生的趨光性，牠們本該尋找海平面反射的自然光導航。但路燈或建築強光會誤導牠們往內陸爬行，導致脫水死亡或被掠食者捕食。",
     "buttonText": "我知道了，繼續前進",
     "nextId": "baby_q3"
   },
   "baby_q2_good_knowledge": {
-    "knowledge": "藻叢是幼龜的「漂浮育嬰室」，雖然視覺上雜亂，卻能提供隱蔽與食物。",
+    "knowledge": "在自然環境下，最亮的地方通常是反射星光的海面。幼龜依靠這種微弱的光學特徵辨識方向。因此，棲地的「燈光管制」對海龜保育至關重要。",
     "buttonText": "我知道了，繼續前進",
     "nextId": "baby_q3"
   },
@@ -295,12 +306,12 @@
     "nextId": "adult_q2_warm_knowledge"
   },
   "adult_q2_cool_knowledge": {
-    "knowledge": "海龜的性別由孵化溫度決定，高溫環境容易孵出母海龜,然而隨著全球氣溫升高，許多沙灘孵出的幾乎全是母龜，嚴重影響性別比例平衡。",
+    "knowledge": "海龜的性別由孵化溫度決定，高溫環境容易孵出母海龜，然而隨著全球氣溫升高，許多沙灘孵出的幾乎全是母龜，嚴重影響性別比例平衡。",
     "buttonText": "我知道了，繼續前進",
     "nextId": "adult_q3"
   },
   "adult_q2_warm_knowledge": {
-    "knowledge": "較涼爽的沙溫會孵出雄性海龜,科學家發現，若沙溫低於 29 度，孵化出的後代將以公龜為主。",
+    "knowledge": "較涼爽的沙溫會孵出雄性海龜，科學家發現，若沙溫低於 29 度，孵化出的後代將以公龜為主。",
     "buttonText": "我知道了，繼續前進",
     "nextId": "adult_q3"
   },

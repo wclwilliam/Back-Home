@@ -3,8 +3,8 @@ import { ref, computed, onMounted } from 'vue'
 import axios from 'axios'
 import GameStartCard from '@/components/Game/GameStartCard.vue'
 import GameEnterCard from '@/components/Game/GameEnterCard.vue'
-import GameDialogCard from '@/components/Game/GameDialogCard.vue'
-import KnowledgeCard from '@/components/Game/KnowledgeCard.vue'
+import GameActionCard from '@/components/Game/GameActionCard.vue'
+import GameBackground from '@/components/Game/GameBackground.vue'
 
 const gameData = ref(null)
 const fetchGameData = async () => {
@@ -27,7 +27,7 @@ const currentNode = computed(() => {
   return gameData.value[currentId.value]
 })
 
-// 進度條文字（先寫死）
+// 進度條文字
 const progressText = computed(() => {
   const map = {
     baby: '幼龜：探索中',
@@ -57,52 +57,73 @@ const applyHealth = (healthChange) => {
 
 const goNext = (nextId) => {
   if (!nextId) return
+
+  if (nextId === 'start') {
+    step.value = 1
+    roleId.value = ''
+    health.value = 100
+    currentId.value = 'start'
+    return
+  }
+
   currentId.value = nextId
 }
+
+const isActionNode = computed(() => currentNode.value?.type === 'action')
+
+const stage = computed(() => {
+  if (step.value === 1) return 'start'
+  if (currentNode.value?.type === 'action') return 'action'
+  return 'enter'
+})
 
 onMounted(() => {
   fetchGameData()
 })
 </script>
 <template>
-  <div class="bg-game">
-    
+   <div class="game-page">
+  <GameBackground :stage="stage" :role-id="roleId" :node="currentNode" :node-id="currentId" />
+
+  <div class="game-content">
   <p v-if="!gameData">載入中...</p>
   <GameStartCard 
   v-else-if = "step === 1"
   :start-options="gameData.start.options"
   @start="startGame"
   />
+
+  <GameActionCard
+  v-else-if="step === 2 && isActionNode"
+  :role-id="roleId"
+  :node="currentNode"
+  @next="goNext"
+/>
   
   <GameEnterCard 
   v-else-if="step === 2"
   :role-id="roleId"
   :current-node="currentNode"
+  :node-id="currentId" 
   :progress-text="progressText"
   :health="health"
   @choose="chooseOption"
   @apply-health="applyHealth"
   @next="goNext"
   />
-  <!-- <GameDialogCard /> -->
-  <!-- <KnowledgeCard /> -->
-  <!-- <div class="bg-game">
-    <div
-      class="bg-image"
-      :style="{ backgroundImage: `url(${bgSrc})` }"
-    />
-  </div> -->
+  </div>
   </div>
 </template>
 <style lang="scss" scoped>
-.bg-game {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
+.game-page {
+  position: relative;
+  width: 100%;
+  height: calc(100vh - clamp(84px, 8vw, 100px));
   overflow: hidden;
-  z-index: -1;
 }
-
+.game-content {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+}
 </style>

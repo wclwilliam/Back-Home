@@ -11,6 +11,7 @@ const emit = defineEmits(['choose'])
 <template>
   
   <div class="game-question-card">
+    <div class="question-container">
     <h2 class="question-title">{{ question }}</h2>
 
     <div class="options-group">
@@ -23,28 +24,28 @@ const emit = defineEmits(['choose'])
         {{ option.text }}
       </button>
     </div>
+    </div>
   </div>
 </template>
 <style lang="scss" scoped>
 .game-question-card {
-  position: fixed;
-  left: 0;
-  bottom: 0;
   width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 40px;
-  padding: 40px 60px;
   background: linear-gradient(
     0deg, rgba(227, 213, 202, 1) 0%, rgba(227, 213, 202, 0.9) 20%, rgba(227, 213, 202, 0.8) 40%, rgba(227, 213, 202, 0.7) 60%,rgba(227, 213, 202, 0.6) 70%, rgba(227, 213, 202, 0.5) 80%, rgba(227, 213, 202, 0) 100%
   );
-
+}
+.question-container{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  padding: 40px 24px;
+  max-width: 952px;
+  margin: 0 auto;
   z-index: 100;
 }
-
 .question-title {
-  @include font-tertiary; 
+  @include font-body-l-bold; 
   flex: 1;
   min-width: 0;
 }

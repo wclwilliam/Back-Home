@@ -86,7 +86,7 @@ const props = defineProps({
       .typeBadge {
         padding: 4px 8px;
         background-color: $input-line-color1;
-        color: $text-white;
+        color: $text-white !important;
         @include font-body-bold;
         display: flex;
         transition: background-color 0.3s, color 0.3s;
@@ -154,8 +154,8 @@ const props = defineProps({
         }
 
         .typeBadge {
-          background-color: $text-white; 
-          color: $secondary-color; 
+          background-color: $text-white !important; 
+          color: $secondary-color !important; 
         }
       }
 
