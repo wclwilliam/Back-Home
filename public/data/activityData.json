@@ -55,8 +55,8 @@
     ],
     "results": {
       "turtlesCared": 0,
-      "foodPrepared": 0,
-      "cleaning": { "poolsCleaned": 0, "hours": 3 }
+      "foodPrepared": 2,
+      "cleaning": { "poolsCleaned": 1, "hours": 3 }
     },
     "messages": [
       { "user": "知識控", "rating": 5, "content": "學到了正確的保濕觀念，原來以前都做錯了！" },
@@ -893,7 +893,7 @@
   },
   {
     "id": 30,
-    "image": "/image/activity/patrol_24.png",
+    "image": "/image/activity/patrol_10.png",
     "title": "雲林箔子寮漁港夜間廢棄漁網通報",
     "status": "upcoming",
     "type": "巡守",

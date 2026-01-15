@@ -1,14 +1,17 @@
 <script setup>
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onMounted, onUnmounted  } from 'vue';
+import gsap from 'gsap'
 import GameQuestionCard from '@/components/Game/GameQuestionCard.vue'
 import StatusPanel from './StatusPanel.vue';
 import HealthBar from './HealthBar.vue';
 import GameDialogCard from './GameDialogCard.vue';
-import KnowledgeCard from './KnowledgeCard.vue';
+import GameKnowledgeCard from './GameKnowledgeCard.vue';
+import GameResultCard from '@/components/Game/GameResultCard.vue'
 
 const props = defineProps({
   roleId: { type: String, required: true },
   currentNode: { type: Object, default: null },
+  nodeId: { type: String, default: '' },
   progressText: { type: String, default: '' },
   health: { type: Number, default: 100 },
 })
@@ -29,28 +32,36 @@ const sceneMap = {
   },
 }
 
-const bgStyle = computed (() => {
-    const bg = sceneMap[props.roleId]?.bg
-    return bg ? {backgroundImage: `url(${base + bg})`} : {}
-}) 
+const bgStyle = computed(() => {
+  const bg = sceneMap[props.roleId]?.bg
+  return bg ? { backgroundImage: `url(${base + bg})` } : {}
+})
 
-const turtleSrc = computed( () => {
-    const turtle = sceneMap[props.roleId]?.turtle
-    return turtle ? base + turtle : ''
+// const isBabyQ2Group = computed(() => {
+//   return props.nodeId.startsWith('baby_q2')
+// })
+
+const turtleSrc = computed(() => {
+  // if (props.roleId === 'baby' && isBabyQ2Group.value) {
+  //   return base + 'game/turtle-baby-swim.png'
+  // }
+  const turtle = sceneMap[props.roleId]?.turtle
+  return turtle ? base + turtle : ''
 })
 
 const emit = defineEmits(['choose', 'next', 'apply-health'])
 const onChoose = (option) => {
-    emit('choose', option)
+  emit('choose', option)
 }
 
 const mode = computed(() => {
-    const n = props.currentNode
-    if (!n) return 'loading'
-    if (n.knowledge) return 'knowledge'
-    if (n.feedback) return 'feedback'
-    if (n.question) return 'question'
-    return 'unknown'
+  const n = props.currentNode
+  if (!n) return 'loading'
+  if (n.type === 'result') return 'result'
+  if (n.knowledge) return 'knowledge'
+  if (n.feedback) return 'feedback'
+  if (n.question) return 'question'
+  return 'unknown'
 })
 
 const showWarning = ref(false)
@@ -89,91 +100,260 @@ const onKnowledgeNext = () => {
   emit('next', n.nextId)
 }
 
+const nodeMedia = computed(() => props.currentNode?.media ?? null)
+
+const mediaSrc = computed(() => {
+  const img = nodeMedia.value?.image
+  return img ? base + img : ''
+})
+
+const mediaPos = computed(() => nodeMedia.value?.pos ?? 'rt')
+const mediaSize = computed(() => nodeMedia.value?.size ?? 'md')
+const mediaAnim = computed(() => nodeMedia.value?.anim ?? '')
+
+const mediaOffsetStyle = computed(() => {
+  const off = nodeMedia.value?.offset ?? {}
+  const x = Number(off.x ?? 0)
+  const y = Number(off.y ?? 0)
+  return {
+    '--mx': `${x}px`,
+    '--my': `${y}px`,
+  }
+})
+
+const maskEl = ref(null)
+
+const showDarkMask = computed(() => props.nodeId === 'baby_q2')
+
+const onMouseMove = (e) => {
+  if (!maskEl.value) return
+  maskEl.value.style.setProperty('--mouse-x', `${e.clientX}px`)
+  maskEl.value.style.setProperty('--mouse-y', `${e.clientY}px`)
+}
+
+onMounted(() => {
+  window.addEventListener('mousemove', onMouseMove)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('mousemove', onMouseMove)
+})
+
 </script>
 <template>
-    <section class="game-screen" :style="bgStyle">
-    <StatusPanel 
-    class="status-panel" 
-    :text="progressText" 
-    :role-id="props.roleId" 
-    />
+  <section class="game-screen" style="height: calc(100vh - clamp(84px, 8vw, 100px));">
+    <div
+  v-if="showDarkMask"
+  ref="maskEl"
+  class="dark-mask"
+></div>
+    <StatusPanel class="status-panel" :text="progressText" :role-id="props.roleId" />
     <div class="health-bar-container">
-        <HealthBar class="health-bar" :health="props.health" :maxHealth="100"/>
+      <HealthBar class="health-bar" :health="props.health" :maxHealth="100" />
     </div>
-    <img 
-    v-if="turtleSrc" 
-    class="turtle" 
-    :class="`turtle--${props.roleId}`"
-    :src="turtleSrc" 
-    alt="" />
-    <GameDialogCard 
-    v-if="mode === 'feedback'"
-    class="center-card"
-    :text="props.currentNode?.feedback ?? ''"
-    :warning-text="props.currentNode?.warningText ?? ''"
-    :show-warning="showWarning"
-    @next="onFeedbackNext"
-    />
-    <KnowledgeCard 
-    v-else-if="mode === 'knowledge'"
-    class="center-card"
-    :text="props.currentNode?.knowledge ?? ''"
-    :button-text="props.currentNode?.buttonText ?? '我知道了'"
-    @next="onKnowledgeNext"
-    />
-    </section>
-    <GameQuestionCard 
-    v-if="mode === 'question'"
-    :question="props.currentNode?.question ?? ''"
-    :options="props.currentNode?.options ?? []"
-    @choose="onChoose"
-    />
+    <img v-if="mediaSrc" :key="mediaSrc" class="node-media anim-hand-in" :class="[
+      `node-media--${mediaPos}`,
+      `node-media--${mediaSize}`,
+      mediaAnim ? `anim-${mediaAnim}` : ''
+    ]" :style="mediaOffsetStyle" :src="mediaSrc" alt="" />
+    <img v-if="turtleSrc && mode !== 'result'" class="turtle" :class="`turtle--${props.roleId}`" :src="turtleSrc"
+      alt="" />
+    <GameResultCard v-if="mode === 'result'" class="game-result-card" :role-id="props.roleId" :node="props.currentNode"
+      :health="props.health" :max-health="100" @next="emit('next', props.currentNode?.nextId)" />
+    <GameDialogCard v-else-if="mode === 'feedback'" class="center-card" :text="props.currentNode?.feedback ?? ''"
+      :warning-text="props.currentNode?.warningText ?? ''" :show-warning="showWarning" @next="onFeedbackNext" />
+    <GameKnowledgeCard v-else-if="mode === 'knowledge'" class="center-card" :text="props.currentNode?.knowledge ?? ''"
+      :button-text="props.currentNode?.buttonText ?? '我知道了'" @next="onKnowledgeNext" />
+    <GameQuestionCard v-else-if="mode === 'question'" class="game-question-card"
+      :question="props.currentNode?.question ?? ''" :options="props.currentNode?.options ?? []" @choose="onChoose" />
+  </section>
 </template>
 <style lang="scss" scoped>
-    .game-screen {
-        width: 100vw;
-        height: 100vh;
-        overflow: hidden;
-        background-size: cover;
-        background-position: center;
-        display: grid;
-        grid-template-rows: repeat(3, 1fr);
-        grid-template-columns: repeat(6, 1fr);
-        // margin-top: 100px;
-    }
-    .center-card {
-        grid-column: 3 / 6;
-        grid-row: 2 / 3;
-        align-self: center;
-        justify-self: center;
-    }
-    .turtle {
-        width: min(45vw, 360px);
-        height: auto;
-        grid-column: 2 / 3;
-        grid-row: 2 / 3;
-    }
-    .turtle--baby{
-        width: min(45vw, 300px);
-        grid-column: 2 / 3;
-        grid-row: 3 / 4;
-        justify-self: start;
-        align-self: start;
-        margin-top: -100px;    
-    }
-    .status-panel{
-    grid-column: 1 / 2;
-    grid-row: 1 / 3;
-    justify-self: start;
-    align-self: center;
-    padding-left: 16px;
-    }
-    .health-bar-container{
-    grid-column: 6 / 7;
-    grid-row: 1 / 3;
-    display: flex; 
-    align-self: center;
-    justify-self: end; 
-    padding-right: 20px;
-    }
+.game-screen {
+  width: 100vw;
+  height: calc(100vh - clamp(84px, 8vw, 100px));
+  overflow: hidden;
+  background-size: cover;
+  background-position: center;
+  display: grid;
+  grid-template-rows: repeat(3, 1fr);
+  grid-template-columns: repeat(6, 1fr);
+  position: relative;
+}
+
+.game-question-card {
+  grid-column: 1 / 7;
+  grid-row: 3 / 4;
+  justify-self: center;
+  align-self: end;
+}
+
+.game-result-card {
+  grid-column: 2 / 6;
+  grid-row: 2 / 3;
+  justify-self: center;
+  align-self: center;
+}
+
+.center-card {
+  grid-column: 3 / 6;
+  grid-row: 1 / 3;
+  align-self: center;
+  justify-self: center;
+  position: relative;
+}
+
+.turtle {
+  width: min(45vw, 360px);
+  height: auto;
+  grid-column: 2 / 3;
+  grid-row: 2 / 3;
+}
+
+.turtle--baby {
+  width: min(45vw, 300px);
+  grid-column: 2 / 3;
+  grid-row: 3 / 4;
+  justify-self: start;
+  align-self: start;
+  margin-top: -100px;
+}
+
+.status-panel {
+  grid-column: 1 / 2;
+  grid-row: 1 / 2;
+  justify-self: center;
+  align-self: center;
+  padding-left: 4px;
+}
+
+.health-bar-container {
+  grid-column: 6 / 7;
+  grid-row: 1 / 3;
+  display: flex;
+  align-self: center;
+  justify-self: center;
+}
+
+.node-media {
+  position: absolute;
+  z-index: 2;
+  pointer-events: none;
+  height: auto;
+
+  // 用 clamp 控制尺寸：手機不會爆、桌機不會太小
+  &--sm {
+    width: clamp(90px, 14vw, 160px);
+  }
+
+  &--md {
+    width: clamp(120px, 18vw, 240px);
+  }
+
+  &--lg {
+    width: clamp(160px, 24vw, 340px);
+  }
+
+  // offset（讓你每題微調不用開新 class）
+  transform: translate(var(--mx, 0px), var(--my, 0px));
+}
+
+/* ✅ 錨點：用 %，避免 px 跑掉 */
+.node-media--rt {
+  top: 10%;
+  right: -2%;
+}
+
+.node-media--lt {
+  top: 10%;
+  left: 6%;
+}
+
+.node-media--rb {
+  bottom: 6%;
+  right: 0%;
+}
+
+.node-media--lb {
+  bottom: 12%;
+  left: 6%;
+}
+
+.node-media--ct {
+  top: 8%;
+  left: 50%;
+  transform: translate(-50%, 0) translate(var(--mx, 0px), var(--my, 0px));
+}
+
+.node-media--cb {
+  bottom: 10%;
+  left: 50%;
+  transform: translate(-50%, 0) translate(var(--mx, 0px), var(--my, 0px));
+}
+
+.node-media--cc {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) translate(var(--mx, 0px), var(--my, 0px));
+}
+
+/* ===== 手伸出來動畫 ===== */
+.anim-hand-in {
+  will-change: transform, opacity;
+  animation: 
+    handInFromRight 0.8s cubic-bezier(.22,1,.36,1) both,
+    handWobble 1.6s ease-in-out infinite;
+    animation-delay: 0s, 0.9s; // 晃動等進場完成再開始
+}
+
+@keyframes handInFromRight {
+  from {
+    transform: translateX(120%) translate(var(--mx, 0px), var(--my, 0px));
+  }
+  to {
+    transform: translateX(0%) translate(var(--mx, 0px), var(--my, 0px));
+  }
+}
+
+@keyframes handWobble {
+  0% {
+    transform: translateX(0) translate(var(--mx, 0px), var(--my, 0px));
+  }
+  25% {
+    transform: translateX(-6px) translate(var(--mx, 0px), var(--my, 0px));
+  }
+  50% {
+    transform: translateX(0) translate(var(--mx, 0px), var(--my, 0px));
+  }
+  75% {
+    transform: translateX(6px) translate(var(--mx, 0px), var(--my, 0px));
+  }
+  100% {
+    transform: translateX(0) translate(var(--mx, 0px), var(--my, 0px));
+  }
+}
+.dark-mask {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(3, 3, 3, 0.7); 
+  z-index: 50;
+  pointer-events: none;
+
+  --mouse-x: 50%;
+  --mouse-y: 50%;
+
+  mask-image: radial-gradient(
+    circle 140px at var(--mouse-x) var(--mouse-y),
+    transparent 0%,
+    rgba(0,0,0,0.3) 45%,
+    black 100%
+  );
+
+  -webkit-mask-image: radial-gradient(
+    circle 320px at var(--mouse-x) var(--mouse-y),
+    transparent 0%,
+    rgba(0,0,0,0.3) 45%,
+    black 100%
+  );
+}
 </style>

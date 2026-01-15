@@ -43,17 +43,15 @@ const handleReport = () => {
       alert('已收到您的檢舉，我們會盡快處理。')
     }
   } else {
-    isReported.value = false // 取消檢舉 (測試用)
+    isReported.value = false // 取消檢舉 
   }
   isMenuOpen.value = false // 點選後關閉選單
 }
 </script>
 
 <template>
-  <div class="review-card-wrapper">
+  <div class="review-card-wrapper ">
     <div class="review-card">
-      <div class="top-accent"></div>
-
       <div class="card-content">
         <div class="card-header">
           <div class="user-profile">
@@ -118,13 +116,6 @@ const handleReport = () => {
 </template>
 
 <style lang="scss" scoped>
-@import '@/assets/scss/base/_var.scss';
-@import '@/assets/scss/base/_color.scss';
-@import '@/assets/scss/base/_font.scss';
-
-
-$text-light: #666;
-
 .review-card-wrapper {
   padding: 10px;
   height: 100%;
@@ -132,7 +123,6 @@ $text-light: #666;
 
 .review-card {
   background-color: $activity-comment-card;
-  // overflow: hidden; // [注意] 移除 hidden，避免下拉選單被切掉
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -141,29 +131,19 @@ $text-light: #666;
   position: relative; // 為了讓 top-accent 定位
 
   &:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 4px rgba(0, 0, 0, 0.1);
   }
 
-  // 頂部裝飾條 (改用絕對定位以兼容圓角)
-  .top-accent {
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 8px;
-    background-color: $highlight-color3;
-    width: 100%;
-  }
 
   .card-content {
-    padding: 20px 24px 16px 24px;
+    border-top: 5px solid $highlight-color3 ;
+    padding:16px;
     display: flex;
     flex-direction: column;
     flex-grow: 1;
-    margin-top: 8px; // 避開裝飾條
-  }
+    margin-top: 8px; 
 
-  // --- Header ---
   .card-header {
     display: flex;
     justify-content: space-between;
@@ -196,9 +176,8 @@ $text-light: #666;
       }
     }
 
-    // --- [新增] 下拉選單樣式 ---
     .more-menu-container {
-      position: relative; // 讓下拉選單以此為定位基準
+      position: relative; 
 
       .more-btn {
         color: $text-color;
@@ -210,7 +189,7 @@ $text-light: #666;
       .dropdown-menu {
         position: absolute;
         top: 100%; // 在按鈕正下方
-        right: 0;
+        left: -30px;
         background-color: #fff;
         box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         padding: 4px 0;
@@ -231,6 +210,7 @@ $text-light: #666;
           color: $text-color;
           text-align: left;
           transition: background 0.2s;
+        }
 
           .icon {
             font-size: 18px;
@@ -238,7 +218,7 @@ $text-light: #666;
           }
 
           &:hover {
-            background-color: #f5f5f5;
+            background-color: $text-white;
             color: $highlight-color2;
             .icon { color: $highlight-color2; }
           }

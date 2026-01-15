@@ -20,8 +20,9 @@ const imageSrc = computed(() => {
 </script>
 <template>
     <div class="dialog-card-container">
+
     <p>【科普知識】</p>
-    <div class="dialog-card">
+
         <div class="dialog-card__content">
            <div class="knowledge-text">
           {{ text }}
@@ -30,7 +31,6 @@ const imageSrc = computed(() => {
           {{ buttonText }}
         </button>
         </div>       
-    </div>
     </div>
 </template>
 <style lang="scss" scoped>
@@ -43,31 +43,31 @@ const imageSrc = computed(() => {
     box-shadow: 0 3px 10px rgba(0, 0, 0, 0.12);
     display: flex;
     flex-direction: column;
-    @include font-body-bold;
+    @include font-body-l-bold;
     justify-content: center;
     align-items: center;
-    padding: 38px 32px 16px;
+    padding: 38px 32px 24px;
 }
 button{
-    @include font-body-l-bold;
+    @include font-body-bold;
     justify-self: end;
     align-self: end;
     color: $secondary-color;
     text-decoration: underline;
     text-underline-offset: 6px;
     text-decoration-thickness: 2px;
+    padding-top: 16px;
 }
 p{
-    @include font-quaternary;
-    background-color: $game-line-color;
+    @include font-body-l-bold;
     color: $text-white;
+    background-color: $game-line-color;
     padding: 4px 8px;  
-    grid-column: 3 / 4;
-    grid-row: 1 / 2; 
-    justify-self: start;
-    align-self: end;
-    margin-left: 16px;
-    margin-bottom: -22px;
+    position: absolute;
+    top: 0;
+    left: 16px;
+    transform: translateY(-50%);
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+    z-index: 1;
 }
 </style>

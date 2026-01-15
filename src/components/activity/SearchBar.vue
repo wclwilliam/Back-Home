@@ -84,7 +84,7 @@ const resetFilter = () => {
 }
 
 const confirmFilter = () => {
-  // 發送深拷貝的資料給父層，避免後續修改影響
+  // 發送拷貝的資料給父層，避免後續修改影響
   emit('filter', JSON.parse(JSON.stringify(selectedFilters)))
   isFilterOpen.value = false // 關閉選單
 }
@@ -170,7 +170,7 @@ const confirmFilter = () => {
     .search-input {
       position: relative;
       flex-grow: 1;
-      border: 1px solid $secondary-color;
+      border: 2px solid $secondary-color;
       display: flex;
       align-items: center;
 
@@ -225,6 +225,7 @@ const confirmFilter = () => {
           flex-wrap: wrap;
           gap: 8px;
           align-items: center;
+          @include font-body;
 
           .tag {
             padding: 8px 16px;
