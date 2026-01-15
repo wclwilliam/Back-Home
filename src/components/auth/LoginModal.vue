@@ -4,17 +4,13 @@ import { useAuthStore } from '@/stores/auth'
 import { storeToRefs } from 'pinia'
 import { useRouter } from 'vue-router'
 import Input from '@/components/auth/Input.vue' 
+import Button from '@/components/auth/Button.vue' // 確保引入你的通用按鈕
 
 const authStore = useAuthStore()
 const { isModalOpen, redirectAfterLogin } = storeToRefs(authStore)
 const { loginSuccess } = authStore
 const router = useRouter()
 
-/**
- * 模式切換邏輯
- * login: 登入 | register: 註冊 | forgot: 忘記密碼
- * reg-success: 註冊成功頁 | set-success: 密碼重設成功頁
- */
 const mode = ref('login')
 const isPasswordVisible = ref(false) 
 const isConfirmPasswordVisible = ref(false)
@@ -51,7 +47,7 @@ function handleLoginSuccess() {
   }
   closeModal()
 }
-isModalOpen.value = true //測試用 強制打開燈箱
+isModalOpen.value = true; //測試用
 </script>
 
 <template>
@@ -95,7 +91,8 @@ isModalOpen.value = true //測試用 強制打開燈箱
                     <a class="link-text" @click="mode = 'forgot'">忘記密碼？</a>
                   </div>
 
-                  <button type="submit" class="login-submit-btn">登入</button>
+                  <Button type="submit" variant="primary" class="w-full">登入</Button>
+                  
                   <div class="register-wrapper">
                     <a class="link-text" @click="mode = 'register'">立即註冊</a>
                   </div>
@@ -141,7 +138,9 @@ isModalOpen.value = true //測試用 強制打開燈箱
                       </span>
                     </template>
                   </Input>
-                  <button type="submit" class="login-submit-btn">{{ mode === 'register' ? '確認註冊' : '確認設定' }}</button>
+                  <Button type="submit" variant="primary" class="w-full">
+                    {{ mode === 'register' ? '確認註冊' : '確認設定' }}
+                  </Button>
                   <div class="register-wrapper">
                     <span v-if="mode === 'register'" style="color: #666; margin-right: 8px;">已加入會員</span>
                     <a class="link-text" @click="mode = 'login'">{{ mode === 'register' ? '立即登入' : '返回上一步' }}</a>
@@ -165,83 +164,117 @@ isModalOpen.value = true //測試用 強制打開燈箱
 <style lang="scss" scoped>
 @import '@/assets/scss/base/_var.scss';
 
-/* --- Input框 --- */
+/* --- 重複使用的 Utility --- */
+.w-full { width: 100%; }
+
+/* --- Input 樣式穿透修正 --- */
 :deep(.input-group) {
   margin-bottom: rem(16px);
-
-  /* 1. 針對外層容器：改為綠色邊框，並取消內部的黑框 */
   .input-container {
     border: 1px solid $secondary-color !important;
-    background-color: transparent !important; // 配合燈箱背景
-    
-    // 確保 Icon 顏色也變綠
+    background-color: transparent !important; 
     .icon-wrap {
       color: $secondary-color !important;
       span { color: $secondary-color !important; }
     }
   }
+  .input-field { border: none !important; box-shadow: none !important; }
+  .password-toggle { cursor: pointer; color: #999; &:hover { color: $secondary-color; } }
+}
 
-  /* 2. 針對真正的輸入欄位：確保它沒有多餘邊框 */
-  .input-field {
-    border: none !important;
-    box-shadow: none !important;
+/* --- 燈箱基礎與 RWD 邏輯 --- */
+.modal-overlay { 
+  position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
+  background: rgba(0, 0, 0, 0.5); display: flex; justify-content: center; align-items: center; z-index: 999; 
+}
+
+.modal-container { 
+  background: $text-white; 
+  width: 90%; 
+  max-width: rem(900px); // 增加寬度以維持 1:1
+  min-height: rem(550px); 
+  display: flex; 
+  position: relative; 
+  border-radius: 4px; 
+  overflow: hidden;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    min-height: auto;
+    max-height: 90vh;
+    overflow-y: auto;
   }
 
-  /* 3. 密碼眼睛圖標 */
-  .password-toggle {
-    cursor: pointer;
-    color: #999;
-    &:hover { color: $secondary-color; }
+  .close-btn { 
+    position: absolute; top: 15px; right: 15px; background: none; border: none; 
+    font-size: 24px; cursor: pointer; color: $page-number-color; z-index: 20; 
   }
 }
 
-/* --- 燈箱基礎樣式 --- */
-.modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.5); display: flex; justify-content: center; align-items: center; z-index: 999; }
-.modal-container { background: $text-white; width: 90%; max-width: rem(800px); min-height: rem(520px); display: flex; position: relative; border-radius: 4px; overflow: hidden;
-  .close-btn { position: absolute; top: 10px; right: 10px; background: none; border: none; font-size: 24px; cursor: pointer; color: $page-number-color; z-index: 10; }
-}
 .auth-content { display: flex; width: 100%; }
-.auth-image { flex: 1; background-image: url('@/assets/image/auth/beach.png'); background-size: cover; background-position: center; display: flex; justify-content: center; align-items: center; @media (max-width: 390px) { display: none; } }
-.auth-form-side { flex: 1; padding: rem(40px) rem(60px); display: flex; flex-direction: column; justify-content: center;
+
+.auth-image { 
+  flex: 0 0 50%; // 強制 50% 比例
+  background-image: url('@/assets/image/auth/beach.png'); 
+  background-size: cover; 
+  background-position: center; 
+  display: flex; justify-content: center; align-items: center;
+
+  @media (max-width: 768px) {
+    display: none; // 手機版直接隱藏，節省空間
+  }
+
+  .logo-overlay img { width: rem(180px); }
+}
+
+.auth-form-side { 
+  flex: 1; 
+  padding: rem(50px) rem(60px); 
+  display: flex; flex-direction: column; justify-content: center;
+
+  @media (max-width: 768px) {
+    padding: rem(40px) rem(24px); // 手機版縮小內距防止跑版
+  }
+
   .form-title { @include font-secondary; color: $primary-color; margin-bottom: rem(8px); text-align: center; font-weight: bold; }
   .subtitle { margin-bottom: rem(32px); color: $page-number-color; text-align: center; font-size: rem(16px); }
 }
 
-/* --- 自定義 Checkbox 與 Hover 橘色 --- */
+/* --- 組件細節修正 --- */
 .custom-checkbox-wrapper {
-  display: flex; align-items: center; cursor: pointer; gap: 8px; position: relative;
-  .hidden-checkbox { position: absolute; opacity: 0; cursor: pointer; height: 0; width: 0; }
+  display: flex; align-items: center; cursor: pointer; gap: 8px;
+  .hidden-checkbox { position: absolute; opacity: 0; }
   .styled-box {
-    width: 16px; height: 16px; border: 1px solid $secondary-color; background-color: transparent; border-radius: 2px;
-    display: flex; align-items: center; justify-content: center; transition: all 0.2s ease;
+    width: 16px; height: 16px; border: 1px solid $secondary-color; border-radius: 2px;
+    display: flex; align-items: center; justify-content: center;
     &::after { content: '✔'; font-size: 10px; color: white; display: none; }
   }
-  .checkbox-text { font-size: rem(14px); color: $primary-color; transition: color 0.2s ease; }
-  .hidden-checkbox:checked + .styled-box { background-color: $secondary-color; border-color: $secondary-color; &::after { display: block; } }
-  &:hover { .styled-box { border-color: $highlight-color2; } .checkbox-text { color: $highlight-color2; } }
+  .hidden-checkbox:checked + .styled-box { background-color: $secondary-color; &::after { display: block; } }
+  &:hover { .checkbox-text { color: $highlight-color2; } .styled-box { border-color: $highlight-color2; } }
 }
 
-/* --- 按鈕與連結 --- */
-.login-submit-btn {
-  width: 100%; height: rem(48px); background-color: $secondary-color; color: $text-white; border: none; border-radius: 4px;
-  cursor: pointer; font-size: rem(18px); transition: all 0.3s ease;
-  &:hover { background-color: $highlight-color2; }
-}
-.form-utility { display: flex; justify-content: space-between; align-items: center; margin-top: rem(8px); margin-bottom: rem(32px); }
-.register-wrapper { margin-top: rem(12px); display: flex; justify-content: flex-end; }
+.form-utility { display: flex; justify-content: space-between; align-items: center; margin-bottom: rem(32px); }
+.register-wrapper { margin-top: rem(16px); display: flex; justify-content: flex-end; }
 .link-text { color: $primary-color; cursor: pointer; font-size: rem(14px); text-decoration: underline; &:hover { color: $highlight-color2; } }
 
-/* --- 註冊/重設密碼專用 --- */
-.verify-group { display: flex; gap: 8px; margin-bottom: rem(16px); .flex-1 { flex: 1; margin-bottom: 0; } }
-.get-code-btn { height: rem(48px); padding: 0 rem(12px); border: 1px solid $secondary-color; background: transparent; color: $secondary-color; border-radius: 4px; cursor: pointer; font-size: rem(14px); white-space: nowrap; &:hover { border-color: $highlight-color2; color: $highlight-color2; } }
-.hint-text { font-size: rem(12px); color: $page-number-color; margin: rem(-8px) 0 rem(16px) 0; display: flex; align-items: center; gap: 4px; .material-symbols-outlined { font-size: 16px; } }
-.success-page { text-align: center; .form-title { margin-top: rem(20px); } }
+.verify-group { 
+  display: flex; gap: 8px; margin-bottom: rem(16px); 
+  .flex-1 { flex: 1; margin-bottom: 0; }
+  .get-code-btn { 
+    height: rem(48px); padding: 0 rem(16px); border: 1px solid $secondary-color; 
+    background: transparent; color: $secondary-color; border-radius: 4px; cursor: pointer;
+    white-space: nowrap;
+    &:hover { border-color: $highlight-color2; color: $highlight-color2; }
+  }
+}
 
-/* --- 社群登入 --- */
 .social-login {
   text-align: center; margin-top: rem(40px);
-  .divider { display: flex; align-items: center; color: $page-number-color; margin-bottom: rem(20px); font-size: rem(14px); &::before, &::after { content: ""; flex: 1; height: 1px; background: #eee; margin: 0 10px; } }
-  .social-icons { display: flex; justify-content: center; gap: rem(30px); img { width: rem(28px); cursor: pointer; transition: transform 0.2s; &:hover { transform: scale(1.1); } } }
+  .divider { 
+    display: flex; align-items: center; color: $page-number-color; margin-bottom: rem(20px); 
+    &::before, &::after { content: ""; flex: 1; height: 1px; background: #eee; margin: 0 10px; } 
+  }
+  .social-icons { display: flex; justify-content: center; gap: rem(30px); img { width: rem(28px); cursor: pointer; } }
 }
 
 /* --- 動畫 --- */
