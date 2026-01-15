@@ -110,17 +110,20 @@ const goHome = () => {
 
 /* 導覽連結 */
 .footer-nav {
-        ul {
-        display: flex;
-        gap: 30px;
-                li {
-                        color: #ffffff;
-                        text-decoration: none;
-                        white-space: nowrap;
+  ul {
+    display: flex;
+    gap: 30px;
+    list-style: none; /* 建議加上這個移除圓點 */
+    padding: 0;
 
-                }
-
-        }
+    li {
+      a { /* RouterLink 會渲染成 a 標籤，樣式要寫在這裡 */
+        color: #ffffff;
+        text-decoration: none;
+        white-space: nowrap;
+      }
+    }
+  }
 }
 
 /* 分隔線 */
