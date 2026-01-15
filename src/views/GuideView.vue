@@ -11,11 +11,11 @@ import threatenBottom from'@/components/guide/threatenBottom.vue'
 
 <template>
 
-    <GuideBanner></GuideBanner>
-    <Guide></Guide>
-    <TurtleMap></TurtleMap>
-    <Guidethreaten></Guidethreaten>
-    <threatenBottom></threatenBottom>
+    <GuideBanner/>
+    <Guide/>
+    <TurtleMap/>
+    <Guidethreaten/>
+    <threatenBottom/>
 
 
 </template>

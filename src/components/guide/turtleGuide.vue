@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { computed } from 'vue'
 import { allTurtles } from '@/components/guide/turtleData'
 
 const turtleSections = computed(() => {
@@ -16,15 +16,9 @@ const turtleSections = computed(() => {
         },
     ]
 })
-
-// const parseAssetsIcon = (fileName) => { 
-//     return new URL(`src/assets/${fileName}`, import.meta.url).href 
-//     }
 </script>
 
 <template>
-
-
     <section class="GuideTitle">
         <h2>海龜圖鑑</h2>
         <div class="container">
@@ -34,22 +28,25 @@ const turtleSections = computed(() => {
                     <div v-for="turtle in section.list" :key="turtle.id" class="col-sm-4 col-md-6 col-lg-4"
                         style="margin-bottom: 48px;">
 
-                        <router-link :to="`/guide/${turtle.id}`">
-                            <div class="turtleCard">
+                        <router-link :to="`/guide/${turtle.id}`" class="card-link-wrapper">             
+                            <div class="cardContainer newsCard">
+                                <div class="cardPic">
+                                    <img :src="turtle.img" :alt="turtle.nameCN" />
+                                </div>
+                                
+                                <div class="cardInfo">
+                                    <div class="cardTitle">
+                                        {{ turtle.nameCN }}<br>{{ turtle.nameEN }}
+                                    </div>
+                                </div>
 
-                                <div class="imgBox">
-                                    <img :src="turtle.img" />
-                                </div>
-                                <div class="info">
-                                    <h4>{{ turtle.nameCN }}</h4>
-                                    <p>{{ turtle.nameEN }}</p>
-                                </div>
                                 <button class="btn btn-solid">
                                     <span class="material-symbols-outlined arrow">
                                         arrow_forward
                                     </span>
                                 </button>
                             </div>
+
                         </router-link>
 
                     </div>
@@ -60,14 +57,15 @@ const turtleSections = computed(() => {
 </template>
 
 <style lang="scss" scoped>
+@import "@/assets/scss/component/_card.scss";
+
 .GuideTitle h2 {
-    font-size: $d-size-secondary;
+    @include font-secondary-md;
     color: $primary-color;
     text-align: center;
     font-weight: bold;
     margin: 67px 0;
 }
-
 
 .groupSection {
     margin-bottom: 60px;
@@ -81,55 +79,86 @@ const turtleSections = computed(() => {
     text-align: center;
 }
 
-.turtleCard {
-    @include font-tertiary;
-    color: $secondary-color;
-    font-weight: bold;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    width: 100%;
-    gap: 24px;
-    cursor: pointer;
-}
-
-.imgBox {
-    width: 100%;
+.card-link-wrapper {
+    display: block;
+    text-decoration: none;
     height: 100%;
 }
 
-.imgBox img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center;
-}
+.newsCard {
+  cursor: pointer;
+  position: relative;
+  overflow: hidden; 
+  background-color: $text-white; 
+  z-index: 1; 
+  height: 100%; 
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05); 
 
-.btn {
+
+  
+  &:hover:before {
+    transform: scale(25); /* 擴散倍率 */
+  }
+
+  
+  .cardInfo {
+    position: relative;
+    z-index: 2;
+    margin: auto; 
+    .cardTitle {
+      @include font-tertiary; 
+      font-weight: bold;
+      color: $secondary-color; 
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+      overflow: hidden;
+      text-align: center;
+    
+    }
+  }
+  
+  
+  .cardPic {
+      width: 100%;
+      aspect-ratio: 3/2; 
+      overflow: hidden;
+      
+      img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          transition: transform 0.5s ease;
+      }
+  }
+  
+  &:hover .cardPic img {
+      transform: scale(1.05);
+  }
+
+ 
+  .btn {
     position: absolute;
     bottom: 0;
-    right: 10px;
-    width: 12%;
-    aspect-ratio: 0;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    padding-top: 9%;
-    clip-path: polygon(0% 100%, 100% 100%, 100% 0);
+    right: 0;
+    width: 15%; 
+    aspect-ratio: 1; 
+    background-color: $secondary-color;
+    clip-path: polygon(100% 0, 0% 100%, 100% 100%);
+    z-index: 2;
+    border: none;
+    cursor: pointer;
+    padding: 0; 
+    transition: background-color 0.3s;
 
     .arrow {
-        color: $text-white;
+      position: absolute;
+      color: $text-white;
+      top: 67%;  
+      left: 67%;
+      transform: translate(-50%, -50%);
+      font-size: 1.2rem;
     }
-
-    &:hover {
-        background-color: $secondary-color;
-        border: 2px solid $secondary-color;
-    }
-
-    @media (max-width: 768px) {
-        padding-top: 5%;
-        padding-left: 6%;
-    }
+  }
 }
 </style>
