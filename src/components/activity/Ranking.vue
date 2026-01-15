@@ -26,7 +26,7 @@ const getRankIcon = (index) => {
 </script>
 
 <template>
-  <div class="col-sm-4 col-md-12 col-lg-12 ranking-section">
+  <div class="col-sm-4 col-md-8 col-lg-7 ranking-section">
     <div class="ranking-card">
       
       <div class="ranking-header-banner">
@@ -60,7 +60,6 @@ const getRankIcon = (index) => {
                   :alt="`第${index + 1}名`"
                   class="rank-icon"
                 >
-                <span v-else class="rank-num">{{ index + 1 }}</span>
               </div>
             </div>
 
@@ -84,6 +83,7 @@ const getRankIcon = (index) => {
 .ranking-section {
   margin-top: 40px;
   margin-bottom: 60px;
+  margin: 0 auto;
 }
 
 .ranking-card {
@@ -124,13 +124,12 @@ const getRankIcon = (index) => {
 
 .table-header {
   display: flex;
-  // 表頭背景色使用 $highlight-color1 (#4FA8C3)
+  align-items: center;
   background-color: $highlight-color1; 
-  color: $text-white;
+  color: $text-white !important;
   padding: 16px 0;
-  font-weight: bold;
-  font-size: $size-body-l;
-  letter-spacing: 1px;
+  @include font-quaternary;
+  text-align: center;
 }
 
 .table-body {
@@ -138,13 +137,10 @@ const getRankIcon = (index) => {
     display: flex;
     align-items: center;
     padding: 16px 0;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid $text-white;
     background-color: $text-white;
-    transition: background-color 0.2s;
+    @include font-body-bold;
 
-    &:hover {
-      background-color: $backstage-swipe-color; // #F6F6F6
-    }
 
     // 偶數行變色 (Zebra striping)
     &:nth-child(even) {
@@ -157,13 +153,13 @@ const getRankIcon = (index) => {
 
     // 欄位內容對齊
     .col-rank { 
-      flex: 1.5; 
+      flex: 2; 
       display: flex; 
       justify-content: center; 
       align-items: center; 
     }
     .col-member { 
-      flex: 4; 
+      flex: 2; 
       display: flex; 
       align-items: center; 
       justify-content: center; 
@@ -180,13 +176,13 @@ const getRankIcon = (index) => {
 
 // --- 內部元素細節 ---
 
-// 1. 排名圖片
+//排名圖片
 .turtle-rank {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 40px;
-  height: 40px;
+  width: 50px;
+  height: 50px;
   
   .rank-icon {
     width: 100%;
@@ -194,69 +190,16 @@ const getRankIcon = (index) => {
     object-fit: contain;
     display: block;
   }
-  
-  .rank-num {
-    font-size: $size-body-l;
-    font-weight: bold;
-    color: $text-color;
-  }
-}
-.name {
-  font-size: $size-body;
-  font-weight: 500;
-  color: $text-color;
-  min-width: 60px;
-  text-align: left;
 }
 
-// 3. 時數
+//時數
 .hours-num {
-  font-size: $size-body-l;
-  color: $primary-color; // 使用主色
+  @include font-body-l-bold;
   margin-right: 4px;
 }
 
 .unit {
-  font-size: $size-body;
-  font-weight: normal;
+  @include font-body;
 }
 
-// --- RWD 手機版調整 ---
-@media (max-width: 576px) {
-  .ranking-header-banner {
-    padding: 20px 16px;
-    
-    .quote-box {
-      padding: 16px;
-    }
-    
-    .main-title {
-      font-size: $m-size-tertiary;
-    }
-    
-    .sub-quote {
-      font-size: $m-size-caption;
-    }
-  }
-
-  .table-header {
-    font-size: $size-body;
-  }
-
-  // 手機版調整欄位比例
-  .table-header, .table-body .table-row {
-    .col-rank { flex: 1; }
-    .col-member { flex: 3.5; justify-content: flex-start; padding-left: 10px; } 
-    .col-hours { flex: 1.5; }
-  }
-
-  .avatar {
-    width: 36px;
-    height: 36px;
-  }
-  
-  .name {
-    font-size: $size-body;
-  }
-}
 </style>

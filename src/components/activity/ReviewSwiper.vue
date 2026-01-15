@@ -72,9 +72,8 @@ onUnmounted(() => {
 
 // --- RWD 設定 ---
 const breakpointsConfig = {
-  '576': { slidesPerView: 1.5, spaceBetween: 20 },
-  '768': { slidesPerView: 2.5, spaceBetween: 24 },
-  '1024': { slidesPerView: 3.5, spaceBetween: 30 }
+  '576': { slidesPerView: 2.3, spaceBetween: 16 },
+  '1024': { slidesPerView: 3.5, spaceBetween: 24 }
 }
 </script>
 

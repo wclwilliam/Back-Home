@@ -35,35 +35,47 @@ const progressStyle = computed(() => {
   return { width: `${percent}%` }
 })
 
-// --- 3. 收藏功能 (前端模擬) ---
-const isBookmarked = ref(false)
-const toggleBookmark = () => {
+// 收藏功能邏輯 
+const isBookmarked = ref(false) // 是否已收藏
+const isHovering = ref(false) // 是否正在 hover
+
+// 根據狀態決定要顯示哪個 Icon 名稱
+const bookmarkIcon = computed(() => {
+  if (isBookmarked.value) {
+    return isHovering.value ? 'bookmark' : 'bookmark'
+  } else {
+    return isHovering.value ? 'bookmark_add' : 'bookmark'
+  }
+})
+
+const toggleBookmark = (e) => {
+  //防止點愛心時觸發卡片跳轉
+  e.stopPropagation()
   isBookmarked.value = !isBookmarked.value
 }
+
 </script>
 
 <template>
   <div class="intro-container">
-    
-    <div class="row hero-row g-0"> <div class="col-md-6 hero-image-col">
-        <div class="img-wrapper">
+  
+    <div class="hero-row g-0">
+      <div class="col-md-6 hero-image-col">
+        <div class="pic">
           <img :src="activity.image" :alt="activity.title">
         </div>
       </div>
-
+  
       <div class="col-md-6 hero-info-col">
         <div class="info-content">
           <div class="info-header">
             <h1 class="title">{{ activity.title }}</h1>
-            <span 
-              class="material-symbols-outlined bookmark-icon"
-              :class="{ 'is-active': isBookmarked }"
-              @click="toggleBookmark"
-            >
-              {{ isBookmarked ? 'bookmark' : 'bookmark_border' }}
+            <span class="material-symbols-outlined bookmark" :class="{ 'is-active': isBookmarked }"
+              @click="toggleBookmark" @mouseenter="isHovering = true" @mouseleave="isHovering = false">
+              {{ bookmarkIcon }}
             </span>
           </div>
-
+  
           <div class="meta-list">
             <div class="meta-item">
               <span class="material-symbols-outlined icon">calendar_today</span>
@@ -78,9 +90,9 @@ const toggleBookmark = () => {
               <span class="text">{{ activity.type }}</span>
             </div>
           </div>
-
-          
-
+  
+  
+  
           <div class="progress-section">
             <span class="material-symbols-outlined icon">group</span>
             <div class="progress-track-container">
@@ -92,17 +104,17 @@ const toggleBookmark = () => {
         </div>
       </div>
     </div>
-
-    <div class="details-row">
-      
-      <div class="col-md-6 desc-col">
+  
+    <div class="details-row ">
+  
+      <div class="desc-col">
         <div class="content-box desc-box">
           <h3 class="section-title">活動簡介</h3>
           <p class="section-text">{{ activity.description }}</p>
         </div>
       </div>
-
-      <div class="col-md-6 notice-col">
+  
+      <div class="notice-col">
         <div class="content-box notice-box">
           <h3 class="section-title">注意事項：</h3>
           <ul class="notice-list" v-if="activity.notices && activity.notices.length > 0">
@@ -112,14 +124,13 @@ const toggleBookmark = () => {
           </ul>
         </div>
       </div>
-
+  
     </div>
-
+  
   </div>
 </template>
 
 <style lang="scss" scoped>
-
 .intro-container {
   width: 100%;
   margin-bottom: 24px;
@@ -136,12 +147,12 @@ const toggleBookmark = () => {
 
 .hero-image-col {
   padding: 0; // 去除 padding 讓圖片滿版
-  
-  .img-wrapper {
+
+  .pic {
     width: 100%;
     height: 100%;
     min-height: 320px; // 手機版最小高度
-    
+
     img {
       width: 100%;
       height: 100%;
@@ -152,16 +163,16 @@ const toggleBookmark = () => {
 }
 
 .hero-info-col {
-  padding: 0; // 去除 padding，讓背景色填滿
-  background-color: $card-color; // 使用您的變數 #CFDEE0 (藍灰色)
+  padding: 0; 
+  background-color: $card-color; 
   display: flex;
   flex-direction: column;
   justify-content: center;
 }
 
 .info-content {
-  padding: 40px; // 內部留白
-  
+  padding: 24px; 
+
   .info-header {
     display: flex;
     justify-content: space-between;
@@ -171,21 +182,22 @@ const toggleBookmark = () => {
     .title {
       // 使用 SCSS 變數定義的字體大小，還原設計圖的大標題
       @include font-secondary;
-      color: $primary-color; 
+      color: $primary-color;
       margin: 0;
       line-height: 1.4;
       flex: 1;
       padding-right: 16px;
     }
 
-    .bookmark-icon {
+    .bookmark {
       font-size: 24px;
       color: $text-color;
       cursor: pointer;
       transition: all 0.3s ease;
+      margin: auto 0;
 
       &:hover {
-        color: $highlight-color2; 
+        color: $highlight-color2;
       }
 
       &.is-active {
@@ -211,7 +223,7 @@ const toggleBookmark = () => {
 
       .icon {
         font-size: 20px;
-        color: $text-color; 
+        color: $text-color;
       }
     }
   }
@@ -235,7 +247,7 @@ const toggleBookmark = () => {
       border-radius: 10px;
       position: relative;
       overflow: hidden;
-      max-width: 200px; 
+      max-width: 200px;
 
       .track-bg {
         // 如果需要底色可在此設定
@@ -249,7 +261,7 @@ const toggleBookmark = () => {
         left: 0;
         top: 0;
         height: 100%;
-        background-color: $primary-color; 
+        background-color: $primary-color;
         border-radius: 10px;
         transition: width 0.5s ease;
       }
@@ -266,17 +278,19 @@ const toggleBookmark = () => {
 .details-row {
   display: flex;
   flex-direction: column;
-  margin-top: 16px; 
+  margin-top: 16px;
 }
 
-.content-box {
+.content-box{
   padding: 24px;
   min-height: 200px; // 確保高度一致
   height: 100%;
 }
 
+
 // 活動簡介 
 .desc-box {
+  width: 100%;
   background-color: $card-color;
 
   .section-text {
@@ -289,7 +303,8 @@ const toggleBookmark = () => {
 
 //注意事項 
 .notice-box {
-  background-color: none; 
+  width: 100%;
+  background-color: none;
   border: 2px solid $card-color;
 
   .notice-list {
@@ -315,24 +330,38 @@ const toggleBookmark = () => {
 
 // --- RWD 調整 ---
 @media (min-width: 768px) {
-  .info-content, .content-box {
+
+  .info-content,
+  .content-box {
     padding: 24px;
   }
+
   
-  .desc-col {
-    border-right: none;
-  }
+
   .hero-row {
-  flex-wrap: nowrap;
-  
-}
-  .details-row{
+    flex-wrap: nowrap;
+
+  }
+
+  .info-content {
+    .info-header {
+      .bookmark {
+        font-size: 40px;
+      }
+    }
+  }
+
+  .details-row {
     flex-direction: row;
   }
-  
-  .hero-image-col .img-wrapper {
+
+  .hero-image-col .pic {
     flex-direction: row;
     min-height: 250px;
   }
+
+  .desc-col, .notice-col{
+  width: 50%;
+}
 }
 </style>
