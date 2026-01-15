@@ -7,6 +7,7 @@ import Ranking from '@/components/activity/Ranking.vue';
 import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
 import axios from 'axios'
 
+
 const activityList = ref([])
 const currentTab = ref('current')
 const currentPage = ref(1)
@@ -168,13 +169,13 @@ watch(currentTab, () => {
 </script>
 <template>
   <Banner imgName="activity" title="志工活動" />
-  <div class="activity-bg-wrapper">
+  <div class="activity-bg-wrapper" :style="{ backgroundImage: 'url(/image/activity/activity_bg.jpg)' }">
     <div class="container">
-      <div class="row">
+      <div class="row cardList">
         <TabBtn v-model="currentTab" />
   
         <SearchBar @search="handleSearchInput" @filter="handleFilterApply" />
-        
+  
         <div class="col-sm-4 col-md-6 col-lg-4 card-gap" v-for="activity in paginatedActivities" :key="activity.id">
           <ActivityCard :event="activity" />
         </div>
@@ -188,24 +189,26 @@ watch(currentTab, () => {
             :class="{ 'active': currentPage === page }" @click="goToPage(page)">
             {{ page }}
           </button>
-  
         </div>
-        <Ranking></Ranking>
-  
+        
       </div>
+      <div class="ranking row">
+        <Ranking></Ranking>
+      </div>
+        
     </div>
   </div>
 </template>
 
 <style lang="scss" scoped>
 .activity-bg-wrapper {
-  margin-top: 5rem;
-  background-image: url('../../assets/image/activity/activityBG.png');
   background-repeat: no-repeat;
   background-position: bottom center;
   background-size: cover;
 }
-
+.cardList{
+  padding-top: 60px;
+}
 .pagination-container {
   display: flex;
   justify-content: center;
@@ -213,6 +216,7 @@ watch(currentTab, () => {
   gap: 8px;
   margin-top: 40px;
   margin-bottom: 60px;
+
 }
 
 .page-btn {
@@ -240,6 +244,9 @@ watch(currentTab, () => {
     background-color: $secondary-color;
     color: white;
   }
+}
+.ranking {
+  padding-bottom: 60px;
 }
 .no-data {
   text-align: center;

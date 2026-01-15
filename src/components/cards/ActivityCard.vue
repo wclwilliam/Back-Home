@@ -119,7 +119,7 @@ const toggleBookmark = (e) => {
   &:hover {
     .btn {
       background-color: $secondary-color;
-      color: $text-white;
+      color: $text-white !important;
       border-color: $secondary-color; // 邊框也要變色
 
       .arrow {
@@ -138,7 +138,7 @@ const toggleBookmark = (e) => {
       left: 0;
       padding: 8px ;
       background-color: $highlight-color2;
-      color: $activity-card-color;
+      color: $activity-card-color !important;
       @include font-body-bold;
     }
 
@@ -149,7 +149,6 @@ const toggleBookmark = (e) => {
       gap: 8px;
       padding: 8px;
       background-color: $highlight-color3;
-      color: $text-color;
       @include font-body-bold;
       display: flex;
       align-items: center;

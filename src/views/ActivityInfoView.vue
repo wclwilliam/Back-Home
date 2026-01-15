@@ -62,8 +62,8 @@ const fetchActivityData = (id) => {
       // 推薦活動 (排除自己 + 排除已結束 + 隨機或排序)
       activityList.value = allData
         .filter(item => item.id !== currentId && item.status !== 'ended')
-        .sort(() => 0.5 - Math.random()) // 簡單隨機排序，讓推薦每次看起來不一樣
-        .slice(0, 4) // 只取前 4 筆
+        .sort(() => 0.5 - Math.random()) 
+        .slice(0, 7) 
     })
     .catch(err => console.error(err))
 }
@@ -73,7 +73,7 @@ onMounted(() => {
   fetchActivityData(route.params.id)
 })
 
-// ★ 重要：監聽路由 ID 變化，解決點擊推薦活動不更新的問題
+
 watch(
   () => route.params.id,
   (newId) => {
@@ -111,18 +111,6 @@ const setRating = (starCount) => {
 </script>
 <template>
   <div class="container">
-    <div class="dev-tool">
-      <p>開發測試面板</p>
-      <div class="tool-row">
-        <label><input type="checkbox" v-model="isLoggedIn"> 強制登入</label>
-      </div>
-      <div class="tool-row">
-        <label><input type="checkbox" v-model="isParticipant"> 模擬已參加過</label>
-        <small>(影響留言權限)</small>
-      </div>
-    </div>
-
-
     <div class="row introduce">
       <ActivityIntroduce v-if="activityInfo.id" :activity="activityInfo" />
     </div>
@@ -163,7 +151,7 @@ const setRating = (starCount) => {
           placeholder="請輸入緊急聯絡人手機號碼">
       </FormInput>
   
-      <div class="checkbox-row col-sm-4 col-md-8">
+      <div class="checkbox-row col-sm-3 ">
         <label class="check-label">
           <input type="checkbox" v-model="formData.syncData" hidden>
           <span class="material-symbols-outlined checkIcon" :class="{'isChecked':formData.syncData}">{{formData.syncData?
@@ -172,15 +160,15 @@ const setRating = (starCount) => {
         </label>
       </div>
   
-      <div class="checkbox-group col-sm-4 col-md-8">
+      <div class="checkbox-group col-sm-3">
         <div class="checkbox-title">免責與授權</div>
   
         <div class="checkbox-row ">
           <label class="check-label">
             <input type="checkbox" v-model="formData.agreeHealth" hidden>
             <span class="material-symbols-outlined checkIcon"
-              :class="{'isChecked':formData.agreeHealth}">{{formData.agreeHealth? 'check_box_outline_blank' :
-              'select_check_box'}}</span>
+              :class="{'isChecked':formData.agreeHealth}">{{formData.agreeHealth? 'select_check_box':
+              'check_box_outline_blank' }}</span>
             <span>我確認無心臟病、高血壓等不適合烈日下活動的病史</span>
           </label>
         </div>
@@ -189,8 +177,8 @@ const setRating = (starCount) => {
           <label class="check-label">
             <input type="checkbox" v-model="formData.agreePhoto" hidden>
             <span class="material-symbols-outlined checkIcon"
-              :class="{'isChecked':formData.agreePhoto}">{{formData.agreePhoto? 'check_box_outline_blank' :
-              'select_check_box'}}</span>
+              :class="{'isChecked':formData.agreePhoto}">{{formData.agreePhoto?  'select_check_box':
+              'check_box_outline_blank'}}</span>
             <span>我同意肖像權使用 (活動照片將用於海龜保育推廣，不作商業用途)。</span>
           </label>
         </div>
@@ -214,7 +202,7 @@ const setRating = (starCount) => {
   <template v-else>
     <div class="row result" v-if="activityInfo.results">
       <div class="secondary-title col-sm-4">成果數據區</div>
-      <div class="data col-sm-3 col-md-8">
+      <div class="data col-sm-3 col-md-5">
         <ul class="resultData">
           <li v-if="activityInfo.results.totalWeight">
             清理總重量：{{ activityInfo.results.totalWeight }} 公斤
@@ -529,15 +517,13 @@ textarea {
     width: 100%;
     height: 200px;
     overflow: hidden;
-
-    @media (min-width: 390px) {
+    // 平板版   
+    @media (min-width: 768px) {
       width: calc((100% - 24px) / 2);
     }
 
-    // --- 狀態 3: 桌機版 (>= 768px) ---
-    // 一列 3 張
-    // 計算公式：(100% - 2個間距) / 3
-    @media (min-width: 768px) {
+    // 桌機版 
+    @media (min-width: 1024px) {
       width: calc((100% - 48px) / 3);
     }
 
@@ -557,17 +543,7 @@ textarea {
 }
 
 
-//登入部分測試
-.dev-tool {
-  position: fixed; 
-  top: 100px; 
-  right: 10px; 
-  z-index: 50; 
-  background: #fff; 
-  border: 1px solid #ccc; 
-  padding: 10px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
+
 
 // --- 登入引導卡片 (Login CTA) ---
 .login-cta-section {
@@ -593,21 +569,21 @@ textarea {
 
     p {
       @include font-body;
-      color: $text-color;
       margin-bottom: 32px;
     }
 
     .icon-disabled {
       font-size: 48px;
-      color: #999;
+      color: $text-white !important; 
       margin-bottom: 16px;
     }
 
     .btn-large {
       width: 100%;
       padding: 16px 32px;
-      font-size: 18px;
+      @include font-body-l-bold;
       cursor: pointer;
+      color: $text-white !important;
     }
   }
 }
