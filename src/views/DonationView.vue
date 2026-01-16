@@ -154,12 +154,12 @@
     
 <style scoped lang="scss">
     .mbOnlyBtn{
-        display: none;
-        @media (width < 768px) {
-                display:block;
-                position: fixed;
-                bottom: 0;
-                z-index: 99;
+        display:block;
+        position: fixed;
+        bottom: 0;
+        z-index: 99;
+        @media (width > 768px) {
+            display: none !important ;  
             }
         
     }
@@ -239,17 +239,18 @@
                         margin-bottom: 80px;
                         .stat-item {
                             min-width: 40%; //暫時
-                            color: #fff;
                             display: flex;
                             align-items: baseline;
                             gap: 4px;
                             .label {
                                 @include font-body-l;
                                 flex-shrink: 0;
+                                color: #fff
                             }
                             .value {
                                 @include font-tertiary;
                                 flex-shrink: 0;
+                                color: #fff
                             }
                         }
                     }

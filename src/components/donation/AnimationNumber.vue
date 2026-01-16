@@ -55,6 +55,7 @@ watch(() => props.value, playAnimation);
         small {
             @include font-body-l;
             flex-shrink: 0;
+            color: #fff
         }
     }
 </style>
