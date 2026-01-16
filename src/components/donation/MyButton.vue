@@ -47,4 +47,34 @@ const buttonStyle = computed(() => ({
 
 <style scoped lang="scss">
 
+.btn {
+    @include font-body-bold;
+    color: #fff;
+    padding-left: 0;
+    padding-right: 0;
+    
+}
+
+
+.btn-xs {
+    @include font-caption;
+    color: #fff;
+}
+
+.btn-s {
+    @include font-footer;
+    color: #fff;
+}
+
+.btn-xxl {
+    @include font-tertiary;
+    color: #fff;
+    
+}
+.btn-outline {
+  color: #0E6273;
+  &:hover {
+        color: #E04925;
+    }
+}
 </style>

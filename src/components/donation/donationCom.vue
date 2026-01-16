@@ -194,6 +194,7 @@ const goDonate = () => {
 
 }
 
+
 const reset = () => { currentStep.value = 1 }
 </script>
 
@@ -215,22 +216,18 @@ const reset = () => { currentStep.value = 1 }
 
     <div v-if="currentStep === 1" class="step-content">
       <div class="tab-group">
-        <MyButton
+        <button
           @click="donationType = 'monthly'"
-          class=" btn-xxl"
-          :class="{ 'btn-outline': donationType !== 'monthly' }"
-          width="50%"
-          height="71px"
+          class="tabBtn"
+          :class="{ 'tabBtn-outline': donationType !== 'monthly' }"
           style="border-left: none;"
-        >每月捐款</MyButton>
-        <MyButton
+        >每月捐款</button>
+        <button
           @click="donationType = 'once'"
-          class=" btn-xxl"
-          :class="{ 'btn-outline': donationType !== 'once' }"
-          width="50%"
-          height="71px"
+          class="tabBtn"
+          :class="{ 'tabBtn-outline': donationType !== 'once' }"
           style="border-right: none;"
-        >單次捐款</MyButton>
+        >單次捐款</button>
       </div>
 
       <p class="intro-text">
@@ -281,10 +278,8 @@ const reset = () => { currentStep.value = 1 }
 
     <div v-if="currentStep === 2" class="step-content">
       <div class="summary-header">
-        <div class="amount-info">
-          <h3 class="type-tag">{{ donationType === 'monthly' ? '每月捐款' : '單次捐款' }}</h3>
-          <p class="amount-display">新台幣 <span class="money">{{ finalAmount }}</span></p>
-        </div>
+        <h3 class="type-tag">{{ donationType === 'monthly' ? '每月捐款' : '單次捐款' }}</h3>
+        <p class="amount-display">新台幣 <span class="money">{{ finalAmount }}</span></p>
         <div class="btn-back-group" @click="currentStep = 1; anonymous=false" >
           <div class="back-arrow"></div>
           <button class="btn-back">其他金額</button>
@@ -293,7 +288,14 @@ const reset = () => { currentStep.value = 1 }
 
       <div class="form-body">
         <label class="checkbox-label">
-          <input type="checkbox" v-model="anonymous"> 我要匿名捐款（免填身分資料）
+          <input type="checkbox" v-model="anonymous">
+          <span class="material-symbols-outlined checkbox" v-if="anonymous">
+            check_box
+            </span>
+            <span class="material-symbols-outlined checkbox" v-else>
+            check_box_outline_blank
+            </span>
+           我要匿名捐款（免填身分資料）
         </label>
         
         <div class="form-group" v-if="anonymous === false" v-for="field,index in formFields" :key="field.id">
@@ -326,7 +328,14 @@ const reset = () => { currentStep.value = 1 }
         <div class="policy-group">
           <label class="checkbox-label policy">
             <input type="checkbox" v-model="form.agree" @click="errors.agree=false">
-            <span>為確保保育資源能精確且即時地投入海洋保護工作，捐款程序一經完成，恕不接受退款申請。 在您按下送出前，請務必再次核對捐款金額與相關資訊。您的每一分善款都將被謹慎運用於海龜救援與棲地守護。若對款項運用有任何疑問，歡迎隨時與我們聯繫，我們將竭誠為您說明。感謝您的慷慨支持！ </span>
+            
+            <span class="material-symbols-outlined checkbox" v-if="form.agree">
+            check_box
+            </span>
+            <span class="material-symbols-outlined checkbox" v-else>
+            check_box_outline_blank
+            </span>
+            <span>為確保保育資源能精確且即時地投入海洋保護工作，捐款程序一經完成，恕不接受退款申請。若對款項運用有任何疑問，歡迎隨時與我們聯繫，我們將竭誠為您說明。感謝您的慷慨支持！ </span>
           </label>
           <p class="error-msg" v-if="errors.agree">
             <span class="material-symbols-outlined">
@@ -365,6 +374,7 @@ const reset = () => { currentStep.value = 1 }
 </template>
 
 <style lang="scss" scoped>
+  $btn-green: #0E6273;
 //google font
 .material-symbols-outlined {
   font-variation-settings:
@@ -375,6 +385,16 @@ const reset = () => { currentStep.value = 1 }
   color: $highlight-color2;
   font-size: 16px;
 }
+
+.checkbox {
+      font-variation-settings:
+      'FILL' 0,
+      'wght' 400,
+      'GRAD' 0,
+      'opsz' 24;
+      color: $btn-green;
+      font-size: 24px;
+    }
 
 .donation-card {
     position: sticky;
@@ -448,6 +468,24 @@ const reset = () => { currentStep.value = 1 }
   width: 100%;
   display: flex;
   margin-bottom: 26px;
+  .tabBtn {
+    @include font-tertiary;
+    display: inline-block;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-style: solid;
+    border-width: 2px;
+    width: 50%;
+    height: 71px;
+    background-color: $btn-green;
+    color: #ffffff;
+    border-color: $btn-green;
+  }
+  .tabBtn-outline {
+    background-color: transparent;
+    color: $btn-green;
+    border-color: $btn-green;
+  }
 }
 
 .intro-text {
@@ -486,8 +524,8 @@ const reset = () => { currentStep.value = 1 }
 }
 
 .error-msg {
-  color: $highlight-color2;
   @include font-body;
+  color: $highlight-color2;
   margin-top: 5px;
   display: flex;
   align-items: center;
@@ -528,30 +566,43 @@ const reset = () => { currentStep.value = 1 }
 // 第二步特定樣式
 .summary-header {
   width: 90%;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  margin-bottom: 20px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas: 
+    "tag tag"
+    "amount back";
+  row-gap: 4px;
+  margin-bottom: 12px;
+  @media (width<390px) {
+    grid-template-areas: 
+    "tag back"
+    "amount amount";
+  }
 
   .type-tag { 
     @include font-body-l-bold;
+    color: $primary-color;
     margin: 0; 
+    grid-area:tag;
   }
   .amount-display {
     @include font-secondary;
-    margin: 5px 0 0 0;
     color: $primary-color;
+    grid-area:amount;
     .money { 
       // 手機
       font-size: $d-size-primary;
       line-height: 1.2;
       letter-spacing: 3px;
       @include font-giant;
+      color: $primary-color;
     }
   }
   .btn-back-group {
     display: flex;
     align-items: center;
+    gap: 4px;
+    grid-area:back;
     cursor: pointer;
     .back-arrow {
       width: 1.25rem;
@@ -565,8 +616,9 @@ const reset = () => { currentStep.value = 1 }
       background: none;
       border: none;
       text-decoration: underline;
-      color: $primary-color;
+      padding: 0;
       @include font-body;
+      color: $primary-color;
     }
   }
 }
@@ -577,6 +629,9 @@ const reset = () => { currentStep.value = 1 }
   display: flex;
   flex-direction: column;
   gap: 24px;
+  @media (width<=768px){
+    gap: 12px;
+  }
   .form-group {
     position: relative;
     label {
@@ -615,26 +670,16 @@ const reset = () => { currentStep.value = 1 }
       }
     }
   }
+
   .checkbox-label {
     display: flex;
     align-items: center;
     @include font-body;
     color: $text-color;
-    margin-bottom: 15px;
     gap: 8px;
     cursor: pointer;
     input { 
-      margin-top: 3px; 
-      border: 1px solid $input-line-color1;
-      height: 24px;
-      width: 24px;
-      flex-shrink: 0;
-      padding: 2px;
-      cursor: pointer;
-      &:checked { //這裡要改
-        background-color: $secondary-color;
-        background-clip: content-box;/* 讓顏色只填在中間，不會碰到邊框 */
-      }
+      display: none; /* 隱藏原始checkbox */
     }
     &.policy { 
       line-height: 1.4; 
@@ -649,8 +694,8 @@ const reset = () => { currentStep.value = 1 }
   text-align: center;
   width: 90%;
   .success-title { 
-    color: $primary-color; 
     @include font-secondary;
+    color: $primary-color; 
     margin-bottom: 32px; 
   }
   .success-desc { 
@@ -687,8 +732,8 @@ const reset = () => { currentStep.value = 1 }
     bottom: 0;
     width: 100%;
     background: rgba(0, 0, 0, 0.4);
-    color: #fff;
     @include font-body-l;
+    color: #fff;
     padding: 5px 0;
   }
 }

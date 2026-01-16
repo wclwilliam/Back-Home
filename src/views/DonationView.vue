@@ -96,7 +96,7 @@
                                     <div class="select-wrapper">
                                     <select v-model="selectedYear">
                                         <option v-for="item in impactReports" :value="item.year" :key="item.year">
-                                            {{item.year}}
+                                            {{item.year +"年"}}
                                         </option>
                                     </select>
                                     </div>
@@ -105,22 +105,18 @@
                                 <div class="stats-grid">
                                     <div class="stat-item">
                                     <span class="label">救援海龜總數</span>
-                                    <!-- <AnimationNumber :value="965" class="value">隻</AnimationNumber> -->
                                     <AnimationNumber :value="currentData.core_metrics?.total_rescued_turtles || 0" class="value">隻</AnimationNumber>
                                     </div>
                                     <div class="stat-item">
                                     <span class="label">引導入海幼龜</span>
-                                    <!-- <AnimationNumber :value="624" class="value">隻</AnimationNumber> -->
                                     <AnimationNumber :value="currentData.core_metrics?.hatchlings_guided_to_sea || 0" class="value">隻</AnimationNumber>
                                     </div>
                                     <div class="stat-item">
                                     <span class="label">巡邏海岸線</span>
-                                    <!-- <AnimationNumber :value="15420" class="value">公里</AnimationNumber> -->
                                     <AnimationNumber :value="currentData.core_metrics?.patrolled_coastline_km || 0" class="value">公里</AnimationNumber>
                                     </div>
                                     <div class="stat-item">
                                     <span class="label">專業醫療手術</span>
-                                    <!-- <AnimationNumber :value="142" class="value">場</AnimationNumber> -->
                                     <AnimationNumber :value="currentData.core_metrics?.professional_medical_surgeries || 0" class="value">場</AnimationNumber>
                                     </div>
                                 </div>
@@ -158,17 +154,18 @@
     
 <style scoped lang="scss">
     .mbOnlyBtn{
-        display: none;
-        @media (width < 768px) {
-                display:block;
-                position: fixed;
-                bottom: 0;
-                z-index: 99;
+        display:block;
+        position: fixed;
+        bottom: 0;
+        z-index: 99;
+        @media (width > 768px) {
+            display: none !important ;  
             }
         
     }
     .container {
         //設定預設樣式
+        
         h2 {
             @include font-secondary;
         }
@@ -183,9 +180,11 @@
             @media (width < 768px) {
                 flex-direction: column-reverse;
                 margin-top: 32px;
+                overflow-x: hidden;
             }
         }
         .otherCom {
+            
             margin-top: 70px;
             display: flex;
             flex-direction: column;
@@ -193,6 +192,9 @@
             .rescueChart{
                 width: 100%;
                 // height: 727px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
                 background-color: $secondary-color;
                 padding-top: 24px;
                 padding-bottom: 24px;
@@ -219,8 +221,7 @@
                                 background-color: #CFDEE0;
                                 display: flex;
                                 align-items: center;
-                                width: 160px;
-                                padding: 8px;
+                                padding: 8px 16px;
                                 background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23212529'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e"); // 放入 SVG 箭頭
                                 background-repeat: no-repeat;
                                 background-position: right 10px center; /* 定位在右側中間 */
@@ -238,22 +239,24 @@
                         margin-bottom: 80px;
                         .stat-item {
                             min-width: 40%; //暫時
-                            color: #fff;
                             display: flex;
                             align-items: baseline;
                             gap: 4px;
                             .label {
                                 @include font-body-l;
                                 flex-shrink: 0;
+                                color: #fff
                             }
                             .value {
                                 @include font-tertiary;
                                 flex-shrink: 0;
+                                color: #fff
                             }
                         }
                     }
                 }
                 .clean-section {
+                    width: 100%;
                     h3 {
                         color: #fff;
                         text-align: center;
@@ -288,17 +291,17 @@
                     width: 100%;
                     gap: 24px;
                     select {
+                        text-align: center;
                         width: 50%;
                         position: relative;
                         border: 2px solid $secondary-color;
                         @include font-tertiary;
                         color: $secondary-color;
-                        padding-left: 32px;
                         background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23212529'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e"); // 放入 SVG 箭頭
                         background-repeat: no-repeat;
                         background-position: right 10px center; /* 定位在右側中間 */
                         background-size: 12px;
-                        padding-right: 30px; /* 預留空間給箭頭 */
+                        padding-right: 24px; /* 預留空間給箭頭 */
                     }
                     button {
                         width: 50%;

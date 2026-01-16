@@ -40,5 +40,8 @@ const modules = [EffectCards];
 /* 如果有需要針對此組件調整 Swiper 容器大小，可以在這裡寫 CSS */
 .mySwiper {
     width: 60%;
+    @media (width<=550px){
+      width: 90%;
+    }
     }
 </style>

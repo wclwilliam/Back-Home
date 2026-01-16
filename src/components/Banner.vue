@@ -39,8 +39,8 @@ const imgURL = computed(() => {
                 justify-content: center;
                 align-items: center;
                 h1 {
-                        color: $primary-color;
-                        @include font-primary;
+                  @include font-primary;
+                  color: $primary-color;
                 }
         } 
         @media (min-width: 1920px) {
