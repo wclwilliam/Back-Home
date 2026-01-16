@@ -66,7 +66,7 @@ const parseAssets = (fileName) => {
 
   // 手機版 RWD 調整
   // 你的手機版是 col-sm-4 (全寬)，通常這時候不需要浮動，而是改為正常堆疊
-  @media (max-width: 767px) {
+  @media (max-width: 768px) {
     position: relative;
     width: 100%;
     bottom: auto;

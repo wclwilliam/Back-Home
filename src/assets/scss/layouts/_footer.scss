@@ -43,6 +43,7 @@ footer {
         display: flex;
         align-items: center;
         width: fit-content;
+        color: $text-white;
 
         i {
             @include fontawesome-icon-style($size: $d-size-caption, $color: $text-white, $width: $d-size-caption);
@@ -63,6 +64,7 @@ footer {
 
     p {
         padding: 6px 0;
+        color: $text-white;
     }
 }
 
@@ -110,12 +112,12 @@ footer {
     text-align: right;
 }
 
-/* =========================== RWD 設定 (保持原本邏輯) =========================== */
+/* =========================== RWD 設定  =========================== */
 
 @media screen and (max-width: 1024px) {
     .footerLogo {
         grid-column: 1 / 13;
-        padding: 20px 0;
+
     }
 
     .navFooter {
@@ -147,6 +149,10 @@ footer {
         flex-direction: column;
         align-items: center;
         padding: 40px 20px;
+    }
+
+    .footerLogo {
+        padding: 20px 0;
     }
 
     .navFooter {

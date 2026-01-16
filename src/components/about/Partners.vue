@@ -21,7 +21,6 @@ const partners = ref([
 </script>
 <template>
   <div class="container">
-    <h2>企業合作夥伴</h2>
     <div class="partnerCloud_wrapper">
       <div
         v-for="(item, index) in partners"
@@ -34,14 +33,6 @@ const partners = ref([
   </div>
 </template>
 <style lang="scss" scoped>
-h2 {
-  @include font-secondary;
-  width: 100%;
-  text-align: center;
-  display: block;
-  margin: 0 0 2rem;
-}
-
 .partnerCloud_wrapper {
   position: relative;
   width: 100%;
@@ -238,6 +229,38 @@ h2 {
   .pos-11 {
     top: 53%;
     left: 18%;
+  }
+}
+
+// 定義漂浮動畫 Keyframes
+// .bubble 原本就有 translate(-50%, -50%)，動畫保留原設定，再加上 Y 軸的移動
+@keyframes float {
+  0% {
+    transform: translate(-50%, -50%) translateY(0px);
+  }
+  50% {
+    transform: translate(-50%, -50%) translateY(-12px); // 往上浮動 12px
+  }
+  100% {
+    transform: translate(-50%, -50%) translateY(0px);
+  }
+}
+
+// 套用動畫
+.bubble {
+  // 預設 4秒, ease-in-out (起步煞車感), 無限循環
+  animation: float 4s ease-in-out infinite;
+}
+
+// 為每一個 .pos-X 產生隨機的時間與延遲
+@for $i from 1 through 11 {
+  .pos-#{$i} {
+    // 隨機動畫時間：3s ~ 6s 之間
+    // random(30) 會出 1~30，除以 10 變成 0.1~3.0
+    animation-duration: #{3 + random(30) / 10}s;
+
+    // 隨機延遲：使用負數 delay 可以讓動畫「直接開始」在隨機的位置，不用等
+    animation-delay: -#{random(50) / 10}s;
   }
 }
 </style>
