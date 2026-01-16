@@ -84,6 +84,70 @@ header {
                     }
                 }
             }
+
+            // ========== 2026/1/16 加入使用者下拉選單樣式 ==========
+            .userMenuWrapper {
+                position: relative;
+
+                .userIcon {
+                    cursor: pointer;
+                    transition: opacity 0.3s;
+
+                    &:hover {
+                        opacity: 0.8;
+                    }
+                }
+
+                .userDropdown {
+                    position: absolute;
+                    top: calc(100% + 10px);
+                    right: 0;
+                    background: white;
+                    border-radius: 8px;
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                    min-width: 180px;
+                    z-index: 1000;
+                    overflow: hidden;
+                    animation: fadeIn 0.2s ease-in-out;
+
+                    .userGreeting {
+                        padding: 16px;
+                        font-weight: 600;
+                        color: #2c3e50;
+                        border-bottom: 1px solid #e0e0e0;
+                        background: #f8f9fa;
+                    }
+
+                    .dropdownItem {
+                        padding: 12px 16px;
+                        display: flex;
+                        align-items: center;
+                        gap: 8px;
+                        cursor: pointer;
+                        color: #2c3e50;
+                        transition: background 0.2s;
+
+                        .material-symbols-outlined {
+                            font-size: 20px;
+                        }
+
+                        &:hover {
+                            background: #f0f0f0;
+                        }
+
+                        &.logout {
+                            color: #dc3545;
+                            border-top: 1px solid #e0e0e0;
+
+                            &:hover {
+                                background: #fff5f5;
+                            }
+                        }
+                    }
+                }
+            }
+
+            // ========== 2026/1/16 使用者下拉選單樣式結束 ==========
         }
     }
 
@@ -101,6 +165,19 @@ header {
         &.isActive {
             transform: rotate(90deg); // 旋轉 90 度
         }
+    }
+}
+
+// 2026/1/16 使用者選單淡入動畫
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
 }
 

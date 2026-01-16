@@ -15,8 +15,6 @@ onMounted(() => {
 </script>
 <template>
   <div class="container">
-    <h2>專業團隊</h2>
-
     <div class="row desktop-grid">
       <div class="col-lg-4 col-md-4" v-for="expert in expertList.slice(0, 3)" :key="expert.id">
         <TeamMemberCard v-bind="expert" />
@@ -54,14 +52,6 @@ onMounted(() => {
   </swiper> -->
 </template>
 <style lang="scss" scoped>
-h2 {
-  @include font-secondary;
-  width: 100%;
-  text-align: center;
-  display: block;
-  margin: 0 0 2rem;
-}
-
 // --- Desktop-First 邏輯 ---
 
 // 1. 桌機網格 (預設顯示)

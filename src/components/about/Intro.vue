@@ -84,13 +84,13 @@ const parseAssets = (fileName) => {
     }
   }
 }
-@media (max-width: 767px) {
-  .img_area {
-    .img_wrapper {
-      .img_box {
-        width: 50%;
-      }
-    }
-  }
-}
+// @media (max-width: 767px) {
+//   .img_area {
+//     .img_wrapper {
+//       .img_box {
+//         width: 50%;
+//       }
+//     }
+//   }
+// }
 </style>
