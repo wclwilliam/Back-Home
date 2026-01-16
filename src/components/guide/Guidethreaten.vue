@@ -106,12 +106,15 @@ h1 {
     font-weight: bold;
     text-align: center;
     margin: 67px 0;
+    @media(max-width: 768px){
+        margin: 200px 0 67px 0;
+    }
 }
 
 h2 {
-
-    font-size: $d-size-tertiary;
-    font-weight: bolder;
+    @include font-tertiary;
+    color: $text-white;
+    font-weight: bold;
 }
 
 .threatenBox-grid {
@@ -172,7 +175,6 @@ h2 {
 
 .card-3 {
     grid-column: 1 / 2;
-    background: #111;
     background-image: url(/img/GuideView/threaten3.png);
     background-size: cover;
 
@@ -187,7 +189,7 @@ h2 {
     grid-column: 2 / 3;
     background-image: url(/img/GuideView/threaten4.png);
     background-size: cover;
-
+    
     @media (max-width: 768px) {
         grid-column: 2 / 4;
         grid-row: 4;
@@ -206,6 +208,5 @@ h2 {
         grid-row: 5;
         background-position: center 90%;
     }
-
 }
 </style>

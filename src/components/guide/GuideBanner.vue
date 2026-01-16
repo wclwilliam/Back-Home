@@ -28,42 +28,36 @@
 
     @media (max-width: 768px) {
         height: 600px;
-         background-position: 35%;
+        background-position: 35%;
     }
 }
 
 .turtleBannerInfo {
-    color: $text-white;
     display: flex;
     flex-direction: column;
     margin-left: 15%;
     width: 100%;
     max-width: 442px;
     gap: 86px;
+    
+
     @media (max-width: 768px) {
-            gap: 50px;
-        }
+        gap: 50px;
+    }
 
     h1 {
-        font-size: $d-size-secondary;
+        @include font-secondary-md;
+        color: $text-white;
         font-weight: bold;
-
-        @media (max-width: 768px) {
-            font-size: $m-size-tertiary;
-        }
     }
 
     p {
         @include font-body-l;
         width: 70%;
-
-        //max-width: 392px;
+        color: $text-white;
         @media (max-width: 768px) {
-            font-size: $size-body;
-            //width: 50%;
             margin-bottom: 60px;
         }
     }
 }
-
 </style>

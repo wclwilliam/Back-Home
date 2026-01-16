@@ -21,13 +21,14 @@ const goBack = () => {
 }
 
 const modules = [Pagination];
-const isDesktop = ref(window.innerWidth >= 992); 
+const isDesktop = ref(window.innerWidth >= 992);
 
 const updateWidth = () => {
     isDesktop.value = window.innerWidth >= 992;
 };
 
 onMounted(() => {
+    window.scrollTo(0, 0);
     window.addEventListener('resize', updateWidth);
 });
 
@@ -42,13 +43,13 @@ onUnmounted(() => {
 
     <div v-else class="detailPage">
         <div class="container">
-            <button class="btn btn-outline-white" @click="goBack">回列表</button>
+            <button class="btn btn-outline-white btn-xs" @click="goBack">回列表</button>
             <div class="detailTitle">
                 <h1>{{ turtleInfo.nameCN }} <span class="enName">{{ turtleInfo.nameEN }}</span></h1>
             </div>
 
             <div v-if="isDesktop" class="bubbles-desktop-grid">
-                
+
                 <div class="grid-item-image">
                     <img :src="turtleInfo.detailImage" :alt="turtleInfo.nameCN" class="mainTurtle-img" />
                 </div>
@@ -76,14 +77,8 @@ onUnmounted(() => {
                     <img :src="turtleInfo.detailImage" :alt="turtleInfo.nameCN" class="mainTurtle-img" />
                 </div>
 
-                <swiper
-                    :modules="modules"
-                    :slides-per-view="1"
-                    :space-between="20"
-                    :centered-slides="true"
-                    :pagination="{ clickable: true }"
-                    class="bubbles-mobile-swiper"
-                >
+                <swiper :modules="modules" :slides-per-view="1" :space-between="20" :centered-slides="true"
+                    :pagination="{ clickable: true }" class="bubbles-mobile-swiper">
                     <swiper-slide class="bubble profile">
                         <h3>物種檔案</h3>
                         <p>{{ turtleInfo.profile }}</p>
@@ -103,7 +98,7 @@ onUnmounted(() => {
                     <div class="swiper-pagination"></div>
                 </swiper>
             </template>
-            </div>
+        </div>
     </div>
 </template>
 
@@ -120,7 +115,14 @@ onUnmounted(() => {
         padding: 0 40px;
     }
 }
-
+.btn {
+    @include font-caption;
+    color: $text-white;
+    margin-bottom: 20px;
+    &:hover {
+        color: $highlight-color2;
+    }
+}
 .detailPage {
     width: 100%;
     min-height: 100vh;
@@ -134,16 +136,17 @@ onUnmounted(() => {
 }
 
 .detailTitle h1 {
+    @include font-primary;
     text-align: center;
-    font-size: 3rem;
+    color: $text-white;
     margin-bottom: 50px;
 }
 
 .enName {
-    font-size: 1.5rem;
+    @include font-secondary;
+    color: $text-white;
     font-weight: normal;
 }
-
 
 .detailImage-container {
     width: 100%;
@@ -154,17 +157,25 @@ onUnmounted(() => {
 }
 
 .mainTurtle-img {
-    max-width: 100%; 
+    max-width: 100%;
     height: auto;
     animation: floating 3s ease-in-out infinite;
-    object-fit: contain; 
+    object-fit: contain;
 }
 
 
 @keyframes floating {
-    0% { transform: translateY(0px); }
-    50% { transform: translateY(-15px); }
-    100% { transform: translateY(0px); }
+    0% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-15px);
+    }
+
+    100% {
+        transform: translateY(0px);
+    }
 }
 
 .bubbles-container {
@@ -187,31 +198,34 @@ onUnmounted(() => {
     justify-content: center;
     text-align: center;
     box-sizing: border-box;
-    color: white;
+    color: $text-white;
 
     h3 {
-        font-size: $d-size-tertiary;
+        @include font-tertiary;
+        color: $text-white;
         margin-bottom: 15px;
         font-weight: bold;
     }
+
     p {
-        font-size: $size-body;
-        line-height: 1.6;
+        @include font-body;
+        color: $text-white;
     }
 }
 
 //電腦版樣式
 .bubbles-desktop-grid .bubble {
-    width: 280px; 
-    height: 280px;
+    width: 300px;
+    height: 300px;
     margin: 0 auto;
 }
+
 .bubbles-desktop-grid {
     display: grid;
-    grid-template-columns: 1.2fr 1fr 1fr; 
-    grid-template-rows: auto; 
+    grid-template-columns: 1.2fr 1fr 1fr;
+    grid-template-rows: auto;
     margin: 0 auto;
-    align-items: center; 
+    align-items: center;
 
     .profile {
         grid-column: 3;
@@ -219,12 +233,12 @@ onUnmounted(() => {
     }
 
     .grid-item-image {
-        grid-column: 1/3; 
-        grid-row: 1;   
-    
-    img {
-        max-width: 150%; 
-        filter: drop-shadow(0 0 20px rgba(0,0,0,0.5)); 
+        grid-column: 1/3;
+        grid-row: 1;
+
+        img {
+            max-width: 150%;
+            filter: drop-shadow(0 0 20px rgba(0, 0, 0, 0.5));
         }
     }
 
@@ -234,15 +248,15 @@ onUnmounted(() => {
     }
 
     .feature {
-        grid-column: 1; 
+        grid-column: 1;
         grid-row: 2;
     }
 
     .boxShape {
-        grid-column: 2 / 4; 
+        grid-column: 2 / 4;
         grid-row: 2;
         width: 70%;
-        height: 50%; 
+        height: 50%;
         border-radius: 0;
         backdrop-filter: blur(5px);
         margin-top: 250px;
@@ -255,21 +269,22 @@ onUnmounted(() => {
     padding-bottom: 50px;
 
     .bubble {
-        width: 100%;       
+        width: 100%;
         max-width: 300px;
-        aspect-ratio: 1 / 1; 
-        height: auto;      
+        aspect-ratio: 1 / 1;
+        height: auto;
         border-radius: 50%;
-        margin: 0 auto;    
+        margin: 0 auto;
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        padding: 20px;    
-        box-sizing: border-box; 
-       
-        p{
-             font-size: $m-size-caption;
+        padding: 20px;
+        box-sizing: border-box;
+
+        p {
+            @include font-body;
+            color: $text-white;
         }
     }
 }
@@ -277,20 +292,25 @@ onUnmounted(() => {
 .detailImage-container-mobile {
     width: 100%;
     display: flex;
-    justify-content: center; 
+    justify-content: center;
     margin-bottom: 30px;
     position: relative;
     z-index: 1;
-    
+
     img {
-        width: 100%;      
-        height: auto; 
+        width: 100%;
+        height: auto;
         object-fit: contain;
     }
 }
-.btn{
-     padding: 10px 8px;
-     font-size: $m-size-caption;
-     margin-bottom: 20px;
+:deep(.swiper-pagination-bullet) {
+    background-color: #ffffff !important;
+    opacity: 0.5;
 }
+
+:deep(.swiper-pagination-bullet-active) {
+    background-color: #ffffff !important;
+    opacity: 1;
+}
+
 </style>

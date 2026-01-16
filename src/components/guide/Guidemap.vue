@@ -87,7 +87,7 @@ watch(currentId, () => {
                     <h2 v-if="currentTurtleInfo.nameCN">
                         {{ currentTurtleInfo.nameCN }} ({{ currentTurtleInfo.nameEN }})
                     </h2>
-                    
+
 
                     <div v-if="currentTurtleInfo.nameCN" class="mapLabel">
                         <p><span class="label">學名：</span> {{ currentTurtleInfo.ScientificName }}</p>
@@ -107,8 +107,8 @@ watch(currentId, () => {
 
 <style lang="scss" scoped>
 h1 {
+    @include font-secondary-md;
     color: $primary-color;
-    font-size: $d-size-secondary;
     font-weight: bold;
     text-align: center;
     margin-bottom: 50px;
@@ -130,7 +130,7 @@ h1 {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     cursor: pointer;
     transition: all 0.3s ease;
-    
+
     @media (max-width: 992px) {
         width: 70px;
         height: 70px;
@@ -152,7 +152,7 @@ h1 {
     transform: scale(1.1);
 }
 
-/* 下半部：地圖與資訊區塊 */
+
 .map-section {
     display: flex;
     height: 500px;
@@ -168,6 +168,7 @@ h1 {
 #map {
     width: 70%;
     height: 100%;
+
     @media (max-width: 992px) {
         display: grid;
         width: 100%;
@@ -175,6 +176,7 @@ h1 {
 }
 
 #mapInfo {
+    @include font-body-l;
     width: 30%;
     height: 60%;
     padding: 20px;
@@ -182,23 +184,21 @@ h1 {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    align-items: center;   
+    align-items: center;
     gap: 30px;
     box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
-    font-size: $size-body-l;
-    color: $text-color;
-    h2{
+
+    h2 {
         font-weight: bold;
     }
 
     @media (max-width: 992px) {
         display: grid;
-        width: 70%;
-        height: 200px;
-        font-size: $m-size-caption;
+        width: 90%;
+        height: 300px;
         gap: 2px;
-        margin: auto;
-       
+        margin: auto auto 20px auto;
+
     }
 
 }
@@ -206,6 +206,6 @@ h1 {
 .mapLabel {
     display: flex;
     flex-direction: column;
-    gap: 30px;
+    //gap: 30px;
 }
 </style>

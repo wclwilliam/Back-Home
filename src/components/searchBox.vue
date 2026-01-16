@@ -24,6 +24,9 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+      @media (max-width: 768px) {
+        width: 50%;
+    }
 
     input {
         border: none;
