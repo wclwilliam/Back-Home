@@ -47,7 +47,7 @@ const goToDetail = (id) => {
   })
 }
 
-// Tab 篩選資料
+// Tab 篩選
 const filteredNews = computed(() => {
   if (currentNewsTab.value === '全部') {
     return newslist.value;
@@ -55,7 +55,7 @@ const filteredNews = computed(() => {
   return newslist.value.filter(item => item.category === currentNewsTab.value);
 });
 
-//頁碼切分資料
+//頁碼切分
 const displayNews = computed(() => {
   const startIndex = (currentPage.value - 1) * pageSize;
   const endIndex = startIndex + pageSize;

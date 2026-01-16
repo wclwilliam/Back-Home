@@ -157,7 +157,6 @@ const goToArticle = (id) => {
     }
 }
 
-/* 按鈕與標頭樣式 */
 .btn {
     margin-bottom: 20px;
 }
@@ -196,7 +195,6 @@ const goToArticle = (id) => {
     }
 }
 
-/* 內文樣式 */
 .articleBody {
     @include font-body-l;
     white-space: pre-wrap;
@@ -210,7 +208,6 @@ const goToArticle = (id) => {
     text-align: left;
 }
 
-/* 底部導航樣式 */
 .paginationNav {
     display: flex;
     justify-content: space-between;
@@ -234,10 +231,6 @@ const goToArticle = (id) => {
             text-align: right;
         }
 
-        // &:hover {
-        //     opacity: 0.7;
-        //     color: #335c64;
-        // }
 
         .linkWrap {
             display: flex;
