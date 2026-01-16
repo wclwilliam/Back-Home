@@ -6,7 +6,16 @@ import NewsCard from '../components/cards/NewsCard.vue'
 import Banner from "@/components/Banner.vue";
 import clickBar from '@/components/clickBar.vue';
 import searchBox from '@/components/searchBox.vue';
+// import Swal from 'sweetalert2'
 
+// const alert = () =>{
+//   Swal.fire({
+//   title: 'Error!',
+//   text: 'Do you want to continue',
+//   icon: 'warning',
+//   confirmButtonText: 'Cool'
+// })
+// }
 
 const newsTabs = ['全部', '重要公告', '異動通知'];
 const currentNewsTab = ref('全部');
@@ -40,6 +49,7 @@ const goToDetail = (id) => {
 </script>
 
 <template>
+  <!-- <button @click="alert">按鈕</button> -->
   <Banner imgName="news" title="最新消息" />
 
   <main class="container">
@@ -56,6 +66,14 @@ const goToDetail = (id) => {
     </div>
 
   </main>
+
+
+  <!-- <UseColorMode v-slot="color">
+    <button @click="color.mode = color.mode === 'dark' ? 'light' : 'dark'">
+      Mode {{ color.mode }}
+    </button>
+  </UseColorMode> -->
+
 </template>
 
 <style lang="scss" scoped>
