@@ -75,16 +75,16 @@ const logout = () => {
           </span>
 
           <!-- 下拉選單（僅在已登入時顯示） -->
-          <div v-if="authStore.isLogin && isUserMenuOpen" class="userDropdown">
+          <div v-if="authStore.isLogin && isUserMenuOpen" class="dropdownMenu">
             <div class="userGreeting">{{ userName }}，您好</div>
-            <div class="dropdownItem" @click="goToMemberCenter">
-              <span class="material-symbols-outlined">person</span>
+            <button class="menuItem" @click="goToMemberCenter">
+              <span class="material-symbols-outlined menuIcon">person</span>
               會員中心
-            </div>
-            <div class="dropdownItem logout" @click="logout">
-              <span class="material-symbols-outlined">logout</span>
+            </button>
+            <button class="menuItem" @click="logout">
+              <span class="material-symbols-outlined menuIcon">logout</span>
               登出
-            </div>
+            </button>
           </div>
         </div>
 
