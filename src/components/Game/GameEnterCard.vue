@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, watch, onMounted, onUnmounted  } from 'vue';
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
 import gsap from 'gsap'
 import GameQuestionCard from '@/components/Game/GameQuestionCard.vue'
 import StatusPanel from './StatusPanel.vue';
@@ -7,13 +7,15 @@ import HealthBar from './HealthBar.vue';
 import GameDialogCard from './GameDialogCard.vue';
 import GameKnowledgeCard from './GameKnowledgeCard.vue';
 import GameResultCard from '@/components/Game/GameResultCard.vue'
+import { useHealthStore } from '@/stores/health'
+
+const healthStore = useHealthStore()
 
 const props = defineProps({
   roleId: { type: String, required: true },
   currentNode: { type: Object, default: null },
   nodeId: { type: String, default: '' },
   progressText: { type: String, default: '' },
-  health: { type: Number, default: 100 },
 })
 
 const base = import.meta.env.BASE_URL
@@ -37,14 +39,38 @@ const bgStyle = computed(() => {
   return bg ? { backgroundImage: `url(${base + bg})` } : {}
 })
 
-// const isBabyQ2Group = computed(() => {
-//   return props.nodeId.startsWith('baby_q2')
-// })
+const isBabyQ3Group = computed(() => {
+  return props.nodeId.startsWith('baby_q3')
+})
+
+const isTeenQ1BadGroup = computed(() =>
+  props.nodeId.startsWith('teen_q1_bad')
+)
+
+const isTeenQ2BadGroup = computed(() =>
+  props.nodeId.startsWith('teen_q2_bad')
+)
+
+const isTeenQ2GoodGroup = computed(() =>
+  props.nodeId.startsWith('teen_q2_good')
+)
 
 const turtleSrc = computed(() => {
-  // if (props.roleId === 'baby' && isBabyQ2Group.value) {
-  //   return base + 'game/turtle-baby-swim.png'
-  // }
+  if (props.roleId === 'teen' && isTeenQ1BadGroup.value) {
+    return base + 'game/turtle-teen-bind.png'
+  }
+
+  if (props.roleId === 'teen' && isTeenQ2BadGroup.value) {
+    return base + 'game/turtle-teen-plasticbag.png'
+  }
+
+  if (props.roleId === 'teen' && isTeenQ2GoodGroup.value) {
+    return base + 'game/turtle-teen-seaweed.png'
+  }
+
+  if (props.roleId === 'baby' && isBabyQ3Group.value) {
+    return base + 'game/turtle-baby-swim.png'
+  }
   const turtle = sceneMap[props.roleId]?.turtle
   return turtle ? base + turtle : ''
 })
@@ -124,6 +150,8 @@ const mediaOffsetStyle = computed(() => {
 const maskEl = ref(null)
 
 const showDarkMask = computed(() => props.nodeId === 'baby_q2')
+const showFishingNet = computed(() => props.nodeId === 'teen_q1')
+const showWaveSweep = computed(() => props.nodeId === 'teen_q3')
 
 const onMouseMove = (e) => {
   if (!maskEl.value) return
@@ -141,15 +169,13 @@ onUnmounted(() => {
 
 </script>
 <template>
-  <section class="game-screen" style="height: calc(100vh - clamp(84px, 8vw, 100px));">
-    <div
-  v-if="showDarkMask"
-  ref="maskEl"
-  class="dark-mask"
-></div>
+  <section class="game-screen" :class="{ 'has-wave-sweep': showWaveSweep }"
+    style="height: calc(100vh - clamp(84px, 8vw, 100px));">
+    <div v-if="showDarkMask" ref="maskEl" class="dark-mask"></div>
+    <div v-if="showFishingNet" class="fishing-net" aria-hidden="true"></div>
     <StatusPanel class="status-panel" :text="progressText" :role-id="props.roleId" />
     <div class="health-bar-container">
-      <HealthBar class="health-bar" :health="props.health" :maxHealth="100" />
+      <HealthBar class="health-bar" />
     </div>
     <img v-if="mediaSrc" :key="mediaSrc" class="node-media anim-hand-in" :class="[
       `node-media--${mediaPos}`,
@@ -158,8 +184,13 @@ onUnmounted(() => {
     ]" :style="mediaOffsetStyle" :src="mediaSrc" alt="" />
     <img v-if="turtleSrc && mode !== 'result'" class="turtle" :class="`turtle--${props.roleId}`" :src="turtleSrc"
       alt="" />
-    <GameResultCard v-if="mode === 'result'" class="game-result-card" :role-id="props.roleId" :node="props.currentNode"
-      :health="props.health" :max-health="100" @next="emit('next', props.currentNode?.nextId)" />
+    <GameResultCard 
+    v-if="mode === 'result'" class="game-result-card" 
+    :role-id="props.roleId" 
+    :node="props.currentNode"
+      :health="healthStore.health" 
+      :max-health="healthStore.maxHealth" 
+      @next="emit('next', props.currentNode?.nextId)" />
     <GameDialogCard v-else-if="mode === 'feedback'" class="center-card" :text="props.currentNode?.feedback ?? ''"
       :warning-text="props.currentNode?.warningText ?? ''" :show-warning="showWarning" @next="onFeedbackNext" />
     <GameKnowledgeCard v-else-if="mode === 'knowledge'" class="center-card" :text="props.currentNode?.knowledge ?? ''"
@@ -300,16 +331,17 @@ onUnmounted(() => {
 /* ===== 手伸出來動畫 ===== */
 .anim-hand-in {
   will-change: transform, opacity;
-  animation: 
-    handInFromRight 0.8s cubic-bezier(.22,1,.36,1) both,
+  animation:
+    handInFromRight 0.8s cubic-bezier(.22, 1, .36, 1) both,
     handWobble 1.6s ease-in-out infinite;
-    animation-delay: 0s, 0.9s; // 晃動等進場完成再開始
+  animation-delay: 0s, 0.9s; // 晃動等進場完成再開始
 }
 
 @keyframes handInFromRight {
   from {
     transform: translateX(120%) translate(var(--mx, 0px), var(--my, 0px));
   }
+
   to {
     transform: translateX(0%) translate(var(--mx, 0px), var(--my, 0px));
   }
@@ -319,41 +351,123 @@ onUnmounted(() => {
   0% {
     transform: translateX(0) translate(var(--mx, 0px), var(--my, 0px));
   }
+
   25% {
     transform: translateX(-6px) translate(var(--mx, 0px), var(--my, 0px));
   }
+
   50% {
     transform: translateX(0) translate(var(--mx, 0px), var(--my, 0px));
   }
+
   75% {
     transform: translateX(6px) translate(var(--mx, 0px), var(--my, 0px));
   }
+
   100% {
     transform: translateX(0) translate(var(--mx, 0px), var(--my, 0px));
   }
 }
+
 .dark-mask {
   position: absolute;
   inset: 0;
-  background-color: rgba(3, 3, 3, 0.7); 
+  background-color: rgba(3, 3, 3, 0.7);
   z-index: 50;
   pointer-events: none;
 
   --mouse-x: 50%;
   --mouse-y: 50%;
 
-  mask-image: radial-gradient(
-    circle 140px at var(--mouse-x) var(--mouse-y),
-    transparent 0%,
-    rgba(0,0,0,0.3) 45%,
-    black 100%
-  );
+  mask-image: radial-gradient(circle 140px at var(--mouse-x) var(--mouse-y),
+      transparent 0%,
+      rgba(0, 0, 0, 0.3) 45%,
+      black 100%);
 
-  -webkit-mask-image: radial-gradient(
-    circle 320px at var(--mouse-x) var(--mouse-y),
-    transparent 0%,
-    rgba(0,0,0,0.3) 45%,
-    black 100%
-  );
+  -webkit-mask-image: radial-gradient(circle 320px at var(--mouse-x) var(--mouse-y),
+      transparent 0%,
+      rgba(0, 0, 0, 0.3) 45%,
+      black 100%);
+}
+
+.fishing-net {
+  position: absolute;
+  inset: -10%;
+  z-index: 1;
+  pointer-events: none;
+
+  --net-size: 26px;
+  --net-thickness: 2px;
+  --net-color: rgba(255, 255, 255, 0.22);
+
+  background:
+    repeating-linear-gradient(45deg,
+      transparent,
+      transparent calc(var(--net-size) - var(--net-thickness)),
+      var(--net-color) calc(var(--net-size) - var(--net-thickness)),
+      var(--net-color) var(--net-size)),
+    repeating-linear-gradient(-45deg,
+      transparent,
+      transparent calc(var(--net-size) - var(--net-thickness)),
+      var(--net-color) calc(var(--net-size) - var(--net-thickness)),
+      var(--net-color) var(--net-size));
+
+  mix-blend-mode: soft-light;
+  opacity: 0.9;
+
+  animation: netFloat 8s infinite alternate ease-in-out;
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+}
+
+/* 漁網漂浮：模擬水流 */
+@keyframes netFloat {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  100% {
+    transform: translate3d(20px, 15px, 0) scale(1.02);
+  }
+}
+
+.game-screen.has-wave-sweep::before {
+  content: '';
+  position: absolute;
+  inset: -30%;
+  z-index: 1;
+  pointer-events: none;
+
+  background: linear-gradient(70deg,
+      transparent 45%,
+      rgba(255, 255, 255, 0) 48%,
+      rgba(255, 255, 255, 0.55) 50%,
+      rgba(255, 255, 255, 0) 52%,
+      transparent 55%);
+
+  opacity: 0;
+  transform: translate3d(-45%, 45%, 0);
+  animation: waveSweep 3.2s ease-in-out infinite;
+}
+
+@keyframes waveSweep {
+  0% {
+    opacity: 0;
+    transform: translate3d(-50%, 50%, 0);
+  }
+
+  10% {
+    opacity: 0.9;
+  }
+
+  55% {
+    opacity: 0;
+    transform: translate3d(50%, -50%, 0);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate3d(50%, -50%, 0);
+  }
 }
 </style>

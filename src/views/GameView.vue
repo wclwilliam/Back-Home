@@ -5,6 +5,12 @@ import GameStartCard from '@/components/Game/GameStartCard.vue'
 import GameEnterCard from '@/components/Game/GameEnterCard.vue'
 import GameActionCard from '@/components/Game/GameActionCard.vue'
 import GameBackground from '@/components/Game/GameBackground.vue'
+import { useHealthStore } from '@/stores/health'
+
+const healthStore = useHealthStore()  
+const applyHealth = (healthChange) => {
+  healthStore.applyHealthChange(healthChange)
+}
 
 const gameData = ref(null)
 const fetchGameData = async () => {
@@ -50,19 +56,14 @@ const chooseOption = (option) => {
   currentId.value = option.nextId
 }
 
-const health = ref(100)
-const applyHealth = (healthChange) => {
-  health.value = Math.max(0, health.value + (healthChange ?? 0) * 20)
-}
-
 const goNext = (nextId) => {
   if (!nextId) return
 
   if (nextId === 'start') {
     step.value = 1
     roleId.value = ''
-    health.value = 100
     currentId.value = 'start'
+    healthStore.reset()
     return
   }
 
@@ -106,7 +107,6 @@ onMounted(() => {
   :current-node="currentNode"
   :node-id="currentId" 
   :progress-text="progressText"
-  :health="health"
   @choose="chooseOption"
   @apply-health="applyHealth"
   @next="goNext"
