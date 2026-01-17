@@ -41,21 +41,22 @@ onMounted(() => {
   axios
     .get('/data/NewsList.json')
     .then((response) => {
-      newslist.value = response.data
+      newslist.value = response.data.sort((a, b) => {
+        return new Date(b.publish_time) - new Date(a.publish_time)
+      })
     })
     .catch((error) => {
-      console.error('載入新聞資料失敗:', error)
+      console.error('載入新聞列表失敗:', error)
     })
 })
 
 const formatDate = (dateString) => {
   if (!dateString) return ''
   const date = new Date(dateString)
-  return date.toLocaleDateString('zh-TW', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  })
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
 }
 
 const goToDetail = (id) => {
