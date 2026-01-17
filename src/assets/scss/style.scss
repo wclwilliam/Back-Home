@@ -28,3 +28,42 @@
 @import './page/index';
 @import './page/about';
 @import './page/product';
+
+//英文字型
+@font-face {
+    font-family: 'EnFont';
+    src: url('../fonts/arvo-v23-latin-regular.woff2');
+    font-weight: 400;
+    font-display: swap;
+}
+
+// 中文字型 
+@font-face {
+    font-family: 'ChFont';
+    src: url('../fonts/noto-sans-tc-v38-latin-regular.woff2')format('woff2');
+    font-weight: 400;
+    font-display: swap;
+}
+
+html {
+    font-family: $font-main;
+}
+
+
+// 將字體變數轉換為 CSS 變數
+:root {
+    --font-main: #{$font-main};
+}
+
+// 將 SCSS 變數轉換為 CSS 變數，讓 JavaScript 也能使用
+:root {
+    --text-color: #{$text-color};
+    --primary-color: #{$primary-color};
+    --secondary-color: #{$secondary-color};
+    --text-white: #{$text-white};
+    --backstage-swipe-color: #{$backstage-swipe-color};
+    --backstage-bar-color: #{$backstage-bar-color};
+    --highlight-color1: #{$highlight-color1};
+    --highlight-color2: #{$highlight-color2};
+    --highlight-color3: #{$highlight-color3};
+}
