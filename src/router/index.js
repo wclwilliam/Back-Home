@@ -81,7 +81,21 @@ const router = createRouter({
       path: '/game',
       name: 'game',
       component: () => import('@/views/GameView.vue'),
+      meta: { 
+        title: '海洋守護',
+        hideFooter: true }
+    },
+    {
+      path: '/product',
+      name: 'product',
+      component: () => import('@/views/ProductView.vue'),
       meta: { hideFooter: true }
+    },
+    {
+      path: '/shop/:id',
+      name: 'shopDetail',
+      component: () => import('@/views/ShopDetailView.vue'),
+      props: true,
     },
     {
       path: '/member/:id',
