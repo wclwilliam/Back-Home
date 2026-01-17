@@ -1,34 +1,40 @@
 import { fileURLToPath, URL } from 'node:url'
 
-import { defineConfig } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
 import vue from '@vitejs/plugin-vue'
-import vueDevTools from 'vite-plugin-vue-devtools'
+// import vueDevTools from 'vite-plugin-vue-devtools'
 
 // https://vite.dev/config/
-export default defineConfig({
-  plugins: [
-    vue(),
-    vueDevTools(),
-  ],
-  resolve: {
-    alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url))
+// 原本export default defineConfig({…})
+// 變成export default defineConfig(({mode})=>{return{...}})
+
+export default defineConfig(({ mode }) => {
+  // 讀取 .env、.env.[mode]，第三個參數用 '' 才會包含非 VITE_ 前綴 
+  const env = loadEnv(mode, process.cwd(), '')
+
+  return {
+    plugins: [
+      vue(),
+      // vueDevTools(),
+    ],
+    resolve: {
+      alias: {
+        '@': fileURLToPath(new URL('./src', import.meta.url))
+      },
     },
-  },
-  css: {
-    devSourcemap: true,
-    preprocessorOptions: {
-      scss: {
-        additionalData: `
+    css: {
+      devSourcemap: true,
+      preprocessorOptions: {
+        scss: {
+          additionalData: `
         @import "@/assets/scss/base/_color.scss";
         @import "@/assets/scss/base/_font.scss";
         @import "@/assets/scss/base/_var.scss";
         @import "@/assets/scss/mixin/_mixins.scss";`
+        }
       }
-    }
-  },
-  base: '/cjd102/g3/front/',
-  build: {
-    outDir: 'front'
-  },
+    },
+    base: env.VITE_BASE || '/', build: { outDir: env.VITE_OUT_DIR || 'dist', }
+  }
 })
+
