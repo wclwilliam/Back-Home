@@ -69,8 +69,6 @@ const goToDetail = (id) => {
 <template>
   <section class="newsSection">
     <div class="container">
-      <h2 class="sectionTitle">最新消息</h2>
-
       <div class="newsSwiperWrapper" v-if="topTenNews.length > 0">
         <Swiper
           :modules="modules"
@@ -106,16 +104,6 @@ const goToDetail = (id) => {
 @import '@/assets/scss/base/font';
 
 .newsSection {
-  padding: 60px 0;
-
-  .sectionTitle {
-    color: $primary-color;
-    font-weight: bold;
-    margin-bottom: 40px;
-    text-align: center;
-    @include font-tertiary;
-  }
-
   .newsSwiperWrapper {
     position: relative;
     padding: 0 60px; // 為外側箭頭預留空間

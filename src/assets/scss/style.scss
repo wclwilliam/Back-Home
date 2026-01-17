@@ -57,6 +57,7 @@ html {
 
 // 將 SCSS 變數轉換為 CSS 變數，讓 JavaScript 也能使用
 :root {
+    --bg-color: #{$bg-color};
     --text-color: #{$text-color};
     --primary-color: #{$primary-color};
     --secondary-color: #{$secondary-color};
