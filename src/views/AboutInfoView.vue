@@ -17,20 +17,17 @@ onMounted(() => {
     //debugger
   })
 })
+import Boss from '@/components/about/boss.vue'
+import piniapractice from '@/components/about/piniapractice.vue'
 </script>
 <template>
   <main>
     <RouterLink :to="`/about/`"> 回列表 </RouterLink>
-    <hr />
-    商品詳情
-    {{ props.id }}
 
-    {{ info }}
+    <Boss />
+    <piniapractice />
+
     <hr />
-    <!-- {{ info.title }}
-    <div><img :src="info.image" alt="" /></div>
-    <div>{{ info.description }}</div>
-    <div>{{ info.price }}</div> -->
   </main>
 </template>
 <style lang="scss" scoped></style>

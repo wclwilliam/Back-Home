@@ -1,14 +1,14 @@
 <script setup>
 import TeamMemberCard from '@/components/cards/TeamMemberCard.vue'
-import { ref, computed, onMounted } from 'vue'
-import axios from 'axios'
+import { ref, onMounted } from 'vue'
+import { publicApi } from '@/utils/publicApi'
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import 'swiper/css'
 
 const expertList = ref([])
 
 onMounted(() => {
-  axios.get('/data/experts.json').then((response) => {
+  publicApi.get('data/experts.json').then((response) => {
     expertList.value = response.data
   })
 })
