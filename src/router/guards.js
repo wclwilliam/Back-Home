@@ -4,7 +4,7 @@ export function authGuard(to) {
   const auth = useAuthStore()
 
   if (to.meta && to.meta.title) {
-    document.title = to.meta.title + '｜龜徒 Back Home'
+    document.title = to.meta.title + '｜龜途 Back Home'
   }
 
   if (to.meta.requiresAuth && !auth.isLogin) {
