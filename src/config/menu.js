@@ -1,6 +1,6 @@
 export const MENU_ITEMS = [
     { text: '關於協會', path: '/about' },
-    { text: '最新消息', path: '/News' },
+    { text: '最新消息', path: '/news' },
     { text: '認識海龜', path: '/guide' },
     { text: '海洋守護', path: '/game' },
     { text: '志工活動', path: '/activity' },
