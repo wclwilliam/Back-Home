@@ -10,7 +10,8 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js'
-import axios from 'axios'
+// import axios from 'axios'
+import { publicApi } from '@/utils/publicApi'
 
 // 註冊 Chart.js 組件
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
@@ -35,8 +36,8 @@ const chartData = ref({ labels: [], datasets: [] })
 
 onMounted(async () => {
   try {
-    const base = import.meta.env.BASE_URL
-    const response = await axios.get(base + 'data/impactReports.json')
+    // const base = import.meta.env.BASE_URL
+    const response = await publicApi.get('data/impactReports.json')
     impactReports.value = response.data
 
     // 計算所有歷年總和（包含2014年開始的所有數據）並向下取整到10位數
@@ -189,9 +190,9 @@ const chartOptions = ref({
       ticks: {
         stepSize: tickStep.value,
         callback: function (value) {
-          // 只顯示小於等於 maxTick 的刻度
+          // 只顯示小於等於 maxTick 的刻度，並加上千分位
           if (value <= maxTick.value) {
-            return value
+            return value.toLocaleString('en-US')
           }
           return null
         },

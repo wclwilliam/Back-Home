@@ -1,37 +1,56 @@
 <script setup>
-import { computed } from 'vue';
+  import { ref, watch, onUnmounted } from 'vue'
+import gsap from 'gsap'
+import { useHealthStore } from '@/stores/health'
 
-// 定義 Props，讓父組件可以傳入目前的生存機率
-const { health, maxHealth } = defineProps({
-  health: {
-    type: Number,
-    default: 100
-  },
-  maxHealth: {
-    type: Number,
-    default: 100
+const healthStore = useHealthStore()
+
+const barRef = ref(null)
+let tween = null
+
+// 只要 health 變動就監聽
+watch(
+  () => healthStore.health,
+  (newVal, oldVal) => {
+    // 初始化時 oldVal 可能是 undefined，先擋掉
+    if (typeof oldVal !== 'number') return
+
+    // 只有扣血才抖
+    if (newVal < oldVal) {
+      tween?.kill()
+
+      // 抖動效果：左右小幅晃 + 旋轉一點點
+      tween = gsap.to(barRef.value, {
+        keyframes: [
+          { x: -6, rotate: -2, duration: 0.06 },
+          { x: 6, rotate: 2, duration: 0.06 },
+          { x: -4, rotate: -1, duration: 0.06 },
+          { x: 4, rotate: 1, duration: 0.06 },
+          { x: 0, rotate: 0, duration: 0.06 },
+        ],
+        ease: 'none',
+        clearProps: 'x,rotate',
+      })
+    }
   }
-});
+)
 
-// 計算屬性：將百分比轉換為 5 顆愛心的顯示狀態
-const totalHearts = 5;
-const activeHeartsCount = computed(() => {
-  // 每 20% 代表一顆實心愛心
-  return Math.ceil((health / maxHealth) * totalHearts);
-});
+onUnmounted(() => {
+  tween?.kill()
+})
 </script>
 
 <template>
-  <div class="health-bar">
+  <div ref="barRef" class="health-bar">
     
-    <div class="health-bar__percentage">{{ health }}%</div>
+    <div class="health-bar__percentage">{{ healthStore.healthPercent }}%</div>
 
     <div class="health-bar__hearts">
       <span 
-        v-for="i in totalHearts" 
+        v-for="i in healthStore.totalHearts" 
         :key="i"
         class="material-symbols-outlined health-bar__icon"
-        :class="{ 'health-bar__icon--active': i <= activeHeartsCount }"
+        :class="{ 'health-bar__icon--active': i <= healthStore.activeHeartsCount }"
       >
         favorite
       </span>
