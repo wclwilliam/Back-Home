@@ -4,7 +4,14 @@ import { useAuthStore } from '@/stores/auth'
 import { storeToRefs } from 'pinia'
 import { useRouter } from 'vue-router'
 import Input from '@/components/auth/Input.vue' 
-import Button from '@/components/auth/Button.vue' // 確保引入你的通用按鈕
+import axios from 'axios'; //上課修改，待測試
+axios.get('https://jsonplaceholder.typicode.com/posts')
+.then(response => {
+  console.log('Response:', response.data);
+})
+.catch(error => {
+  console.error('Error:', error);
+});
 
 const authStore = useAuthStore()
 const { isModalOpen, redirectAfterLogin } = storeToRefs(authStore)
@@ -60,7 +67,7 @@ isModalOpen.value = true; //測試用
           <div class="auth-content">
             <div class="auth-image">
               <div class="logo-overlay">
-                <img src="/BackHomeLogo.png" alt="Logo" />
+                <img src="/BackHomeLogo.png" alt="Logo" /> <!--左側圖片-->
               </div>
             </div>
 

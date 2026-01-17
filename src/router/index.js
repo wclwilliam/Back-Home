@@ -76,6 +76,9 @@ const router = createRouter({
       name: 'memberinfo',
       props: true,
       component: () => import('@/views/MemberShipinfo.vue'),
+      meta: {
+        title: '我的活動',
+      }
     },
     {
       path: '/product',
