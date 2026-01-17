@@ -107,9 +107,18 @@ footer {
 
 .copyright {
     @include font-footer;
+    color: $text-white;
     grid-column: 1 / 13;
     grid-row: 6 / 7;
-    text-align: right;
+    text-align: center;
+
+    p {
+        a {
+            &:hover {
+                text-decoration: underline;
+            }
+        }
+    }
 }
 
 /* =========================== RWD 設定  =========================== */
@@ -196,7 +205,4 @@ footer {
         }
     }
 
-    .copyright {
-        text-align: center;
-    }
 }

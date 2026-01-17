@@ -58,7 +58,12 @@ const menuItems = MENU_ITEMS
       <div class="divider"></div>
 
       <div class="copyright">
-        <p>© 2025 龜途 Back Home, copyright</p>
+        <p>
+          本網站為緯育TibaMe_前端工程師班第98期學員專題成果作品,本平台僅供學習、展示之用。若有抵觸有關著作權,或有第三人主張侵害智慧財產權等情事,均由學員負法律上責任,緯育公司概不負責。若有侵權疑慮,您可以私訊<a
+            href="https://www.tibame.com"
+            >緯育TibaMe</a
+          >, 後續會由專人協助處理。
+        </p>
       </div>
     </div>
   </footer>
