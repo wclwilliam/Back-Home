@@ -26,5 +26,9 @@ export default defineConfig({
         @import "@/assets/scss/mixin/_mixins.scss";`
       }
     }
-  }
+  },
+  base: '/cjd102/g3/front/',
+  build: {
+    outDir: 'front'
+  },
 })
