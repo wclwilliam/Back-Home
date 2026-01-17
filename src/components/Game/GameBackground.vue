@@ -10,10 +10,32 @@ const props = defineProps({
 
 const base = import.meta.env.BASE_URL
 
-const nodeBgOverrideMap = {
-  baby_q2_bad: 'game/baby_q2_bad_bg.png',
-  baby_q2_good: 'game/baby_q2_bg.png',
-}
+const nodeBgGroupMap = [
+  {
+    match: /^baby_q2(_good)?(_knowledge)?$/,
+    bg: 'game/baby_q2_bg.png',
+  },
+  {
+    match: /^baby_q2_bad(_knowledge)?$/,
+    bg: 'game/baby_q2_bad_bg.png',
+  },
+  {
+    match: /^baby_q3(_good)?(_knowledge)?$/,
+    bg: 'game/baby_q3_bg.png',
+  },
+  {
+    match: /^baby_q3_bad(_knowledge)?$/,
+    bg: 'game/baby_q3_bad_bg.png',
+  },
+  {
+    match: /^teen_q2/,
+    bg: 'game/teen_q2_bg.png',
+  },
+  {
+    match: /^teen_q3$/,
+    bg: 'game/teen_q3_bg.png',
+  },
+]
 
 const bgMap = {
   start: 'game/wave.jpg',
@@ -26,17 +48,25 @@ const bgMap = {
 }
 
 const bgSrc = computed(() => {
-    const override = nodeBgOverrideMap[props.nodeId]
-    if (override) return base + override
+  const nodeId = props.nodeId
 
+  // 節點群組 override（優先權最高）
+  const group = nodeBgGroupMap.find((item) =>
+    item.match.test(nodeId)
+  )
+  if (group) return base + group.bg
+
+  // node 本身有指定 bg
   if (props.node?.bg) {
     return base + props.node.bg
   }
 
+  // 角色進場
   if (props.stage === 'enter') {
     return base + (bgMap.enter[props.roleId] ?? bgMap.start)
   }
 
+  // 預設背景
   return base + bgMap[props.stage]
 })
 
@@ -44,7 +74,9 @@ const bgStyle = computed(() => ({
   backgroundImage: `url(${bgSrc.value})`,
 }))
 
-const enableAnim = computed(() => props.nodeId !== 'baby_q2_bad')
+const enableAnim = computed(() => {
+  return !props.nodeId?.startsWith('baby_q2_bad')
+})
 </script>
 
 <template>

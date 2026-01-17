@@ -18,6 +18,15 @@ const onSwiper = (swiper) => {
   swiperIns.value = swiper
 }
 
+const onSlideChange = (swiper) => {
+  const index = swiper.activeIndex
+  const opt = startOptions[index]
+
+  if (opt) {
+    selectedId.value = opt.id
+  }
+}
+
 // 如果 startOptions 有第一個選項，就把 selectedId 設為它的 id 如果沒有，就先設成空字串 ''
 const selectedId = ref(startOptions[0]?.id ?? '') // baby/teen/adult
 
@@ -42,7 +51,8 @@ const start = () => {
     :modules="[Navigation]" 
     navigation 
     class="photoSwiper"
-    @swiper="onSwiper">
+    @swiper="onSwiper"
+    @slideChange="onSlideChange">
       <SwiperSlide v-for="(img, i) in images" :key="i">
         <img :src="base + img" alt="" />
       </SwiperSlide>
@@ -133,5 +143,11 @@ const start = () => {
 .options-group {
   display: flex;
   gap: 32px;
+}
+.options-group {
+  .btn.is-active {
+    border-color: $highlight-color2;
+    color: $highlight-color2;
+  }
 }
 </style>

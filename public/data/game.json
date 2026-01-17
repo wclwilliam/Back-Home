@@ -103,23 +103,23 @@
     "nextId": "baby_q3"
   },
   "baby_q3": {
-    "question": "游累了，妳需要歇腳。遠處有一塊平坦穩固的白色浮島，近處則是隨波起伏、糾結雜亂的天然浮木。妳要爬上哪一個？",
+    "question": "妳終於游到大海中，需要歇腳。遠處有一塊平坦穩固的白色浮島，近處則是隨波起伏、糾結雜亂的天然浮木。妳要爬上哪一個？",
     "progress": 3,
     "options": [
       {
         "id": "board_white_island",
-        "text": "登上平穩白色浮島",
+        "text": "平穩白色浮島",
         "nextId": "baby_q3_bad"
       },
       {
         "id": "hide_in_driftwood",
-        "text": "靠向雜亂天然浮木",
+        "text": "雜亂天然浮木",
         "nextId": "baby_q3_good"
       }
     ]
   },
   "baby_q3_bad": {
-    "feedback": "危險！那是保麗龍殘骸。妳不只會誤食它，完全暴露的平地也讓妳成了海鳥的現成點心！",
+    "feedback": "危險！那是保麗龍殘骸。妳不只會誤食它，也讓妳沒有遮蔽，成了海鳥的現成點心！",
     "warningText": "⚠️ 誤食海洋漂浮垃圾，生存機率下降 20%",
     "healthChange": -1,
     "nextId": "baby_q3_knowledge"
@@ -155,7 +155,7 @@
     "feedback": "網縫比你想像中更狹窄，堅韌的漁網纏繞住你的鰭肢。你拼命掙扎才得以脫身，但這場意外讓你傷痕累累，且極度虛弱。",
     "warningText": "⚠️ 遭遇幽靈網纏繞，生存機率下降 20%",
     "healthChange": -1,
-    "nextId": "teen_q1_knowledge"
+    "nextId": "teen_q1_bad_knowledge"
   },
   "teen_q1_good": {
     "feedback": "你屏住呼吸，向下游入深海，成功繞開了這片致命的網具。雖然你避開了最危險的陷阱，但這讓你感很疲憊。",
@@ -164,6 +164,11 @@
     "nextId": "teen_q1_knowledge"
   },
   "teen_q1_knowledge": {
+    "knowledge": "「幽靈漁網」（Ghost Nets）是海龜的一大死因。一旦被纏繞，海龜將無法浮上水面呼吸，最終導致溺水死亡。",
+    "buttonText": "我知道了，繼續前進",
+    "nextId": "teen_q2"
+  },
+  "teen_q1_bad_knowledge": {
     "knowledge": "「幽靈漁網」（Ghost Nets）是海龜的一大死因。一旦被纏繞，海龜將無法浮上水面呼吸，最終導致溺水死亡。",
     "buttonText": "我知道了，繼續前進",
     "nextId": "teen_q2"
