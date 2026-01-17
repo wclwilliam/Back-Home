@@ -9,11 +9,17 @@ const router = createRouter({
       path: '/',
       name: 'home',
       component: HomeView,
+      meta: {
+        title: '首頁',
+      }
     },
     {
       path: '/about',
       name: 'about',
       component: () => import('@/views/AboutView.vue'),
+      meta: {
+        title: '關於我們',
+      }
     },
     {
       path: '/news',
@@ -38,10 +44,16 @@ const router = createRouter({
       component: () => import('@/views/GuideInfo.vue'),
     },
     {
-      path: '/about/:id',
+      path: '/about/info',
       name: 'aboutInfo',
       props: true,
       component: () => import('@/views/AboutInfoView.vue'),
+    },
+    {
+      path: '/about/:id',
+      name: 'aboutDetail',
+      props: true,
+      component: () => import('@/views/AboutDetailVue.vue'),
     },
     {
       path: '/activity',
