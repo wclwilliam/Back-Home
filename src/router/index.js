@@ -59,6 +59,9 @@ const router = createRouter({
       path: '/activity',
       name: 'activity',
       component: () => import('@/views/ActivityView.vue'),
+      meta: {
+        tilte:'志工活動'
+      }
     },
     {
       path: '/activity/:id',
@@ -111,10 +114,16 @@ const router = createRouter({
     {
       path: '/:pathMatch(.*)*',
       component: () => import('@/views/NotFound.vue'),
-    },
+    }
   ],
+  
 })
 
+// router.beforeEach(async (to, from) => {
+// 	if( to.meta && to.meta.title){
+// 		document.title = to.meta.title
+// 	}
+// })
 router.beforeEach(authGuard)
 
 export default router
