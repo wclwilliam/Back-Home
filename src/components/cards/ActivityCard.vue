@@ -18,10 +18,36 @@ const goToDetail = () => {
 const props = defineProps({
   event: { type: Object, required: true }
 })
+const status = computed(() => {
+  const today = new Date()
+  today.setHours(0, 0, 0, 0);
+  const todayTime = today.getTime()
 
-//邏輯處理
-const isEnded = computed(() => props.event.status === 'ended')
+  const actDate =new Date(props.event.date)
+  actDate.setHours(0, 0, 0, 0);
+  const  actTime = actDate.getTime()
 
+  const deadlineDate = new Date(actDate)
+  deadlineDate.setDate(actDate.getDate() - 1)
+  const deadlineTime = deadlineDate.getTime()
+  // console.log(deadlineDate)
+
+  if(todayTime > actTime) {
+    return  'ended'
+  }
+  if(todayTime === actTime) {
+    return 'opening'
+  }
+  if(todayTime === deadlineTime ) {
+    return 'deadline'
+  }
+  return 'upcoming'
+  
+}) 
+ //邏輯處理
+const isEnded = computed(() => status.value === 'ended')
+const isOpening = computed(() => status.value === 'opening' )
+const isDeadline = computed(() => status.value === 'deadline')
 const isFulled = computed(() => {
   if (!props.event.maxPeople) return false
   return props.event.currentPeople >= props.event.maxPeople
@@ -29,6 +55,8 @@ const isFulled = computed(() => {
 
 const btnTxt = computed(() => {
   if (isEnded.value) return '查看詳情'
+  if (isOpening.value) return '活動進行中'
+  if (isDeadline.value) return '報名截止'
   if (isFulled.value) return '已額滿'
   return '立即報名'
 })
@@ -36,7 +64,7 @@ const btnTxt = computed(() => {
 const progressStyle = computed(() => {
   const { currentPeople, maxPeople } = props.event
   if (!maxPeople || maxPeople === 0) return { width: '0%' }
-  const percent = (currentPeople / maxPeople) * 100
+  const percent = Math.min((currentPeople / maxPeople) * 100, 100)
   return { width: `${percent}%` }
 })
 
@@ -60,7 +88,7 @@ const toggleBookmark = (e) => {
 }
 </script>
 <template>
-    <div class="cardContainer activityCard" @click="goToDetail">
+    <a class="cardContainer activityCard" @click="goToDetail">
     <div class="cardPic">
       <img :src="event.image" :alt="event.title">
       <div v-if="isEnded" class="statusBadge">已結束</div>
@@ -107,20 +135,18 @@ const toggleBookmark = (e) => {
       {{ btnTxt }}
       <span class="material-symbols-outlined arrow">arrow_forward</span>
     </button>
-  </div>
+  </a>
 </template>
 
 <style lang="scss" scoped>
 @import "@/assets/scss/component/_card.scss";
 .activityCard {
   cursor: pointer; 
-
-  // ✅ 正確寫法：當 hover 整張卡片時，改變裡面的 .btn
   &:hover {
     .btn {
       background-color: $secondary-color;
       color: $text-white !important;
-      border-color: $secondary-color; // 邊框也要變色
+      border-color: $secondary-color; 
 
       .arrow {
         color: $text-white;
@@ -218,7 +244,7 @@ const toggleBookmark = (e) => {
     }
 
   }
-  
+
 
   @media (min-width: 768px) {
     .cardInfo {
