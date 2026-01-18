@@ -7,12 +7,15 @@ import IndexNews from '@/components/home/News.vue'
 import IndexSeaTurtle from '@/components/home/SeaTurtle.vue'
 </script>
 <template>
-  <h1>首頁</h1>
-  <IndexBanner />
-  <IndexHazardous />
-  <IndexSavedChart />
-  <IndexSavedCases />
-  <IndexNews />
-  <IndexSeaTurtle />
+    <h1>首頁</h1>
+    <IndexBanner />
+    <IndexHazardous />
+    <IndexSavedChart />
+    <IndexSavedCases />
+    <IndexNews />
+    <IndexSeaTurtle />
 </template>
-<script lang="scss" scoped></script>
+
+<script lang="scss" scoped>
+
+</script>

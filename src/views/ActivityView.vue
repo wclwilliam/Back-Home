@@ -1,20 +1,74 @@
 <script setup>
 import Banner from '@/components/Banner.vue';
-import TabBtn from '@/components/activity/TabBtn.vue';
+import clickBar from '@/components/clickBar.vue';
 import SearchBar from '@/components/activity/SearchBar.vue';
 import ActivityCard from '@/components/cards/ActivityCard.vue'
 import Ranking from '@/components/activity/Ranking.vue';
 import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
 import axios from 'axios'
+import { publicApi, base } from '@/utils/publicApi';
 
 
-const activityList = ref([])
-const currentTab = ref('current')
+
+const fetchAct = async () => {
+    publicApi.get('data/activityData.json')
+    .then(response => {
+      let rawData = response.data
+    
+      const today = new Date();
+      today.setHours(0,0,0,0)
+      const todayTime = today.getTime()
+      // console.log(todayTime)
+      rawData = rawData.map(act => {
+        const actDate = new Date(act.date)
+        actDate.setHours(0,0,0,0)
+        const actTime = actDate.getTime()
+        // console.log(actTime)
+
+        let status = 'upcoming'
+        if (todayTime > actTime){
+          status = 'ended'
+        }else if(todayTime === actTime){
+          status = 'opening'
+        }else{
+          status = 'upcoming'
+        }
+        // console.log(rawData)
+        return {
+          ...act,
+          status: status
+        }
+      })
+    
+      activityList.value = rawData
+      // console.log("資料處理完成:", activityList.value)
+    })
+  .catch (error => {
+    console.log(error)
+  }) 
+}
+
+
+// // 獲取活動資料
+onMounted(() => {
+  fetchAct()
+  updateItemsPerPage();
+  window.addEventListener('resize', updateItemsPerPage);
+  //重新計算頁面放置卡片數量
+})
+onUnmounted(() => {
+  window.removeEventListener('resize', updateItemsPerPage)
+})
+
+
+const activityTabs = ['目前活動', '活動回顧']
+const currentActivityTab = ref("目前活動")
+
+const activityList = ref(null)
 const currentPage = ref(1)
 const itemsPerPage = ref(9)
-
-// --- 1. 定義接收篩選條件的變數 ---
 const searchQuery = ref('')
+
 const activeFilters = ref({
   topics: [],
   locations: [],
@@ -22,18 +76,18 @@ const activeFilters = ref({
   dateRange: null
 })
 
-// --- 2. 處理子元件傳來的事件 ---
+// 關鍵字搜索
 const handleSearchInput = (query) => {
   searchQuery.value = query
-  currentPage.value = 1 // 搜尋時回到第一頁
+  currentPage.value = 1 
 }
-
+//篩選器
 const handleFilterApply = (filters) => {
   activeFilters.value = filters
-  currentPage.value = 1 // 篩選時回到第一頁
+  currentPage.value = 1 
 }
 
-// --- 3. 地區對照表 (因為 JSON 是寫縣市，但篩選器是寫區域) ---
+// 地區對照表 
 const regionMap = {
   '北部': ['台北', '新北', '基隆', '桃園', '新竹', '宜蘭'],
   '中部': ['苗栗', '台中', '彰化', '南投', '雲林'],
@@ -42,15 +96,14 @@ const regionMap = {
   '離島': ['澎湖', '金門', '馬祖', '連江', '綠島', '蘭嶼', '小琉球']
 }
 
-// --- 4. 核心篩選邏輯 (漏斗) ---
+// 以活動是否結束決定分類
 const filteredActivities = computed(() => {
   let results = activityList.value
-
+  if (!activityList.value) return []
   // [第一層] Tab 狀態篩選
-  if (currentTab.value === 'review') {
+  if (currentActivityTab.value === '活動回顧') {
     results = results.filter(act => act.status === 'ended')
   } else {
-    // 包含 open 和 upcoming
     results = results.filter(act => act.status !== 'ended')
   }
 
@@ -64,18 +117,17 @@ const filteredActivities = computed(() => {
     )
   }
 
-  // [第三層] 進階篩選 (從 SearchBar 傳來的物件)
+  // [第三層] 篩選器篩選
   const filters = activeFilters.value
 
-  // 3-1. 主題篩選 (Topic)
+  // 主題篩選 (Topic)
   if (filters.topics.length > 0) {
     results = results.filter(act => filters.topics.includes(act.type))
   }
 
-  // 3-2. 地點篩選 (Location) - 需處理 "北部" 對應到 "台北市" 的邏輯
+  //地點篩選 (Location) 
   if (filters.locations.length > 0) {
     results = results.filter(act => {
-      // 只要該活動的地點，符合使用者選取的「任一區域」中的「任一縣市關鍵字」即可
       return filters.locations.some(region => {
         const cities = regionMap[region] || []
         return cities.some(city => act.location.includes(city))
@@ -83,7 +135,7 @@ const filteredActivities = computed(() => {
     })
   }
 
-  // 3-3. 時間篩選 (Time & DateRange)
+  //時間篩選 (Time & DateRange)
   if (filters.dateRange) {
     // 自訂日期範圍
     const start = new Date(filters.dateRange[0])
@@ -122,28 +174,16 @@ const filteredActivities = computed(() => {
       })
     })
   }
-
   return results
 })
 
-// RWD 與 分頁邏輯 (維持你原本寫的)
+// RWD 與 分頁邏輯
 const updateItemsPerPage = () => {
   const width = window.innerWidth;
-  itemsPerPage.value = width < 1024 ? 6 : 9;
+  itemsPerPage.value =width < 1024 ?  6 : 9;
 };
 
-onMounted(() => {
-  axios.get('/data/activityData.json')
-    .then(res => activityList.value = res.data)
-    .catch(err => console.error(err))
-  updateItemsPerPage();
-  window.addEventListener('resize', updateItemsPerPage);
-})
-
-onUnmounted(() => {
-  window.removeEventListener('resize', updateItemsPerPage)
-})
-
+ //重新計算頁數
 const totalPages = computed(() => Math.ceil(filteredActivities.value.length / itemsPerPage.value))
 
 const paginatedActivities = computed(() => {
@@ -160,10 +200,14 @@ const goToPage = (page) => {
 }
 
 //  Tab 切換時，清空搜尋條件
-watch(currentTab, () => {
+watch(currentActivityTab, () => {
   currentPage.value = 1
   searchQuery.value = ''
-  activeFilters.value = { topics: [], locations: [], times: [], dateRange: null }
+  activeFilters.value = { 
+    topics: [], 
+    locations: [], 
+    times: [], 
+    dateRange: null }
 })
 
 </script>
@@ -172,7 +216,10 @@ watch(currentTab, () => {
   <div class="activity-bg-wrapper" :style="{ backgroundImage: 'url(/image/activity/activity_bg.jpg)' }">
     <div class="container">
       <div class="row cardList">
-        <TabBtn v-model="currentTab" />
+        <clickBar
+        v-model="currentActivityTab"
+        :tabs="activityTabs"
+        />
   
         <SearchBar @search="handleSearchInput" @filter="handleFilterApply" />
   
@@ -181,7 +228,7 @@ watch(currentTab, () => {
         </div>
   
         <div v-if="paginatedActivities.length === 0" class="no-data col-sm-4">
-          <p>目前沒有符合條件的活動喔！</p>
+          <p>目前沒有符合條件的活動！</p>
         </div>
   
         <div class="pagination-container col-sm-4" v-if="totalPages > 1">
