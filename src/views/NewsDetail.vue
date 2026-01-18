@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import axios from 'axios';
+import { publicApi } from '@/utils/publicApi'
 
 const route = useRoute();
 const router = useRouter();
@@ -24,7 +24,7 @@ const formatDate = (dateString) => {
 
 const loadData = async () => {
     try {
-        const response = await axios.get('/data/NewsList.json');
+        const response = await publicApi.get('data/NewsList.json');
 
         // 取得資料並排序
         const sortedData = response.data.sort((a, b) => {
