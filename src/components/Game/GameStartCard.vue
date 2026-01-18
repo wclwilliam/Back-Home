@@ -4,14 +4,15 @@ import { Swiper, SwiperSlide } from 'swiper/vue'
 import { Navigation } from 'swiper/modules'
 import 'swiper/css'
 import 'swiper/css/navigation'
+import { parsePublicFile } from '@/utils/parseFile'
 
 const base = import.meta.env.BASE_URL
 
 const { startOptions } = defineProps({
-  startOptions:{type: Array, required: true},
+  startOptions: { type: Array, required: true },
 })
 
-const images = ['game/turtle-baby.png', 'game/turtle-teen.png', 'game/turtle-adult.png']
+const images = ['turtle-baby.png', 'turtle-teen.png', 'turtle-adult.png']
 
 const swiperIns = ref(null)
 const onSwiper = (swiper) => {
@@ -47,33 +48,25 @@ const start = () => {
 <template>
   <div class="game-screen">
     <div class="turtle-pic">
-    <Swiper 
-    :modules="[Navigation]" 
-    navigation 
-    class="photoSwiper"
-    @swiper="onSwiper"
-    @slideChange="onSlideChange">
-      <SwiperSlide v-for="(img, i) in images" :key="i">
-        <img :src="base + img" alt="" />
-      </SwiperSlide>
-    </Swiper>
-  </div>
-  <button class="btn btn-solid btn-xl" @click="start">開始旅程</button>
+      <Swiper :modules="[Navigation]" navigation class="photoSwiper" @swiper="onSwiper" @slideChange="onSlideChange">
+        <SwiperSlide v-for="(img, i) in images" :key="i">
+          <img :src="parsePublicFile(`game/${img}`)" alt="" />
+        </SwiperSlide>
+      </Swiper>
+    </div>
+    <button class="btn btn-solid btn-xl" @click="start">開始旅程</button>
 
-  <div class="game-question-card">
-    <h2 class="question-title">你的旅程將從哪裡開始？</h2>
-    <div class="options-group">
-      <button
-        v-for="option in startOptions"
-        :key="option.id"
-        :class="['btn btn-outline-game btn-xl', { 'is-active': selectedId === option.id }]"
-        @click="handleSelect(option)"
-      >
-        {{ option.text }}
-      </button>
+    <div class="game-question-card">
+      <h2 class="question-title">你的旅程將從哪裡開始？</h2>
+      <div class="options-group">
+        <button v-for="option in startOptions" :key="option.id"
+          :class="['btn btn-outline-game btn-xl', { 'is-active': selectedId === option.id }]"
+          @click="handleSelect(option)">
+          {{ option.text }}
+        </button>
+      </div>
     </div>
   </div>
-</div>
 </template>
 <style lang="scss" scoped>
 .game-screen {
@@ -84,6 +77,7 @@ const start = () => {
   grid-template-rows: 1fr 1fr 25%;
   margin: 0 auto;
 }
+
 .turtle-pic {
   width: clamp(140px, 28vw, 380px);
   grid-column: 1 / 2;
@@ -92,12 +86,15 @@ const start = () => {
   align-self: self-end;
   transform: translateY(20%);
 }
+
 .photoSwiper img {
   width: 100%;
   height: auto;
   display: block;
 }
+
 :deep(.photoSwiper) {
+
   .swiper-button-next,
   .swiper-button-prev {
     width: 32px;
@@ -105,18 +102,21 @@ const start = () => {
     color: white;
   }
 }
-  button{
-    align-self: center;
-    justify-self: start;
-    grid-column: 2 / 3;
-    grid-row: 2 / 3;
-  }
-  p{
-    @include font-body-bold;
-    background-color: $primary-color;
-    color: $text-white;
-  }
-  .game-question-card {
+
+button {
+  align-self: center;
+  justify-self: start;
+  grid-column: 2 / 3;
+  grid-row: 2 / 3;
+}
+
+p {
+  @include font-body-bold;
+  background-color: $primary-color;
+  color: $text-white;
+}
+
+.game-question-card {
   grid-column: 1 / 4;
   grid-row: 3 / 4;
   width: 100%;
@@ -129,21 +129,20 @@ const start = () => {
   gap: 40px;
   padding: 40px 60px;
 
-  background: linear-gradient(
-    0deg, rgba(227, 213, 202, 1) 0%, rgba(227, 213, 202, 0.9) 20%, rgba(227, 213, 202, 0.8) 40%, rgba(227, 213, 202, 0.7) 60%,rgba(227, 213, 202, 0.6) 70%, rgba(227, 213, 202, 0.5) 80%, rgba(227, 213, 202, 0) 100%
-  );
+  background: linear-gradient(0deg, rgba(227, 213, 202, 1) 0%, rgba(227, 213, 202, 0.9) 20%, rgba(227, 213, 202, 0.8) 40%, rgba(227, 213, 202, 0.7) 60%, rgba(227, 213, 202, 0.6) 70%, rgba(227, 213, 202, 0.5) 80%, rgba(227, 213, 202, 0) 100%);
 
   z-index: 10;
 }
 
 .question-title {
-  @include font-body-l-bold; 
+  @include font-body-l-bold;
 }
 
 .options-group {
   display: flex;
   gap: 32px;
 }
+
 .options-group {
   .btn.is-active {
     border-color: $highlight-color2;

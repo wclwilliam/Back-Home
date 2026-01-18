@@ -7,7 +7,7 @@ import { useAuthStore } from '@/stores/auth.js'
 //回首頁
 const router = useRouter()
 const goHome = () => {
-  router.push('/')
+  router.push({ name: 'home' })
 }
 
 //動態渲染nav
@@ -43,7 +43,7 @@ const goToMemberCenter = () => {
 const logout = () => {
   authStore.isLogin = false
   isUserMenuOpen.value = false
-  router.push('/')
+  router.push({ name: 'home' })
 }
 // ========== 2026/1/16 Pinia 使用者選單功能結束 ==========
 </script>
@@ -91,7 +91,7 @@ const logout = () => {
         <div class="hamburger" :class="{ isActive: isMenuOpen }" @click="toggleMenu">
           <span class="material-symbols-outlined icon-white">{{
             isMenuOpen ? 'close' : 'menu'
-          }}</span>
+            }}</span>
         </div>
       </div>
     </div>
