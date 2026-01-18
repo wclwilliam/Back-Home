@@ -1,12 +1,12 @@
 <script setup>
+import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
+import { publicApi, base } from '@/utils/publicApi';
 import Banner from '@/components/Banner.vue';
 import clickBar from '@/components/clickBar.vue';
 import SearchBar from '@/components/activity/SearchBar.vue';
 import ActivityCard from '@/components/cards/ActivityCard.vue'
 import Ranking from '@/components/activity/Ranking.vue';
-import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
-import axios from 'axios'
-import { publicApi, base } from '@/utils/publicApi';
+import Pagination from '@/components/Pagination.vue';
 
 
 
@@ -230,13 +230,14 @@ watch(currentActivityTab, () => {
         <div v-if="paginatedActivities.length === 0" class="no-data col-sm-4">
           <p>目前沒有符合條件的活動！</p>
         </div>
-  
-        <div class="pagination-container col-sm-4" v-if="totalPages > 1">
-          <button v-for="page in totalPages" :key="page" class="page-btn number"
-            :class="{ 'active': currentPage === page }" @click="goToPage(page)">
-            {{ page }}
-          </button>
-        </div>
+        
+        <Pagination
+          class="col-sm-4"
+          :total-pages="totalPages"
+          :current-page="currentPage"
+          @page-change="goToPage"
+        />
+
         
       </div>
       <div class="ranking row">
@@ -256,42 +257,7 @@ watch(currentActivityTab, () => {
 .cardList{
   padding-top: 60px;
 }
-.pagination-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 8px;
-  margin-top: 40px;
-  margin-bottom: 60px;
 
-}
-
-.page-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border: 1px solid $secondary-color;
-  background-color: transparent;
-  color: $secondary-color;
-  border-radius: 4px;
-  /* 或 50% 變圓形 */
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-size: 16px;
-
-  &:hover:not(:disabled) {
-    background-color: $highlight-color2; // 使用您的 highlight color
-    color: white;
-    border-color: $highlight-color2;
-  }
-
-  &.active {
-    background-color: $secondary-color;
-    color: white;
-  }
-}
 .ranking {
   padding-bottom: 60px;
 }

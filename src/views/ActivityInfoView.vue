@@ -327,14 +327,17 @@ const submitForm = () => {
     <div class="row recommendActivity">
       <div class="secondary-title col-sm-4">你可能會喜歡這些活動</div>
       <swiper 
-      :slides-per-view="1" 
-      :space-between="24" 
-      :autoplay="{ delay: 3000 }" 
-      :pagination="{ clickable: true }"
-      :breakpoints="{
-        '768': { slidesPerView: 2.3 },
-        '1024': { slidesPerView: 3.3 }
-      }">
+        :modules="[Autoplay, Pagination]"
+        :slides-per-view="1" 
+        :space-between="24" 
+        :autoplay="{ delay: 3000 }" 
+        :pagination="{ clickable: true }"
+        :breakpoints="{
+          '768': { slidesPerView: 2.3 },
+          '1024': { slidesPerView: 3.3 }
+        }"
+        class="recommend-swiper"
+      >
         <swiper-slide v-for="activity in activityList" :key="activity.id">
           <ActivityCard :event="activity" />
         </swiper-slide>
@@ -617,5 +620,28 @@ textarea {
     }
   }
 }
+.recommendActivity {
+  padding-bottom: 60px; 
 
+  .recommend-swiper {
+    width: 100%;
+    padding-bottom: 50px; 
+    padding-top: 10px;
+  }
+
+  :deep(.swiper-pagination-bullet) {
+    width: 10px;
+    height: 10px;
+    background-color: #ccc;
+    opacity: 0.6;
+    transition: all 0.3s;
+    margin: 0 6px !important; 
+  }
+
+  :deep(.swiper-pagination-bullet-active) {
+    background-color: $secondary-color; 
+    opacity: 1;
+    border-radius: 5px;
+  }
+}
 </style>

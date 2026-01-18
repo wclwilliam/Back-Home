@@ -114,45 +114,16 @@ const router = createRouter({
     {
       path: '/:pathMatch(.*)*',
       component: () => import('@/views/NotFound.vue'),
-    },,
-
-    // --- 後台管理路由 ---
-    {
-      path: '/admin',
-      component: AdminLayout, // ✅ 父層 Layout
-      children: [
-        {
-          path: '', // ✅ /admin
-          name: 'admin-home',
-          component: AdminHome
-        },
-        {
-          path: 'users', // ✅ /admin/users
-          name: 'admin-users',
-          component: AdminUsers
-        },
-        {
-          path: 'users/:id', // ✅ /admin/users/123
-          name: 'admin-user-detail',
-          component: AdminUserDetail,
-          props: true // ✅ 把 params 變成 props
-        },
-        {
-          path: 'settings', // ✅ /admin/settings
-          name: 'admin-settings',
-          component: AdminSettings
-        }
-      ]
     }
   ],
   
 })
 
-router.beforeEach(async (to, from) => {
-	if( to.meta && to.meta.title){
-		document.title = to.meta.title
-	}
-})
-// router.beforeEach(authGuard)
+// router.beforeEach(async (to, from) => {
+// 	if( to.meta && to.meta.title){
+// 		document.title = to.meta.title
+// 	}
+// })
+router.beforeEach(authGuard)
 
 export default router
