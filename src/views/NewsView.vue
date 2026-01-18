@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue'
-import axios from 'axios'
+import { publicApi } from '@/utils/publicApi'
 import { useRouter } from 'vue-router'
 import NewsCard from '../components/cards/NewsCard.vue'
 import Banner from "@/components/Banner.vue";
@@ -18,8 +18,7 @@ const currentPage = ref(1);
 const pageSize = 9;
 
 onMounted(() => {
-  axios
-    .get('/data/NewsList.json')
+  publicApi.get('data/NewsList.json')
     .then((response) => {
       newslist.value = response.data.sort((a, b) => {
         return new Date(b.publish_time) - new Date(a.publish_time);
@@ -29,7 +28,6 @@ onMounted(() => {
       console.error('載入新聞列表失敗:', error);
     })
 })
-
 const formatDate = (dateString) => {
   if (!dateString) return ''
   const date = new Date(dateString)
