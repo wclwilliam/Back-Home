@@ -130,7 +130,7 @@ const goToArticle = (id) => {
     background-size: cover;
     width: 100%;
     height: auto;
-    min-height: 1600px;
+    padding-bottom: 70px;
 
     .newDetailBanner {
         width: 80%;
@@ -149,7 +149,7 @@ const goToArticle = (id) => {
 
     .contentContainer {
         width: 80%;
-        margin: 70px auto;
+        margin: 70px auto 0 auto;
         background-color: rgba(255, 255, 255, 0.6);
         padding: 5%;
         border-radius: 10px;
@@ -222,6 +222,10 @@ const goToArticle = (id) => {
 
     .divider {
         font-size: 50px;
+
+        @media(max-width:768px) {
+            display: none;
+        }
     }
 
     .navItem {
