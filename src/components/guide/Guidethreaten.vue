@@ -106,7 +106,7 @@ h1 {
     font-weight: bold;
     text-align: center;
     margin: 67px 0;
-    @media(max-width: 768px){
+    @media(max-width: 992px){
         margin: 200px 0 67px 0;
     }
 }

@@ -183,7 +183,7 @@ h1 {
 #mapInfo {
     @include font-body-l;
     width: 30%;
-    height: 60%;
+    height: 100%;
     padding: 20px;
     background: #E3D5CA;
     display: flex;
