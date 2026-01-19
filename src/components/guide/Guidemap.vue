@@ -4,6 +4,11 @@ import { allTurtles } from './turtleData.js'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 
+const base = import.meta.env.BASE_URL
+const parsePublicFile = (imgURL) => {
+    return `${base}${imgURL}`
+}
+
 const currentId = ref(1)
 let map = null;
 let currentLayer = null;
@@ -76,7 +81,7 @@ watch(currentId, () => {
             <div class="profileList">
                 <div v-for="turtle in allTurtles" :key="turtle.id" class="turtleProfile"
                     :class="{ active: currentId === turtle.id }" @click="selectTurtle(turtle.id)">
-                    <img :src="turtle.img" :alt="turtle.nameCN" class="turtleMapImg">
+                    <img :src="parsePublicFile(turtle.img)" :alt="turtle.nameCN" class="turtleMapImg">
                 </div>
             </div>
 

@@ -12,5 +12,3 @@ export function authGuard(to) {
     return false // 阻止導航
   }
 }
-
-

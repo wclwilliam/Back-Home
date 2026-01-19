@@ -1,13 +1,11 @@
 <script setup>
 import { ref, onMounted, reactive,computed, watch } from 'vue'
-import { useRoute } from 'vue-router'
-import axios from 'axios'
+import { useRoute, useRouter } from 'vue-router'
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import 'swiper/css'
 import 'swiper/css/pagination'
 import { Autoplay, Pagination } from 'swiper/modules'
-// import { useAuthStore } from '@/stores/auth' 
-// import { storeToRefs } from 'pinia'
+import { publicApi, base } from '@/utils/publicApi';
 
 import ActivityCard from '@/components/cards/ActivityCard.vue'
 import FormInput from '@/components/activity/FormInput.vue'
@@ -16,6 +14,7 @@ import ReviewCard from '@/components/activity/ReviewCard.vue'
 import ReviewSwiper from '@/components/activity/ReviewSwiper.vue'
 // 建立 route 物件
 const route = useRoute()
+const router = useRouter()
 //活動介紹
 const activityInfo = ref([])
 //輪播卡片
@@ -33,8 +32,6 @@ const isParticipant = ref(false)
 // --- 核心功能：模擬登入 ---
 // 點擊按鈕後，直接變成已登入狀態
 const handleMockLogin = () => {
-  // 為了讓體驗更真實，可以加個小延遲或提示
-  // alert('模擬登入成功！') 
   isLoggedIn.value = true
   
   // (選用) 如果你想讓他在登入後，自動也變成「已參加過」的狀態，可以把下面這行解開
@@ -42,14 +39,35 @@ const handleMockLogin = () => {
 }
 // 封裝成一個函式，方便重複呼叫
 const fetchActivityData = (id) => {
-  // 轉成數字確保比對正確
   const currentId = Number(id)
 
-  axios.get('/data/activityData.json')
+  publicApi.get('/data/activityData.json')
     .then(res => {
-      const allData = res.data
+      let allData = res.data
 
-      // 1. 抓取主要活動資料
+      const today = new Date();
+      today.setHours(0,0,0,0)
+      const todayTime = today.getTime()
+
+      allData = allData.map(act => {
+        const actDate = new Date(act.date)
+        actDate.setHours(0,0,0,0)
+        const actTime = actDate.getTime()
+
+        let status = 'upcoming'
+        if(todayTime > actTime){
+          status = 'ended'
+        }else if (todayTime === actTime) {
+          status = 'opening'
+        }else {
+          status = 'upcoming'
+        }
+        return {
+          ...act,
+          status: status
+        }
+      })
+      // 抓取主要活動資料
       const target = allData.find(item => item.id === currentId)
       if (target) {
         activityInfo.value = target
@@ -70,15 +88,19 @@ const fetchActivityData = (id) => {
 
 // 初始化載入
 onMounted(() => {
-  fetchActivityData(route.params.id)
+  if(route.params.id) {
+    fetchActivityData(route.params.id)
+  }
 })
 
 
 watch(
   () => route.params.id,
   (newId) => {
-    fetchActivityData(newId)
-    window.scrollTo({ top: 100, behavior: 'smooth' }) // 切換時自動捲到最上面
+    if(newId){
+      fetchActivityData(newId)
+      window.scrollTo({ top: 100, behavior: 'smooth' }) // 切換時自動捲到最上面
+    }
   }
 )
 
@@ -107,6 +129,10 @@ const reviewData = reactive({
 
 const setRating = (starCount) => {
   reviewData.rating = starCount
+}
+
+const submitForm = () => {
+  alert('表單已送出！')
 }
 </script>
 <template>
@@ -300,11 +326,18 @@ const setRating = (starCount) => {
   
     <div class="row recommendActivity">
       <div class="secondary-title col-sm-4">你可能會喜歡這些活動</div>
-      <swiper :slides-per-view="1.3" :space-between="24" :autoplay="{ delay: 3000 }" :pagination="{ clickable: true }"
+      <swiper 
+        :modules="[Autoplay, Pagination]"
+        :slides-per-view="1" 
+        :space-between="24" 
+        :autoplay="{ delay: 3000 }" 
+        :pagination="{ clickable: true }"
         :breakpoints="{
-                        '768': { slidesPerView: 2.3 },
-                        '992': { slidesPerView: 3.3 }
-                      }">
+          '768': { slidesPerView: 2.3 },
+          '1024': { slidesPerView: 3.3 }
+        }"
+        class="recommend-swiper"
+      >
         <swiper-slide v-for="activity in activityList" :key="activity.id">
           <ActivityCard :event="activity" />
         </swiper-slide>
@@ -587,5 +620,28 @@ textarea {
     }
   }
 }
+.recommendActivity {
+  padding-bottom: 60px; 
 
+  .recommend-swiper {
+    width: 100%;
+    padding-bottom: 50px; 
+    padding-top: 10px;
+  }
+
+  :deep(.swiper-pagination-bullet) {
+    width: 10px;
+    height: 10px;
+    background-color: #ccc;
+    opacity: 0.6;
+    transition: all 0.3s;
+    margin: 0 6px !important; 
+  }
+
+  :deep(.swiper-pagination-bullet-active) {
+    background-color: $secondary-color; 
+    opacity: 1;
+    border-radius: 5px;
+  }
+}
 </style>

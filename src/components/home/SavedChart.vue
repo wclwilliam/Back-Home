@@ -86,6 +86,8 @@ onMounted(async () => {
           data: released,
           backgroundColor: getCSSVariable('--secondary-color'),
           borderColor: getCSSVariable('--secondary-color'),
+          hoverBackgroundColor: getCSSVariable('--secondary-color'),
+          hoverBorderColor: getCSSVariable('--secondary-color'),
           borderWidth: 0,
           stack: 'total',
         },
@@ -94,6 +96,8 @@ onMounted(async () => {
           data: inTreatment,
           backgroundColor: getCSSVariable('--backstage-bar-color'),
           borderColor: getCSSVariable('--backstage-bar-color'),
+          hoverBackgroundColor: getCSSVariable('--backstage-bar-color'),
+          hoverBorderColor: getCSSVariable('--backstage-bar-color'),
           borderWidth: 0,
           stack: 'total',
         },
@@ -156,10 +160,59 @@ const chartOptions = ref({
         boxHeight: 12,
         padding: 15,
         font: {
-          size: 14,
+          size: 16,
           family: getCSSVariable('--font-main'),
         },
         color: getCSSVariable('--text-color'),
+        // 自訂圖例樣式：可見的加粗，隱藏的不要刪除線
+        generateLabels: (chart) => {
+          const datasets = chart.data.datasets
+          return datasets.map((ds, i) => {
+            const isVisible = chart.isDatasetVisible(i)
+            return {
+              text: ds.label,
+              fillStyle: ds.backgroundColor,
+              strokeStyle: ds.borderColor,
+              lineWidth: 0,
+              hidden: false, // 不使用內建的 hidden 樣式（刪除線）
+              datasetIndex: i,
+              fontColor: isVisible ? getCSSVariable('--text-color') : 'rgba(128, 128, 128, 0.5)', // 隱藏時變灰
+              font: {
+                weight: isVisible ? 'bold' : 'normal',
+                size: 16,
+                family: getCSSVariable('--font-main'),
+              },
+            }
+          })
+        },
+      },
+      // 點擊圖例：只顯示該項（其他隱藏）
+      onClick: (e, legendItem, legend) => {
+        const chart = legend.chart
+        const ci = legendItem.datasetIndex
+        const isOnlyVisible = chart.data.datasets.every((ds, i) =>
+          i === ci ? chart.isDatasetVisible(i) : !chart.isDatasetVisible(i),
+        )
+
+        if (isOnlyVisible) {
+          // 如果只有這個可見，則全部顯示
+          chart.data.datasets.forEach((ds, i) => {
+            chart.setDatasetVisibility(i, true)
+          })
+        } else {
+          // 否則只顯示這個
+          chart.data.datasets.forEach((ds, i) => {
+            chart.setDatasetVisibility(i, i === ci)
+          })
+        }
+        chart.update()
+      },
+      // 滑鼠移入圖例時顯示手指游標
+      onHover: (e) => {
+        e.native.target.style.cursor = 'pointer'
+      },
+      onLeave: (e) => {
+        e.native.target.style.cursor = 'default'
       },
     },
     title: {
@@ -219,14 +272,13 @@ const chartOptions = ref({
 
 <template>
   <div class="container">
-    <h2 class="chartTitle">我們已經幫助了......</h2>
     <div class="row">
-      <div class="savedChart col-lg-7 col-md-12 col-sm-12">
+      <div class="savedChart col-lg-7 col-md-12 col-sm-4">
         <div class="chartContainer">
           <Bar :data="chartData" :options="chartOptions" :plugins="[axisLabelPlugin]" />
         </div>
       </div>
-      <div class="col-lg-5 col-md-12 col-sm-12 circleArea">
+      <div class="col-lg-5 col-md-12 col-sm-4 circleArea">
         <div class="circleStats">
           <div class="circleDot DotA"></div>
           <div class="circleDot DotB"></div>
@@ -234,7 +286,7 @@ const chartOptions = ref({
           <div class="circleDot DotD"></div>
           <div class="circleDot DotE"></div>
           <div class="circleMain">
-            <div class="statsDesc top">累積協助</div>
+            <div class="statsDesc top">累積</div>
             <div class="statsNumber">{{ formattedTotal }}<sup>+</sup></div>
             <div class="statsDesc down">隻海龜回到大海</div>
           </div>
@@ -246,24 +298,67 @@ const chartOptions = ref({
 </template>
 
 <style lang="scss" scoped>
+// 定義漂浮動畫 Keyframes
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-12px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+// 主圓圈用較緩和的漂浮
+@keyframes floatSlow {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
 .container {
   position: relative;
 
-  .chartTitle {
-    @include font-secondary;
-    margin-bottom: 30px;
-    text-align: left;
+  .row {
+    display: flex;
+    flex-wrap: wrap;
   }
 
   .savedChart {
     padding: 0 20px;
     background-color: transparent;
+    order: 1;
+
+    @media (max-width: 1023px) {
+      order: 2;
+      display: flex;
+      justify-content: center;
+    }
 
     .chartContainer {
       width: 100%;
       height: 450px;
-      padding: 30px;
-      background: $backstage-swipe-color;
+      background: $bg-color;
+
+      @media (max-width: 1023px) {
+        width: 90%;
+        // height: 400px;
+      }
+
+      @media (max-width: 767px) {
+        width: 100%;
+        height: unset; // 明確取消上面的 height
+        min-height: 200px; // 設定最小高度避免太扁
+        aspect-ratio: 3 / 2;
+      }
     }
   }
 
@@ -271,6 +366,12 @@ const chartOptions = ref({
     display: flex;
     align-items: center;
     justify-content: center;
+    order: 2;
+
+    @media (max-width: 1023px) {
+      order: 1;
+      padding: 40px 0;
+    }
   }
 
   .circleStats {
@@ -283,6 +384,7 @@ const chartOptions = ref({
     .circleDot {
       position: absolute;
       border-radius: 50%;
+      animation: float 4s ease-in-out infinite;
 
       &.DotA {
         width: clamp(40px, 5vw, 65px);
@@ -290,6 +392,8 @@ const chartOptions = ref({
         top: -10%;
         right: 15%;
         background-color: lighten($highlight-color1, 12%);
+        animation-duration: 3.5s;
+        animation-delay: -1.2s;
       }
 
       &.DotB {
@@ -298,6 +402,8 @@ const chartOptions = ref({
         top: 45%;
         left: -15%;
         background-color: lighten($highlight-color1, 18%);
+        animation-duration: 4.2s;
+        animation-delay: -2.8s;
       }
 
       &.DotC {
@@ -306,6 +412,8 @@ const chartOptions = ref({
         bottom: 5%;
         right: -5%;
         background-color: darken($highlight-color1, 5%);
+        animation-duration: 3.8s;
+        animation-delay: -0.5s;
       }
 
       &.DotD {
@@ -314,6 +422,8 @@ const chartOptions = ref({
         top: 10%;
         left: 0;
         background-color: lighten($highlight-color1, 8%);
+        animation-duration: 4.5s;
+        animation-delay: -3.5s;
       }
 
       &.DotE {
@@ -322,6 +432,8 @@ const chartOptions = ref({
         bottom: -5%;
         right: 25%;
         background-color: darken($highlight-color1, 10%);
+        animation-duration: 3.2s;
+        animation-delay: -1.8s;
       }
     }
 
@@ -337,6 +449,7 @@ const chartOptions = ref({
       padding: 0 10px;
       border-radius: 50%;
       background-color: rgba($highlight-color1, 0.95);
+      animation: floatSlow 5s ease-in-out infinite;
 
       .statsDesc {
         @include font-tertiary;
@@ -344,15 +457,14 @@ const chartOptions = ref({
         color: $primary-color;
 
         &.top {
-          margin-bottom: 8px;
           padding-left: 10%;
-          padding-bottom: 0.4rem;
+          padding-bottom: 0.6rem;
         }
 
         &.down {
           padding-right: 5%;
           text-align: right;
-          padding-top: 0.4rem;
+          padding-top: 0.8rem;
         }
       }
 
@@ -363,9 +475,9 @@ const chartOptions = ref({
         line-height: 1;
         margin-bottom: 8px;
 
-        @media (max-width: 768px) {
-          font-size: 60px !important;
-        }
+        // @media (max-width: 768px) {
+        //   font-size: 60px !important;
+        // }
 
         sup {
           font-size: 0.5em;
@@ -377,19 +489,20 @@ const chartOptions = ref({
 
   .yellowBadge {
     position: absolute;
-    top: 10%;
-    right: 0;
+    top: 5%;
+    right: 2%;
     z-index: 10;
     @include font-tertiary;
     padding: 20px 40px;
     border-radius: 30px;
     background-color: $highlight-color3;
 
-    @media (max-width: 768px) {
-      position: static;
-      display: inline-block;
-      margin-top: 20px;
-      text-align: center;
+    @media (max-width: 767px) {
+      //   position: static;
+      //   display: inline-block;
+      //   margin-top: 20px;
+      //   text-align: center;
+      top: 0%;
     }
   }
 }

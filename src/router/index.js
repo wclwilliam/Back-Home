@@ -11,7 +11,7 @@ const router = createRouter({
       component: HomeView,
       meta: {
         title: '首頁',
-      }
+      },
     },
     {
       path: '/about',
@@ -19,7 +19,7 @@ const router = createRouter({
       component: () => import('@/views/AboutView.vue'),
       meta: {
         title: '關於我們',
-      }
+      },
     },
     {
       path: '/news',
@@ -59,6 +59,9 @@ const router = createRouter({
       path: '/activity',
       name: 'activity',
       component: () => import('@/views/ActivityView.vue'),
+      meta: {
+        tilte:'志工活動'
+      }
     },
     {
       path: '/activity/:id',
@@ -81,7 +84,16 @@ const router = createRouter({
       path: '/game',
       name: 'game',
       component: () => import('@/views/GameView.vue'),
-      meta: { hideFooter: true }
+      meta: {
+        title: '海洋守護',
+        hideFooter: true,
+      },
+    },
+    {
+      path: '/product',
+      name: 'product',
+      component: () => import('@/views/ProductView.vue'),
+      meta: { hideFooter: true },
     },
     {
       path: '/member/:id',
@@ -110,10 +122,16 @@ const router = createRouter({
     {
       path: '/:pathMatch(.*)*',
       component: () => import('@/views/NotFound.vue'),
-    },
+    }
   ],
+  
 })
 
+// router.beforeEach(async (to, from) => {
+// 	if( to.meta && to.meta.title){
+// 		document.title = to.meta.title
+// 	}
+// })
 router.beforeEach(authGuard)
 
 export default router

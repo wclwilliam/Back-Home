@@ -1,11 +1,12 @@
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue'
-import axios from 'axios'
+import { publicApi } from '@/utils/publicApi'
 import { useRouter } from 'vue-router'
 import NewsCard from '../components/cards/NewsCard.vue'
 import Banner from "@/components/Banner.vue";
 import clickBar from '@/components/clickBar.vue';
 import searchBox from '@/components/searchBox.vue';
+import Pagination from '@/components/Pagination.vue'; 
 
 const newsTabs = ['全部', '重要公告', '異動通知'];
 const currentNewsTab = ref('全部');
@@ -13,13 +14,11 @@ const currentNewsTab = ref('全部');
 const router = useRouter()
 const newslist = ref([])
 
-
 const currentPage = ref(1);
 const pageSize = 9;
 
 onMounted(() => {
-  axios
-    .get('/data/NewsList.json')
+  publicApi.get('data/NewsList.json')
     .then((response) => {
       newslist.value = response.data.sort((a, b) => {
         return new Date(b.publish_time) - new Date(a.publish_time);
@@ -55,7 +54,7 @@ const filteredNews = computed(() => {
   return newslist.value.filter(item => item.category === currentNewsTab.value);
 });
 
-//頁碼切分
+// 頁碼切分
 const displayNews = computed(() => {
   const startIndex = (currentPage.value - 1) * pageSize;
   const endIndex = startIndex + pageSize;
@@ -67,7 +66,7 @@ const totalPages = computed(() => {
   return Math.ceil(filteredNews.value.length / pageSize);
 });
 
-// 換頁函式
+// 換頁函式 (邏輯不變)
 const changePage = (page) => {
   currentPage.value = page;
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -91,7 +90,6 @@ watch(currentNewsTab, () => {
     <searchBox/>
 
     <div class="row" v-if="filteredNews.length > 0">
-      
       <NewsCard 
         v-for="item in displayNews" 
         :key="item.article_id" 
@@ -103,39 +101,18 @@ watch(currentNewsTab, () => {
         @click="goToDetail(item.article_id)" 
         style="cursor: pointer;" 
       />
-      
     </div>
 
     <div v-else class="noData">
         目前尚無此分類的消息
     </div>
 
-    <div class="pagination-container" v-if="totalPages > 1">
-      <button 
-        class="pageBtn" 
-        @click="changePage(currentPage - 1)" 
-        :disabled="currentPage === 1"
-      >
-        &lt;
-      </button>
-
-      <button 
-        v-for="page in totalPages" 
-        :key="page" 
-        class="pageBtn number"
-        :class="{ active: currentPage === page }"
-        @click="changePage(page)"
-      >
-        {{ page }}
-      </button>
-
-      <button 
-        class="pageBtn" 
-        @click="changePage(currentPage + 1)" 
-        :disabled="currentPage === totalPages"
-      >
-        &gt;
-      </button>
+    <div class="col-12 w-100">
+      <Pagination
+        :total-pages="totalPages"
+        :current-page="currentPage"
+        @page-change="changePage"
+      />
     </div>
 
   </main>
@@ -148,46 +125,11 @@ h1 {
   margin-bottom: 20px;
 }
 
-//這邊會再換統一樣式
-.pagination-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 40px;
-  margin-bottom: 40px;
-  gap: 10px;
-}
-
-.pageBtn {
-  background-color: white;
-  border: 1px solid $text-color;
-  color: $text-color;
-  padding: 8px 16px;
-  cursor: pointer;
-  border-radius: 4px;
-  transition: all 0.3s ease;
-
-  &:hover:not(:disabled) {
-    background-color: #f0f0f0;
-    border-color: #ccc;
-  }
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-
-  &.active {
-    background-color: $primary-color; 
-    color: white;
-    border-color: $primary-color;
-  }
-}
-
 .noData {
   @include font-body-l;
   text-align: center;
   padding: 50px;
   color: #666;
 }
+
 </style>

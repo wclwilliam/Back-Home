@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import axios from 'axios';
+import { publicApi } from '@/utils/publicApi'
 
 const route = useRoute();
 const router = useRouter();
@@ -24,7 +24,7 @@ const formatDate = (dateString) => {
 
 const loadData = async () => {
     try {
-        const response = await axios.get('/data/NewsList.json');
+        const response = await publicApi.get('data/NewsList.json');
 
         // 取得資料並排序
         const sortedData = response.data.sort((a, b) => {
@@ -34,7 +34,6 @@ const loadData = async () => {
 
         // 取得網址 ID
         const currentId = parseInt(route.params.id);
-        //console.log('當前文章 ID:', currentId);
 
         //上下頁
         const currentIndex = sortedData.findIndex(item => item.article_id === currentId);
@@ -78,7 +77,7 @@ const goToArticle = (id) => {
         <div class="contentContainer" v-if="article">
 
             <div class="actionBar">
-                <button class="btn btn-outline" @click="goBack">回列表</button>
+                <button class="btn btn-outline btn-xs" @click="goBack">回列表</button>
             </div>
 
             <div class="articleHeader">
@@ -110,9 +109,9 @@ const goToArticle = (id) => {
                 </div>
                 <div class="divider">|</div>
                 <div class="navItem next">
-                    <div v-if="nextArticle" @click="goToArticle(nextArticle.article_id)" class="linkWrap">
-                        <span class="navTitle">{{ nextArticle.title }}</span>
+                    <div v-if="nextArticle" @click="goToArticle(nextArticle.article_id)" class="linkWrapNext">
                         <button class="btn btn-outline ">下一篇</button>
+                        <span class="navTitle">{{ nextArticle.title }}</span>
                     </div>
                 </div>
             </div>
@@ -152,13 +151,18 @@ const goToArticle = (id) => {
         width: 80%;
         margin: 70px auto;
         background-color: rgba(255, 255, 255, 0.6);
-        padding: 40px;
+        padding: 5%;
         border-radius: 10px;
     }
 }
 
 .btn {
     margin-bottom: 20px;
+
+    @media(max-width:1600px) {
+        //height: 40px;
+        padding: 16px 10px;
+    }
 }
 
 
@@ -190,7 +194,7 @@ const goToArticle = (id) => {
 
     img {
         max-width: 100%;
-        max-height: 500px;
+        max-height: 450px;
         object-fit: cover;
     }
 }
@@ -213,8 +217,12 @@ const goToArticle = (id) => {
     justify-content: space-between;
     align-items: center;
     padding: 20px 0;
-    margin-top: 50px;
+    gap: 10px;
     color: $secondary-color;
+
+    .divider {
+        font-size: 50px;
+    }
 
     .navItem {
         flex: 1;
@@ -234,13 +242,23 @@ const goToArticle = (id) => {
 
         .linkWrap {
             display: flex;
-            align-items: center;
-            gap: 20px;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .linkWrapNext {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
         }
 
         .navTitle {
             @include font-body;
             color: $secondary-color;
+
+            @media(max-width:768px) {
+                display: none;
+            }
 
         }
     }

@@ -1,32 +1,30 @@
 <script setup>
 import { ref, onMounted } from 'vue';
-import axios from 'axios';
+import { publicApi } from "@/utils/publicApi";
 
 const items = ref([])
 
-onMounted( async () => {
-  try {
-    const base = import.meta.env.BASE_URL
-    const response = await axios.get(base + 'data/donationAccordion.json')
-    items.value = response.data
-  }catch (error){
-    console.log(error)
-  }
-})
+// onMounted( async () => {
+//   try {
+//     const base = import.meta.env.BASE_URL
+//     const response = await axios.get(base + 'data/donationAccordion.json')
+//     items.value = response.data
+//   }catch (error){
+//     console.log(error)
+//   }
+// })
 
-// 1. 定義資料
-// const items = ref([
-//   { title: '我的捐款會如何被使用？', content: '您的捐款 85% 將直接用於海龜的實際救援、醫療復健，以及棲地巡邏與淨灘。其餘 15% 用於支持專業的保育研究、教育推廣與行政管理，確保我們的行動能夠持續且高效運行。' },
-//   { title: '我是否可以指定捐款的用途？', content: '我們目前設有「海龜醫療基金」和「棲地巡邏基金」兩大選項供您選擇。若您未特別指定，資金將投入當前最緊急且最需要資源的保育項目。' },
-//   { title: '我如何確認我的捐款是否用於實際的海龜救援？', content: '我們承諾每年公開經過第三方查核的財務報告，並每月更新捐款徵信與救援行動紀錄。您可以隨時在我們的「捐款徵信」頁面查看資金流向與成果數據。' },
-//   { title: '身為一位忙碌的上班族，我還有機會參與志工活動嗎？', content: '絕對可以！我們設有週末淨灘專案及辦公室行政支援的志工機會。許多專案特別安排在非工作時間，讓您能在不影響正職的情況下，也能為海龜貢獻一份心力。' },
-//   { title: '志工需要具備專業的海洋知識或特殊技能嗎？', content: '不需要。大部分的淨灘與基礎巡邏工作會提供完整的行前培訓。若是您具備醫療、攝影、數據分析或社群媒體技能，也歡迎告知，我們會安排您參與更專業的支援工作。' },
-// ]);
+onMounted(() => {
+        publicApi.get('data/donationAccordion.json').then((response) => {
+            items.value = response.data
+        })
+    })
 
-// 2. 初始值設定為 0 (代表第一格預設打開)
+
+// 初始值設定為 0 (代表第一格預設打開)
 const activeIndex = ref(0);
 
-// 3. 切換邏輯
+// 切換邏輯
 const toggle = (index) => {
   // 如果點擊的是已經打開的那一格，可以選擇關閉它或保持打開
   // 這裡設定：如果是單選手風琴，通常點擊同一格不會關閉，除非你想增加切換功能
@@ -37,7 +35,7 @@ const toggle = (index) => {
       activeIndex.value = index;
   }
 };
-// 4. 動畫輔助：計算高度 (選用，為了讓 CSS transition 生效)
+// 動畫輔助：計算高度 (選用，為了讓 CSS transition 生效)
 const contentStyle = (index) => {
   return {
     gridTemplateRows: activeIndex.value === index ? '1fr' : '0fr',

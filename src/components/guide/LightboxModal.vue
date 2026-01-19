@@ -11,6 +11,11 @@ const emit = defineEmits(['close']);
 const handleClose = () => {
   emit('close');
 };
+
+const base = import.meta.env.BASE_URL
+const parsePublicFile = (imgURL) => {
+    return `${base}${imgURL}`
+}
 </script>
 
 <template>
@@ -27,7 +32,7 @@ const handleClose = () => {
         </button>
 
         <div class="cardImage">
-          <img :src="item.image" :alt="item.title">
+           <img :src="parsePublicFile(item.image)" :alt="item.title">
         </div>
 
         <div class="cardContent">
