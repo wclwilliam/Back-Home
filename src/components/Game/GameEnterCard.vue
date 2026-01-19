@@ -21,16 +21,16 @@ const props = defineProps({
 
 const sceneMap = {
   baby: {
-    bg: 'game/turtle-baby-bg.jpg',
-    turtle: 'game/turtle-baby.png',
+    bg: 'game-img/turtle-baby-bg.jpg',
+    turtle: 'game-img/turtle-baby.png',
   },
   teen: {
-    bg: 'game/turtle-teen-bg.jpg',
-    turtle: 'game/turtle-teen-swim.png',
+    bg: 'game-img/turtle-teen-bg.jpg',
+    turtle: 'game-img/turtle-teen-swim.png',
   },
   adult: {
-    bg: 'game/turtle-adult-bg.jpg',
-    turtle: 'game/turtle-adult-swim.png',
+    bg: 'game-img/turtle-adult-bg.jpg',
+    turtle: 'game-img/turtle-adult-swim.png',
   },
 }
 
@@ -57,19 +57,19 @@ const isTeenQ2GoodGroup = computed(() =>
 
 const turtleSrc = computed(() => {
   if (props.roleId === 'teen' && isTeenQ1BadGroup.value) {
-    return parsePublicFile('game/turtle-teen-bind.png')
+    return parsePublicFile('game-img/turtle-teen-bind.png')
   }
 
   if (props.roleId === 'teen' && isTeenQ2BadGroup.value) {
-    return parsePublicFile('game/turtle-teen-plasticbag.png')
+    return parsePublicFile('game-img/turtle-teen-plasticbag.png')
   }
 
   if (props.roleId === 'teen' && isTeenQ2GoodGroup.value) {
-    return parsePublicFile('game/turtle-teen-seaweed.png')
+    return parsePublicFile('game-img/turtle-teen-seaweed.png')
   }
 
   if (props.roleId === 'baby' && isBabyQ3Group.value) {
-    return parsePublicFile('game/turtle-baby-swim.png')
+    return parsePublicFile('game-img/turtle-baby-swim.png')
   }
   const turtle = sceneMap[props.roleId]?.turtle
   return turtle ? parsePublicFile(turtle) : ''
@@ -181,16 +181,11 @@ onUnmounted(() => {
       `node-media--${mediaSize}`,
       mediaAnim ? `anim-${mediaAnim}` : ''
     ]" :style="mediaOffsetStyle" :src="mediaSrc" alt="" />
-   <div class="turtle-wrapper" v-if="turtleSrc && mode !== 'result'">
-     <img  class="turtle" :class="`turtle--${props.roleId}`" :src="turtleSrc"
-      alt="" />
-   </div>
-    <GameResultCard 
-    v-if="mode === 'result'" class="game-result-card" 
-    :role-id="props.roleId" 
-    :node="props.currentNode"
-      :health="healthStore.health" 
-      :max-health="healthStore.maxHealth" 
+    <div class="turtle-wrapper" v-if="turtleSrc && mode !== 'result'">
+      <img class="turtle" :class="`turtle--${props.roleId}`" :src="turtleSrc" alt="" />
+    </div>
+    <GameResultCard v-if="mode === 'result'" class="game-result-card" :role-id="props.roleId" :node="props.currentNode"
+      :health="healthStore.health" :max-health="healthStore.maxHealth"
       @next="emit('next', props.currentNode?.nextId)" />
     <GameDialogCard v-else-if="mode === 'feedback'" class="center-card" :text="props.currentNode?.feedback ?? ''"
       :warning-text="props.currentNode?.warningText ?? ''" :show-warning="showWarning" @next="onFeedbackNext" />
@@ -243,7 +238,7 @@ onUnmounted(() => {
   transform: translate(-50%, 50%);
 }
 
-.turtle-wrapper{
+.turtle-wrapper {
   grid-column: 1 / 3;
   grid-row: 2 / 4;
 }

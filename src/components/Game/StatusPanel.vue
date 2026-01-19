@@ -18,9 +18,9 @@ const { text, roleId } = defineProps({
 })
 
 const roleTurtleMap = {
-  baby: 'game/turtle-baby.png',
-  teen: 'game/turtle-teen-swim.png',
-  adult: 'game/turtle-adult-swim.png',
+  baby: 'game-img/turtle-baby.png',
+  teen: 'game-img/turtle-teen-swim.png',
+  adult: 'game-img/turtle-adult-swim.png',
 }
 
 const turtleSrc = computed(() => {
@@ -128,7 +128,7 @@ $wave-3: #2aa2d6;
     width: 100%;
     height: 100%;
     bottom: 0;
-     transform: translateY(var(--waveY, 0%));
+    transform: translateY(var(--waveY, 0%));
     will-change: transform;
   }
 

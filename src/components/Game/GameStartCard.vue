@@ -48,7 +48,7 @@ const start = () => {
     <div class="turtle-pic">
       <Swiper :modules="[Navigation]" navigation class="photoSwiper" @swiper="onSwiper" @slideChange="onSlideChange">
         <SwiperSlide v-for="(img, i) in images" :key="i">
-          <img :src="parsePublicFile(`game/${img}`)" alt="" />
+          <img :src="parsePublicFile(`game-img/${img}`)" alt="" />
         </SwiperSlide>
       </Swiper>
     </div>

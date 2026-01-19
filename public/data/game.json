@@ -24,7 +24,7 @@
     "question": "剛破殼的妳，看見一隻大手伸向眼前。是要接受那份香甜誘人的加工肉塊？還是選擇只在遠處靜靜待著？",
     "progress": 1,
     "media": {
-      "image": "game/hand-hold-meat.png",
+      "image": "game-img/hand-hold-meat.png",
       "pos": "rb",
       "size": "lg",
       "offset": {
@@ -66,7 +66,7 @@
   "baby_q2": {
     "question": "到了夜晚，妳抬起頭，前方是整排熱鬧明亮的燈火，另一側則是漆黑、閃著微弱波光的地平線。妳決定朝哪邊加速爬過去？",
     "progress": 2,
-    "bg": "game/baby_q2_bg.png",
+    "bg": "game-img/baby_q2_bg.png",
     "options": [
       {
         "id": "move_to_open",
