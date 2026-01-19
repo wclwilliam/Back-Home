@@ -18,7 +18,7 @@ const emit = defineEmits(['choose'])
       <button
         v-for="option in options"
         :key="option.id"
-        :class="['btn btn-outline-game btn-xl', { 'is-active': selectedId === option.id }]"
+        class="btn btn-outline-game btn-xl"
         @click="emit('choose', option)"
       >
         {{ option.text }}

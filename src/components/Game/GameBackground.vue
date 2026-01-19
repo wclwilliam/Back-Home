@@ -1,5 +1,6 @@
 <script setup>
 import { computed } from 'vue'
+import { parsePublicFile } from '@/utils/parseFile'
 
 const props = defineProps({
   stage: { type: String, default: 'start' }, // start | enter | action
@@ -8,7 +9,6 @@ const props = defineProps({
   nodeId: { type: String, default: '' }, // 目前正在跑的節點 id
 })
 
-const base = import.meta.env.BASE_URL
 
 const nodeBgGroupMap = [
   {
@@ -47,28 +47,30 @@ const bgMap = {
   },
 }
 
-const bgSrc = computed(() => {
-  const nodeId = props.nodeId
+const bgPath = computed(() => {
+   const id = props.nodeId || ''
 
   // 節點群組 override（優先權最高）
   const group = nodeBgGroupMap.find((item) =>
-    item.match.test(nodeId)
+    item.match.test(id)
   )
-  if (group) return base + group.bg
+  if (group?.bg) return group.bg
 
   // node 本身有指定 bg
   if (props.node?.bg) {
-    return base + props.node.bg
+    return props.node.bg
   }
 
   // 角色進場
   if (props.stage === 'enter') {
-    return base + (bgMap.enter[props.roleId] ?? bgMap.start)
+    return (bgMap.enter[props.roleId] ?? bgMap.start)
   }
 
   // 預設背景
-  return base + bgMap[props.stage]
+  return bgMap[props.stage]
 })
+
+const bgSrc = computed(() => parsePublicFile(bgPath.value))
 
 const bgStyle = computed(() => ({
   backgroundImage: `url(${bgSrc.value})`,
