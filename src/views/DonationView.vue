@@ -77,6 +77,7 @@
     const currentData = computed(() => {
     return impactReports.value.find(item => item.year === selectedYear.value) || {};
     });
+    
 
     
 </script>
@@ -158,7 +159,7 @@
         position: fixed;
         bottom: 0;
         z-index: 99;
-        @media (width > 768px) {
+        @media (width >= 768px) {
             display: none !important ;  
             }
         
@@ -185,7 +186,7 @@
         }
         .otherCom {
             
-            margin-top: 70px;
+            margin-top: 32px;
             display: flex;
             flex-direction: column;
             gap: 32px;
@@ -196,6 +197,7 @@
                 flex-direction: column;
                 align-items: center;
                 background-color: $secondary-color;
+                background: url(@/assets/image/DonationView/sea.png) center / cover no-repeat;
                 padding-top: 24px;
                 padding-bottom: 24px;
                 h2 {

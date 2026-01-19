@@ -2,9 +2,23 @@
 import { ref,reactive, computed,watch } from 'vue'
 import MyButton from './MyButton.vue'
 import { useAuthStore } from '@/stores/auth'
+import downloadReceipt from './downloadReceipt.vue'
+import ecpayCrypto from '@/utils/ecpayCrypto.js'
+import { useRoute } from 'vue-router';
+
+const route = useRoute();
+
 
 const auth = useAuthStore()
 
+let nowTime = new Date().toLocaleString('zh-TW', {
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+  hour: '2-digit',
+  minute: '2-digit',
+  second: '2-digit'
+})
 
 const currentStep = ref(1)
 const donationType = ref('monthly')
@@ -36,11 +50,17 @@ const errors = reactive({
   agree: false,
   customAmount: false
 })
+const modalRef = ref(null);
 
 const stepLabels = ['選擇金額', '捐款人資料填寫', '捐款完成']
 const amountOptions = {
   monthly: [800, 1000, 1200],
   once: [3000, 5000, 8000]
+}
+
+//判斷有沒有get參數
+if (route.query.currentStep) {
+  currentStep.value = 3;
 }
 
 const isGreater = () => {
@@ -67,6 +87,8 @@ const finalAmount = computed(() => {
   const val = customAmount.value ? Number(customAmount.value) : selectedAmount.value
   return val.toLocaleString()
 })
+const rawFinalAmount = computed(() => customAmount.value ? Number(customAmount.value) : selectedAmount.value
+)
 
 watch(donationType,(newValue)=>{
     // 金額預設選中間
@@ -177,7 +199,11 @@ const goDonate = () => {
     validateField('email')
     
     if (!errors.email && !isBlank.email && !errors.agree) {
-      currentStep.value = 3
+      if (payment.value == "ecpay") { //判斷金流
+        ecpayCrypto()
+      } else {
+        currentStep.value = 3
+      }
     }
   }else {
     validateField('userName')
@@ -188,18 +214,22 @@ const goDonate = () => {
     let hasError = Object.values(errors).some(v => v)
     let hasBlank = Object.values(isBlank).some(v => v)
     if (!hasError && !hasBlank && !errors.agree) {
-      currentStep.value = 3
+      if (payment.value == "ecpay") { //判斷金流
+        ecpayCrypto()
+      } else {
+        currentStep.value = 3
+      }
   }
   }
 
 }
 
 
-const reset = () => { currentStep.value = 1 }
 </script>
 
 <template>
   <div class="donation-card">
+    <downloadReceipt ref="modalRef"/>
     <div class="stepper">
       <div class="progress-line">
         <div class="progress-fill" :style="{ width: ((currentStep - 1) / 2) * 100 + '%' }"></div>
@@ -344,7 +374,22 @@ const reset = () => { currentStep.value = 1 }
 
         </div>
       </div>
-      <MyButton @click="goDonate" class=" btn-xxl" width="50%">立即捐款</MyButton>
+      <form id="ecpayForm" method="post" action="https://payment-stage.ecpay.com.tw/Cashier/AioCheckOut/V5">
+            <input type="hidden" name="MerchantID" value="3002607">
+            <input type="hidden" name="MerchantTradeNo" id="MerchantTradeNo" value="">
+            <input type="hidden" name="MerchantTradeDate" id="MerchantTradeDate" value="">
+            <input type="hidden" name="PaymentType" value="aio">
+            <input type="hidden" name="TotalAmount" :value="rawFinalAmount">
+            <input type="hidden" name="TradeDesc" :value="donationType">
+            <input type="hidden" name="ItemName" value="捐款金額">
+            <input type="hidden" name="ReturnURL" value="https://tibamef2e.com/cjd102/g3/front/donation">
+            <input type="hidden" name="ChoosePayment" value="ALL">
+            <input type="hidden" name="EncryptType" value="1">
+            <input type="hidden" name="IgnorePayment" value="WeiXin#TWQR#BNPL#CVS#BARCODE#ATM#WebATM">
+            <input type="hidden" name="OrderResultURL" value="https://tibamef2e.com/cjd102/g3/front/donation?currentStep=3">
+            <input type="hidden" name="CheckMacValue" id="CheckMacValue" value="">
+            <MyButton @click.prevent="goDonate" class=" btn-xxl" width="50%" >立即捐款</MyButton>
+        </form>
     </div>
 
     <div v-if="currentStep === 3" class="step-content">
@@ -352,7 +397,7 @@ const reset = () => { currentStep.value = 1 }
         <h2 class="success-title">捐款成功</h2>
         <p class="success-desc">
           感謝您捐款 [{{ finalAmount }}] 支持海龜保育計畫。您的這筆款項將直接用於海龜的醫療救援與棲地維護。
-我們承諾將每一分錢透明、高效地運用。正式的電子收據（可用於報稅折抵）請您留意查收。
+我們承諾將每一分錢透明、高效地運用。正式的電子收據請您留意查收。
 再次感謝您的信任與行動！
         </p>
   
@@ -360,14 +405,14 @@ const reset = () => { currentStep.value = 1 }
           <p class="card-title">捐款摘要</p>
           <p><strong>捐款金額：</strong>新台幣 <span>{{ finalAmount }}</span></p>
           <p><strong>捐款類型：</strong>{{ donationType === 'monthly' ? '每月捐款' : '單次捐款' }}</p>
-          <p><strong>捐款時間：</strong>2025-12-25 18:15:30</p>
+          <p><strong>捐款時間：</strong>{{ nowTime }}</p>
         </div>
   
         <div class="photo-box">
           <img src="https://picsum.photos/300/200" alt="Sea Turtle">
           <div class="caption">您的支持正讓「小翠」這樣的海龜獲得重生。</div>
         </div>
-        <MyButton @click="reset" class=" btn-xxl" width="50%">下載收據</MyButton>
+        <MyButton @click="modalRef?.openModal" class=" btn-xxl" width="50%">下載收據</MyButton>
       </div>
     </div>
   </div>
@@ -398,7 +443,8 @@ const reset = () => { currentStep.value = 1 }
 
 .donation-card {
     position: sticky;
-    top: 0;
+    margin-top: 32px; //到時候根據header高度做調整
+    top: 32px; //到時候根據header高度做調整
     width: 100%;
     padding-bottom: 20px;
     border: 2px solid $secondary-color;
@@ -687,6 +733,11 @@ const reset = () => { currentStep.value = 1 }
       align-items: flex-start;
     }
   }
+}
+#ecpayForm {
+  width: 90%;
+  display: flex;
+  justify-content: center;
 }
 
 // 成功頁面
