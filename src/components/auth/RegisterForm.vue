@@ -10,7 +10,7 @@
     <template v-else>
       <h2 class="form-title">歡迎加入</h2>
       <p class="subtitle">請先完成郵件驗證，再設定密碼</p>
-      
+
       <form @submit.prevent="$emit('change-mode', 'reg-success')">
         <Input v-model="account" placeholder="請輸入電子郵件">
           <template #icon><span class="material-symbols-outlined">mail</span></template>
@@ -20,34 +20,37 @@
           <Input v-model="form.code" placeholder="請輸入驗證碼" class="flex-1">
             <template #icon><span class="material-symbols-outlined">key</span></template>
           </Input>
-          <button type="button" class="get-code-btn">獲取驗證碼</button>
+          <button type="button" class="btn btn-outline btn-xs">獲取驗證碼</button>
         </div>
 
         <Input v-model="form.password" :type="isPasswordVisible ? 'text' : 'password'" placeholder="請輸入密碼">
           <template #icon><span class="material-symbols-outlined">lock</span></template>
           <template #append>
-            <span class="material-symbols-outlined password-toggle" @click.stop="isPasswordVisible = !isPasswordVisible">
+            <span class="material-symbols-outlined password-toggle"
+              @click.stop="isPasswordVisible = !isPasswordVisible">
               {{ isPasswordVisible ? 'visibility' : 'visibility_off' }}
             </span>
           </template>
         </Input>
 
         <p class="hint-text">
-          <span class="material-symbols-outlined">info</span> 
+          <span class="material-symbols-outlined">info</span>
           密碼需 8 個字元以上，且包含英文大小寫、數字
         </p>
 
-        <Input v-model="form.confirmPassword" :type="isConfirmPasswordVisible ? 'text' : 'password'" placeholder="請再次輸入密碼">
+        <Input v-model="form.confirmPassword" :type="isConfirmPasswordVisible ? 'text' : 'password'"
+          placeholder="請再次輸入密碼">
           <template #icon><span class="material-symbols-outlined">lock</span></template>
           <template #append>
-            <span class="material-symbols-outlined password-toggle" @click.stop="isConfirmPasswordVisible = !isConfirmPasswordVisible">
+            <span class="material-symbols-outlined password-toggle"
+              @click.stop="isConfirmPasswordVisible = !isConfirmPasswordVisible">
               {{ isConfirmPasswordVisible ? 'visibility' : 'visibility_off' }}
             </span>
           </template>
         </Input>
 
         <Button type="submit" variant="primary">確認註冊</Button>
-        
+
         <div class="register-wrapper">
           <span style="color: #666; margin-right: 8px;">已加入會員</span>
           <a class="link-text" @click="$emit('change-mode', 'login')">立即登入</a>
@@ -83,13 +86,38 @@ const form = reactive({
 :deep(.input-group) {
   margin-bottom: rem(16px);
   width: 100%;
+
   .input-container {
     border: 1px solid $secondary-color !important;
-    background-color: transparent !important; 
-    .icon-wrap, span { color: $secondary-color !important; }
+    background-color: transparent !important;
+    display: flex;
+    align-items: center;
+
+    .icon-wrap,
+    span {
+      color: $secondary-color !important;
+      flex-shrink: 0;
+    }
+
   }
-  .input-field { border: none !important; box-shadow: none !important; }
-  .password-toggle { cursor: pointer; color: #999; &:hover { color: $secondary-color; } }
+
+  .input-field {
+    border: none !important;
+    box-shadow: none !important;
+    flex: 1;      
+    min-width: 0;  
+  }
+
+  .password-toggle {
+    cursor: pointer;
+    color: #999;
+    flex-shrink: 0; 
+    margin-left: 8px; 
+
+    &:hover {
+      color: $secondary-color;
+    }
+  }
 }
 
 .fade-in-content {
@@ -112,43 +140,37 @@ form {
   width: 100%;
 }
 
-.form-title { 
-  @include font-secondary; 
-  color: $primary-color; 
-  margin-bottom: rem(8px); 
-  text-align: center; 
+.form-title {
+  @include font-secondary;
+  color: $primary-color;
+  margin-bottom: rem(8px);
+  text-align: center;
 }
 
-.subtitle { 
-  font-size: rem(14px); 
-  color: #666; 
-  margin-bottom: rem(24px); 
-  text-align: center; 
+.subtitle {
+  font-size: rem(14px);
+  color: #666;
+  margin-bottom: rem(24px);
+  text-align: center;
 }
+
 
 .verify-group {
   display: flex;
   gap: rem(8px);
   width: 100%;
   margin-bottom: rem(16px);
-  
+
   :deep(.input-group) {
     margin-bottom: 0;
     flex: 1;
+    min-width: 0;
   }
 
-  .get-code-btn {
-    height: 48px;
-    padding: 0 rem(15px);
+  .btn {
     border: 1px solid $secondary-color;
-    color: $secondary-color;
-    background: transparent;
-    border-radius: 4px;
     white-space: nowrap;
-    cursor: pointer;
-    font-size: rem(14px);
-    transition: all 0.2s;
-    &:hover { border-color: $highlight-color2; color: $highlight-color2; }
+    flex-shrink: 0;
   }
 }
 
@@ -171,7 +193,10 @@ form {
   cursor: pointer;
   color: $secondary-color;
   text-decoration: underline;
-  &:hover { color: $highlight-color2; }
+
+  &:hover {
+    color: $highlight-color2;
+  }
 }
 
 .success-page {

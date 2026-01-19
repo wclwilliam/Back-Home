@@ -1,11 +1,13 @@
 <script setup>
 import { computed, ref } from 'vue'
+import Swal from 'sweetalert2'
+import Input from '../auth/Input.vue'
 
 const props = defineProps({
   review: {
     type: Object,
-    required: true
-  }
+    required: true,
+  },
 })
 
 // --- 資料處理 ---
@@ -20,8 +22,8 @@ const avatar = computed(() => {
 
 // --- 互動邏輯 ---
 const isLiked = ref(false)
-const likeCount = ref(props.review.likes || 10) 
-const isReported = ref(false) 
+const likeCount = ref(props.review.likes || 10)
+const isReported = ref(false)
 const isMenuOpen = ref(false) // [新增] 控制選單開關
 
 const toggleLike = () => {
@@ -35,74 +37,93 @@ const toggleMenu = () => {
   isMenuOpen.value = !isMenuOpen.value
 }
 
-const handleReport = () => {
-  if (!isReported.value) {
-    const confirmReport = confirm('確定要檢舉此則留言嗎？')
-    if (confirmReport) {
-      isReported.value = true
-      alert('已收到您的檢舉，我們會盡快處理。')
-    }
-  } else {
-    isReported.value = false // 取消檢舉 
+const handleReport = async () => {
+  if (isReported.value) {
+    isReported.value = false
+    isMenuOpen.value = false
+    return // 結束函式
   }
-  isMenuOpen.value = false // 點選後關閉選單
+
+  const { value: reason } = await Swal.fire({
+    title: '請選擇檢舉原因',
+    input: 'radio',
+    inputOptions: {
+      'spam': '商業廣告或垃圾訊息',
+      'offensive': '不當或攻擊性內容',
+      'fake': '錯誤的資訊',
+      'other': '其他',
+    },
+    inputValidator: (value) => {
+      if (!value) {
+        return '請務必選擇一個原因' // 防呆：沒選不能送出
+      }
+    },
+    showCancelButton: true, // 顯示取消按鈕
+    confirmButtonText: '提交',
+    cancelButtonText: '取消',
+    confirmButtonColor: '#0E6872', // (選填) 配合你的主色系
+  })
+
+  if (reason) {
+    // 使用者選擇了原因並按下提交
+    isReported.value = true
+
+    Swal.fire({
+      title: '已收到您的檢舉',
+      text: '我們會盡快處理。',
+      icon: 'success', // 修正：設定 icon 為成功勾勾
+      confirmButtonColor: '#0E6872',
+    })
+  }else {
+
+    isReported.value = false // 取消檢舉
+
+  }
+  // 4. 最後關閉選單
+  isMenuOpen.value = false
 }
 </script>
 
 <template>
-  <div class="review-card-wrapper ">
+  <div class="review-card-wrapper">
     <div class="review-card">
       <div class="card-content">
         <div class="card-header">
           <div class="user-profile">
             <div class="avatar">
-              <img :src="avatar" :alt="userName">
+              <img :src="avatar" :alt="userName" />
             </div>
             <h4 class="user-name">{{ userName }}</h4>
           </div>
-          
+  
           <div class="more-menu-container">
             <button class="icon-btn more-btn" @click="toggleMenu">
               <span class="material-symbols-outlined">more_vert</span>
             </button>
-
+  
             <div v-if="isMenuOpen" class="dropdown-menu">
-              <button 
-                class="menu-item" 
-                :class="{ 'is-active': isReported }"
-                @click="handleReport"
-              >
+              <button class="menu-item" :class="{ 'is-active': isReported }" @click="handleReport">
                 <span class="material-symbols-outlined icon">flag</span>
                 {{ isReported ? '取消檢舉' : '檢舉留言' }}
               </button>
             </div>
           </div>
         </div>
-
+  
         <div class="rating-stars">
-          <span 
-            v-for="n in 5" 
-            :key="n" 
-            class="material-symbols-outlined star-icon"
-            :class="{ 'filled': n <= rating }"
-          >
+          <span v-for="n in 5" :key="n" class="material-symbols-outlined star-icon" :class="{ filled: n <= rating }">
             kid_star
           </span>
         </div>
-
+  
         <div class="card-body">
           <p class="content-label">心得內容 :</p>
           <p class="content-text">{{ comment }}</p>
         </div>
-
+  
         <div class="card-footer">
           <div class="action-group">
-            <button 
-              class="icon-btn action-btn like-btn" 
-              :class="{ 'active': isLiked }"
-              @click="toggleLike"
-              title="覺得實用"
-            >
+            <button class="icon-btn action-btn like-btn" :class="{ active: isLiked }" @click="toggleLike" title="覺得實用">
               <span class="material-symbols-outlined">
                 {{ isLiked ? 'thumb_up' : 'thumb_up_off_alt' }}
               </span>
@@ -127,7 +148,9 @@ const handleReport = () => {
   display: flex;
   flex-direction: column;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
   position: relative; // 為了讓 top-accent 定位
 
   &:hover {
@@ -135,82 +158,84 @@ const handleReport = () => {
     box-shadow: 0 4px 4px rgba(0, 0, 0, 0.1);
   }
 
-
   .card-content {
-    border-top: 5px solid $highlight-color3 ;
-    padding:16px;
+    border-top: 5px solid $highlight-color3;
+    padding: 16px;
     display: flex;
     flex-direction: column;
     flex-grow: 1;
-    margin-top: 8px; 
+    margin-top: 8px;
 
-  .card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 8px;
-
-    .user-profile {
+    .card-header {
       display: flex;
-      align-items: center;
-      gap: 12px;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 8px;
 
-      .avatar {
-        width: 48px;
-        height: 48px;
-        border-radius: 50%;
-        overflow: hidden;
-        
-        img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
+      .user-profile {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+
+        .avatar {
+          width: 48px;
+          height: 48px;
+          border-radius: 50%;
+          overflow: hidden;
+
+          img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+          }
         }
-      }
 
-      .user-name {
-        font-size: $size-body-l;
-        font-weight: bold;
-        color: $text-color;
-        margin: 0;
-      }
-    }
-
-    .more-menu-container {
-      position: relative; 
-
-      .more-btn {
-        color: $text-color;
-        opacity: 0.7;
-        transition: opacity 0.2s;
-        &:hover { opacity: 1; }
-      }
-
-      .dropdown-menu {
-        position: absolute;
-        top: 100%; // 在按鈕正下方
-        left: -30px;
-        background-color: #fff;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        padding: 4px 0;
-        z-index: 10;
-        min-width: 120px;
-        border: 1px solid #eee;
-
-        .menu-item {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          width: 100%;
-          padding: 8px 16px;
-          background: none;
-          border: none;
-          cursor: pointer;
-          font-size: 14px;
+        .user-name {
+          font-size: $size-body-l;
+          font-weight: bold;
           color: $text-color;
-          text-align: left;
-          transition: background 0.2s;
+          margin: 0;
         }
+      }
+
+      .more-menu-container {
+        position: relative;
+
+        .more-btn {
+          color: $text-color;
+          opacity: 0.7;
+          transition: opacity 0.2s;
+
+          &:hover {
+            opacity: 1;
+          }
+        }
+
+        .dropdown-menu {
+          position: absolute;
+          top: 100%; // 在按鈕正下方
+          left: -30px;
+          background-color: #fff;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+          padding: 4px 0;
+          z-index: 10;
+          min-width: 120px;
+          border: 1px solid #eee;
+
+          .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+            padding: 8px 16px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            color: $text-color;
+            text-align: left;
+            transition: background 0.2s;
+          }
 
           .icon {
             font-size: 18px;
@@ -220,14 +245,18 @@ const handleReport = () => {
           &:hover {
             background-color: $text-white;
             color: $highlight-color2;
-            .icon { color: $highlight-color2; }
+
+            .icon {
+              color: $highlight-color2;
+            }
           }
 
           // 已檢舉狀態
           &.is-active {
             color: $highlight-color2;
-            .icon { 
-              color: $highlight-color2; 
+
+            .icon {
+              color: $highlight-color2;
               font-variation-settings: 'FILL' 1;
             }
           }
@@ -245,7 +274,7 @@ const handleReport = () => {
 
     .star-icon {
       font-size: 24px;
-      color: #E0E0E0;
+      color: #e0e0e0;
       font-variation-settings: 'FILL' 1;
 
       &.filled {
@@ -283,7 +312,7 @@ const handleReport = () => {
   .card-footer {
     display: flex;
     justify-content: flex-end;
-    
+
     .action-group {
       display: flex;
       gap: 16px;
@@ -311,6 +340,7 @@ const handleReport = () => {
       &.like-btn.active {
         color: $highlight-color2;
         opacity: 1;
+
         .material-symbols-outlined {
           font-variation-settings: 'FILL' 1;
         }

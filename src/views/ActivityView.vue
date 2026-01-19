@@ -34,9 +34,12 @@ const fetchAct = async () => {
           status = 'upcoming'
         }
         // console.log(rawData)
+
+        const cleanPath = act.image.startsWith('/') ? act.image.slice(1) : act.image
         return {
           ...act,
-          status: status
+          status: status,
+          image: `${base}${cleanPath}`
         }
       })
     
@@ -223,7 +226,7 @@ watch(currentActivityTab, () => {
   
         <SearchBar @search="handleSearchInput" @filter="handleFilterApply" />
   
-        <div class="col-sm-4 col-md-6 col-lg-4 card-gap" v-for="activity in paginatedActivities" :key="activity.id">
+        <div class="col-sm-4 col-md-6 col-lg-4" v-for="activity in paginatedActivities" :key="activity.id">
           <ActivityCard :event="activity" />
         </div>
   

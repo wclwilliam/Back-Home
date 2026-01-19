@@ -1,5 +1,7 @@
 <script setup>
     import { computed } from 'vue'
+    import { parsePublicFile } from '@/utils/parseFile'
+
     const props = defineProps({
         roleId: {
             type: String,
@@ -21,15 +23,13 @@
 
     const emit = defineEmits(['next'])
 
-    const base = import.meta.env.BASE_URL
-
 const imageMap = {
   baby: 'game/turtle-baby.png',
   teen: 'game/turtle-teen.png',
   adult: 'game/turtle-adult.png',
 }
 
-const imageSrc = computed(() => base + imageMap[props.roleId])
+const imageSrc = computed(() => parsePublicFile(imageMap[props.roleId]))
 
 const title = computed(() => props.node?.[`${props.roleId}_title`] ?? '')
 
