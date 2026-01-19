@@ -8,7 +8,7 @@
     const login = () => {
         userStore.log(account.value, password.value)
     }
-    
+    import Button from '@/components/auth/Button.vue';
 
 </script>
 

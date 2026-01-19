@@ -36,10 +36,10 @@
     </script>
 
     <style lang="scss" scoped>
-    @import "@/assets/scss/base/_var.scss";
+    @import "@/assets/scss/base/_color.scss";
 
     .membership-content {
-    padding: 0 $desktop-margin; // 使用你定義的 240px 邊距
+    //padding: 0 $desktop-margin; // 使用你定義的 240px 邊距
     min-height: 500px; // 給內容區一個最小高度，避免頁面跳動
     }
 
