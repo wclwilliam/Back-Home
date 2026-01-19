@@ -141,7 +141,6 @@ const getRankIcon = (index) => {
     background-color: $text-white;
     @include font-body-bold;
 
-
     // 偶數行變色 (Zebra striping)
     &:nth-child(even) {
       background-color: lighten($highlight-color1, 43);
