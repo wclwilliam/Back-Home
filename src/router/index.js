@@ -72,10 +72,10 @@ const router = createRouter({
       component: () => import('@/views/DonationView.vue'),
     },
     {
-      path: '/member',
-      name: 'member',
+      path: '/membership',
+      name: 'membership',
       component: () => import('@/views/MemberShip.vue'),
-      meta: { requiresAuth: true },
+      //meta: { requiresAuth: true },
     },
     {
       path: '/game',
@@ -91,6 +91,11 @@ const router = createRouter({
       meta: {
         title: '我的活動',
       }
+    },
+    {
+      path: '/login',
+      name: 'login',
+      component: () => import('@/views/Login.vue'),
     },
     {
       path: '/product',

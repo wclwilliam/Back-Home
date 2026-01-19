@@ -1,42 +1,51 @@
-<script setup>
-import { computed, ref, onMounted } from 'vue'
-import axios from 'axios'
-
-const memberList = ref([
-    { "id": 1, "title": "Fjallraven - Foldsack No. 1 Backpack, Fits 15 Laptops", "price": 109.95, "description": "Your perfect pack for everyday use and walks in the forest. Stash your laptop (up to 15 inches) in the padded sleeve, your everyday", "category": "men's clothing", "image": "https://fakestoreapi.com/img/81fPKd-2AYL._AC_SL1500_t.png", "rating": { "rate": 3.9, "count": 120 } },
-    { "id": 1, "title": "Fjallraven - Foldsack No. 1 Backpack, Fits 15 Laptops", "price": 109.95, "description": "Your perfect pack for everyday use and walks in the forest. Stash your laptop (up to 15 inches) in the padded sleeve, your everyday", "category": "men's clothing", "image": "https://fakestoreapi.com/img/81fPKd-2AYL._AC_SL1500_t.png", "rating": { "rate": 3.9, "count": 120 } }
-])
-
-//快速計算陣列數量結果
-
-onMounted(() => {
-    axios
-        .get('https://fakestoreapi.com/products')
-        .then((response) => {
-            memberList.value = response.data
-        })
-})
-
-</script>
-
 <template>
-    <main>
-        <h1>個人資料</h1>
-        <RouterLink 
-        v-for="item in memberList"
-        :key="item.id"
-        :to="`/member/${item}`">Member
-        {{ item.id }}
-        {{ item.title }}
-        </RouterLink>
-        
-        
-    </main>
-    
-</template>
+    <div class="membership-page">
+        <Header />
+        <Banner title="會員中心" />
 
-<style scoped>
-    a{
-        display: block;
+        <MemberTabs @update-tab="handleTabChange" />
+
+        <div class="membership-content">
+        <MemberInfoForm v-if="currentTabIndex === 0" />
+        <MemberActivity v-else-if="currentTabIndex === 1" />
+        <MemberDonation v-else-if="currentTabIndex === 2" />
+        <MemberFavorite v-else-if="currentTabIndex === 3" />
+        </div>
+
+        <Footer />
+    </div>
+    </template>
+
+    <script setup>
+    import { ref } from 'vue';
+    import MemberTabs from '@/components/auth/MemberTabs.vue';
+
+    // 引入四個內容元件
+    import MemberInfoForm from '@/components/auth/MemberInfoForm.vue';
+    import MemberActivity from '@/components/auth/MemberActivity.vue';
+    import MemberDonation from '@/components/auth/MemberDonation.vue';
+    import MemberFavorite from '@/components/auth/MemberFavorite.vue';
+
+    // 追蹤當前分頁索引
+    const currentTabIndex = ref(0);
+
+    // 接收從 MemberTabs 傳過來的 index
+    const handleTabChange = (index) => {
+    currentTabIndex.value = index;
+    };
+    </script>
+
+    <style lang="scss" scoped>
+    @import "@/assets/scss/base/_var.scss";
+
+    .membership-content {
+    padding: 0 $desktop-margin; // 使用你定義的 240px 邊距
+    min-height: 500px; // 給內容區一個最小高度，避免頁面跳動
+    }
+
+    @media (max-width: 768px) {
+    .membership-content {
+        padding: 0 $mobile-margin; // 手機版縮小邊距
+    }
     }
 </style>
