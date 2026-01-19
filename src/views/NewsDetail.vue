@@ -6,6 +6,11 @@ import { publicApi } from '@/utils/publicApi'
 const route = useRoute();
 const router = useRouter();
 
+const base = import.meta.env.BASE_URL
+const parsePublicFile = (imgURL) => {
+    return imgURL ? `${base}${imgURL}` : ''
+}
+
 // 資料容器
 const article = ref(null);
 const prevArticle = ref(null);
@@ -89,7 +94,7 @@ const goToArticle = (id) => {
             </div>
 
             <div class="articleImage" v-if="article.image_url">
-                <img :src="article.image_url" :alt="article.title">
+                <img :src="parsePublicFile(article.image_url)" :alt="article.title">
             </div>
 
             <article class="articleBody">
@@ -126,7 +131,7 @@ const goToArticle = (id) => {
 
 <style lang="scss" scoped>
 .newsDetail {
-    background-image: url(../../public/img/News/news-bg.png);
+    background-image:url('/img/News/news-bg.png');
     background-size: cover;
     width: 100%;
     height: auto;

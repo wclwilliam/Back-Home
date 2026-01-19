@@ -11,6 +11,10 @@ import 'swiper/css/pagination';
 const route = useRoute()
 const router = useRouter()
 
+const base = import.meta.env.BASE_URL
+const parsePublicFile = (imgURL) => {
+    return `${base}${imgURL}`
+}
 const turtleId = parseInt(route.params.id)
 
 const turtleInfo = computed(() => {
@@ -51,7 +55,7 @@ onUnmounted(() => {
             <div v-if="isDesktop" class="bubbles-desktop-grid">
 
                 <div class="grid-item-image">
-                    <img :src="turtleInfo.detailImage" :alt="turtleInfo.nameCN" class="mainTurtle-img" />
+                    <img :src="parsePublicFile(turtleInfo.detailImage)" :alt="turtleInfo.nameCN" class="mainTurtle-img" />
                 </div>
 
                 <div class="bubble profile">
@@ -74,7 +78,7 @@ onUnmounted(() => {
 
             <template v-else>
                 <div class="detailImage-container-mobile">
-                    <img :src="turtleInfo.detailImage" :alt="turtleInfo.nameCN" class="mainTurtle-img" />
+                    <img :src="parsePublicFile(turtleInfo.detailImage)" :alt="turtleInfo.nameCN" class="mainTurtle-img" />
                 </div>
 
                 <swiper :modules="modules" :slides-per-view="1" :space-between="20" :centered-slides="true"
@@ -128,7 +132,7 @@ onUnmounted(() => {
     min-height: 100vh;
     background-size: cover;
     background-position: center;
-    background-image: url('../../public/img/GuideView/DetailBg.jpg');
+    background-image: url('/img/GuideView/DetailBg.jpg');
     position: relative;
     color: white;
     padding: 50px;

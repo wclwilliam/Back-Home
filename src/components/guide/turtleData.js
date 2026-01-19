@@ -4,8 +4,8 @@ export const allTurtles = [
     nameCN: '綠蠵龜',
     nameEN: 'Green Turtle',
     type: 'taiwan',
-    img: '/img/GuideView/GreenTurtle.png',
-    detailImage: '/img/GuideView/d-GreenTurtle.png',
+    img: 'img/GuideView/GreenTurtle.png',
+    detailImage: 'img/GuideView/d-GreenTurtle.png',
     profile:
       '台灣是綠蠵龜重要的棲息地之一，主食為海草和大型藻類。是硬殼海龜中體型最大的一種，成龜體長可達 1 公尺以上，體重可超過 100 公斤。',
     habit:
@@ -335,8 +335,8 @@ export const allTurtles = [
     nameCN: '玳瑁',
     nameEN: 'Hawksbill Turtle',
     type: 'taiwan',
-    img: '/img/GuideView/HawksbillTurtle.jpg',
-    detailImage: '/img/GuideView/d-HawksbillTurtle.png',
+    img: 'img/GuideView/HawksbillTurtle.jpg',
+    detailImage: 'img/GuideView/d-HawksbillTurtle.png',
     profile:
       '背甲上的美麗花紋被視為珍貴的裝飾品原料，這種材料被稱為「玳瑁」，也因此得名。體型比綠蠵龜小，成龜體長約 60~80 公分。',
     habit:
@@ -467,8 +467,8 @@ export const allTurtles = [
     nameCN: '赤蠵龜',
     nameEN: 'Loggerhead Turtle',
     type: 'taiwan',
-    img: '/img/GuideView/LoggerheadTurtle.jpg',
-    detailImage: '/img/GuideView/d-LoggerheadTurtle.png',
+    img: 'img/GuideView/LoggerheadTurtle.jpg',
+    detailImage: 'img/GuideView/d-LoggerheadTurtle.png',
     profile:
       '背甲通常呈現紅棕色或紅褐色；體型僅次於綠蠵龜，是世界第二大的硬殼海龜。 頭部比例在所有海龜中是最大的，脖子很粗壯，是個大頭寶寶。',
     habit:
@@ -827,8 +827,8 @@ export const allTurtles = [
     nameCN: '革龜',
     nameEN: 'Leatherback Turtle',
     type: 'taiwan',
-    img: '/img/GuideView/LeatherbackTurtle.png',
-    detailImage: '/img/GuideView/d-LeatherbackTurtle.png',
+    img: 'img/GuideView/LeatherbackTurtle.png',
+    detailImage: 'img/GuideView/d-LeatherbackTurtle.png',
     profile:
       '是世界上唯一「沒有硬殼」的海龜。背部是一層像皮革一樣厚實的皮膚。 是全世界體型最大的海龜，也是最大的爬蟲類之一，體長可超過 2 公尺，體重可達 500~900 公斤!',
     habit:
@@ -1148,8 +1148,8 @@ export const allTurtles = [
     nameCN: '欖蠵龜',
     nameEN: 'Olive Ridley Turtle',
     type: 'taiwan',
-    img: '/img/GuideView/OliveRidleyTurtle.png',
-    detailImage: '/img/GuideView/d-OliveRidleyTurtle.png',
+    img: 'img/GuideView/OliveRidleyTurtle.png',
+    detailImage: 'img/GuideView/d-OliveRidleyTurtle.png',
     profile: '成龜的背甲通常呈現橄欖綠色 。有時也被稱為「麗龜」。',
     habit:
       '集體產卵是欖蠵龜最著名的行為。在繁殖季節，成千上萬隻母龜會在同一時間，湧上同一片沙灘產卵。為不挑食的雜食性，吃螃蟹、蝦子、水母，也會吃藻類。',
@@ -1454,8 +1454,8 @@ export const allTurtles = [
     nameCN: '肯氏龜',
     nameEN: "Kemp's Ridley Turtle",
     type: 'remote',
-    img: '/img/GuideView/RidleyTurtle.png',
-    detailImage: '/img/GuideView/d-RidleyTurtle.png',
+    img: 'img/GuideView/RidleyTurtle.png',
+    detailImage: 'img/GuideView/d-RidleyTurtle.png',
     profile:
       '是世界上體型最小的海龜，比欖蠵龜更小一點點。成龜體長約 60~70 公分，體重很少超過 45 公斤。背甲幾乎是正圓形的，顏色通常呈現灰綠色。',
     habit:
@@ -1538,8 +1538,8 @@ export const allTurtles = [
     nameCN: '平背龜',
     nameEN: 'Flatback Turtle',
     type: 'remote',
-    img: '/img/GuideView/FlatbackTurtle.png',
-    detailImage: '/img/GuideView/d-FlatbackTurtle.png',
+    img: 'img/GuideView/FlatbackTurtle.png',
+    detailImage: 'img/GuideView/d-FlatbackTurtle.png',
     profile:
       '背甲不像其他海龜那樣隆起呈圓頂狀，而是特別扁平 ，所以被稱為平背龜。體型中等，成龜體長約 90 公分，介於綠蠵龜與玳瑁之間。',
     habit:
