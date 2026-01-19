@@ -40,9 +40,6 @@ const exportToPDF = async () => {
 }
 
 const now = new Date();
-console.log(now.getDate());
-console.log(now.getFullYear());
-console.log(now.getMonth()+1);
 
 
 const flowNum = computed(() =>{

@@ -7,7 +7,7 @@
     import AnimationNumber from "@/components/donation/AnimationNumber.vue";
     import CleanChart from "@/components/donation/CleanChart.vue";
     import {  ref, onMounted, computed, onUnmounted } from 'vue';
-    import axios from 'axios';
+    import { publicApi } from "@/utils/publicApi";
     import { gsap } from 'gsap';
     import { ScrollTrigger } from 'gsap/ScrollTrigger';
     import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
@@ -61,17 +61,24 @@
     const selectedYear = ref('');
     const impactReports =ref([])
     
-    onMounted( async () => {
-    try {
-        const base = import.meta.env.BASE_URL
-        const response = await axios.get(base + 'data/impactReports.json')
-        impactReports.value = response.data
-        //進頁面給值
-        selectedYear.value = impactReports.value[0].year
+    // onMounted( async () => {
+    // try {
+    //     const base = import.meta.env.BASE_URL
+    //     const response = await axios.get(base + 'data/impactReports.json')
+    //     impactReports.value = response.data
+    //     //進頁面給值
+    //     selectedYear.value = impactReports.value[0].year
         
-    }catch (error){
-        console.log(error)
-    }
+    // }catch (error){
+    //     console.log(error)
+    // }
+    // })
+    onMounted(() => {
+        publicApi.get('data/impactReports.json').then((response) => {
+            impactReports.value = response.data
+            //進頁面給值
+            selectedYear.value = impactReports.value[0].year
+        })
     })
 
     const currentData = computed(() => {
@@ -304,6 +311,15 @@
                         background-position: right 10px center; /* 定位在右側中間 */
                         background-size: 12px;
                         padding-right: 24px; /* 預留空間給箭頭 */
+                        @media (768px<=width<1000px) {
+                            padding-right: 12px;
+                            background-position: right 0px center;
+                            font-size: $m-size-tertiary;
+                        }
+                        @media (width<430px) {
+                            padding-right: 12px;
+                            background-position: right 0px center;
+                        }
                     }
                     button {
                         width: 50%;

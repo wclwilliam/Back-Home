@@ -572,7 +572,6 @@ const goDonate = () => {
 .error-msg {
   @include font-body;
   color: $highlight-color2;
-  margin-top: 5px;
   display: flex;
   align-items: center;
   gap: 4px;
@@ -618,7 +617,7 @@ const goDonate = () => {
     "tag tag"
     "amount back";
   row-gap: 4px;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
   @media (width<390px) {
     grid-template-areas: 
     "tag back"
@@ -674,7 +673,7 @@ const goDonate = () => {
   margin-bottom: 20px;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 20px;
   @media (width<=768px){
     gap: 12px;
   }
@@ -747,24 +746,24 @@ const goDonate = () => {
   .success-title { 
     @include font-secondary;
     color: $primary-color; 
-    margin-bottom: 32px; 
+    margin-bottom: 16px; 
   }
   .success-desc { 
     text-align: left; 
     @include font-body;
-    margin-bottom: 24px; }
+    margin-bottom: 8px; }
 }
 
 .info-card {
   text-align: left;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
   .card-title { 
     @include font-tertiary; 
-    margin-bottom: 10px; 
+    margin-bottom: 8px; 
   }
   p { 
     @include font-body;
-    margin: 10px 0; 
+    margin: 8px 0; 
     strong {
       @include font-body-bold;
     }
@@ -776,7 +775,7 @@ const goDonate = () => {
 
 .photo-box {
   position: relative;
-  margin-bottom: 25px;
+  margin-bottom: 20px;
   img { width: 100%; display: block; }
   .caption {
     position: absolute;
@@ -785,7 +784,7 @@ const goDonate = () => {
     background: rgba(0, 0, 0, 0.4);
     @include font-body-l;
     color: #fff;
-    padding: 5px 0;
+    padding: 2px 0;
   }
 }
 </style>
