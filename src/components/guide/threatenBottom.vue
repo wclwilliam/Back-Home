@@ -39,7 +39,7 @@ const modules = [Pagination];
   <LightboxModal :isOpen="isModalOpen" :item="currentItem" @close="isModalOpen = false" />
 
   <div class="mobileFlexCard">
-    <swiper :modules="modules" :slides-per-view="1.2" :space-between="20" :centered-slides="true"
+    <swiper :modules="modules" :slides-per-view="1" :space-between="20"
       :pagination="{ clickable: true }">
       <swiper-slide v-for="item in cardData" :key="item.id">
         <div class="mobileCard">
@@ -127,7 +127,8 @@ const modules = [Pagination];
 .mobileFlexCard {
   display: none;
   width: 100%;
-  padding: 60px 0;
+  padding: 60px 20px;
+  box-sizing: border-box;
 
   :deep(.swiper) {
     padding-bottom: 40px;
@@ -142,9 +143,15 @@ const modules = [Pagination];
   }
 
   .mobileCard {
-    height: 450px;
+    height: 500px;
     background: $card-color;
+    width: 80%;
     overflow: hidden;
+    margin: auto;
+    @media(max-width:600px){
+         width: 100%;
+         height: 600px;
+    }
 
     .cardImage {
       width: 100%;
