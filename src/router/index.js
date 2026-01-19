@@ -60,7 +60,7 @@ const router = createRouter({
       name: 'activity',
       component: () => import('@/views/ActivityView.vue'),
       meta: {
-        tilte:'志工活動'
+        tilte: '志工活動'
       }
     },
     {
@@ -120,11 +120,19 @@ const router = createRouter({
       component: () => import('@/views/ProductInfoView.vue'),
     },
     {
+      path: '/test-lightbox',
+      name: 'testLightbox',
+      component: () => import('@/views/TestLightbox.vue'),
+      meta: {
+        title: 'Lightbox 測試',
+      },
+    },
+    {
       path: '/:pathMatch(.*)*',
       component: () => import('@/views/NotFound.vue'),
     }
   ],
-  
+
 })
 
 // router.beforeEach(async (to, from) => {
