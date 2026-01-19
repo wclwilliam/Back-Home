@@ -6,6 +6,7 @@ import GameEnterCard from '@/components/Game/GameEnterCard.vue'
 import GameActionCard from '@/components/Game/GameActionCard.vue'
 import GameBackground from '@/components/Game/GameBackground.vue'
 import { useHealthStore } from '@/stores/health'
+import { publicApi, base } from '@/utils/publicApi.js'
 
 const healthStore = useHealthStore()  
 const applyHealth = (healthChange) => {
@@ -15,8 +16,7 @@ const applyHealth = (healthChange) => {
 const gameData = ref(null)
 const fetchGameData = async () => {
   try {
-    const base = import.meta.env.BASE_URL
-    const response = await axios.get(base + 'data/game.json')
+    const response = await publicApi.get('data/game.json')
     gameData.value = response.data
   }catch (error){
     console.log(error)
