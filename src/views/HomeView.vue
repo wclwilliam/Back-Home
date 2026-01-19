@@ -10,9 +10,31 @@ import IndexSeaTurtle from '@/components/home/SeaTurtle.vue'
   <h1>首頁</h1>
   <IndexBanner />
   <IndexHazardous />
-  <IndexSavedChart />
+  <div class="savedChart">
+    <h2>我們已經幫助了......</h2>
+    <IndexSavedChart />
+  </div>
   <IndexSavedCases />
-  <IndexNews />
+  <div class="news">
+    <h2>最新消息</h2>
+    <IndexNews />
+  </div>
   <IndexSeaTurtle />
 </template>
-<script lang="scss" scoped></script>
+<style lang="scss" scoped>
+.savedChart {
+  margin-top: 5.5rem;
+}
+
+.news {
+  margin-top: 5.5rem;
+}
+
+h2 {
+  @include font-secondary;
+  width: 100%;
+  text-align: center;
+  display: block;
+  margin-bottom: 3.5rem;
+}
+</style>

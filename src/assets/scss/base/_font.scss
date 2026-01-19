@@ -21,30 +21,6 @@ $size-quaternary: rem(20px);
 $size-body-l: rem(18px);
 $size-body: rem(16px);
 
+$font-main: 'ChFont', "Microsoft JhengHei", "PingFang TC", sans-serif;
 
-//英文字型
-@font-face {
-  font-family: 'EnFont';
-  src: url('../../fonts/arvo-v23-latin-regular.woff2');
-  font-weight: 400;
-  font-display: swap;
-}
-
-// 中文字型 
-@font-face {
-  font-family: 'ChFont';
-  src: url('../../fonts/noto-sans-tc-v38-latin-regular.woff2')format('woff2');
-  font-weight: 400;
-  font-display: swap;
-}
-
-$font-main: 'EnFont', 'ChFont', "Microsoft JhengHei", "PingFang TC", sans-serif;
-
-// 將字體變數轉換為 CSS 變數
-:root {
-  --font-main: #{$font-main};
-}
-
-html {
-  font-family: $font-main;
-}
+//'EnFont', 暫時先搬過來不用

@@ -2,6 +2,12 @@
 import { computed } from 'vue'
 import { allTurtles } from '@/components/guide/turtleData'
 
+
+const base = import.meta.env.BASE_URL
+const parsePublicFile = (imgURL) => {
+    return `${base}${imgURL}`
+}
+
 const turtleSections = computed(() => {
     return [
         {
@@ -31,7 +37,7 @@ const turtleSections = computed(() => {
                         <router-link :to="`/guide/${turtle.id}`" class="card-link-wrapper">             
                             <div class="cardContainer newsCard">
                                 <div class="cardPic">
-                                    <img :src="turtle.img" :alt="turtle.nameCN" />
+                                    <img :src="parsePublicFile(turtle.img)" :alt="turtle.nameCN" />
                                 </div>
                                 
                                 <div class="cardInfo">
@@ -97,7 +103,7 @@ const turtleSections = computed(() => {
 
   
   &:hover:before {
-    transform: scale(25); /* 擴散倍率 */
+    transform: scale(25); 
   }
 
   
@@ -111,7 +117,7 @@ const turtleSections = computed(() => {
       color: $secondary-color; 
       display: -webkit-box;
       -webkit-box-orient: vertical;
-      -webkit-line-clamp: 2;
+      //-webkit-line-clamp: 2;
       overflow: hidden;
       text-align: center;
     

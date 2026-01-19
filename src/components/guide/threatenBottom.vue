@@ -7,7 +7,10 @@ import { Pagination } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/pagination';
 
-
+const base = import.meta.env.BASE_URL
+const parsePublicFile = (imgURL) => {
+  return `${base}${imgURL}`
+}
 const isModalOpen = ref(false);
 const currentItem = ref({});
 
@@ -24,8 +27,7 @@ const modules = [Pagination];
 <template>
   <section class="desktopFlexCard container">
     <div v-for="item in cardData" :key="item.id" class="bottomcard" @click="openModal(item)">
-      <img :src="item.image">
-
+       <img :src="parsePublicFile(item.image)" :alt="item.title">
       <div class="overlay">
         <div class="overlayContent">
           <h3>{{ item.title }}</h3>
@@ -42,7 +44,7 @@ const modules = [Pagination];
       <swiper-slide v-for="item in cardData" :key="item.id">
         <div class="mobileCard">
           <div class="cardImage">
-            <img :src="item.image" :alt="item.title">
+            <img :src="parsePublicFile(item.image)" :alt="item.title">
           </div>
           <div class="cardContent">
             <h3>{{ item.modalTitle }}</h3>
@@ -132,11 +134,11 @@ const modules = [Pagination];
   }
 
   :deep(.swiper-pagination) {
-    bottom: 0 ;
+    bottom: 0;
   }
 
   :deep(.swiper-pagination-bullet-active) {
-    background-color: $primary-color; 
+    background-color: $primary-color;
   }
 
   .mobileCard {

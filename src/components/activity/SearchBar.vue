@@ -4,28 +4,50 @@ import { ref, reactive, computed } from 'vue';
 import { VueDatePicker } from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css'
 
-// 定義對外發送的事件
-const emit = defineEmits(['search', 'filter']);
 
-// 篩選功能
+//定義動作
+const emit = defineEmits(['search', 'filter'])
+//篩選器預設關閉
 const isFilterOpen = ref(false);
-
+//篩選器項目
 const filterOptions = {
   topics: ['淨灘', '巡守', '照護'],
   locations: ['北部', '中部', '南部', '東部', '離島'],
   times: ['本月', '下個月']
 }
-// 使用者選取的狀態
-const selectedFilters = reactive({
+//使用者選擇的項目
+const userOptions = reactive({
   topics: [],
   locations: [],
   times: [],
-  dateRange: null // 2. 新增一個欄位存日期區間
+  dateRange: null
 })
+
+//選取與取消選取
+const toggleOption = (category, value) => {
+  const chooseList = userOptions[category]
+  const index = chooseList.indexOf(value)
+
+  if (category === 'times') {
+    userOptions.dateRange = null;
+  }
+  if (index === -1) {
+    chooseList.push(value)
+  }
+  else {
+    chooseList.splice(index, 1)
+  }
+}
+//如選自訂日期，清空其他時間
+const dateChange = (date) => {
+  if (date) {
+    userOptions.times = []
+  }
+}
 
 
 const dateButtonText = computed(() => {
-  const dates = selectedFilters.dateRange
+  const dates = userOptions.dateRange
 
   // 檢查是否有選取日期 (必須是陣列且有兩個值)
   if (Array.isArray(dates) && dates[0] && dates[1]) {
@@ -45,48 +67,24 @@ const dateButtonText = computed(() => {
   return '自訂日期範圍'
 })
 
-//選了自訂日期，就不能選其他時間
-const toggleOption = (category, value) => {
-  const list = selectedFilters[category]
-  const index = list.indexOf(value)
-
-  if (category === 'times') {
-    // 如果點了「本月」或「下個月」，要清空「自訂日期」
-    selectedFilters.dateRange = null
-  }
-
-  if (index === -1) {
-    list.push(value)
-  } else {
-    list.splice(index, 1)
-  }
-}
-
-// 當日期改變時
-const onDateChange = (val) => {
-  if (val) {
-    // 如果選了日期，要清空「本月/下個月」的選項 
-    selectedFilters.times = []
-  }
-}
-
 //關鍵字搜索
 const searchQuery = ref('');
 const handleSearch = () => {
   emit('search', searchQuery.value)
 }
-
-const resetFilter = () => {
-  selectedFilters.topics = []
-  selectedFilters.locations = []
-  selectedFilters.times = []
-  selectedFilters.dateRange = null
-}
-
+//確認篩選項目
 const confirmFilter = () => {
   // 發送拷貝的資料給父層，避免後續修改影響
-  emit('filter', JSON.parse(JSON.stringify(selectedFilters)))
-  isFilterOpen.value = false // 關閉選單
+  emit('filter', JSON.parse(JSON.stringify(userOptions)))
+  isFilterOpen.value = false
+}
+
+//清除篩選項目
+const resetFilter = () => {
+  userOptions.topics = []
+  userOptions.locations = []
+  userOptions.times = []
+  userOptions.dateRange = null
 }
 
 </script>
@@ -94,10 +92,15 @@ const confirmFilter = () => {
   <div class="searchBar col-sm-4 col-md-12 col-lg-12">
     <div class="search-section  col-md-6">
       <div class="search-input ">
-        <span class="material-symbols-outlined search-icon-desktop" @click="handleSearch">search</span>
-        <input type="text" v-model="searchQuery" class="keywordSearch" placeholder="搜尋活動關鍵字..."
-          @keyup.enter="handleSearch">
   
+        <input 
+          type="text" 
+          v-model="searchQuery" 
+          class="keywordSearch" 
+          placeholder="搜尋活動關鍵字..."
+          @keyup.enter="handleSearch"
+        >
+        <span class="material-symbols-outlined search-icon-desktop" @click="handleSearch">search</span>
       </div>
       <button class="mobile-search-btn btn-outline btn" @click="handleSearch ">搜尋</button>
     </div>
@@ -111,30 +114,47 @@ const confirmFilter = () => {
         <div class="filter-row">
           <span class="label col-sm-1">主題</span>
           <div class="option col-sm-3">
-            <span v-for="topic in filterOptions.topics" :key="topic" class="tag"
-              :class="{'is-selected': selectedFilters.topics.includes(topic)}" @click="toggleOption('topics', topic)">{{
-              topic }}</span>
+            <span 
+              v-for="topic in filterOptions.topics" :key="topic" 
+              class="tag"
+              :class="{'is-selected': userOptions.topics.includes(topic)}" 
+              @click="toggleOption('topics', topic)"
+            >
+              {{topic }}
+            </span>
           </div>
         </div>
         <div class="filter-row">
           <span class="label col-sm-1">地點</span>
           <div class="option col-sm-3">
-            <span v-for="location in filterOptions.locations" :key="location" class="tag"
-              :class="{'is-selected': selectedFilters.locations.includes(location)}"
-              @click="toggleOption('locations', location)">{{ location }}</span>
+            <span 
+              v-for="location in filterOptions.locations" 
+              :key="location" 
+              class="tag"
+              :class="{'is-selected': userOptions.locations.includes(location)}"
+              @click="toggleOption('locations', location)">
+                {{ location }}
+              </span>
           </div>
         </div>
         <div class="filter-row">
           <span class="label col-sm-1">時間</span>
           <div class="option col-sm-3">
-            <span v-for="time in filterOptions.times" :key="time" class="tag"
-              :class="{'is-selected': selectedFilters.times.includes(time)}" @click="toggleOption('times', time)">{{ time
-              }}</span>
+            <span 
+              v-for="time in filterOptions.times" :key="time" 
+              class="tag"
+              :class="{'is-selected': userOptions.times.includes(time)}" @click="toggleOption('times', time)">
+                {{ time}}
+              </span>
   
-            <vueDatePicker v-model="selectedFilters.dateRange" range :enable-time-picker="false" auto-apply
-              :partial-range="false" teleport="body" @update:model-value="onDateChange" class="custom-date-picker">
+            <vueDatePicker 
+              v-model="userOptions.dateRange" 
+              range 
+              :enable-time-picker="false" 
+              auto-apply
+              :partial-range="false" teleport="body" @update:model-value="dateChange" class="custom-date-picker">
               <template #trigger>
-                <span class="tag" :class="{'is-selected' : selectedFilters.dateRange}">
+                <span class="tag" :class="{'is-selected' : userOptions.dateRange}">
                   {{ dateButtonText }}
                 </span>
               </template>
@@ -144,8 +164,8 @@ const confirmFilter = () => {
         </div>
   
         <div class="filter-actions col-sm-4">
-          <button class="btn-confirm btn btn-xl btn-solid" @click="confirmFilter">確認篩選</button>
-          <button class="btn-reset btn btn-xl btn-outline" @click="resetFilter">清除重設</button>
+          <button class="btn-confirm btn btn-solid " @click="confirmFilter">確認篩選</button>
+          <button class="btn-reset btn btn-outline " @click="resetFilter">清除重設</button>
         </div>
       </div>
     </div>
@@ -249,12 +269,16 @@ const confirmFilter = () => {
           }
 
           .custom-date-picker {
-
-            // 確保 trigger 區域也是 pointer
-            :deep(.dp__pointer) {
-              border: none;
-              padding: 0;
+            width: fit-content;
+            .tag {
+              display: inline-block;
+              height: max-content;
             }
+            
+            // :deep(.dp__pointer) {
+            //   border: none;
+            //   padding: 0;
+            // }
           }
         }
 
@@ -273,18 +297,17 @@ const confirmFilter = () => {
           pointer-events: none;
           overflow: hidden;
         }
-
-        .filter-actions {
+      }
+      .filter-actions {
           display: flex;
-          gap: 10px;
           margin-top: 20px;
           justify-content: space-around;
 
-          button{
+          button.btn {
             flex: 1;
+            width: 50% !important;
           }
         }
-      }
     }
   }
 }
@@ -325,7 +348,6 @@ const confirmFilter = () => {
 
     .filterList {
       min-width: 500px;
-      /* 桌機版下拉寬度 */
       max-width: none;
     }
   }
