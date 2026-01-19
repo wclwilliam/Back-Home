@@ -32,7 +32,7 @@ $btn-orange: #E04925;
 .btn-outline-white {
     background-color: transparent;
     color: #ffffff;
-    border-color:#ffffff;
+    border-color: #ffffff;
 
     &:hover {
         background-color: transparent;
@@ -40,6 +40,20 @@ $btn-orange: #E04925;
         border-color: $btn-orange;
     }
 }
+
+// 白邊框按鈕 hover實心
+.btn-outline-white-solid {
+    background-color: transparent;
+    color: #ffffff;
+    border-color: #ffffff;
+
+    &:hover {
+        background-color: $btn-orange;
+        color: #ffffff;
+        border-color: $btn-orange;
+    }
+}
+
 
 //邊框按鈕白底色
 .btn-outline-game {
@@ -89,5 +103,3 @@ $btn-orange: #E04925;
     padding: 20px 40px;
     font-size: $d-size-tertiary;
 }
-
-

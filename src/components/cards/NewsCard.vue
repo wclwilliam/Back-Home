@@ -3,18 +3,22 @@
 import { computed, ref, onMounted } from 'vue'
 const props = defineProps({
   id: { type: Number, required: true },
-  image: {type: String , default: 'https://picsum.photos/300/200'},
+  image: { type: String, default: '/img/default-placeholder.png' },
   title: { type: String, required: true },
   typeBadge: { type: String, required: true },
   date: { type: String, required: true }
 });
 
+const base = import.meta.env.BASE_URL
+const parsePublicFile = (imgURL) => {
+    return imgURL ? `${base}${imgURL}` : ''
+}
 </script>
 <template>
   <div class="col-sm-4 col-md-6 col-lg-4">
     <div class="cardContainer newsCard">
       <div class="cardPic">
-        <img :src="image">
+         <img :src="parsePublicFile(image)" :alt="title">
       </div>
       <div class="cardInfo">
         <div class="rowInfo metaRow">

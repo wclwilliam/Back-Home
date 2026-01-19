@@ -1,17 +1,25 @@
-<script>
-
+<script setup>
+defineProps(['modelValue']);
+defineEmits(['update:modelValue', 'search']);
 </script>
 
 <template>
     <div class="searchBox">
-        <input type="text" placeholder="請輸入關鍵字...">
-        <button class="searchIcon">
+       <input 
+      type="text" 
+      :value="modelValue"
+      @input="$emit('update:modelValue', $event.target.value)"
+      
+      @keyup.enter="$emit('search')"
+      
+      placeholder="請輸入關鍵字..."
+    />
+        <button class="searchIcon" @click="$emit('search')">
             <span class="material-symbols-outlined ">
                 Search
             </span>
         </button>
     </div>
-
 </template>
 
 <style lang="scss">
