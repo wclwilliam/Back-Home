@@ -64,11 +64,12 @@ const chartData =computed(()=>{
         props.data.unclassifiable_waste],
       // 邊框寬度
       borderWidth: 1,
-      radius: '70%' // 預設 100%
+      radius: '70%' ,// 預設 100%
     }
   ]}
   
 }) 
+
 
 // 定義圖表的配置選項
 const chartOptions = {
@@ -78,7 +79,7 @@ const chartOptions = {
   maintainAspectRatio: false,
   layout: {
     padding: {
-      right: 80   // Pie 與右側 legend 的距離
+      right: 60   // Pie 與右側 legend 的距離
     }
   },
   plugins: {
@@ -105,7 +106,7 @@ const chartOptions = {
         weight: 'bold' // 標題加粗
       },
       padding: {
-        bottom: 30 // 標題與圖表之間的距離
+        bottom: 30, // 標題與圖表之間的距離
       }
     },
     // 滑鼠移入時顯示的提示框

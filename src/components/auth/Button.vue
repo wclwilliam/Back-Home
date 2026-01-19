@@ -20,7 +20,8 @@ defineProps({
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: rem(6px) rem(24px);
+    height: rem(48px);
+    padding: 0 rem(24px);
     font-size: rem(16px);
     border-radius: 0; // 直角
     cursor: pointer;

@@ -3,6 +3,7 @@ import IndexBanner from '@/components/home/Banner.vue'
 import IndexHazardous from '@/components/home/Hazardous.vue'
 import IndexSavedChart from '@/components/home/SavedChart.vue'
 import IndexSavedCases from '@/components/home/SavedCases.vue'
+import IndexVolunteer from '@/components/home/BecomeVolunteer.vue'
 import IndexNews from '@/components/home/News.vue'
 import IndexSeaTurtle from '@/components/home/SeaTurtle.vue'
 </script>
@@ -15,6 +16,9 @@ import IndexSeaTurtle from '@/components/home/SeaTurtle.vue'
     <IndexSavedChart />
   </div>
   <IndexSavedCases />
+  <div class="volunteer">
+    <IndexVolunteer />
+  </div>
   <div class="news">
     <h2>最新消息</h2>
     <IndexNews />
@@ -23,6 +27,10 @@ import IndexSeaTurtle from '@/components/home/SeaTurtle.vue'
 </template>
 <style lang="scss" scoped>
 .savedChart {
+  margin-top: 5.5rem;
+}
+
+.volunteer {
   margin-top: 5.5rem;
 }
 
