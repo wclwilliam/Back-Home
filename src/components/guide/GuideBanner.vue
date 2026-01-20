@@ -71,7 +71,7 @@ const guideMap = () => {
     }
 }
 
-.btn {
+.btn-xl {
     width: 300px;
     border-radius: 50px;
 
