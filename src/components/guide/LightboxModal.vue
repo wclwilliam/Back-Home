@@ -73,9 +73,8 @@ const parsePublicFile = (imgURL) => {
 
 .modalCard {
   background: $card-color;
-  width: 100%;
-  max-width: 85%;
-  max-height: 70vh;
+  width: 70%;
+  height: 60vh;
   border-radius: 12px;
   position: relative;
   display: flex;
