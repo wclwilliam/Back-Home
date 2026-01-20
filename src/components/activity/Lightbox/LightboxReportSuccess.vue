@@ -1,5 +1,5 @@
 <script setup>
-import Button from '../auth/Button.vue'
+import Button from '../../auth/Button.vue'
 
 defineProps({
   modelValue: Boolean, // 控制顯示隱藏
@@ -20,11 +20,10 @@ defineEmits(['update:modelValue'])
           <button class="close-btn" @click="$emit('update:modelValue', false)">✕</button>
 
           <div class="lightbox-main">
-            <h2 class="title">確認送出留言？</h2>
+            <h2 class="title">已送出檢舉</h2>
 
             <div class="actions">
-              <Button variant="primary" @click="$emit('update:modelValue', false)">確認送出</Button>
-              <Button variant="outline" @click="$emit('update:modelValue', false)">返回修改</Button>
+              <Button variant="primary" @click="$emit('update:modelValue', false)">關閉</Button>
             </div>
           </div>
         </div>
@@ -54,7 +53,7 @@ defineEmits(['update:modelValue'])
   border: 1px solid $primary-color;
   width: rem(800px);
   max-width: 90vw;
-  padding: rem(50px) rem(40px);
+  padding: rem(50px) rem(60px);
   position: relative;
   text-align: center;
 }
@@ -63,7 +62,7 @@ defineEmits(['update:modelValue'])
   font-size: rem(26px);
   color: $primary-color;
   font-weight: bold;
-  margin-bottom: rem(68px);
+  margin-bottom: rem(48px);
 }
 
 .actions {
@@ -90,5 +89,15 @@ defineEmits(['update:modelValue'])
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+// 手機版 RWD
+@media screen and (max-width: 767px) {
+  .lightbox-content {
+    width: 90vw;
+    padding: rem(50px) rem(20px);
+    max-height: 70vh;
+    overflow-y: auto;
+  }
 }
 </style>

@@ -26,7 +26,7 @@ defineProps({
     border-radius: 0; // 直角
     cursor: pointer;
     transition: all 0.2s ease;
-    font-weight: 500;
+    font-weight: 700;
     
     // 1. 有背景的按鈕 
     &.primary {
@@ -43,7 +43,7 @@ defineProps({
     // 2. 沒有背景的按鈕 
     &.outline {
         background-color: transparent; // 維持沒背景
-        border: 1px solid $secondary-color;
+        border: 2px solid $secondary-color;
         color: $secondary-color;
 
         &:hover {

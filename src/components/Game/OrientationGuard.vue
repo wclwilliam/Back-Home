@@ -1,44 +1,72 @@
 <script setup>
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
-/* 判斷是否為手機裝置 */
+/**
+ * 判斷是否為手機裝置
+ * - pointer: coarse：觸控裝置
+ * - max-width: 820：你專案的手機/小平板門檻
+ */
 const isMobileDevice = () => {
   const coarse = window.matchMedia?.('(pointer: coarse)').matches ?? false
-  const smallWidth = window.innerWidth <= 820
+  const smallWidth = window.matchMedia?.('(max-width: 820px)').matches ?? window.innerWidth <= 820
   return coarse && smallWidth
 }
 
-const isLandscape = () => window.innerWidth > window.innerHeight
-
 const mobile = ref(false)
-const landscape = ref(true)
+const portrait = ref(false)
+
+let mqlPortrait = null
+let mqlMobile = null
 
 const update = () => {
   mobile.value = isMobileDevice()
-  landscape.value = isLandscape()
+  portrait.value = mqlPortrait ? mqlPortrait.matches : window.innerHeight >= window.innerWidth
+  updateBodyScroll()
+}
+
+const updateBodyScroll = () => {
+  // 手機直向時隱藏滾動條
+  if (mobile.value && portrait.value) {
+    document.documentElement.style.overflow = 'hidden'
+    document.body.style.overflow = 'hidden'
+  } else {
+    document.documentElement.style.overflow = ''
+    document.body.style.overflow = ''
+  }
 }
 
 onMounted(() => {
+  mqlPortrait = window.matchMedia('(orientation: portrait)')
+  mqlMobile = window.matchMedia('(max-width: 820px)')
+
   update()
-  window.addEventListener('resize', update, { passive: true })
-  window.addEventListener('orientationchange', update, { passive: true })
+
+  // 只監聽真正會變的狀態
+  mqlPortrait.addEventListener('change', update)
+  mqlMobile.addEventListener('change', update)
 })
 
 onBeforeUnmount(() => {
-  window.removeEventListener('resize', update)
-  window.removeEventListener('orientationchange', update)
+  if (mqlPortrait) mqlPortrait.removeEventListener('change', update)
+  if (mqlMobile) mqlMobile.removeEventListener('change', update)
+  mqlPortrait = null
+  mqlMobile = null
+
+  // 卸載時恢復滾動
+  document.documentElement.style.overflow = ''
+  document.body.style.overflow = ''
 })
 
 /* 手機 + 直向 → 顯示遮罩 */
-const showGate = computed(() => mobile.value && !landscape.value)
+const showGate = computed(() => mobile.value && portrait.value)
+
+watch(showGate, (v) => console.log('showGate', v, window.innerWidth, window.innerHeight), { immediate: true })
 </script>
 
 <template>
   <div class="orientation-guard">
-    <!-- 遊戲內容 -->
     <slot />
 
-    <!-- 手機直向提示畫面 -->
     <div v-if="showGate" class="portrait-gate">
       <div class="bg" />
 
@@ -49,7 +77,7 @@ const showGate = computed(() => mobile.value && !landscape.value)
         </div>
 
         <h2>請將手機旋轉為橫向</h2>
-        <p>本遊戲僅支援橫向模式，轉過來就可以下海冒險囉 🐢🌊</p>
+        <p>本遊戲僅支援橫向模式，轉過來就可以開始旅程囉！</p>
       </div>
     </div>
   </div>
@@ -58,7 +86,8 @@ const showGate = computed(() => mobile.value && !landscape.value)
 <style lang="scss" scoped>
 .orientation-guard {
   position: relative;
-  min-height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
 }
 
 /* 遮罩 */
@@ -75,12 +104,10 @@ const showGate = computed(() => mobile.value && !landscape.value)
 .bg {
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    180deg,
-    #02283d 0%,
-    #011d2d 50%,
-    #001523 100%
-  );
+  background-image: url('/game-img/wave.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 /* 內容 */
@@ -89,13 +116,14 @@ const showGate = computed(() => mobile.value && !landscape.value)
   padding: 20px 18px;
   width: min(90vw, 420px);
   text-align: center;
-  color: rgba(255, 255, 255, 0.92);
+  color: rgba(255, 255, 255, 0.92) !important;
 
   background: rgba(255, 255, 255, 0.12);
   border: 1px solid rgba(255, 255, 255, 0.18);
   border-radius: 18px;
   backdrop-filter: blur(10px);
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+  @include font-caption;
 }
 
 .phone-icon {
@@ -126,10 +154,12 @@ const showGate = computed(() => mobile.value && !landscape.value)
     transform: scale(1);
     opacity: 0.8;
   }
+
   50% {
     transform: scale(1.1);
     opacity: 1;
   }
+
   100% {
     transform: scale(1);
     opacity: 0.8;

@@ -1,11 +1,11 @@
 <script setup>
-import Button from '../auth/Button.vue'
+import Button from '../../auth/Button.vue'
 
 defineProps({
   modelValue: Boolean, // 控制顯示隱藏
 })
 
-defineEmits(['update:modelValue'])
+defineEmits(['update:modelValue', 'confirm'])
 </script>
 
 <template>
@@ -20,16 +20,11 @@ defineEmits(['update:modelValue'])
           <button class="close-btn" @click="$emit('update:modelValue', false)">✕</button>
 
           <div class="lightbox-main">
-            <h2 class="title">恭喜您報名完成！</h2>
-
-            <p class="message">
-              您可前往<router-link to="/member/:id" class="link">會員中心</router-link
-              >查看報名詳情，或是點選<router-link to="/activity" class="link">此處</router-link
-              >報名更多其他活動
-            </p>
+            <h2 class="title">確認檢舉留言？</h2>
 
             <div class="actions">
-              <Button variant="primary" @click="$emit('update:modelValue', false)">關閉</Button>
+              <Button variant="primary" @click="$emit('confirm')">確認</Button>
+              <Button variant="outline" @click="$emit('update:modelValue', false)">取消</Button>
             </div>
           </div>
         </div>
@@ -59,7 +54,7 @@ defineEmits(['update:modelValue'])
   border: 1px solid $primary-color;
   width: rem(800px);
   max-width: 90vw;
-  padding: rem(50px) rem(40px);
+  padding: rem(50px) rem(60px);
   position: relative;
   text-align: center;
 }
@@ -68,31 +63,13 @@ defineEmits(['update:modelValue'])
   font-size: rem(26px);
   color: $primary-color;
   font-weight: bold;
-  margin-bottom: rem(68px);
-}
-
-.message {
-  @include font-body-l;
-  color: $text-color;
-  line-height: 1.8;
-  margin-bottom: rem(50px);
-  padding: 0 rem(20px);
-
-  .link {
-    color: $text-color;
-    font-weight: 700;
-    text-decoration: underline;
-    transition: color 0.3s;
-
-    &:hover {
-      color: $highlight-color2;
-    }
-  }
+  margin-bottom: rem(48px);
 }
 
 .actions {
   display: flex;
   justify-content: center;
+  gap: rem(20px);
 }
 
 .close-btn {
@@ -113,5 +90,19 @@ defineEmits(['update:modelValue'])
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+// 手機版 RWD
+@media screen and (max-width: 767px) {
+  .lightbox-content {
+    width: 90vw;
+    padding: rem(50px) rem(20px);
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+
+  .actions {
+    gap: rem(12px);
+  }
 }
 </style>
