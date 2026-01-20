@@ -18,9 +18,9 @@ const { text, roleId } = defineProps({
 })
 
 const roleTurtleMap = {
-  baby: 'game/turtle-baby.png',
-  teen: 'game/turtle-teen-swim.png',
-  adult: 'game/turtle-adult-swim.png',
+  baby: 'game-img/turtle-baby.png',
+  teen: 'game-img/turtle-teen-swim.png',
+  adult: 'game-img/turtle-adult-swim.png',
 }
 
 const turtleSrc = computed(() => {
@@ -128,7 +128,7 @@ $wave-3: #2aa2d6;
     width: 100%;
     height: 100%;
     bottom: 0;
-     transform: translateY(var(--waveY, 0%));
+    transform: translateY(var(--waveY, 0%));
     will-change: transform;
   }
 
@@ -208,6 +208,32 @@ p {
   align-items: center;
   gap: 8px;
 }
+
+/* 手機橫向：縮小進度條 */
+@media (pointer: coarse) and (orientation: landscape) {
+  $size-landscape: 80px;
+
+  .progress-circle {
+    width: $size-landscape;
+    height: $size-landscape;
+    border-width: 3px;
+  }
+
+  .dash-line {
+    height: 2px;
+    background-size: 7px 100%;
+  }
+
+  .turtle-img {
+    width: 70%;
+  }
+
+  p {
+    font-size: 0.7rem;
+    padding: 2px 6px;
+  }
+}
+
 
 .turtle-img {
   position: absolute;

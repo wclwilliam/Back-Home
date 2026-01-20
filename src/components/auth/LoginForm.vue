@@ -25,7 +25,7 @@
             </div>
             <!--{{ userStore.isLogin ? 1 : 0 }}-->
             <!-- 測試代碼 -->
-            <Button variant="primary">登入</Button>
+            <button class="btn btn-solid btn-l">登入</button>
             <div class="register-wrapper">
                 <a class="link-text" @click="$emit('change-mode', 'register')">立即註冊</a>
             </div>
@@ -280,5 +280,10 @@ input:checked~.styled-box {
             width: 30px;
         }
     }
+}
+
+.btn{
+    padding-top: rem(14px);
+    padding-bottom: rem(14px);
 }
 </style>

@@ -11,63 +11,87 @@ const emit = defineEmits(['next'])
 
 const imageSrc = computed(() => {
   const map = {
-    baby: '/game/turtle-baby_swim.png',
-    teen: '/game/turtle-teen_swim.png',
-    adult: '/game/turtle-adult_swim.png',
+    baby: '/game-img/turtle-baby_swim.png',
+    teen: '/game-img/turtle-teen_swim.png',
+    adult: '/game-img/turtle-adult_swim.png',
   }
   return map[roleId] ?? ''
 })
 </script>
 <template>
-    <div class="dialog-card-container">
+  <div class="dialog-card-container">
 
     <p>【科普知識】</p>
 
-        <div class="dialog-card__content">
-           <div class="knowledge-text">
-          {{ text }}
-            </div>
-            <button type="button" @click="emit('next')">
-          {{ buttonText }}
-        </button>
-        </div>       
+    <div class="dialog-card__content">
+      <div class="knowledge-text">
+        {{ text }}
+      </div>
+      <button type="button" @click="emit('next')">
+        {{ buttonText }}
+      </button>
     </div>
+  </div>
 </template>
 <style lang="scss" scoped>
-.dialog-card__content{
-    position: relative;
-    background-color: $card-color;
-    opacity: 0.9;
-    width: 100%;
-    height: 100%;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.12);
-    display: flex;
-    flex-direction: column;
-    @include font-body-l-bold;
-    justify-content: center;
-    align-items: center;
-    padding: 38px 32px 24px;
+.dialog-card__content {
+  position: relative;
+  background-color: $card-color;
+  opacity: 0.9;
+  width: 100%;
+  height: 100%;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.12);
+  display: flex;
+  flex-direction: column;
+  @include font-body-l-bold;
+  justify-content: center;
+  align-items: center;
+  padding: 38px 32px 24px;
 }
-button{
-    @include font-body-bold;
-    justify-self: end;
-    align-self: end;
-    color: $secondary-color;
-    text-decoration: underline;
-    text-underline-offset: 6px;
-    text-decoration-thickness: 2px;
-    padding-top: 16px;
+
+button {
+  @include font-body-bold;
+  justify-self: end;
+  align-self: end;
+  color: $secondary-color;
+  text-decoration: underline;
+  text-underline-offset: 6px;
+  text-decoration-thickness: 2px;
+  padding-top: 16px;
 }
-p{
-    @include font-body-l-bold;
-    color: $text-white;
-    background-color: $game-line-color;
-    padding: 4px 8px;  
-    position: absolute;
-    top: 0;
-    left: 16px;
-    transform: translateY(-50%);
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
-    z-index: 1;
+
+p {
+  @include font-body-l-bold;
+  color: $text-white;
+  background-color: $game-line-color;
+  padding: 4px 8px;
+  position: absolute;
+  top: 0;
+  left: 16px;
+  transform: translateY(-50%);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+  z-index: 1;
+}
+
+/* 手機橫向：縮小文字大小 */
+@media (pointer: coarse) and (orientation: landscape) {
+  .dialog-card__content {
+    padding: 24px 20px 16px;
+    font-size: 0.9rem;
+  }
+
+  button {
+    font-size: 0.75rem;
+    padding-top: 12px;
+  }
+
+  p {
+    font-size: 0.8rem;
+    padding: 2px 6px;
+  }
+
+  .knowledge-text {
+    font-size: 0.9rem;
+  }
 }
 </style>

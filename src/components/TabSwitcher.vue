@@ -1,6 +1,6 @@
 <template>
-  <div class="tabs-wrapper">
-    <div class="tabs-header">
+  <div class="tab-switcher-container">
+    <div class="tab-header">
       <button 
         v-for="tab in tabs" 
         :key="tab.value"
@@ -18,41 +18,58 @@
 </template>
 
 <script setup>
-defineProps(['tabs', 'modelValue']);
-defineEmits(['update:modelValue']);
+/**
+ * tabs: 接收陣列 [{ label: '未來活動', value: 'upcoming' }, ...]
+ * modelValue: 當前選中的 value (由父組件 v-model 傳入)
+ */
+defineProps({
+  tabs: { type: Array, required: true },
+  modelValue: { type: String, required: true }
+})
+
+defineEmits(['update:modelValue'])
 </script>
 
 <style lang="scss" scoped>
 @import '@/assets/scss/base/_var.scss';
 
-.tabs-header {
+.tab-header {
   display: flex;
-  gap: rem(24px);
-  margin-bottom: rem(32px);
-  border-bottom: 1px solid #eee;
+  gap: rem(32px); // 標籤間距
+  margin-bottom: rem(24px);
+  border-bottom: 1px solid #E5E5E5; // 底線
 
   .tab-item {
-    padding: rem(8px) 0;
+    padding: rem(12px) 0;
     border: none;
     background: none;
+    font-size: rem(18px);
+    color: #999;
     cursor: pointer;
-    font-size: rem(16px);
-    color: #666;
     position: relative;
+    transition: all 0.3s ease;
+    @include font-body-bold;
+
+    &:hover {
+      color: $secondary-color;
+    }
 
     &.active {
       color: $secondary-color;
-      font-weight: bold;
       &::after {
         content: '';
         position: absolute;
-        bottom: -1px;
+        bottom: -1px; // 貼合底線
         left: 0;
-        width: 100%;
-        height: 2px;
+        width: rem(40px); //分頁底線寬度
+        height: 3px;
         background-color: $secondary-color;
       }
     }
   }
+}
+
+.tab-content {
+  width: 100%;
 }
 </style>

@@ -5,12 +5,12 @@
  * 📋 如何在 ActivityView.vue 中使用這兩個燈箱組件：
  *
  * 1️⃣ 導入組件
- *    import LightboxRegisterCheck from '@/components/activity/LightboxRegisterCheck.vue'
- *    import LightboxRegisterConfirm from '@/components/activity/LightboxRegisterConfirm.vue'
+ *    import LightboxRegisterCheck from '@/components/activity/Lightbox/LightboxRegisterCheck.vue'
+ *    import LightboxRegisterSuccess from '@/components/activity/Lightbox/LightboxRegisterSuccess.vue'
  *
  * 2️⃣ 定義狀態變數
  *    const showCheckLightbox = ref(false)
- *    const showConfirmLightbox = ref(false)
+ *    const showSuccessLightbox = ref(false)
  *    const registrationFormData = ref({
  *      activityName: '',    // 活動名稱
  *      activityTime: '',    // 活動時間
@@ -40,7 +40,7 @@
  *
  *        // 關閉第一個燈箱，打開成功確認燈箱
  *        showCheckLightbox.value = false
- *        showConfirmLightbox.value = true
+ *        showSuccessLightbox.value = true
  *      } catch (error) {
  *        console.error('報名失敗:', error)
  *        alert('報名失敗，請稍後再試')
@@ -54,22 +54,24 @@
  *      @confirm="handleConfirmRegistration"
  *    />
  *
- *    <LightboxRegisterConfirm v-model="showConfirmLightbox" />
+ *    <LightboxRegisterSuccess v-model="showSuccessLightbox" />
  *
  * 📝 使用流程：
  *    用戶填寫報名表單 → 點擊送出 → 顯示確認燈箱（LightboxRegisterCheck）
- *    → 點擊「確認報名」→ 關閉確認燈箱 → 顯示成功燈箱（LightboxRegisterConfirm）
- *    → 點擊「簡閱」→ 關閉成功燈箱
+ *    → 點擊「確認報名」→ 關閉確認燈箱 → 顯示成功燈箱（LightboxRegisterSuccess）
+ *    → 點擊「關閉」→ 關閉成功燈箱
  */
 
 import { ref } from 'vue'
-import LightboxRegisterCheck from '@/components/activity/LightboxRegisterCheck.vue'
-import LightboxRegisterConfirm from '@/components/activity/LightboxRegisterConfirm.vue'
-import LightboxReviewConfirm from '@/components/activity/LightboxReviewConfirm.vue'
+import LightboxRegisterCheck from '@/components/activity/Lightbox/LightboxRegisterCheck.vue'
+import LightboxRegisterSuccess from '@/components/activity/Lightbox/LightboxRegisterSuccess.vue'
+import LightboxReviewCheck from '@/components/activity/Lightbox/LightboxReviewCheck.vue'
+import LightboxReport from '@/components/activity/Lightbox/LightboxReport.vue'
 
 const showLightbox = ref(false)
-const showConfirmLightbox = ref(false)
-const showReviewConfirmLightbox = ref(false)
+const showSuccessLightbox = ref(false)
+const showReviewCheckLightbox = ref(false)
+const showReportLightbox = ref(false)
 
 // 測試用的表單資料（可以修改這裡來測試不同的數據）
 const testFormData = ref({
@@ -89,15 +91,19 @@ const openLightbox = () => {
   showLightbox.value = true
 }
 
-const openReviewConfirm = () => {
-  showReviewConfirmLightbox.value = true
+const openReviewCheck = () => {
+  showReviewCheckLightbox.value = true
+}
+
+const openReport = () => {
+  showReportLightbox.value = true
 }
 
 const handleConfirm = () => {
   console.log('確認報名', testFormData.value)
   // 關閉第一個燈箱，打開第二個成功確認燈箱
   showLightbox.value = false
-  showConfirmLightbox.value = true
+  showSuccessLightbox.value = true
 }
 </script>
 
@@ -108,7 +114,8 @@ const handleConfirm = () => {
       <p>點擊下方按鈕來預覽報名確認燈箱</p>
 
       <button class="test-btn" @click="openLightbox">打開報名確認燈箱</button>
-      <button class="test-btn" @click="openReviewConfirm">打開留言確認燈箱</button>
+      <button class="test-btn" @click="openReviewCheck">打開留言確認燈箱</button>
+      <button class="test-btn" @click="openReport">打開檢舉留言燈箱</button>
 
       <!-- Lightbox 組件 -->
       <LightboxRegisterCheck
@@ -118,10 +125,13 @@ const handleConfirm = () => {
       />
 
       <!-- 成功確認燈箱 -->
-      <LightboxRegisterConfirm v-model="showConfirmLightbox" />
+      <LightboxRegisterSuccess v-model="showSuccessLightbox" />
 
       <!-- 留言確認燈箱 -->
-      <LightboxReviewConfirm v-model="showReviewConfirmLightbox" />
+      <LightboxReviewCheck v-model="showReviewCheckLightbox" />
+
+      <!-- 檢舉留言燈箱 -->
+      <LightboxReport v-model="showReportLightbox" />
     </div>
   </div>
 </template>

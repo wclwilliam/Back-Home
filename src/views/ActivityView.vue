@@ -8,7 +8,7 @@ import ActivityCard from '@/components/cards/ActivityCard.vue'
 import Ranking from '@/components/activity/Ranking.vue';
 import Pagination from '@/components/Pagination.vue';
 
-
+const bgUrl = `${base}image/activity/activity_bg.jpg`
 
 const fetchAct = async () => {
     publicApi.get('data/activityData.json')
@@ -216,7 +216,7 @@ watch(currentActivityTab, () => {
 </script>
 <template>
   <Banner imgName="activity" title="志工活動" />
-  <div class="activity-bg-wrapper" :style="{ backgroundImage: 'url(/image/activity/activity_bg.jpg)' }">
+  <div class="activity-bg-wrapper" :style="{ backgroundImage: `url(${bgUrl})` }">
     <div class="container">
       <div class="row cardList">
         <clickBar

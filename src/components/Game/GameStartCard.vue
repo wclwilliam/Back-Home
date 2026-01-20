@@ -48,11 +48,11 @@ const start = () => {
     <div class="turtle-pic">
       <Swiper :modules="[Navigation]" navigation class="photoSwiper" @swiper="onSwiper" @slideChange="onSlideChange">
         <SwiperSlide v-for="(img, i) in images" :key="i">
-          <img :src="parsePublicFile(`game/${img}`)" alt="" />
+          <img :src="parsePublicFile(`game-img/${img}`)" alt="" />
         </SwiperSlide>
       </Swiper>
     </div>
-    <button class="btn btn-solid btn-xl" @click="start">開始旅程</button>
+    <button class="btn btn-solid btn-xl start-btn" @click="start">開始旅程</button>
 
     <div class="game-question-card">
       <h2 class="question-title">你的旅程將從哪裡開始？</h2>
@@ -101,11 +101,12 @@ const start = () => {
   }
 }
 
-button {
+.start-btn {
   align-self: center;
   justify-self: start;
   grid-column: 2 / 3;
   grid-row: 2 / 3;
+  z-index: 20; // 保險：比 question card 高
 }
 
 p {
@@ -130,18 +131,40 @@ p {
   background: linear-gradient(0deg, rgba(227, 213, 202, 1) 0%, rgba(227, 213, 202, 0.9) 20%, rgba(227, 213, 202, 0.8) 40%, rgba(227, 213, 202, 0.7) 60%, rgba(227, 213, 202, 0.6) 70%, rgba(227, 213, 202, 0.5) 80%, rgba(227, 213, 202, 0) 100%);
 
   z-index: 10;
+  pointer-events: none;
 }
 
 .question-title {
   @include font-body-l-bold;
 }
 
-.options-group {
-  display: flex;
-  gap: 32px;
+/* 手機橫向：縮小文字大小 */
+@media (pointer: coarse) and (orientation: landscape) {
+  .question-title {
+    font-size: 0.9rem;
+  }
+
+  .options-group {
+    gap: 16px;
+
+    .btn {
+      font-size: 0.75rem;
+      padding: 6px 12px;
+    }
+  }
 }
 
 .options-group {
+  display: flex;
+  gap: 32px;
+  pointer-events: auto;
+}
+
+.options-group {
+  .btn {
+    white-space: nowrap;
+  }
+
   .btn.is-active {
     border-color: $highlight-color2;
     color: $highlight-color2;

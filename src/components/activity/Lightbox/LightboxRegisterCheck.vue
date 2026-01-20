@@ -1,5 +1,5 @@
 <script setup>
-import Button from '../auth/Button.vue'
+import Button from '../../auth/Button.vue'
 defineProps({
   modelValue: Boolean, // 控制顯示隱藏
   formData: Object, // 接收報名資料
@@ -111,7 +111,7 @@ defineEmits(['update:modelValue', 'confirm'])
   border: 1px solid $primary-color; // 外層深色邊框
   width: rem(800px);
   max-width: 90vw;
-  padding: rem(50px) rem(40px);
+  padding: rem(50px) rem(60px);
   position: relative;
   max-height: 90vh;
   overflow-y: auto;
@@ -121,13 +121,12 @@ defineEmits(['update:modelValue', 'confirm'])
   font-size: rem(26px);
   color: $primary-color;
   font-weight: bold;
-  margin-bottom: rem(68px);
+  margin-bottom: rem(48px);
   text-align: center;
 }
 
 .info-list {
-  margin-bottom: rem(30px);
-  margin: 0 rem(16px) rem(70px);
+  margin-bottom: rem(70px);
 
   .info-row {
     display: flex;
@@ -175,5 +174,36 @@ defineEmits(['update:modelValue', 'confirm'])
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+// 手機版 RWD
+@media screen and (max-width: 767px) {
+  .lightbox-content {
+    width: 90vw;
+    padding: rem(50px) rem(20px);
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+
+  .info-list {
+    .info-row {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: rem(8px);
+      margin-bottom: rem(20px);
+
+      .label {
+        min-width: auto;
+      }
+
+      .value {
+        word-break: break-all;
+      }
+    }
+  }
+
+  .actions {
+    gap: rem(12px);
+  }
 }
 </style>
