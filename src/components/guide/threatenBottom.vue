@@ -150,7 +150,7 @@ const modules = [Pagination];
     margin: auto;
     @media(max-width:600px){
          width: 100%;
-         height: 520px;
+         height: 100%;
     }
 
     .cardImage {

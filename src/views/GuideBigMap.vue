@@ -14,8 +14,16 @@ const goBack = () => {
 <template>
     <button class="btn btn-outline" @click="goBack">上一頁</button>
     <turtleMap/>
+    <div class="space"></div>
 </template>
 
 <style lang="scss" scoped>
+    .btn{
+        margin-left: 50px;
+        margin-top: 50px;
+    }
+    .space{
+        margin-top: 100px;
+    }
 
 </style>
