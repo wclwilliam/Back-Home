@@ -4,15 +4,6 @@ import { publicApi } from "@/utils/publicApi";
 
 const items = ref([])
 
-// onMounted( async () => {
-//   try {
-//     const base = import.meta.env.BASE_URL
-//     const response = await axios.get(base + 'data/donationAccordion.json')
-//     items.value = response.data
-//   }catch (error){
-//     console.log(error)
-//   }
-// })
 
 onMounted(() => {
         publicApi.get('data/donationAccordion.json').then((response) => {
@@ -95,7 +86,7 @@ const contentStyle = (index) => {
                             line-height: 1.4;
                             &:focus {
                                 z-index: 3;
-                                border-color: $highlight-color1;
+                                border-color: #0000;
                                 outline: 0;
                                 box-shadow: 0 0 0 2px $highlight-color1;
                             }

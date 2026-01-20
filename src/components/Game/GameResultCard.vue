@@ -64,7 +64,7 @@ const next = () => emit('next', props.node?.nextId)
 .game-result-card__content {
     position: relative;
     background-color: $card-color;
-    width: min(420px, 86vw);
+    width: min(420px, 50vw);
     box-shadow: 0 3px 10px rgba(0, 0, 0, 0.12);
     display: flex;
     flex-direction: column;
@@ -86,6 +86,33 @@ const next = () => emit('next', props.node?.nextId)
 .icon-arrow {
     @include icon-style($size: 40px);
 }
+
+/* 手機橫向：縮小文字大小 */
+@media (pointer: coarse) and (orientation: landscape) {
+    .game-result-card__content {
+        padding: 32px 16px 16px;
+        gap: 12px;
+        font-size: 0.9rem;
+    }
+
+    .game-result-card__title {
+        font-size: 0.95rem;
+    }
+
+    .game-result-card__rate {
+        font-size: 0.85rem;
+    }
+
+    .icon-arrow {
+        @include icon-style($size: 28px);
+    }
+
+    .game-result-card__img {
+        width: clamp(80px, 20vw, 160px);
+        --inside: clamp(32px, 6vw, 48px);
+    }
+}
+
 
 .game-result-card__img {
     width: clamp(120px, 32vw, 260px);

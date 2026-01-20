@@ -70,13 +70,16 @@ const modules = [Pagination];
   flex: 1;
   cursor: pointer;
   position: relative;
-  transition: all 0.3s ease;
   overflow: hidden;
+  transition: flex 0.3s ease; 
+  will-change: flex;
+  transform: translateZ(0); 
 
   img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    backface-visibility: hidden;
   }
 
   &:hover {
@@ -95,11 +98,12 @@ const modules = [Pagination];
   width: 100%;
   height: 100%;
   opacity: 0;
-  transition: all 0.3s ease;
   background: rgba(0, 0, 0, 0.6);
   padding: 20px;
   box-sizing: border-box;
+  transition: opacity 0.3s ease; 
 }
+
 
 .overlayContent {
   width: 100%;
@@ -150,7 +154,7 @@ const modules = [Pagination];
     margin: auto;
     @media(max-width:600px){
          width: 100%;
-         height: 600px;
+         height: 100%;
     }
 
     .cardImage {

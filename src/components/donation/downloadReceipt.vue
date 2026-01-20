@@ -3,9 +3,12 @@ import html2canvas from 'html2canvas'
 import jsPDF from 'jspdf'
 import { ref,computed } from 'vue'
 import MyButton from './MyButton.vue';
+import { useLocalStorage } from '@vueuse/core';
 
 const receipt = ref(null);
 const showModal = ref(false);
+
+const donationState = useLocalStorage('donationState',{})
 
 
 const closeModal = () =>{
@@ -13,6 +16,7 @@ const closeModal = () =>{
 }
 const openModal = () =>{
   showModal.value = true
+  donationState.value.currentStep=1 //開啟收據時把捐款步驟設為1
 }
 // 必須暴露出來，父組件才抓得到
 defineExpose({ openModal });
@@ -37,6 +41,8 @@ const exportToPDF = async () => {
   // 4. 加入圖片並儲存
   pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight)
   pdf.save('海龜協會_捐款收據.pdf')
+
+  
 }
 
 const now = new Date();
@@ -51,7 +57,7 @@ const flowNum = computed(() =>{
 </script>
 
 <template>
-  <Teleport to="body"> <!--確保燈箱位置在上層-->
+  <Teleport to="body">
         <Transition name="fade"> <!--淡入淡出-->
         <div class="lightbox-overlay" v-if="showModal" @click.self="closeModal">
             <div class="receipt-modal">
@@ -62,7 +68,7 @@ const flowNum = computed(() =>{
                   <div class="details">
                     <p><span>捐款編號：</span>{{ flowNum }}</p>
                     <p><span>捐款姓名：</span>王小明</p>
-                    <p><span>捐款金額：</span>新台幣 5,000 元</p>
+                    <p><span>捐款金額：</span>新台幣 {{ donationState.finalAmount }} 元</p>
                     <p><span>捐款日期：</span>{{`${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日`}}</p>
                     <p><span>捐款用途：</span>海龜醫療救援與棲地巡邏</p>
                   </div>

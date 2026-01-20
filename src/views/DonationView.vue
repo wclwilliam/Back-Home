@@ -173,6 +173,7 @@
     }
     .container {
         //設定預設樣式
+        margin-top: 32px;
         
         h2 {
             @include font-secondary;
@@ -187,18 +188,20 @@
             //手機板捐款組件在上面
             @media (width < 768px) {
                 flex-direction: column-reverse;
+                gap: 32px;
                 margin-top: 32px;
                 overflow-x: hidden;
             }
         }
         .otherCom {
             
-            margin-top: 32px;
+            // margin-top: 32px;
             display: flex;
             flex-direction: column;
             gap: 32px;
             .rescueChart{
                 width: 100%;
+                margin-top: 0px;
                 // height: 727px;
                 display: flex;
                 flex-direction: column;

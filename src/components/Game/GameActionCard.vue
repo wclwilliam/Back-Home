@@ -24,32 +24,24 @@ const description = computed(() =>
 </script>
 
 <template>
-     <section class="game-action-card" role="dialog" aria-modal="true">
+  <section class="game-action-card" role="dialog" aria-modal="true">
     <div class="game-action-card__content">
       <p class="game-action-card__description">
         {{ description }}
       </p>
 
       <div class="game-action-card__actions">
-        <button
-          type="button"
-          class="btn btn-solid btn-xl"
-          @click="router.push({name: 'donation'})"
-        >支持捐款計畫
+        <button type="button" class="btn btn-solid btn-xl" @click="router.push({ name: 'donation' })">支持捐款計畫
         </button>
-        <button
-          type="button"
-          class="btn btn-outline btn-xl"
-          @click="router.push({name:'activity'})"
-        >加入保育志工
+        <button type="button" class="btn btn-outline btn-xl" @click="router.push({ name: 'activity' })">加入保育志工
         </button>
       </div>
       <button type="button" class="start-btn" @click="emit('next', 'start')">
         <span class="material-symbols-outlined icon-arrow">
-        play_circle
+          play_circle
         </span>
         <p>開始旅程</p>
-    </button>
+      </button>
     </div>
   </section>
 </template>
@@ -61,8 +53,9 @@ const description = computed(() =>
   place-items: center;
   position: relative;
 }
+
 .game-action-card__content {
-  width: min(480px, 86vw);
+  width: min(480px, 60vw);
   background-color: $card-color;
   padding: 32px 24px;
   text-align: center;
@@ -72,24 +65,60 @@ const description = computed(() =>
   gap: 24px;
   opacity: 0.9;
 }
+
 .game-action-card__description {
   @include font-body-l-bold;
 }
+
 .game-action-card__actions {
   display: flex;
   gap: 32px;
   justify-content: center;
 }
-.start-btn{
+
+.start-btn {
   color: $text-color;
   position: absolute;
   top: 16px;
   right: 16px;
 }
-p{
+
+p {
   @include font-body-l-bold;
 }
-.icon-arrow{
+
+.icon-arrow {
   @include icon-style($size: 40px);
+}
+
+/* 手機橫向：縮小文字大小 */
+@media (pointer: coarse) and (orientation: landscape) {
+  .game-action-card__description {
+    font-size: 0.9rem;
+  }
+
+  .game-action-card__actions {
+    gap: 16px;
+    flex-wrap: wrap;
+
+    .btn {
+      font-size: 0.75rem;
+      padding: 8px 16px;
+    }
+  }
+
+  p {
+    font-size: 0.9rem;
+    margin: 0;
+  }
+
+  .icon-arrow {
+    @include icon-style($size: 28px);
+  }
+
+  .game-action-card__content {
+    padding: 20px 16px;
+    gap: 16px;
+  }
 }
 </style>

@@ -4,21 +4,28 @@ import MyButton from './MyButton.vue'
 import { useAuthStore } from '@/stores/auth'
 import downloadReceipt from './downloadReceipt.vue'
 import ecpayCrypto from '@/utils/ecpayCrypto.js'
-import { useRoute } from 'vue-router';
+import { useLocalStorage } from '@vueuse/core'
 
-const route = useRoute();
 
 
 const auth = useAuthStore()
 
-let nowTime = new Date().toLocaleString('zh-TW', {
-  year: 'numeric',
-  month: '2-digit',
-  day: '2-digit',
-  hour: '2-digit',
-  minute: '2-digit',
-  second: '2-digit'
-})
+function formatNow() {
+  const now = new Date();
+
+  const y = now.getFullYear();
+  const m = String(now.getMonth() + 1).padStart(2, '0');
+  const d = String(now.getDate()).padStart(2, '0');
+
+  const h = String(now.getHours()).padStart(2, '0');
+  const min = String(now.getMinutes()).padStart(2, '0');
+  const s = String(now.getSeconds()).padStart(2, '0');
+
+  return `${y}-${m}-${d}  ${h}:${min}:${s}`;
+}
+
+
+let nowTime = formatNow()
 
 const currentStep = ref(1)
 const donationType = ref('monthly')
@@ -58,10 +65,7 @@ const amountOptions = {
   once: [3000, 5000, 8000]
 }
 
-//判斷有沒有get參數
-if (route.query.currentStep) {
-  currentStep.value = 3;
-}
+
 
 const isGreater = () => {
   if (!selectedAmount.value) { //判斷有沒有選金額
@@ -99,6 +103,18 @@ watch(donationType,(newValue)=>{
     //付款切回ecpay
     payment.value='ecpay';
   })
+
+  //localstorage
+const donationState = useLocalStorage('donationState', {
+  currentStep : 1,
+  donationType : 'monthly',
+  finalAmount : 0
+  
+})
+if (donationState.value.currentStep == 3) {
+  currentStep.value = 3
+}
+
 const goStepTwo = () => {
 
   if (!errors.customAmount) { //判斷金額是否正確
@@ -199,6 +215,10 @@ const goDonate = () => {
     validateField('email')
     
     if (!errors.email && !isBlank.email && !errors.agree) {
+      //先寫入localstorage示意
+      donationState.value.currentStep = 3
+      donationState.value.donationType = donationType.value
+      donationState.value.finalAmount = finalAmount
       if (payment.value == "ecpay") { //判斷金流
         ecpayCrypto()
       } else {
@@ -214,6 +234,10 @@ const goDonate = () => {
     let hasError = Object.values(errors).some(v => v)
     let hasBlank = Object.values(isBlank).some(v => v)
     if (!hasError && !hasBlank && !errors.agree) {
+      //先寫入localstorage示意
+      donationState.value.currentStep = 3
+      donationState.value.donationType = donationType.value
+      donationState.value.finalAmount = finalAmount
       if (payment.value == "ecpay") { //判斷金流
         ecpayCrypto()
       } else {
@@ -386,7 +410,7 @@ const goDonate = () => {
             <input type="hidden" name="ChoosePayment" value="ALL">
             <input type="hidden" name="EncryptType" value="1">
             <input type="hidden" name="IgnorePayment" value="WeiXin#TWQR#BNPL#CVS#BARCODE#ATM#WebATM">
-            <input type="hidden" name="OrderResultURL" value="https://tibamef2e.com/cjd102/g3/front/donation?currentStep=3">
+            <input type="hidden" name="OrderResultURL" value="https://tibamef2e.com/cjd102/g3/front/donation">
             <input type="hidden" name="CheckMacValue" id="CheckMacValue" value="">
             <MyButton @click.prevent="goDonate" class=" btn-xxl" width="50%" >立即捐款</MyButton>
         </form>
@@ -396,15 +420,15 @@ const goDonate = () => {
       <div class="success-page">
         <h2 class="success-title">捐款成功</h2>
         <p class="success-desc">
-          感謝您捐款 [{{ finalAmount }}] 支持海龜保育計畫。您的這筆款項將直接用於海龜的醫療救援與棲地維護。
+          感謝您捐款 [{{ donationState.finalAmount }}] 支持海龜保育計畫。您的這筆款項將直接用於海龜的醫療救援與棲地維護。
 我們承諾將每一分錢透明、高效地運用。正式的電子收據請您留意查收。
 再次感謝您的信任與行動！
         </p>
   
         <div class="info-card">
           <p class="card-title">捐款摘要</p>
-          <p><strong>捐款金額：</strong>新台幣 <span>{{ finalAmount }}</span></p>
-          <p><strong>捐款類型：</strong>{{ donationType === 'monthly' ? '每月捐款' : '單次捐款' }}</p>
+          <p><strong>捐款金額：</strong>新台幣 <span>{{ donationState.finalAmount }}</span></p>
+          <p><strong>捐款類型：</strong>{{ donationState.donationType === 'monthly' ? '每月捐款' : '單次捐款' }}</p>
           <p><strong>捐款時間：</strong>{{ nowTime }}</p>
         </div>
   
@@ -443,10 +467,10 @@ const goDonate = () => {
 
 .donation-card {
     position: sticky;
-    margin-top: 32px; //到時候根據header高度做調整
-    top: 32px; //到時候根據header高度做調整
+    // margin-top: 32px; //到時候根據header高度做調整
+    top: 0px; //到時候根據header高度做調整
     width: 100%;
-    padding-bottom: 20px;
+    padding-bottom: 12px;
     border: 2px solid $secondary-color;
     background-color: $card-color;
     overflow: hidden;
@@ -572,6 +596,7 @@ const goDonate = () => {
 .error-msg {
   @include font-body;
   color: $highlight-color2;
+  margin-top: -4px;
   display: flex;
   align-items: center;
   gap: 4px;
@@ -616,7 +641,7 @@ const goDonate = () => {
   grid-template-areas: 
     "tag tag"
     "amount back";
-  row-gap: 4px;
+  
   margin-bottom: 8px;
   @media (width<390px) {
     grid-template-areas: 
