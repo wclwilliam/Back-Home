@@ -6,8 +6,6 @@ import 'swiper/css'
 import 'swiper/css/navigation'
 import { parsePublicFile } from '@/utils/parseFile'
 
-const base = import.meta.env.BASE_URL
-
 const { startOptions } = defineProps({
   startOptions: { type: Array, required: true },
 })
@@ -50,7 +48,7 @@ const start = () => {
     <div class="turtle-pic">
       <Swiper :modules="[Navigation]" navigation class="photoSwiper" @swiper="onSwiper" @slideChange="onSlideChange">
         <SwiperSlide v-for="(img, i) in images" :key="i">
-          <img :src="parsePublicFile(`game/${img}`)" alt="" />
+          <img :src="parsePublicFile(`game-img/${img}`)" alt="" />
         </SwiperSlide>
       </Swiper>
     </div>
@@ -72,7 +70,7 @@ const start = () => {
 .game-screen {
   display: grid;
   width: 100%;
-  height: calc(100vh - 100px);
+  height: 100%;
   grid-template-columns: 1fr 1fr 1fr;
   grid-template-rows: 1fr 1fr 25%;
   margin: 0 auto;
