@@ -209,6 +209,32 @@ p {
   gap: 8px;
 }
 
+/* 手機橫向：縮小進度條 */
+@media (pointer: coarse) and (orientation: landscape) {
+  $size-landscape: 80px;
+
+  .progress-circle {
+    width: $size-landscape;
+    height: $size-landscape;
+    border-width: 3px;
+  }
+
+  .dash-line {
+    height: 2px;
+    background-size: 7px 100%;
+  }
+
+  .turtle-img {
+    width: 70%;
+  }
+
+  p {
+    font-size: 0.7rem;
+    padding: 2px 6px;
+  }
+}
+
+
 .turtle-img {
   position: absolute;
   left: 50%;

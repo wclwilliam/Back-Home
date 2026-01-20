@@ -72,4 +72,26 @@ p {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
   z-index: 1;
 }
+
+/* 手機橫向：縮小文字大小 */
+@media (pointer: coarse) and (orientation: landscape) {
+  .dialog-card__content {
+    padding: 24px 20px 16px;
+    font-size: 0.9rem;
+  }
+
+  button {
+    font-size: 0.75rem;
+    padding-top: 12px;
+  }
+
+  p {
+    font-size: 0.8rem;
+    padding: 2px 6px;
+  }
+
+  .knowledge-text {
+    font-size: 0.9rem;
+  }
+}
 </style>

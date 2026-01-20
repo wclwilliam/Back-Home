@@ -1,5 +1,5 @@
 <script setup>
-  import { ref, watch, onUnmounted } from 'vue'
+import { ref, watch, onUnmounted } from 'vue'
 import gsap from 'gsap'
 import { useHealthStore } from '@/stores/health'
 
@@ -42,16 +42,12 @@ onUnmounted(() => {
 
 <template>
   <div ref="barRef" class="health-bar">
-    
+
     <div class="health-bar__percentage">{{ healthStore.healthPercent }}%</div>
 
     <div class="health-bar__hearts">
-      <span 
-        v-for="i in healthStore.totalHearts" 
-        :key="i"
-        class="material-symbols-outlined health-bar__icon"
-        :class="{ 'health-bar__icon--active': i <= healthStore.activeHeartsCount }"
-      >
+      <span v-for="i in healthStore.totalHearts" :key="i" class="material-symbols-outlined health-bar__icon"
+        :class="{ 'health-bar__icon--active': i <= healthStore.activeHeartsCount }">
         favorite
       </span>
     </div>
@@ -76,7 +72,7 @@ onUnmounted(() => {
 
   &__hearts {
     display: flex;
-    flex-direction: column-reverse; 
+    flex-direction: column-reverse;
     gap: 4px;
   }
 
@@ -99,6 +95,35 @@ onUnmounted(() => {
     background-color: $primary-color;
     padding: 4px 8px;
     border-radius: 100px;
+  }
+}
+
+/* 手機橫向：縮小血量條 */
+@media (pointer: coarse) and (orientation: landscape) {
+  .health-bar {
+    gap: 6px;
+
+    &__percentage {
+      font-size: 0.85rem;
+    }
+
+    &__hearts {
+      gap: 2px;
+    }
+
+    &__icon {
+      @include icon-style($size: 18px, $color: $highlight-color2);
+
+      &--active {
+        @include icon-style($fill: 1, $size: 18px, $color: $highlight-color2);
+        filter: drop-shadow(0 0 2px rgba($highlight-color2, 0.4));
+      }
+    }
+
+    &__label {
+      font-size: 0.65rem;
+      padding: 2px 6px;
+    }
   }
 }
 </style>

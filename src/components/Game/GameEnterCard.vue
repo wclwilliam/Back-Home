@@ -1,6 +1,5 @@
 <script setup>
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
-import gsap from 'gsap'
 import GameQuestionCard from '@/components/Game/GameQuestionCard.vue'
 import StatusPanel from './StatusPanel.vue';
 import HealthBar from './HealthBar.vue';
@@ -34,11 +33,6 @@ const sceneMap = {
   },
 }
 
-const bgStyle = computed(() => {
-  const bg = sceneMap[props.roleId]?.bg
-  return bg ? { backgroundImage: `url(${parsePublicFile(bg)})` } : {}
-})
-
 const isBabyQ3Group = computed(() => {
   return props.nodeId.startsWith('baby_q3')
 })
@@ -55,6 +49,10 @@ const isTeenQ2GoodGroup = computed(() =>
   props.nodeId.startsWith('teen_q2_good')
 )
 
+const isTeenQ3BadGroup = computed(() =>
+  props.nodeId.startsWith('teen_q3_bad')
+)
+
 const turtleSrc = computed(() => {
   if (props.roleId === 'teen' && isTeenQ1BadGroup.value) {
     return parsePublicFile('game-img/turtle-teen-bind.png')
@@ -66,6 +64,10 @@ const turtleSrc = computed(() => {
 
   if (props.roleId === 'teen' && isTeenQ2GoodGroup.value) {
     return parsePublicFile('game-img/turtle-teen-seaweed.png')
+  }
+
+  if (props.roleId === 'teen' && isTeenQ3BadGroup.value) {
+    return parsePublicFile('game-img/turtle-teen-injured.png')
   }
 
   if (props.roleId === 'baby' && isBabyQ3Group.value) {
@@ -235,7 +237,7 @@ onUnmounted(() => {
   height: 100%;
   display: block;
   object-fit: contain;
-  transform: translate(-50%, 50%);
+  transform: translate(20%, -10%);
 }
 
 .turtle-wrapper {
@@ -448,14 +450,14 @@ onUnmounted(() => {
       transparent 55%);
 
   opacity: 0;
-  transform: translate3d(-45%, 45%, 0);
+  transform: translate3d(45%, 45%, 0);
   animation: waveSweep 3.2s ease-in-out infinite;
 }
 
 @keyframes waveSweep {
   0% {
     opacity: 0;
-    transform: translate3d(-50%, 50%, 0);
+    transform: translate3d(50%, 50%, 0);
   }
 
   10% {
@@ -464,12 +466,12 @@ onUnmounted(() => {
 
   55% {
     opacity: 0;
-    transform: translate3d(50%, -50%, 0);
+    transform: translate3d(-50%, -50%, 0);
   }
 
   100% {
     opacity: 0;
-    transform: translate3d(50%, -50%, 0);
+    transform: translate3d(-50%, -50%, 0);
   }
 }
 </style>
