@@ -1,6 +1,6 @@
 <template>
   <div class="member-favorite">
-    <h2>這是收藏夾分頁</h2>
+    <h2>這是我的活動分頁</h2>
   </div>
 </template>
 

@@ -92,7 +92,7 @@ watch(currentTab, () => {
           <p>目前沒有符合條件的收藏活動！</p>
         </div>
 
-        <!-- 分頁 -->
+        <!-- 頁碼 -->
         <Pagination
           v-if="totalPages > 1"
           class="col-sm-4"

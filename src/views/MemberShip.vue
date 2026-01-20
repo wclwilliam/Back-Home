@@ -1,7 +1,6 @@
 <template>
     <div class="membership-page">
-        <Header />
-        <Banner title="會員中心" />
+        <Banner imgName="member" title="會員中心" />
 
         <MemberTabs @update-tab="handleTabChange" />
 
@@ -11,8 +10,6 @@
         <MemberDonation v-else-if="currentTabIndex === 2" />
         <MemberFavorite v-else-if="currentTabIndex === 3" />
         </div>
-
-        <Footer />
     </div>
     </template>
 
@@ -25,6 +22,7 @@
     import MemberActivity from '@/components/auth/MemberActivity.vue';
     import MemberDonation from '@/components/auth/MemberDonation.vue';
     import MemberFavorite from '@/components/auth/MemberFavorite.vue';
+    import Banner from '@/components/Banner.vue';
 
     // 追蹤當前分頁索引
     const currentTabIndex = ref(0);
