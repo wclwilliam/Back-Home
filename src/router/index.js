@@ -38,6 +38,11 @@ const router = createRouter({
       component: () => import('@/views/GuideView.vue'),
     },
     {
+      path: '/guidemap',
+      name: 'guidemap',
+      component: () => import('@/views/GuideBigMap.vue'),
+    },
+    {
       path: '/guide/:id',
       name: 'GuideInfo',
       props: true,
@@ -60,8 +65,8 @@ const router = createRouter({
       name: 'activity',
       component: () => import('@/views/ActivityView.vue'),
       meta: {
-        tilte: '志工活動'
-      }
+        tilte: '志工活動',
+      },
     },
     {
       path: '/activity/:id',
@@ -102,7 +107,7 @@ const router = createRouter({
       component: () => import('@/views/MemberShipinfo.vue'),
       meta: {
         title: '我的活動',
-      }
+      },
     },
     {
       path: '/login',
@@ -130,9 +135,17 @@ const router = createRouter({
     {
       path: '/:pathMatch(.*)*',
       component: () => import('@/views/NotFound.vue'),
-    }
+    },
   ],
-
+  scrollBehavior(to, from, savedPosition) {
+    if (savedPosition) {
+      // 如果是按「上一頁」或 router.back()，會回到原本滾動的位置
+      return savedPosition
+    } else {
+      // 如果是前往新頁面，就回到最頂端
+      return { top: 0 }
+    }
+  },
 })
 
 // router.beforeEach(async (to, from) => {
@@ -141,6 +154,5 @@ const router = createRouter({
 // 	}
 // })
 router.beforeEach(authGuard)
-
 
 export default router

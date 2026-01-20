@@ -21,7 +21,7 @@ const turtleInfo = computed(() => {
     return allTurtles.find(t => t.id === turtleId)
 })
 const goBack = () => {
-    router.push('/guide')
+    router.back() 
 }
 
 const modules = [Pagination];
@@ -32,7 +32,6 @@ const updateWidth = () => {
 };
 
 onMounted(() => {
-    window.scrollTo(0, 0);
     window.addEventListener('resize', updateWidth);
 });
 

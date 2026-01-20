@@ -1,5 +1,12 @@
-<script>
+<script setup>
+import { useRouter } from 'vue-router' 
 
+
+const router = useRouter()
+
+const guideMap = () => {
+    router.push({ name: 'guidemap' })
+}
 </script>
 
 <template>
@@ -11,6 +18,8 @@
                 海龜演化足跡可追溯至一億多年前的恐龍時代，是見證地球歷史的「活化石」。然而，全世界目前僅存7種海龜，如今卻全數因棲地喪失、海洋汙染及氣候變遷等衝擊，被
                 IUCN 紅色名錄列為瀕危或易危物種。這些古老的海洋旅人，正處於前所未有的生存危機之中。
             </p>
+
+            <button class="btn btn-solid btn-xl " @click="guideMap">探索海龜地圖</button>
         </div>
         <!-- </div> -->
     </div>
@@ -38,11 +47,11 @@
     margin-left: 15%;
     width: 100%;
     max-width: 442px;
-    gap: 86px;
-    
+    gap: 50px;
+
 
     @media (max-width: 768px) {
-        gap: 50px;
+        gap: 30px;
     }
 
     h1 {
@@ -55,9 +64,19 @@
         @include font-body-l;
         width: 70%;
         color: $text-white;
+
         @media (max-width: 768px) {
-            margin-bottom: 60px;
+            //margin-bottom: 60px;
         }
+    }
+}
+
+.btn {
+    width: 300px;
+    border-radius: 50px;
+
+    @media (max-width: 768px) {
+        width: 200px;
     }
 }
 </style>
