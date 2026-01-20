@@ -1,12 +1,16 @@
 <script setup>
-import { onMounted, ref, computed } from 'vue'
+import { onMounted, ref, computed, onUnmounted, watch } from 'vue'
 import { gsap } from 'gsap'
+import { useProgressStore } from '@/stores/progress'
+import { parsePublicFile } from '@/utils/parseFile'
+
+const progressStore = useProgressStore()
 
 const circleRef = ref(null)
 const wave1Ref = ref(null)
 const wave2Ref = ref(null)
 const wave3Ref = ref(null)
-const base = import.meta.env.BASE_URL
+let tween = null
 
 const { text, roleId } = defineProps({
   text: { type: String, default: '' },
@@ -14,14 +18,41 @@ const { text, roleId } = defineProps({
 })
 
 const roleTurtleMap = {
-  baby: 'game/turtle-baby.png',
-  teen: 'game/turtle-teen-swim.png',
-  adult: 'game/turtle-adult-swim.png',
+  baby: 'game-img/turtle-baby.png',
+  teen: 'game-img/turtle-teen-swim.png',
+  adult: 'game-img/turtle-adult-swim.png',
 }
 
 const turtleSrc = computed(() => {
-  const p = roleTurtleMap[roleId]
-  return p ? base + p : ''
+  const p = roleTurtleMap[progressStore.roleId]
+  return p ? parsePublicFile(p) : ''
+})
+
+const fill = computed(() => progressStore.fillTarget)
+const turtle = computed(() => progressStore.turtleTarget)
+
+watch(
+  [fill, turtle],
+  ([toFill, toTurtle]) => {
+    if (!circleRef.value) return
+    tween?.kill()
+
+    const waveY = -(toFill * 58) // 單位：%
+    const turtleY = -(toTurtle * 205) + 30 // 單位：%
+
+    tween = gsap.to(circleRef.value, {
+      duration: 0.45,
+      ease: 'power2.out',
+      '--waveY': `${waveY}%`,
+      '--turtleY': `${turtleY}%`,
+      overwrite: true,
+    })
+  },
+  { immediate: true }
+)
+
+onUnmounted(() => {
+  tween?.kill()
 })
 
 onMounted(() => {
@@ -53,26 +84,20 @@ onMounted(() => {
 
 <template>
   <div class="turtle-progress">
-  <div class="progress-circle" ref="circleRef">
-    <div class="wave-wrapper">
-      <div class="wave wave-1" ref="wave1Ref"></div>
-      <div class="wave wave-2" ref="wave2Ref"></div>
-      <div class="wave wave-3" ref="wave3Ref"></div>
+    <div class="progress-circle" ref="circleRef">
+      <div class="wave-wrapper">
+        <div class="wave wave-1" ref="wave1Ref"></div>
+        <div class="wave wave-2" ref="wave2Ref"></div>
+        <div class="wave wave-3" ref="wave3Ref"></div>
+      </div>
+
+      <img v-if="turtleSrc" class="turtle-img" :class="`turtle-img--${progressStore.roleId}`" :src="turtleSrc" alt="" />
+
+      <div class="dash-line line-top"></div>
+      <div class="dash-line line-bottom"></div>
+
     </div>
-
-    <img
-      v-if="turtleSrc"
-      class="turtle-img"
-      :class="`turtle-img--${roleId}`"
-      :src="turtleSrc"
-      alt=""
-    />
-
-    <div class="dash-line line-top"></div>
-    <div class="dash-line line-bottom"></div>
-    
-  </div>
-  <p>{{ text }}</p>
+    <p>{{ text }}</p>
   </div>
 </template>
 
@@ -84,6 +109,8 @@ $wave-2: #5ebae3;
 $wave-3: #2aa2d6;
 
 .progress-circle {
+  --fill: 0;
+  --turtle: 0.25; // 0~1
   position: relative;
   width: $size;
   height: $size;
@@ -98,16 +125,18 @@ $wave-3: #2aa2d6;
 
   .wave-wrapper {
     position: absolute;
-    bottom: 0; // 海浪從底部開始
     width: 100%;
     height: 100%;
+    bottom: 0;
+    transform: translateY(var(--waveY, 0%));
+    will-change: transform;
   }
 
   .wave {
     position: absolute;
     width: 300%;
     height: 300%;
-    top: 70%; 
+    top: 71%;
     left: -100%;
     border-radius: 40%;
     opacity: 0.8;
@@ -117,11 +146,13 @@ $wave-3: #2aa2d6;
     background-color: $wave-1;
     z-index: 1;
   }
+
   .wave-2 {
     background-color: $wave-2;
     z-index: 2;
     border-radius: 38%;
   }
+
   .wave-3 {
     background-color: $wave-3;
     z-index: 3;
@@ -140,6 +171,7 @@ $wave-3: #2aa2d6;
     &.line-top {
       top: 33%;
     }
+
     &.line-bottom {
       top: 66%;
     }
@@ -155,19 +187,22 @@ $wave-3: #2aa2d6;
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
 }
-p{
+
+p {
   @include font-caption;
-  display: inline-block; 
+  display: inline-block;
   background-color: $primary-color;
   color: $text-white;
   padding: 4px 8px;
   border-radius: 50px;
 }
-.turtle-progress{
+
+.turtle-progress {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -176,12 +211,14 @@ p{
 
 .turtle-img {
   position: absolute;
+  left: 50%;
+  top: 57%;
   z-index: 20;
   width: 75%;
   height: auto;
   object-fit: contain;
   pointer-events: none;
   filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.18));
-  bottom: -6%;
+  transform: translate(-50%, var(--turtleY, 0%));
 }
 </style>

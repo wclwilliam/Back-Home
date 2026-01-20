@@ -1,14 +1,18 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import axios from 'axios'
 import GameStartCard from '@/components/Game/GameStartCard.vue'
 import GameEnterCard from '@/components/Game/GameEnterCard.vue'
 import GameActionCard from '@/components/Game/GameActionCard.vue'
 import GameBackground from '@/components/Game/GameBackground.vue'
+import OrientationGuard from '@/components/Game/OrientationGuard.vue'
 import { useHealthStore } from '@/stores/health'
 import { publicApi, base } from '@/utils/publicApi.js'
+import { useProgressStore } from '@/stores/progress'
 
-const healthStore = useHealthStore()  
+const progressStore = useProgressStore()
+
+const healthStore = useHealthStore()
 const applyHealth = (healthChange) => {
   healthStore.applyHealthChange(healthChange)
 }
@@ -18,7 +22,7 @@ const fetchGameData = async () => {
   try {
     const response = await publicApi.get('data/game.json')
     gameData.value = response.data
-  }catch (error){
+  } catch (error) {
     console.log(error)
   }
 }
@@ -44,7 +48,10 @@ const progressText = computed(() => {
 })
 
 const startGame = (pickedRoleId) => {
+  if (!gameData.value?.start?.options) return
+
   roleId.value = pickedRoleId
+  progressStore.setRole(pickedRoleId)
 
   const picked = gameData.value.start.options.find((option) => option.id === pickedRoleId)
   currentId.value = picked?.nextId ?? 'start'
@@ -64,6 +71,7 @@ const goNext = (nextId) => {
     roleId.value = ''
     currentId.value = 'start'
     healthStore.reset()
+    progressStore.reset()
     return
   }
 
@@ -78,41 +86,40 @@ const stage = computed(() => {
   return 'enter'
 })
 
+watch(
+  () => currentNode.value,
+  (node) => {
+    // 不管在哪個 step，都先更新 result 狀態
+    progressStore.setResult(node?.type === 'result')
+
+    // 只有在遊戲中(step=2)且不是 result 才推進 q1/q2/q3
+    if (step.value === 2 && node?.type !== 'result') {
+      progressStore.setStepByNodeId(currentId.value)
+    }
+  },
+  { immediate: true }
+)
+
 onMounted(() => {
   fetchGameData()
 })
 </script>
 <template>
-   <div class="game-page">
-  <GameBackground :stage="stage" :role-id="roleId" :node="currentNode" :node-id="currentId" />
+  <OrientationGuard>
+  <div class="game-page">
+    <GameBackground :stage="stage" :role-id="roleId" :node="currentNode" :node-id="currentId" />
 
-  <div class="game-content">
-  <p v-if="!gameData">載入中...</p>
-  <GameStartCard 
-  v-else-if = "step === 1"
-  :start-options="gameData.start.options"
-  @start="startGame"
-  />
+    <div class="game-content">
+      <p v-if="!gameData">載入中...</p>
+      <GameStartCard v-else-if="step === 1" :start-options="gameData.start.options" @start="startGame" />
 
-  <GameActionCard
-  v-else-if="step === 2 && isActionNode"
-  :role-id="roleId"
-  :node="currentNode"
-  @next="goNext"
-/>
-  
-  <GameEnterCard 
-  v-else-if="step === 2"
-  :role-id="roleId"
-  :current-node="currentNode"
-  :node-id="currentId" 
-  :progress-text="progressText"
-  @choose="chooseOption"
-  @apply-health="applyHealth"
-  @next="goNext"
-  />
+      <GameActionCard v-else-if="step === 2 && isActionNode" :role-id="roleId" :node="currentNode" @next="goNext" />
+
+      <GameEnterCard v-else-if="step === 2" :role-id="roleId" :current-node="currentNode" :node-id="currentId"
+        :progress-text="progressText" @choose="chooseOption" @apply-health="applyHealth" @next="goNext" />
+    </div>
   </div>
-  </div>
+   </OrientationGuard>
 </template>
 <style lang="scss" scoped>
 .game-page {
@@ -121,6 +128,7 @@ onMounted(() => {
   height: calc(100vh - clamp(84px, 8vw, 100px));
   overflow: hidden;
 }
+
 .game-content {
   position: relative;
   z-index: 1;

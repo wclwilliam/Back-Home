@@ -9,7 +9,7 @@ import vue from '@vitejs/plugin-vue'
 // 變成export default defineConfig(({mode})=>{return{...}})
 
 export default defineConfig(({ mode }) => {
-  // 讀取 .env、.env.[mode]，第三個參數用 '' 才會包含非 VITE_ 前綴 
+  // 讀取 .env、.env.[mode]，第三個參數用 '' 才會包含非 VITE_ 前綴
   const env = loadEnv(mode, process.cwd(), '')
 
   return {
@@ -19,7 +19,7 @@ export default defineConfig(({ mode }) => {
     ],
     resolve: {
       alias: {
-        '@': fileURLToPath(new URL('./src', import.meta.url))
+        '@': fileURLToPath(new URL('./src', import.meta.url)),
       },
     },
     css: {
@@ -30,11 +30,11 @@ export default defineConfig(({ mode }) => {
         @import "@/assets/scss/base/_color.scss";
         @import "@/assets/scss/base/_font.scss";
         @import "@/assets/scss/base/_var.scss";
-        @import "@/assets/scss/mixin/_mixins.scss";`
-        }
-      }
+        @import "@/assets/scss/mixin/_mixins.scss";`,
+        },
+      },
     },
-    base: env.VITE_BASE || '/', build: { outDir: env.VITE_OUT_DIR || 'dist', }
+    base: env.VITE_BASE || '/',
+    build: { outDir: env.VITE_OUT_DIR || 'dist' },
   }
 })
-

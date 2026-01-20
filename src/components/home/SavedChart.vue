@@ -343,6 +343,15 @@ const chartOptions = ref({
       justify-content: center;
     }
 
+    @media (max-width: 575px) {
+      padding: 0;
+      margin: 0 -10px;
+      // 覆蓋 col-sm-4 的限制
+      flex: 0 0 calc(100% + 20px) !important;
+      max-width: calc(100% + 20px) !important;
+      width: calc(100% + 20px);
+    }
+
     .chartContainer {
       width: 100%;
       height: 450px;
@@ -358,6 +367,10 @@ const chartOptions = ref({
         height: unset; // 明確取消上面的 height
         min-height: 200px; // 設定最小高度避免太扁
         aspect-ratio: 3 / 2;
+      }
+      @media (max-width: 575px) {
+        min-height: 300px; // 設定最小高度避免太扁
+        aspect-ratio: unset;
       }
     }
   }
@@ -450,6 +463,10 @@ const chartOptions = ref({
       border-radius: 50%;
       background-color: rgba($highlight-color1, 0.95);
       animation: floatSlow 5s ease-in-out infinite;
+      @media (max-width: 575px) {
+        width: 240px;
+        height: 240px;
+      }
 
       .statsDesc {
         @include font-tertiary;
@@ -475,9 +492,9 @@ const chartOptions = ref({
         line-height: 1;
         margin-bottom: 8px;
 
-        // @media (max-width: 768px) {
-        //   font-size: 60px !important;
-        // }
+        @media (max-width: 575px) {
+          font-size: 60px !important;
+        }
 
         sup {
           font-size: 0.5em;
@@ -498,11 +515,14 @@ const chartOptions = ref({
     background-color: $highlight-color3;
 
     @media (max-width: 767px) {
-      //   position: static;
-      //   display: inline-block;
-      //   margin-top: 20px;
-      //   text-align: center;
       top: 0%;
+      padding: 16px 28px;
+      border-radius: 24px;
+    }
+
+    @media (max-width: 575px) {
+      padding: 12px 20px;
+      border-radius: 16px;
     }
   }
 }
