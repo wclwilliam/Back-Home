@@ -16,7 +16,7 @@ const props = defineProps({
     type: String,
     default: '按鈕'
   },
-  // 按鈕寬度，預設 100%
+  // 按鈕寬度
   width: {
     type: String,
     default: null
