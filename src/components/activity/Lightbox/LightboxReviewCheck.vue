@@ -1,5 +1,5 @@
 <script setup>
-import Button from '../auth/Button.vue'
+import Button from '../../auth/Button.vue'
 
 defineProps({
   modelValue: Boolean, // 控制顯示隱藏
@@ -54,7 +54,7 @@ defineEmits(['update:modelValue'])
   border: 1px solid $primary-color;
   width: rem(800px);
   max-width: 90vw;
-  padding: rem(50px) rem(40px);
+  padding: rem(50px) rem(60px);
   position: relative;
   text-align: center;
 }
@@ -63,7 +63,7 @@ defineEmits(['update:modelValue'])
   font-size: rem(26px);
   color: $primary-color;
   font-weight: bold;
-  margin-bottom: rem(68px);
+  margin-bottom: rem(48px);
 }
 
 .actions {
@@ -90,5 +90,19 @@ defineEmits(['update:modelValue'])
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+// 手機版 RWD
+@media screen and (max-width: 767px) {
+  .lightbox-content {
+    width: 90vw;
+    padding: rem(50px) rem(20px);
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+
+  .actions {
+    gap: rem(12px);
+  }
 }
 </style>
