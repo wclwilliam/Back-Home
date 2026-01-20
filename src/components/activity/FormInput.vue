@@ -26,7 +26,7 @@
       <span v-if="required" class="requiredMark">*</span>
     </label>
 
-    <div class="formContent col-sm-4 col-md-10 col-lg-10">
+    <div class="formContent col-sm-4 col-md-10 col-lg-8">
       <slot></slot>
       <p v-if="error" class="errorMessage">{{ error }}</p>
       <div v-if="$slots.message"  class="message">
