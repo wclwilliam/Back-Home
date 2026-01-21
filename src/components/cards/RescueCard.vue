@@ -10,6 +10,36 @@ const props = defineProps({
   description: { type: String, required: true },
   stage: { type: Number, default: 1 }, //階段：1~5
 })
+// 處理圖片路徑 - 使用 Vite 動態 import 處理 assets 圖片
+const imageUrl = computed(() => {
+  if (!props.image) return 'https://picsum.photos/300/200'
+
+  // 如果路徑以 /src/ 開頭，轉換為相對路徑
+  let imagePath = props.image
+  if (imagePath.startsWith('/src/')) {
+    imagePath = imagePath.replace('/src/', '@/')
+  }
+
+  try {
+    // 使用 Vite 的 glob import
+    const imageModules = import.meta.glob('@/assets/image/**/*.{png,jpg,jpeg,gif,svg}', {
+      eager: true,
+    })
+    const fullPath = imagePath.replace('@/', '/src/')
+    const matchedModule = imageModules[fullPath]
+
+    if (matchedModule && matchedModule.default) {
+      return matchedModule.default
+    }
+
+    // 如果找不到，回傳預設圖片
+    return 'https://picsum.photos/300/200'
+  } catch (error) {
+    console.error('圖片載入失敗:', error)
+    return 'https://picsum.photos/300/200'
+  }
+})
+
 //計算百分比 (每個階段 20%)
 const progressPercent = computed(() => {
   let safeStage = props.stage
@@ -42,7 +72,7 @@ const progressText = computed(() => {
   <div class="col-sm-4 col-md-6 col-lg-4">
     <div class="cardContainer rescueCard">
       <div class="cardPic">
-        <img :src="image" :alt="name" />
+        <img :src="imageUrl" :alt="name" />
       </div>
 
       <div class="cardInfo">
@@ -78,18 +108,40 @@ const progressText = computed(() => {
 <style lang="scss" scoped>
 @import '@/assets/scss/component/_card.scss';
 
-.rescueCard {
-  padding-bottom: 48px;
-  cursor: default;
+// 让 col 容器使用 flexbox
+.col-sm-4,
+.col-md-6,
+.col-lg-4 {
+  display: flex;
+  flex-direction: column;
+}
 
-  .subTitle {
-    @include font-body-l-bold;
-  }
+.rescueCard {
+  padding-bottom: 32px;
+  cursor: default;
+  display: flex;
+  flex-direction: column;
+  height: 100%; // 撑满父容器
 
   .cardInfo {
+    display: flex;
+    flex-direction: column;
+    flex: 1; // 让 cardInfo 占据剩余空间
+
     .cardTitle {
       @include font-tertiary;
     }
+
+    .description {
+      flex: 1; // 让 description 自动扩展填充空间
+      display: flex;
+      align-items: flex-start; // 文字从顶部开始
+    }
+  }
+
+  .subTitle {
+    @include font-body-l-bold;
+    margin-top: auto; // 推到 description 之后
   }
 }
 .progress-track-container {

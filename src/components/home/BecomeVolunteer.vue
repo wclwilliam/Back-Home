@@ -102,15 +102,16 @@ const parseAssets = (fileName) => {
   // 小電腦響應式
   @media (max-width: 1023px) {
     aspect-ratio: 24 / 10;
-
-    .btn {
-      padding: 16px 32px;
-    }
   }
 
   // 平板響應式
   @media (max-width: 767px) {
-    aspect-ratio: 16 / 10;
+    aspect-ratio: 8 / 10;
+
+    .content {
+      padding-top: 10%;
+      padding-bottom: 5%;
+    }
 
     .textContent {
       text-align: center;
@@ -129,10 +130,6 @@ const parseAssets = (fileName) => {
       justify-content: center; // 按鈕置中
       margin: 20px 0; // 增加上下間距
     }
-
-    .btn {
-      padding: 12px 24px;
-    }
   }
 
   // 手機響應式
@@ -140,8 +137,8 @@ const parseAssets = (fileName) => {
     aspect-ratio: 4 / 5;
 
     .content {
-      padding-top: 8%;
-      padding-bottom: 8%;
+      padding-top: 20%;
+      padding-bottom: 10%;
     }
 
     .textContent {
@@ -158,13 +155,9 @@ const parseAssets = (fileName) => {
 
     .btnWrapper {
       margin: 15px 0;
-    }
-
-    .eventName {
-    }
-
-    .btn {
-      padding: 12px 24px;
+      .btn {
+        font-size: $size-quaternary;
+      }
     }
   }
 }

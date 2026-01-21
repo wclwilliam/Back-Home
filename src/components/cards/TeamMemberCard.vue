@@ -9,11 +9,41 @@ const props = defineProps({
   expertise: { type: String, required: true },
   description: { type: String, required: true },
 })
+
+// 處理圖片路徑 - 使用 Vite 動態 import 處理 assets 圖片
+const imageUrl = computed(() => {
+  if (!props.image) return 'https://picsum.photos/300/200'
+
+  // 如果路徑以 /src/ 開頭，轉換為相對路徑
+  let imagePath = props.image
+  if (imagePath.startsWith('/src/')) {
+    imagePath = imagePath.replace('/src/', '@/')
+  }
+
+  try {
+    // 使用 Vite 的 glob import
+    const imageModules = import.meta.glob('@/assets/image/**/*.{png,jpg,jpeg,gif,svg}', {
+      eager: true,
+    })
+    const fullPath = imagePath.replace('@/', '/src/')
+    const matchedModule = imageModules[fullPath]
+
+    if (matchedModule && matchedModule.default) {
+      return matchedModule.default
+    }
+
+    // 如果找不到，回傳預設圖片
+    return 'https://picsum.photos/300/200'
+  } catch (error) {
+    console.error('圖片載入失敗:', error)
+    return 'https://picsum.photos/300/200'
+  }
+})
 </script>
 <template>
   <div class="cardContainer teamCard">
     <div class="cardPic">
-      <img src="https://picsum.photos/300/200/?random=10" />
+      <img :src="imageUrl" :alt="title" />
     </div>
 
     <div class="cardInfo">

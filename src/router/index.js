@@ -25,6 +25,7 @@ const router = createRouter({
       path: '/news',
       name: 'news',
       component: () => import('@/views/NewsView.vue'),
+      meta: { title: '最新消息' },
     },
     {
       path: '/news/:id',
@@ -36,48 +37,39 @@ const router = createRouter({
       path: '/guide',
       name: 'guide',
       component: () => import('@/views/GuideView.vue'),
+      meta: { title: '認識海龜' },
     },
     {
       path: '/guidemap',
       name: 'guidemap',
       component: () => import('@/views/GuideBigMap.vue'),
+      meta: { title: '海龜地圖' },
     },
     {
       path: '/guide/:id',
       name: 'GuideInfo',
       props: true,
       component: () => import('@/views/GuideInfo.vue'),
-    },
-    {
-      path: '/about/info',
-      name: 'aboutInfo',
-      props: true,
-      component: () => import('@/views/AboutInfoView.vue'),
-    },
-    {
-      path: '/about/:id',
-      name: 'aboutDetail',
-      props: true,
-      component: () => import('@/views/AboutDetailVue.vue'),
+       meta: { title: '海龜圖鑑' }
     },
     {
       path: '/activity',
       name: 'activity',
       component: () => import('@/views/ActivityView.vue'),
-      meta: {
-        tilte: '志工活動',
-      },
+      meta: { title: '志工活動' },
     },
     {
       path: '/activity/:id',
       name: 'activityInfo',
       props: true,
+      meta: { title: '活動詳情', hideFooter: true,},
       component: () => import('@/views/ActivityInfoView.vue'),
     },
     {
       path: '/donation',
       name: 'donation',
       component: () => import('@/views/DonationView.vue'),
+      meta: { title: '支持保育' },
     },
     {
       path: '/membership',
@@ -95,12 +87,6 @@ const router = createRouter({
       },
     },
     {
-      path: '/product',
-      name: 'product',
-      component: () => import('@/views/ProductView.vue'),
-      meta: { hideFooter: true },
-    },
-    {
       path: '/member/:id',
       name: 'memberinfo',
       props: true,
@@ -113,16 +99,6 @@ const router = createRouter({
       path: '/login',
       name: 'login',
       component: () => import('@/views/Login.vue'),
-    },
-    {
-      path: '/product',
-      name: 'product',
-      component: () => import('@/views/ProductView.vue'),
-    },
-    {
-      path: '/product/:id',
-      name: 'productinfo',
-      component: () => import('@/views/ProductInfoView.vue'),
     },
     {
       path: '/test-lightbox',

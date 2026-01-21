@@ -1,87 +1,82 @@
-<script setup>
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+  <script setup>
+  import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
-/**
- * 判斷是否為手機裝置
- * - pointer: coarse：觸控裝置
- * - max-width: 820：你專案的手機/小平板門檻
- */
-const isMobileDevice = () => {
-  const coarse = window.matchMedia?.('(pointer: coarse)').matches ?? false
-  const smallWidth = window.matchMedia?.('(max-width: 820px)').matches ?? window.innerWidth <= 820
-  return coarse && smallWidth
-}
+  /**
+   * 判斷是否為手機裝置
+   * - pointer: coarse：觸控裝置
+   * - max-width: 820：你專案的手機/小平板門檻
+   */
+  const isMobileDevice = () => {
+    const coarse = window.matchMedia?.('(pointer: coarse)').matches ?? false
+    const smallWidth = window.matchMedia?.('(max-width: 820px)').matches ?? window.innerWidth <= 820
+    return coarse && smallWidth
+  }
 
-const mobile = ref(false)
-const portrait = ref(false)
+  const mobile = ref(false)
+  const portrait = ref(false)
 
-let mqlPortrait = null
-let mqlMobile = null
+  let mqlPortrait = null
+  let mqlMobile = null
 
-const update = () => {
-  mobile.value = isMobileDevice()
-  portrait.value = mqlPortrait ? mqlPortrait.matches : window.innerHeight >= window.innerWidth
-  updateBodyScroll()
-}
+  const update = () => {
+    mobile.value = isMobileDevice()
+    portrait.value = mqlPortrait ? mqlPortrait.matches : window.innerHeight >= window.innerWidth
+    updateBodyScroll()
+  }
 
-const updateBodyScroll = () => {
-  // 手機直向時隱藏滾動條
-  if (mobile.value && portrait.value) {
+  const updateBodyScroll = () => {
+    // 在遊戲畫面中永遠隱藏滾動條
     document.documentElement.style.overflow = 'hidden'
     document.body.style.overflow = 'hidden'
-  } else {
+  }
+
+  onMounted(() => {
+    mqlPortrait = window.matchMedia('(orientation: portrait)')
+    mqlMobile = window.matchMedia('(max-width: 820px)')
+
+    update()
+
+    // 只監聽真正會變的狀態
+    mqlPortrait.addEventListener('change', update)
+    mqlMobile.addEventListener('change', update)
+  })
+
+  onBeforeUnmount(() => {
+    if (mqlPortrait) mqlPortrait.removeEventListener('change', update)
+    if (mqlMobile) mqlMobile.removeEventListener('change', update)
+    mqlPortrait = null
+    mqlMobile = null
+
+    // 卸載時恢復滾動
     document.documentElement.style.overflow = ''
     document.body.style.overflow = ''
-  }
-}
+  })
 
-onMounted(() => {
-  mqlPortrait = window.matchMedia('(orientation: portrait)')
-  mqlMobile = window.matchMedia('(max-width: 820px)')
+  /* 手機 + 直向 → 顯示遮罩 */
+  const showGate = computed(() => mobile.value && portrait.value)
 
-  update()
-
-  // 只監聽真正會變的狀態
-  mqlPortrait.addEventListener('change', update)
-  mqlMobile.addEventListener('change', update)
-})
-
-onBeforeUnmount(() => {
-  if (mqlPortrait) mqlPortrait.removeEventListener('change', update)
-  if (mqlMobile) mqlMobile.removeEventListener('change', update)
-  mqlPortrait = null
-  mqlMobile = null
-
-  // 卸載時恢復滾動
-  document.documentElement.style.overflow = ''
-  document.body.style.overflow = ''
-})
-
-/* 手機 + 直向 → 顯示遮罩 */
-const showGate = computed(() => mobile.value && portrait.value)
-
-watch(showGate, (v) => console.log('showGate', v, window.innerWidth, window.innerHeight), { immediate: true })
+  watch(showGate, (v) => console.log('showGate', v, window.innerWidth, window.innerHeight), { immediate: true })
 </script>
 
-<template>
-  <div class="orientation-guard">
-    <slot />
+  <template>
+    <div class="orientation-guard">
+      <slot />
 
-    <div v-if="showGate" class="portrait-gate">
-      <div class="bg" />
+      <div v-if="showGate" class="portrait-gate">
+        <div class="bg" />
 
-      <div class="content">
-        <div class="phone-icon">
-          <div class="phone" />
-          <span class="rotate">↻</span>
+        <div class="content">
+          <div class="phone-icon">
+            <div class="phone" />
+            <span class="rotate">↻</span>
+          </div>
+
+          <h2>請將手機旋轉為橫向</h2>
+          <p>本遊戲僅支援橫向模式，轉過來就可以開始旅程囉！</p>
         </div>
-
-        <h2>請將手機旋轉為橫向</h2>
-        <p>本遊戲僅支援橫向模式，轉過來就可以開始旅程囉！</p>
       </div>
     </div>
-  </div>
-</template>
+  </template>
 
 <style lang="scss" scoped>
 .orientation-guard {

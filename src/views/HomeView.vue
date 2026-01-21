@@ -1,4 +1,5 @@
 <script setup>
+import { onMounted } from 'vue'
 import IndexBanner from '@/components/home/Banner.vue'
 import IndexHazardous from '@/components/home/Hazardous.vue'
 import IndexSavedChart from '@/components/home/SavedChart.vue'
@@ -6,9 +7,12 @@ import IndexSavedCases from '@/components/home/SavedCases.vue'
 import IndexVolunteer from '@/components/home/BecomeVolunteer.vue'
 import IndexNews from '@/components/home/News.vue'
 import IndexSeaTurtle from '@/components/home/SeaTurtle.vue'
+
+onMounted(() => {
+  window.scrollTo(0, 0)
+})
 </script>
 <template>
-  <h1>首頁</h1>
   <IndexBanner />
   <IndexHazardous />
   <div class="savedChart">

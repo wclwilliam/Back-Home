@@ -3,9 +3,12 @@ import RescueCard from '@/components/cards/RescueCard.vue'
 import { ref, onMounted } from 'vue'
 import { publicApi } from '@/utils/publicApi'
 import { Swiper, SwiperSlide } from 'swiper/vue'
+import { Pagination } from 'swiper/modules'
 import 'swiper/css'
+import 'swiper/css/pagination'
 
 const rescueCases = ref([])
+const modules = [Pagination]
 
 onMounted(() => {
   publicApi.get('data/rescueCases.json').then((response) => {
@@ -31,7 +34,9 @@ onMounted(() => {
       <!-- 手機/平板版：Swiper 輪播 -->
       <div class="mobile-swiper">
         <swiper
+          :modules="modules"
           :space-between="20"
+          :pagination="{ clickable: true }"
           :breakpoints="{
             // 當螢幕 >= 768px (平板)
             '768': { slidesPerView: 2 },
@@ -47,7 +52,9 @@ onMounted(() => {
 
       <!-- 底部按鈕 -->
       <div class="bottom-action">
-        <button class="donate-btn">贊助我們，救助更多海龜</button>
+        <router-link to="/donation" class="donate-btn btn btn-outline btn-xxl">
+          贊助我們，救助更多海龜
+        </router-link>
       </div>
     </div>
   </div>
@@ -72,6 +79,7 @@ onMounted(() => {
   .desktop-grid {
     display: flex;
     justify-content: center;
+    align-items: stretch; // 讓所有卡片等高
 
     @media (max-width: 1023px) {
       display: none;
@@ -87,7 +95,60 @@ onMounted(() => {
     }
 
     .swiper {
-      padding-bottom: 30px;
+      padding-bottom: 50px; // 給分頁器留空間
+    }
+
+    // 分頁器樣式
+    :deep(.swiper-pagination-bullet) {
+      background: $primary-color;
+      opacity: 0.5;
+    }
+
+    :deep(.swiper-pagination-bullet-active) {
+      background: $secondary-color;
+      opacity: 1;
+    }
+
+    // 強制 SwiperSlide 和內部卡片等高並充滿容器
+    :deep(.swiper-slide) {
+      height: auto; // 讓 slide 自動計算高度
+      display: flex;
+      flex-direction: column;
+
+      // 針對 RescueCard 的 col 容器
+      .col-sm-4,
+      .col-md-6,
+      .col-lg-4 {
+        width: 100% !important;
+        max-width: 100% !important;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+      }
+
+      // 針對 cardContainer
+      .cardContainer {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+      }
+
+      // 針對 cardInfo
+      .cardInfo {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+      }
+
+      // 針對 description 區域
+      .description {
+        flex: 1;
+      }
+    }
+
+    // 讓 Swiper wrapper 也使用 flexbox
+    :deep(.swiper-wrapper) {
+      align-items: stretch; // 讓所有 slide 等高
     }
   }
 
@@ -96,22 +157,12 @@ onMounted(() => {
     display: flex;
     justify-content: center;
     margin-top: 40px;
+  }
+}
 
-    .donate-btn {
-      @include font-body-l-bold;
-      background-color: transparent;
-      color: $primary-color;
-      border: 2px solid $primary-color;
-      padding: 12px 32px;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-
-      &:hover {
-        background-color: $primary-color;
-        color: $text-white;
-      }
-    }
+@media (max-width: 480px) {
+  .btn {
+    font-size: $size-quaternary;
   }
 }
 </style>

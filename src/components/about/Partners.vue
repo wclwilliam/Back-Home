@@ -40,7 +40,7 @@ const partners = ref([
   height: 532px; // 手機版高度
 
   // 桌機版：改用寬螢幕比例
-  @media (min-width: 768px) {
+  @media (min-width: 576px) {
     height: auto;
     aspect-ratio: 16 / 9;
     max-width: 1200px; // 限制最大寬度以免氣泡太散
@@ -60,22 +60,22 @@ const partners = ref([
 
 // 1. 手機版：維持 PX (因為手機寬度窄，用 px 比較能確保最小可視度)
 .size-lg {
-  width: 30%; // 當容器變小時，18% 也會變小，就不會擠在一起
+  width: 125px; // 當容器變小時，18% 也會變小，就不會擠在一起
   height: auto; // 高度交給 aspect-ratio 自動計算
 }
 .size-md {
-  width: 25%;
+  width: 100px;
   height: auto;
 }
 .size-sm {
-  width: 20%;
+  width: 80px;
   height: auto;
 }
 
 // 2. 桌機版：改用百分比 % (RWD 核心)
 // 這裡的 % 是相對於父容器 (partnerCloud_wrapper) 的寬度
 // 算法參考：原本 220px / 1200px(最大寬) ≈ 18%
-@media (min-width: 768px) {
+@media (min-width: 576px) {
   .size-lg {
     width: 18%; // 當容器變小時，18% 也會變小，就不會擠在一起
     height: auto; // 高度交給 aspect-ratio 自動計算
@@ -99,72 +99,72 @@ const partners = ref([
 
 // 太平洋海事
 .pos-1 {
-  top: 44%;
-  left: 15%;
+  top: 50%;
+  left: 20%;
 }
 
 // Nebula AI
 .pos-2 {
-  top: 10%;
+  top: 23%;
   left: 18%;
 }
 
 // 蓋亞
 .pos-3 {
-  top: 35%;
-  left: 35%;
+  top: 45%;
+  left: 83%;
 }
 
 // Vantage
 .pos-4 {
-  top: 25%;
-  left: 52%;
+  top: 35%;
+  left: 50%;
 }
 
 // BlueCore
 .pos-5 {
-  top: 12%;
-  left: 66%;
+  top: 23%;
+  left: 73%;
 }
 
 // 威速
 .pos-6 {
-  top: 30%;
+  top: 5%;
   left: 83%;
 }
 
 // Aether
 .pos-7 {
-  top: 67%;
+  top: 73%;
   left: 80%;
 }
 
 // 泰坦
 .pos-8 {
-  top: 75%;
-  left: 64%;
+  top: 85%;
+  left: 53%;
 }
 
 // Sterling
 .pos-9 {
   top: 60%;
-  left: 50%;
+  left: 53%;
 }
 
 // Meridian
 .pos-10 {
-  top: 70%;
-  left: 33%;
+  top: 8%;
+  left: 45%;
 }
 
 // Quantum
 .pos-11 {
-  top: 53%;
-  left: 18%;
+  top: 75%;
+  left: 25%;
 }
 
 // --- 桌機版位置 (Landscape Layout) ---
-@media (min-width: 768px) {
+@media (min-width: 576px) {
   // 太平洋海事 (中間大)
   .pos-1 {
     top: 44%;

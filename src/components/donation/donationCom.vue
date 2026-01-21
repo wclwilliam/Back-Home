@@ -1,12 +1,24 @@
 <script setup>
-import { ref,reactive, computed,watch } from 'vue'
+import { ref,reactive, computed,watch, onMounted } from 'vue'
 import MyButton from './MyButton.vue'
 import { useAuthStore } from '@/stores/auth'
 import downloadReceipt from './downloadReceipt.vue'
 import ecpayCrypto from '@/utils/ecpayCrypto.js'
 import { useLocalStorage } from '@vueuse/core'
+import { publicApi } from '@/utils/publicApi'
 
+//海龜數據
+const rescueCase = ref({})
 
+onMounted(() => {
+  publicApi.get('data/rescueCases.json').then((response) => {
+    //取一隻救援海龜數據
+    const randomIndex = Math.floor(Math.random() * response.data.length);
+    rescueCase.value = response.data[randomIndex]
+    
+    
+  })
+})
 
 const auth = useAuthStore()
 
@@ -410,7 +422,8 @@ const goDonate = () => {
             <input type="hidden" name="ChoosePayment" value="ALL">
             <input type="hidden" name="EncryptType" value="1">
             <input type="hidden" name="IgnorePayment" value="WeiXin#TWQR#BNPL#CVS#BARCODE#ATM#WebATM">
-            <input type="hidden" name="OrderResultURL" value="https://tibamef2e.com/cjd102/g3/front/donation">
+            <!-- <input type="hidden" name="OrderResultURL" value="https://tibamef2e.com/cjd102/g3/front/donation"> -->
+            <input type="hidden" name="ClientBackURL" value="https://tibamef2e.com/cjd102/g3/front/donation">
             <input type="hidden" name="CheckMacValue" id="CheckMacValue" value="">
             <MyButton @click.prevent="goDonate" class=" btn-xxl" width="50%" >立即捐款</MyButton>
         </form>
@@ -433,8 +446,8 @@ const goDonate = () => {
         </div>
   
         <div class="photo-box">
-          <img src="https://picsum.photos/300/200" alt="Sea Turtle">
-          <div class="caption">您的支持正讓「小翠」這樣的海龜獲得重生。</div>
+          <img :src="rescueCase.image" alt="Sea Turtle">
+          <div class="caption">您的支持正讓「{{rescueCase.name}}」這樣的海龜獲得重生。</div>
         </div>
         <MyButton @click="modalRef?.openModal" class=" btn-xxl" width="50%">下載收據</MyButton>
       </div>

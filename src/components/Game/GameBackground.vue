@@ -35,6 +35,30 @@ const nodeBgGroupMap = [
     match: /^teen_q3$/,
     bg: 'game-img/teen_q3_bg.png',
   },
+  {
+    match: /^adult_q1_good/,
+    bg: 'game-img/baby_q2_bg.png',
+  },
+  {
+    match: /^adult_q1_bad/,
+    bg: 'game-img/adult_q1_bad_bg.png',
+  },
+  {
+    match: /^adult_q2(?:$|_warm)/,
+    bg: 'game-img/adult_q2_bg.png',
+  },
+  {
+    match: /^adult_q2_cool/,
+    bg: 'game-img/adult_q2_cool_bg.png',
+  },
+  {
+    match: /^adult_q3/,
+    bg: 'game-img/adult_q3_bg.png',
+  },
+  {
+    match: /^call_to_action$/,
+    bg: 'game-img/call_to_action_bg.png',
+  },
 ]
 
 const bgMap = {
@@ -77,7 +101,7 @@ const bgStyle = computed(() => ({
 }))
 
 const enableAnim = computed(() => {
-  return !props.nodeId?.startsWith('baby_q2_bad')
+  return !props.nodeId?.startsWith('baby_q2_bad') && !props.nodeId?.startsWith('adult_q1_bad')
 })
 </script>
 

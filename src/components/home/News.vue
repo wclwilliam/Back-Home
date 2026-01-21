@@ -1,9 +1,9 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import axios from 'axios'
+import { publicApi } from '@/utils/publicApi'
 import { Swiper, SwiperSlide } from 'swiper/vue'
-import { Autoplay, Pagination, Navigation } from 'swiper/modules'
+import { Pagination } from 'swiper/modules'
 import 'swiper/css'
 import 'swiper/css/pagination'
 import 'swiper/css/navigation'
@@ -18,7 +18,7 @@ const topTenNews = computed(() => {
 })
 
 // Swiper 設定
-const modules = [Pagination, Navigation]
+const modules = [Pagination]
 const swiperOptions = {
   slidesPerView: 1,
   spaceBetween: 20,
@@ -26,7 +26,6 @@ const swiperOptions = {
   pagination: {
     clickable: true,
   },
-  navigation: true,
   breakpoints: {
     768: {
       slidesPerView: 2,
@@ -38,8 +37,8 @@ const swiperOptions = {
 }
 
 onMounted(() => {
-  axios
-    .get('/data/NewsList.json')
+  publicApi
+    .get('data/NewsList.json')
     .then((response) => {
       newslist.value = response.data.sort((a, b) => {
         return new Date(b.publish_time) - new Date(a.publish_time)
@@ -76,7 +75,6 @@ const goToDetail = (id) => {
           :space-between="swiperOptions.spaceBetween"
           :loop="swiperOptions.loop"
           :pagination="swiperOptions.pagination"
-          :navigation="swiperOptions.navigation"
           :breakpoints="swiperOptions.breakpoints"
           class="newsSwiper"
         >
@@ -106,11 +104,6 @@ const goToDetail = (id) => {
 .newsSection {
   .newsSwiperWrapper {
     position: relative;
-    padding: 0 60px; // 為外側箭頭預留空間
-
-    @media (max-width: 768px) {
-      padding: 0 40px; // 手機版縮小間距
-    }
 
     .newsSwiper {
       padding-bottom: 50px; // 給分頁器留空間
@@ -125,45 +118,6 @@ const goToDetail = (id) => {
         flex: none !important;
       }
 
-      // Swiper 導航按鈕樣式 - 放在外側
-      :deep(.swiper-button-prev),
-      :deep(.swiper-button-next) {
-        color: $primary-color;
-        width: 44px;
-        height: 44px;
-        background: white;
-        border-radius: 50%;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-        transition: all 0.3s ease;
-
-        &:after {
-          font-size: 20px;
-          font-weight: bold;
-        }
-
-        &:hover {
-          background: $primary-color;
-          color: white;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-        }
-      }
-
-      :deep(.swiper-button-prev) {
-        left: -60px; // 放到外側
-
-        @media (max-width: 768px) {
-          left: -40px;
-        }
-      }
-
-      :deep(.swiper-button-next) {
-        right: -60px; // 放到外側
-
-        @media (max-width: 768px) {
-          right: -40px;
-        }
-      }
-
       // 分頁器樣式
       :deep(.swiper-pagination-bullet) {
         background: $primary-color;
@@ -171,6 +125,7 @@ const goToDetail = (id) => {
       }
 
       :deep(.swiper-pagination-bullet-active) {
+        background: $secondary-color;
         opacity: 1;
       }
     }
