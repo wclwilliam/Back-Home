@@ -14,6 +14,7 @@
     "format": "prettier --write --experimental-cli src/"
   },
   "dependencies": {
+    "@bepo65/leaflet.fullscreen": "^2.0.2",
     "@fortawesome/fontawesome-free": "^7.1.0",
     "@vuepic/vue-datepicker": "^12.1.0",
     "@vueuse/core": "^14.1.0",

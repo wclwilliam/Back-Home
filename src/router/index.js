@@ -25,6 +25,7 @@ const router = createRouter({
       path: '/news',
       name: 'news',
       component: () => import('@/views/NewsView.vue'),
+      meta: { title: '最新消息' },
     },
     {
       path: '/news/:id',
@@ -36,17 +37,20 @@ const router = createRouter({
       path: '/guide',
       name: 'guide',
       component: () => import('@/views/GuideView.vue'),
+      meta: { title: '認識海龜' },
     },
     {
       path: '/guidemap',
       name: 'guidemap',
       component: () => import('@/views/GuideBigMap.vue'),
+      meta: { title: '海龜地圖' },
     },
     {
       path: '/guide/:id',
       name: 'GuideInfo',
       props: true,
       component: () => import('@/views/GuideInfo.vue'),
+       meta: { title: '海龜圖鑑' }
     },
     {
       path: '/about/info',
