@@ -72,8 +72,8 @@ const router = createRouter({
       meta: { title: '支持保育' },
     },
     {
-      path: '/membership',
-      name: 'membership',
+      path: '/member',
+      name: 'member',
       component: () => import('@/views/MemberShip.vue'),
       //meta: { requiresAuth: true },
     },
@@ -84,15 +84,6 @@ const router = createRouter({
       meta: {
         title: '海洋守護',
         hideFooter: true,
-      },
-    },
-    {
-      path: '/member/:id',
-      name: 'memberinfo',
-      props: true,
-      component: () => import('@/views/MemberShipinfo.vue'),
-      meta: {
-        title: '我的活動',
       },
     },
     {
