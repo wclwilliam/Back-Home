@@ -240,12 +240,12 @@
     "nextId": "teen_q3_good_knowledge"
   },
   "teen_q3_bad_knowledge": {
-    "knowledge": "成年海龜因體型龐大，水下靈活性不如幼龜，面對高速船隻時往往反應不及。背甲是海龜保護內臟的重要結構，一旦被螺旋槳切裂，不僅會造成大量失血，更可能引發嚴重的細菌感染或「氣泡症」，導致無法下潛覓食。這種傷害往往是致命的。",
+    "knowledge": "成年海龜因體型大、靈活性低，難以躲避高速船隻。一旦背甲遭螺旋槳擊碎，除了大量失血與感染，更會引發「氣泡症」使其無法下潛覓食，面臨致命威脅。",
     "buttonText": "我知道了，繼續前進",
     "nextId": "game_result"
   },
   "teen_q3_good_knowledge": {
-    "knowledge": "船隻碰撞是成年海龜在近海棲息地面臨的主要死因。海龜需要浮上水面呼吸及曬太陽調節體溫，這使其極易被高速行駛的快艇或貨輪撞擊。螺旋槳造成的背甲破碎通常是不可逆的重傷。採取下潛避讓，是海龜在人為開發海域中生存的必要智慧。",
+    "knowledge": "船隻碰撞是成年海龜在近海的主要死因。牠們因浮水呼吸與調節體溫，極易遭高速船隻撞擊；螺旋槳導致的背甲破碎往往是不可逆的重創。在開發海域中，及時下潛避讓是牠們生存的關鍵。",
     "buttonText": "我知道了，繼續前進",
     "nextId": "game_result"
   },
@@ -266,24 +266,29 @@
     ]
   },
   "adult_q1_bad": {
-    "feedback": "強光讓妳誤以為那是海面反光，妳在沙灘上迷失方向，繞行許久卻找不到產卵地。最終妳體力耗盡，只能被迫退回大海。",
+    "feedback": "強光讓妳誤以為那是海面反光，妳在沙灘上迷失方向，繞行許久卻找不到產卵地。",
     "warningText": "⚠️ 生產失敗，生存機率下降 20%",
     "healthChange": -1,
-    "nextId": "adult_q1_knowledge"
+    "nextId": "adult_q1_bad_knowledge"
   },
   "adult_q1_good": {
-    "feedback": "雖然爬行艱難，但黑暗讓妳感到安全。避開了人群與燈光的干擾，妳成功抵達沙灘高處，準備挖掘巢穴。",
+    "feedback": "雖然爬行艱難，但黑暗讓妳感到安全。避開了人群與燈光的干擾，妳成功抵達沙灘，準備挖掘巢穴。",
     "warningText": "",
     "healthChange": 0,
-    "nextId": "adult_q1_knowledge"
+    "nextId": "adult_q1_good_knowledge"
   },
-  "adult_q1_knowledge": {
+  "adult_q1_good_knowledge": {
+    "knowledge": "海龜天生會朝向較亮的水平線大海移動,城市燈火會讓母龜產生錯覺，導致牠們在陸地徘徊，甚至爬向馬路造成意外。",
+    "buttonText": "我知道了，繼續前進",
+    "nextId": "adult_q2"
+  },
+  "adult_q1_bad_knowledge": {
     "knowledge": "海龜天生會朝向較亮的水平線大海移動,城市燈火會讓母龜產生錯覺，導致牠們在陸地徘徊，甚至爬向馬路造成意外。",
     "buttonText": "我知道了，繼續前進",
     "nextId": "adult_q2"
   },
   "adult_q2": {
-    "question": "妳費力爬上沙灘高處，再次找到適合生產的地方。為了讓下一代平安出生，妳必須感知沙地的溫濕度，決定在哪裡挖掘深穴?",
+    "question": "妳找到適合生產的地方。為了讓下一代平安出生，妳必須感知沙地的溫濕度，決定在哪裡挖掘深穴?",
     "progress": 2,
     "options": [
       {
