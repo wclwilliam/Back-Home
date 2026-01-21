@@ -67,10 +67,14 @@ onUnmounted(() => {
 const activityTabs = ['目前活動', '活動回顧']
 const currentActivityTab = ref("目前活動")
 
+const searchQuery = ref('');
+const activeSearchKeyword = ref('');
+let timer = null;
+
+
 const activityList = ref(null)
 const currentPage = ref(1)
 const itemsPerPage = ref(9)
-const searchQuery = ref('')
 
 const activeFilters = ref({
   topics: [],
@@ -82,7 +86,7 @@ const activeFilters = ref({
 // 關鍵字搜索
 const handleSearchInput = (query) => {
   searchQuery.value = query
-  currentPage.value = 1 
+  // currentPage.value = 1 
 }
 //篩選器
 const handleFilterApply = (filters) => {
@@ -111,8 +115,8 @@ const filteredActivities = computed(() => {
   }
 
   // [第二層] 關鍵字搜尋 (標題、地點、描述)
-  if (searchQuery.value) {
-    const query = searchQuery.value.toLowerCase()
+  if (activeSearchKeyword.value.trim() !== '') {
+    const query = activeSearchKeyword.value.toLowerCase().trim();
     results = results.filter(act =>
       act.title.toLowerCase().includes(query) ||
       act.location.toLowerCase().includes(query) ||
@@ -206,12 +210,22 @@ const goToPage = (page) => {
 watch(currentActivityTab, () => {
   currentPage.value = 1
   searchQuery.value = ''
+  activeSearchKeyword.value = ''
   activeFilters.value = { 
     topics: [], 
     locations: [], 
     times: [], 
     dateRange: null }
 })
+watch(searchQuery, (newVal) => {
+  if (timer) {
+    clearTimeout(timer);
+  }
+  timer = setTimeout(() => {
+    activeSearchKeyword.value = newVal; 
+    currentPage.value = 1; 
+  }, 800); 
+});
 
 </script>
 <template>
