@@ -46,7 +46,6 @@ const formatDate = (dateString) => {
 }
 
 const goToDetail = (id) => {
-  console.log('跳轉到詳細頁，ID:', id);
   router.push({
     name: 'NewsDetail',
     params: { id: id }

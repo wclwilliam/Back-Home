@@ -29,7 +29,7 @@ const drawTurtleLayer = (turtle) => {
         map.removeLayer(currentLayer);
     }
     const rawGeometry = toRaw(turtle.geometry);
-    currentLayer = L.geoJSON(turtle.geometry, {
+    currentLayer = L.geoJSON(rawGeometry, {
         style: {
             fillColor: turtle.color || '#153450',
             weight: 2,
