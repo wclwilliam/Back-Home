@@ -422,7 +422,8 @@ const goDonate = () => {
             <input type="hidden" name="ChoosePayment" value="ALL">
             <input type="hidden" name="EncryptType" value="1">
             <input type="hidden" name="IgnorePayment" value="WeiXin#TWQR#BNPL#CVS#BARCODE#ATM#WebATM">
-            <input type="hidden" name="OrderResultURL" value="https://tibamef2e.com/cjd102/g3/front/donation">
+            <!-- <input type="hidden" name="OrderResultURL" value="https://tibamef2e.com/cjd102/g3/front/donation"> -->
+            <input type="hidden" name="ClientBackURL" value="https://tibamef2e.com/cjd102/g3/front/donation">
             <input type="hidden" name="CheckMacValue" id="CheckMacValue" value="">
             <MyButton @click.prevent="goDonate" class=" btn-xxl" width="50%" >立即捐款</MyButton>
         </form>
