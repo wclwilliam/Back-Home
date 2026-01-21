@@ -1,22 +1,39 @@
 <script setup>
 import Button from './auth/Button.vue';
-defineProps(['modelValue']); // 控制顯示隱藏
+
+// 增加 width 屬性，讓外層可以控制寬度（預設 420px）
+defineProps({
+    modelValue: Boolean,
+    width: {
+        type: String,
+        default: '420px'
+    }
+});
+
 defineEmits(['update:modelValue', 'confirm']);
 </script>
 
 <template>
-    <Teleport to="body"> <!--確保燈箱位置在上層-->
-        <Transition name="fade"> <!--淡入淡出-->
+    <Teleport to="body">
+        <Transition name="fade">
         <div v-if="modelValue" class="lightbox-overlay" @click.self="$emit('update:modelValue', false)">
-            <div class="lightbox-content">
+            <div class="lightbox-content" :style="{ width: `rem(${width})` }">
             <button class="close-btn" @click="$emit('update:modelValue', false)">✕</button>
             
             <div class="lightbox-main">
-                <h3 class="title"><slot name="title">標題文字</slot></h3>
+                <h3 class="title">
+                <slot name="title">提示訊息</slot>
+                </h3>
+                
+                <div class="content-body">
+                <slot />
+                </div>
                 
                 <div class="actions">
-                <Button variant="primary" @click="$emit('confirm')">確定</Button>
-                <Button variant="outline" @click="$emit('update:modelValue', false)">取消</Button>
+                <slot name="footer">
+                    <Button variant="primary" @click="$emit('confirm')">確定</Button>
+                    <Button variant="outline" @click="$emit('update:modelValue', false)">取消</Button>
+                </slot>
                 </div>
             </div>
             </div>
@@ -31,25 +48,34 @@ defineEmits(['update:modelValue', 'confirm']);
 .lightbox-overlay {
     position: fixed;
     top: 0; left: 0; width: 100vw; height: 100vh;
-    background: rgba(0, 0, 0, 0.4);
+    background: rgba(0, 0, 0, 0.5); // 稍微加深遮罩感
     display: flex; justify-content: center; align-items: center;
     z-index: 2000;
 }
 
 .lightbox-content {
-    background-color: #f0f2f5; // 灰底
-    border: 1px solid $primary-color; // 外層深色邊框
-    width: rem(420px);
-    padding: rem(50px) rem(20px);
+    background-color: #f0f2f5; 
+    border: 1px solid $primary-color; 
+    width: v-bind(width);
+    min-height: rem(200px);
+    padding: rem(40px) rem(30px);
     position: relative;
+    border-radius: rem(8px); // 增加一點圓角更精緻
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .title {
     font-size: rem(26px);
     color: $primary-color;
     font-weight: bold;
-    margin-bottom: rem(35px);
+    margin-bottom: rem(25px);
     text-align: center;
+}
+
+.content-body {
+    margin-bottom: rem(30px);
+    color: $text-color;
+    line-height: 1.6;
 }
 
 .actions {
@@ -60,12 +86,13 @@ defineEmits(['update:modelValue', 'confirm']);
 
 .close-btn {
     position: absolute;
-    top: 5px; right: 8px;
+    top: 10px; right: 15px;
     background: none;
     border: none;
-    font-size: 20px;
+    font-size: 24px;
     cursor: pointer;
     color: $primary-color;
+    &:hover { opacity: 0.7; }
 }
 
 .fade-enter-active, .fade-leave-active { transition: opacity 0.2s; }

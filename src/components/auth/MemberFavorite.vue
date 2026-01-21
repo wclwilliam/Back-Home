@@ -67,10 +67,15 @@ const handleWrapperClick = (e, activity) => {
   }
 };
 
-const handleConfirmAction = (data) => {
+const handleLightboxConfirm = () => {
   if (activeType.value === 'removeFavorite') {
-    favoriteList.value = favoriteList.value.filter(item => item.id !== data.id);
-    activeType.value = 'success';
+    console.log('移出收藏夾，ID:', selectedActivity.value?.id);
+    
+    isLightboxOpen.value = false;
+    setTimeout(() => {
+      activeType.value = 'removeFavoriteSuccess';
+      isLightboxOpen.value = true;
+    }, 300);
   }
 };
 
@@ -125,13 +130,11 @@ watch(currentTab, () => (currentPage.value = 1))
     </div>
 
     <MemberLightbox 
-      v-model="isLightboxOpen" 
-      :type="activeType" 
-      :initialData="selectedActivity"
-      title="移除成功"
-      message="該活動已成功從您的收藏夾中移出。"
-      @confirm="handleConfirmAction"
-    />
+  v-model="isLightboxOpen" 
+  :type="activeType" 
+  :initialData="selectedActivity"
+  @confirm="handleLightboxConfirm"
+  />
   </div>
 </template>
 

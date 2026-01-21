@@ -3,32 +3,51 @@ import { ref, computed, watch } from 'vue'
 import TabSwitcher from '@/components/TabSwitcher.vue'
 import Button from '@/components/auth/Button.vue'
 import Pagination from '@/components/Pagination.vue'
-import MemberLightbox from '@/components/auth/MemberLightbox.vue';
+import MemberLightbox from '@/components/auth/MemberLightbox.vue'
+// 引入燈箱組件
 
-//燈箱相關設定
-// 2. 定義燈箱狀態
-const isLightboxOpen = ref(false); // 控制顯示/隱藏
-const activeType = ref('');        // 控制燈箱類型 (如 'editActivity')
-const selectedActivity = ref(null); // 暫存目前被點擊的那筆活動資料
+// 5. 燈箱狀態控制
+const isLightboxOpen = ref(false)
+const activeType = ref('') // 'editActivity', 'cancelConfirm', 'editAmountSuccess' 等
+const selectedActivity = ref(null)
 
-// 3. 定義開啟燈箱的動作
-const openLightbox = (type, data = null) => {
-  activeType.value = type;
-  selectedActivity.value = data;
-  isLightboxOpen.value = true;
-};
+// 6. 燈箱觸發函式
+const openEditLightbox = (type, activity) => {
+  activeType.value = type
+  selectedActivity.value = activity
+  isLightboxOpen.value = true
+}
 
-// 4. 定義按下「確定」後的邏輯
-const handleConfirm = (formData) => {
-  if (activeType.value === 'editActivity') {
-    console.log('更新報名資料為：', formData);
-    // 這裡未來會接 API
-    isLightboxOpen.value = false; // 關閉燈箱
-  } else if (activeType.value === 'cancelConfirm') {
-    console.log('執行取消報名');
+// 專門處理「取消報名」的觸發
+const confirmCancel = (type, activity) => {
+  activeType.value = type
+  selectedActivity.value = activity
+  isLightboxOpen.value = true
+}
+
+// 7. 核心邏輯：處理燈箱按下「確定」後的行為
+const handleLightboxConfirm = () => {
+  if (activeType.value === 'cancelConfirm') {
+    console.log('取消報名，活動ID:', selectedActivity.value?.id);
+    
     isLightboxOpen.value = false;
+    setTimeout(() => {
+      activeType.value = 'cancelSuccess';
+      isLightboxOpen.value = true;
+    }, 300);
+  } else if (activeType.value === 'editActivity') {
+    console.log('更新報名資料:', selectedActivity.value);
+    
+    isLightboxOpen.value = false;
+    setTimeout(() => {
+      activeType.value = 'editActivitySuccess';  // 改成這個
+      isLightboxOpen.value = true;
+    }, 300);
   }
 };
+    
+    // 模擬：將該活動移至「已取消」分頁 (實際應重新接 API)
+    // activity.status = 'canceled' ...
 
 // 1. 分頁與 Tab 狀態
 const currentActivityTab = ref('future')
@@ -93,8 +112,6 @@ watch(currentActivityTab, () => {
   currentPage.value = 1
 })
 
-const openEditLightbox = (id) => { console.log('編輯活動:', id) }
-const confirmCancel = (id) => { console.log('取消活動:', id) }
 </script>
 
 <template>
@@ -129,8 +146,8 @@ const confirmCancel = (id) => { console.log('取消活動:', id) }
               
               <div class="item-actions">
                 <template v-if="currentActivityTab === 'future'">
-                  <Button variant="text-link" @click="openLightbox('editActivity', activity)">更改報名資料</Button>
-                  <Button variant="text-link" @click="openLightbox('cancelConfirm', activity)">取消報名</Button>
+                  <Button variant="text-link" @click="openEditLightbox('editActivity', activity)">更改報名資料</Button>
+                  <Button variant="text-link" @click="confirmCancel('cancelConfirm', activity)">取消報名</Button>
                 </template>
 
                 <template v-else-if="currentActivityTab === 'past'">
@@ -150,14 +167,16 @@ const confirmCancel = (id) => { console.log('取消活動:', id) }
           :current-page="currentPage"
           @page-change="goToPage"
         />
+        <MemberLightbox 
+          v-model="isLightboxOpen" 
+          :type="activeType" 
+          :initialData="selectedActivity"
+          @confirm="handleLightboxConfirm"
+        />
       </div>
     </TabSwitcher>
-    <MemberLightbox 
-      v-model="isLightboxOpen" 
-      :type="activeType" 
-      :initialData="selectedActivity"
-      @confirm="handleConfirm"
-    />
+    
+    
   </div>
 </template>
 
