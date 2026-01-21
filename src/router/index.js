@@ -68,14 +68,13 @@ const router = createRouter({
       path: '/activity',
       name: 'activity',
       component: () => import('@/views/ActivityView.vue'),
-      meta: {
-        tilte: '志工活動',
-      },
+      meta: { title: '志工活動' },
     },
     {
       path: '/activity/:id',
       name: 'activityInfo',
       props: true,
+      meta: { title: '活動詳情', hideFooter: true,},
       component: () => import('@/views/ActivityInfoView.vue'),
     },
     {
