@@ -69,6 +69,7 @@ const router = createRouter({
       path: '/donation',
       name: 'donation',
       component: () => import('@/views/DonationView.vue'),
+      meta: { title: '支持保育' },
     },
     {
       path: '/membership',
