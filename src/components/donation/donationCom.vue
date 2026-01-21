@@ -1,12 +1,24 @@
 <script setup>
-import { ref,reactive, computed,watch } from 'vue'
+import { ref,reactive, computed,watch, onMounted } from 'vue'
 import MyButton from './MyButton.vue'
 import { useAuthStore } from '@/stores/auth'
 import downloadReceipt from './downloadReceipt.vue'
 import ecpayCrypto from '@/utils/ecpayCrypto.js'
 import { useLocalStorage } from '@vueuse/core'
+import { publicApi } from '@/utils/publicApi'
 
+//海龜數據
+const rescueCase = ref({})
 
+onMounted(() => {
+  publicApi.get('data/rescueCases.json').then((response) => {
+    //取一隻救援海龜數據
+    const randomIndex = Math.floor(Math.random() * response.data.length);
+    rescueCase.value = response.data[randomIndex]
+    
+    
+  })
+})
 
 const auth = useAuthStore()
 
@@ -433,8 +445,8 @@ const goDonate = () => {
         </div>
   
         <div class="photo-box">
-          <img src="https://picsum.photos/300/200" alt="Sea Turtle">
-          <div class="caption">您的支持正讓「小翠」這樣的海龜獲得重生。</div>
+          <img :src="rescueCase.image" alt="Sea Turtle">
+          <div class="caption">您的支持正讓「{{rescueCase.name}}」這樣的海龜獲得重生。</div>
         </div>
         <MyButton @click="modalRef?.openModal" class=" btn-xxl" width="50%">下載收據</MyButton>
       </div>
