@@ -20,8 +20,6 @@ onMounted(() => {
 <template>
   <div class="saved-cases-section">
     <div class="container">
-      <h2 class="section-title">最新救援案例</h2>
-
       <!-- 桌機版：Grid 佈局 -->
       <div class="row desktop-grid">
         <RescueCard
@@ -65,15 +63,7 @@ onMounted(() => {
 @import '@/assets/scss/base/font';
 
 .saved-cases-section {
-  padding: 60px 0;
   //   background-color: $background-light;
-
-  .section-title {
-    @include font-secondary;
-    color: $primary-color;
-    text-align: center;
-    margin-bottom: 40px;
-  }
 
   // 桌機版：Grid 佈局 (預設顯示)
   .desktop-grid {
