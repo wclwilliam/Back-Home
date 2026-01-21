@@ -75,7 +75,7 @@ const router = createRouter({
       path: '/member',
       name: 'member',
       component: () => import('@/views/MemberShip.vue'),
-      //meta: { requiresAuth: true },
+      meta: { title: '會員中心' },
     },
     {
       path: '/game',
