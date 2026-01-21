@@ -46,7 +46,7 @@ function handleLoginSuccess() {
             <Input v-model="account" placeholder="請輸入電子郵件">
                 <template #icon><span class="material-symbols-outlined">mail</span></template>
             </Input>
-            <Input v-model="password" :type="isPasswordVisible ? 'text' : 'password'" placeholder="••••••••">
+            <Input v-model="password" :type="isPasswordVisible ? 'text' : 'password'" placeholder="請輸入密碼">
                 <template #icon><span class="material-symbols-outlined">lock</span></template>
                 <template #append>
                     <span class="material-symbols-outlined password-toggle"
