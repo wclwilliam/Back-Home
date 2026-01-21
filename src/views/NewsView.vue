@@ -11,7 +11,12 @@ import Pagination from '@/components/Pagination.vue';
 const newsTabs = ['全部', '重要公告', '異動通知'];
 const currentNewsTab = ref('全部');
 const searchKeyword = ref('');
+
+//加這兩個變數設定
 const activeSearchKeyword = ref('');
+let timer = null;
+
+
 
 const router = useRouter()
 const newslist = ref([])
@@ -48,12 +53,7 @@ const goToDetail = (id) => {
   })
 }
 
-const performSearch = () => {
-  activeSearchKeyword.value = searchKeyword.value; 
-  currentPage.value = 1; 
-};
-
-// Tab 篩選
+// Tab 與搜尋框篩選在這邊
 const filteredNews = computed(() => {
   let result = newslist.value;
 
@@ -88,9 +88,15 @@ const changePage = (page) => {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 };
 
-// 監聽 Tab 跟搜尋變化，切換回到第 1 頁
-watch([currentNewsTab, activeSearchKeyword], () => {
-  currentPage.value = 1;
+// 搜尋框延遲計數器在這邊
+watch(searchKeyword, (newVal) => {
+  if (timer) {
+    clearTimeout(timer);
+  }
+  timer = setTimeout(() => {
+    activeSearchKeyword.value = newVal; 
+    currentPage.value = 1; 
+  }, 800); 
 });
 
 </script>
@@ -100,7 +106,7 @@ watch([currentNewsTab, activeSearchKeyword], () => {
 
   <main class="container">
     <clickBar v-model="currentNewsTab" :tabs="newsTabs" />
-    <searchBox v-model="searchKeyword" @search="performSearch" />
+    <searchBox v-model="searchKeyword" />
 
     <div class="row" v-if="filteredNews.length > 0">
       <NewsCard v-for="item in displayNews" :key="item.article_id" :id="item.article_id" :title="item.title"

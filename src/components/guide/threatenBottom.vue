@@ -79,13 +79,14 @@ const modules = [Pagination];
     height: 100%;
     object-fit: cover;
     backface-visibility: hidden;
+    transition: all 0.3 ease;
   }
 
   &:hover {
     flex: 1.5;
 
     img {
-      transform: scale(1.1);
+      transform: scale(1.3);
     }
 
     .overlay {
