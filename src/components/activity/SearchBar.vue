@@ -98,6 +98,7 @@ const resetFilter = () => {
           v-model="searchQuery" 
           class="keywordSearch" 
           placeholder="搜尋活動關鍵字..."
+          @input="$emit('search', $event.target.value)"
           @keyup.enter="handleSearch"
         >
         <span class="material-symbols-outlined search-icon-desktop" @click="handleSearch">search</span>

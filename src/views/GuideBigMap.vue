@@ -1,9 +1,7 @@
 <script setup>
-// 1. 從 vue-router 引入 useRouter
 import { useRouter } from 'vue-router'
 import turtleMap from '@/components/guide/Guidemap.vue'
 
-// 2. 宣告 router 變數
 const router = useRouter()
 
 const goBack = () => {
@@ -24,6 +22,10 @@ const goBack = () => {
     }
     .space{
         margin-top: 100px;
+        @media (max-width:992px){
+             margin-top: 200px;
+            
+        }
     }
 
 </style>
