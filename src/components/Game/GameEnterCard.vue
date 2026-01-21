@@ -236,8 +236,8 @@ onUnmounted(() => {
 .game-question-card {
   grid-column: 1 / 7;
   grid-row: 3 / 4;
-  justify-self: center;
-  align-self: end;
+  justify-self: stretch;
+  align-self: stretch;
 }
 
 .game-result-card {
