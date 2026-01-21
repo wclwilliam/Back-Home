@@ -8,9 +8,11 @@ const props = defineProps({
   messages: {
     type: Array,
     required: true,
-    default: () => []
-  }
+    default: () => [],
+  },
 })
+
+const emit = defineEmits(['report'])
 
 // --- 資料處理 ---
 const topMessages = computed(() => {
@@ -40,7 +42,7 @@ const onBtmSwiper = (swiper) => {
 const startPlay = () => {
   // 避免重複啟動
   if (timer.value) return
-  
+
   // 設定每 3000ms 執行一次
   timer.value = setInterval(() => {
     // 命令上層切換下一張
@@ -72,18 +74,13 @@ onUnmounted(() => {
 
 // --- RWD 設定 ---
 const breakpointsConfig = {
-  '576': { slidesPerView: 2.3, spaceBetween: 16 },
-  '1024': { slidesPerView: 3.5, spaceBetween: 24 }
+  576: { slidesPerView: 2.3, spaceBetween: 16 },
+  1024: { slidesPerView: 3.5, spaceBetween: 24 },
 }
 </script>
 
 <template>
-  <div 
-    class="review-swiper-wrapper"
-    @mouseenter="stopPlay"
-    @mouseleave="startPlay"
-  >
-    
+  <div class="review-swiper-wrapper" @mouseenter="stopPlay" @mouseleave="startPlay">
     <swiper
       class="swiper-row mb-4"
       :slides-per-view="1.2"
@@ -94,7 +91,7 @@ const breakpointsConfig = {
       @swiper="onTopSwiper"
     >
       <swiper-slide v-for="(item, index) in topMessages" :key="`top-${index}`">
-        <ReviewCard :review="item" />
+        <ReviewCard :review="item" @report="emit('report', $event)" />
       </swiper-slide>
     </swiper>
 
@@ -109,10 +106,9 @@ const breakpointsConfig = {
       @swiper="onBtmSwiper"
     >
       <swiper-slide v-for="(item, index) in bottomMessages" :key="`btm-${index}`">
-        <ReviewCard :review="item" />
+        <ReviewCard :review="item" @report="emit('report', $event)" />
       </swiper-slide>
     </swiper>
-
   </div>
 </template>
 
@@ -125,7 +121,7 @@ const breakpointsConfig = {
 
 .swiper-row {
   width: 100%;
-  padding: 10px 0; 
+  padding: 10px 0;
   // 保持 ease-out 效果，不要 linear
 }
 

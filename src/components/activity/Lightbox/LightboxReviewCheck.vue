@@ -1,11 +1,11 @@
-<script setup>
+﻿<script setup>
 import Button from '../../auth/Button.vue'
 
 defineProps({
   modelValue: Boolean, // 控制顯示隱藏
 })
 
-defineEmits(['update:modelValue'])
+defineEmits(['update:modelValue', 'confirm'])
 </script>
 
 <template>
@@ -23,7 +23,7 @@ defineEmits(['update:modelValue'])
             <h2 class="title">確認送出留言？</h2>
 
             <div class="actions">
-              <Button variant="primary" @click="$emit('update:modelValue', false)">確認送出</Button>
+              <Button variant="primary" @click="$emit('confirm')">確認送出</Button>
               <Button variant="outline" @click="$emit('update:modelValue', false)">返回修改</Button>
             </div>
           </div>

@@ -1,6 +1,7 @@
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, onUnmounted, watch } from 'vue'
 import { Bar } from 'vue-chartjs'
+import gsap from 'gsap'
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -23,16 +24,35 @@ const getCSSVariable = (name) => {
 
 const impactReports = ref([])
 const totalRescued = ref(0)
+const animatedTotal = ref(0)
 const maxTick = ref(1600) // Y軸最大刻度（動態計算）
 const tickStep = ref(400) // Y軸刻度間距（動態計算）
 
 // 千分位格式化
+// 千分位格式化
 const formattedTotal = computed(() => {
-  return totalRescued.value.toLocaleString('en-US')
+  return Math.floor(animatedTotal.value).toLocaleString('en-US')
 })
 
 // 圖表數據
 const chartData = ref({ labels: [], datasets: [] })
+
+// 滾動觸發動畫相關
+const isVisible = ref(false)
+const chartContainerRef = ref(null)
+let observer = null
+
+watch(isVisible, (val) => {
+  if (val) {
+    // Start from 85% of the total value to reduce wait time but keep the "fast" phase visible
+    animatedTotal.value = totalRescued.value * 0.95
+    gsap.to(animatedTotal, {
+      duration: 3,
+      value: totalRescued.value,
+      ease: 'expo.out', // Exaggerated slow-down at the end
+    })
+  }
+})
 
 onMounted(async () => {
   try {
@@ -105,6 +125,29 @@ onMounted(async () => {
     }
   } catch (error) {
     console.log(error)
+  }
+
+  // 設定 IntersectionObserver
+  observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          isVisible.value = true
+          observer.unobserve(entry.target)
+        }
+      })
+    },
+    { threshold: 0.2 },
+  )
+
+  if (chartContainerRef.value) {
+    observer.observe(chartContainerRef.value)
+  }
+})
+
+onUnmounted(() => {
+  if (observer) {
+    observer.disconnect()
   }
 })
 
@@ -274,8 +317,13 @@ const chartOptions = ref({
   <div class="container">
     <div class="row">
       <div class="savedChart col-lg-7 col-md-12 col-sm-4">
-        <div class="chartContainer">
-          <Bar :data="chartData" :options="chartOptions" :plugins="[axisLabelPlugin]" />
+        <div class="chartContainer" ref="chartContainerRef">
+          <Bar
+            v-if="isVisible"
+            :data="chartData"
+            :options="chartOptions"
+            :plugins="[axisLabelPlugin]"
+          />
         </div>
       </div>
       <div class="col-lg-5 col-md-12 col-sm-4 circleArea">
