@@ -1,46 +1,3 @@
-<template>
-    <div class="fade-in-content">
-        <h2 class="form-title">歡迎回來</h2>
-        <p class="subtitle">請登入會員</p>
-        <form @submit.prevent="handleLoginSuccess">
-            <Input v-model="account" placeholder="請輸入電子郵件">
-                <template #icon><span class="material-symbols-outlined">mail</span></template>
-            </Input>
-            <Input v-model="password" :type="isPasswordVisible ? 'text' : 'password'" placeholder="••••••••">
-                <template #icon><span class="material-symbols-outlined">lock</span></template>
-                <template #append>
-                    <span class="material-symbols-outlined password-toggle"
-                        @click.stop="isPasswordVisible = !isPasswordVisible">
-                        {{ isPasswordVisible ? 'visibility' : 'visibility_off' }}
-                    </span>
-                </template>
-            </Input>
-            <div class="form-utility">
-                <label class="custom-checkbox-wrapper">
-                    <input type="checkbox" v-model="form.remember" class="hidden-checkbox" />
-                    <span class="styled-box"></span>
-                    <span class="checkbox-text">記住密碼</span>
-                </label>
-                <a class="link-text" @click="$emit('change-mode', 'forgot')">忘記密碼？</a>
-            </div>
-            <!--{{ userStore.isLogin ? 1 : 0 }}-->
-            <!-- 測試代碼 -->
-            <button class="btn btn-solid btn-l">登入</button>
-            <div class="register-wrapper">
-                <a class="link-text" @click="$emit('change-mode', 'register')">立即註冊</a>
-            </div>
-        </form>
-        <div class="social-login">
-            <div class="divider">或</div>
-            <div class="social-icons">
-                <img src="@/assets/image/auth/line.png" alt="Line" />
-                <img src="@/assets/image/auth/google.png" alt="Google" />
-                <img src="@/assets/image/auth/fb.png" alt="FB" />
-            </div>
-        </div>
-    </div>
-</template>
-
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { useUserStore } from '@/stores/user'
@@ -81,13 +38,56 @@ function handleLoginSuccess() {
 }
 </script>
 
+<template>
+    <div class="fade-in-content">
+        <h2 class="form-title">歡迎回來</h2>
+        <p class="subtitle">請登入會員</p>
+        <form @submit.prevent="handleLoginSuccess">
+            <Input v-model="account" placeholder="請輸入電子郵件">
+                <template #icon><span class="material-symbols-outlined">mail</span></template>
+            </Input>
+            <Input v-model="password" :type="isPasswordVisible ? 'text' : 'password'" placeholder="••••••••">
+                <template #icon><span class="material-symbols-outlined">lock</span></template>
+                <template #append>
+                    <span class="material-symbols-outlined password-toggle"
+                        @click.stop="isPasswordVisible = !isPasswordVisible">
+                        {{ isPasswordVisible ? 'visibility' : 'visibility_off' }}
+                    </span>
+                </template>
+            </Input>
+            
+            <div class="form-utility">
+                <label class="custom-checkbox-wrapper">
+                    <input type="checkbox" v-model="form.remember" class="hidden-checkbox" />
+                    <span class="material-symbols-outlined checkbox-icon">
+                        {{ form.remember ? 'check_box' : 'check_box_outline_blank' }}
+                    </span>
+                    <span class="checkbox-text">記住密碼</span>
+                </label>
+                <a class="link-text" @click="$emit('change-mode', 'forgot')">忘記密碼？</a>
+            </div>
+
+            <button class="btn btn-solid btn-l">登入</button>
+
+            <div class="register-wrapper">
+                <a class="link-text" @click="$emit('change-mode', 'register')">立即註冊</a>
+            </div>
+        </form>
+        <div class="social-login">
+            <div class="divider">或</div>
+            <div class="social-icons">
+                <img src="@/assets/image/auth/line.png" alt="Line" />
+                <img src="@/assets/image/auth/google.png" alt="Google" />
+                <img src="@/assets/image/auth/fb.png" alt="FB" />
+            </div>
+        </div>
+    </div>
+</template>
+
 <style lang="scss" scoped>
 @import '@/assets/scss/base/_var.scss';
 
-:deep(.button) {
-    width: 100%;
-}
-
+// 修正 Sass 報錯：重新手寫 transform 區域，確保無非法字元
 :deep(.input-group) {
     margin-bottom: rem(16px);
     position: relative;
@@ -114,13 +114,11 @@ function handleLoginSuccess() {
     .password-toggle {
         position: absolute;
         right: rem(12px); 
-        top: 50%;         
-        transform: translateY(-50%); 
-        z-index: 10;     
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 10;
         cursor: pointer;
         color: #999;
-        flex-shrink: 0;
-       
 
         &:hover {
             color: $secondary-color;
@@ -141,21 +139,16 @@ function handleLoginSuccess() {
     @include font-secondary;
     color: $primary-color;
     margin-bottom: rem(8px);
-    text-align: center;
 }
 
 .subtitle {
     font-size: rem(14px);
     color: #666;
     margin-bottom: rem(24px);
-    text-align: center;
 }
 
 form {
     width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
 }
 
 .form-utility {
@@ -163,85 +156,46 @@ form {
     justify-content: space-between;
     width: 100%;
     margin: rem(12px) 0;
-    font-size: rem(14px);
 }
 
+/* --- 按照組員樣式統一的 Checkbox --- */
 .custom-checkbox-wrapper {
     display: flex;
     align-items: center;
     cursor: pointer;
-    margin-right: rem(16px);
     user-select: none;
+    gap: rem(8px); // 對齊捐款頁 gap
 
-    &:hover {
-        .styled-box {
-            border-color: $highlight-color2;
-            background-color: rgba($highlight-color2, 0.05);
-        }
-
-        .checkbox-text {
-            color: $highlight-color2;
-        }
+    .hidden-checkbox {
+        display: none; // 組員寫法是直接隱藏
     }
 
-    input {
-        position: absolute;
-        opacity: 0;
-        cursor: pointer;
-        width: 16px;
-        height: 16px;
-    }
-
-    .styled-box {
-        border-color: $secondary-color; // 懸停時邊框變色
-        background-color: rgba($secondary-color, 0.05); // 淡淡的背景色
+    .checkbox-icon {
+        // 使用組員指定的 font-variation
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        color: #0E6273; // 使用組員定義的 $btn-green 色值
+        font-size: 24px;
+        line-height: 1;
     }
 
     .checkbox-text {
-        color: $secondary-color; // 文字也跟著變色
+        font-size: rem(16px);
+        color: #666;
+    }
+
+    /* 勾選時圖示變填充感，但不做顏色 hover */
+    input:checked + .checkbox-icon {
+        font-variation-settings: 'FILL' 1;
     }
 }
 
-.hidden-checkbox {
-    position: absolute; // 改成 absolute
-    opacity: 0; // 改成 opacity: 0
+/* 恢復你原本的按鈕樣式 */
+.btn {
+    padding-top: rem(14px);
+    padding-bottom: rem(14px);
+    width: 100%;
     cursor: pointer;
-    width: 16px;
-    height: 16px;
 }
-
-.styled-box {
-    width: 16px;
-    height: 16px;
-    border: 1px solid #ccc;
-    border-radius: 2px;
-    margin-right: 8px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    transition: all 0.2s ease;
-}
-
-// checkbox 被勾選時的樣式
-input:checked~.styled-box {
-    background-color: $secondary-color;
-    border-color: $secondary-color;
-
-    // 打勾符號，加偽元素
-    &::after {
-        content: '✓';
-        color: white;
-        font-size: 12px;
-    }
-}
-
-.checkbox-text {
-    font-size: rem(16px);
-    color: #666;
-    transition: color 0.2s ease;
-}
-
 
 .register-wrapper {
     margin-top: rem(16px);
@@ -253,37 +207,26 @@ input:checked~.styled-box {
     cursor: pointer;
     color: $secondary-color;
     text-decoration: underline;
-    font-size: rem(16px);
-    transition: color 0.2s ease;
-
     &:hover {
-        color: $highlight-color2; // 加入 hover 橘色
+        color: $highlight-color2;
     }
 }
 
 .social-login {
     width: 100%;
     margin-top: rem(30px);
-
     .divider {
         text-align: center;
         margin-bottom: 15px;
         color: #ccc;
     }
-
     .social-icons {
         display: flex;
         justify-content: center;
         gap: 20px;
-
         img {
             width: 30px;
         }
     }
-}
-
-.btn{
-    padding-top: rem(14px);
-    padding-bottom: rem(14px);
 }
 </style>

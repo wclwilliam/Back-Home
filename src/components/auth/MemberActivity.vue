@@ -1,53 +1,12 @@
 <script setup>
 import { ref, computed, watch } from 'vue'
+import { useRouter } from 'vue-router' // 引入路由
 import TabSwitcher from '@/components/TabSwitcher.vue'
 import Button from '@/components/auth/Button.vue'
 import Pagination from '@/components/Pagination.vue'
 import MemberLightbox from '@/components/auth/MemberLightbox.vue'
-// 引入燈箱組件
 
-// 5. 燈箱狀態控制
-const isLightboxOpen = ref(false)
-const activeType = ref('') // 'editActivity', 'cancelConfirm', 'editAmountSuccess' 等
-const selectedActivity = ref(null)
-
-// 6. 燈箱觸發函式
-const openEditLightbox = (type, activity) => {
-  activeType.value = type
-  selectedActivity.value = activity
-  isLightboxOpen.value = true
-}
-
-// 專門處理「取消報名」的觸發
-const confirmCancel = (type, activity) => {
-  activeType.value = type
-  selectedActivity.value = activity
-  isLightboxOpen.value = true
-}
-
-// 7. 核心邏輯：處理燈箱按下「確定」後的行為
-const handleLightboxConfirm = () => {
-  if (activeType.value === 'cancelConfirm') {
-    console.log('取消報名，活動ID:', selectedActivity.value?.id);
-    
-    isLightboxOpen.value = false;
-    setTimeout(() => {
-      activeType.value = 'cancelSuccess';
-      isLightboxOpen.value = true;
-    }, 300);
-  } else if (activeType.value === 'editActivity') {
-    console.log('更新報名資料:', selectedActivity.value);
-    
-    isLightboxOpen.value = false;
-    setTimeout(() => {
-      activeType.value = 'editActivitySuccess';  // 改成這個
-      isLightboxOpen.value = true;
-    }, 300);
-  }
-};
-    
-    // 模擬：將該活動移至「已取消」分頁 (實際應重新接 API)
-    // activity.status = 'canceled' ...
+const router = useRouter()
 
 // 1. 分頁與 Tab 狀態
 const currentActivityTab = ref('future')
@@ -60,10 +19,10 @@ const activityTabs = [
   { label: '已取消', value: 'canceled' }
 ]
 
-// 2. 模擬資料 (實際開發時替換為 API Data)
+// 2. 模擬資料
 const allActivities = ref({
   future: Array.from({ length: 8 }, (_, i) => ({
-    id: i, 
+    id: i + 1,  // 改成真實的活動 ID（1-23）
     month: 'DEC', 
     day: '29', 
     title: '萬里翡翠灣淨灘活動', 
@@ -71,7 +30,7 @@ const allActivities = ref({
     location: '萬里翡翠灣'
   })),
   past: Array.from({ length: 8 }, (_, i) => ({
-    id: i + 10, 
+    id: i + 9, // 改成真實的活動 ID（9-16） 
     month: 'NOV', 
     day: '15', 
     title: '海洋講座', 
@@ -79,8 +38,8 @@ const allActivities = ref({
     location: '桃園圖書館', 
     hours: 3
   })),
-  canceled: Array.from({ length: 8 }, (_, i) => ({  // 加上已取消的資料
-    id: i + 20, 
+  canceled: Array.from({ length: 8 }, (_, i) => ({
+    id: i + 17, // 改成真實的活動 ID（17-24）
     month: 'OCT', 
     day: '10', 
     title: '山林生態講座', 
@@ -89,7 +48,49 @@ const allActivities = ref({
   }))
 })
 
-// 3. 分頁邏輯計算
+// 3. 頁面跳轉邏輯
+const goToDetail = (activityId) => {
+  // 導向 ActivityIntroduce.vue (路由名為 activityInfo)
+  router.push({ 
+    name: 'activityInfo', 
+    params: { id: activityId } 
+  })
+}
+
+// 4. 燈箱邏輯 (保持原樣，但需注意事件冒泡)
+const isLightboxOpen = ref(false)
+const activeType = ref('')
+const selectedActivity = ref(null)
+
+const openEditLightbox = (type, activity) => {
+  activeType.value = type
+  selectedActivity.value = activity
+  isLightboxOpen.value = true
+}
+
+const confirmCancel = (type, activity) => {
+  activeType.value = type
+  selectedActivity.value = activity
+  isLightboxOpen.value = true
+}
+
+const handleLightboxConfirm = () => {
+  if (activeType.value === 'cancelConfirm') {
+    isLightboxOpen.value = false;
+    setTimeout(() => {
+      activeType.value = 'cancelSuccess';
+      isLightboxOpen.value = true;
+    }, 300);
+  } else if (activeType.value === 'editActivity') {
+    isLightboxOpen.value = false;
+    setTimeout(() => {
+      activeType.value = 'editActivitySuccess';
+      isLightboxOpen.value = true;
+    }, 300);
+  }
+};
+
+// 5. 分頁計算
 const totalPages = computed(() => {
   const data = allActivities.value[currentActivityTab.value] || []
   return Math.ceil(data.length / pageSize)
@@ -101,17 +102,14 @@ const pagedActivities = computed(() => {
   return data.slice(start, start + pageSize)
 })
 
-// 4. 事件處理
 const goToPage = (page) => {
   currentPage.value = page
   window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
-// 切換 Tab 重置頁碼
 watch(currentActivityTab, () => {
   currentPage.value = 1
 })
-
 </script>
 
 <template>
@@ -126,7 +124,12 @@ watch(currentActivityTab, () => {
         </div>
 
         <div class="history-list">
-          <div v-for="activity in pagedActivities" :key="activity.id" class="history-item">
+          <div 
+            v-for="activity in pagedActivities" 
+            :key="activity.id" 
+            class="history-item clickable-row"
+            @click="goToDetail(activity.id)"
+          >
             <div class="item-date">
               <span class="month">{{ activity.month }}</span>
               <span class="day">{{ activity.day }}</span>
@@ -146,14 +149,18 @@ watch(currentActivityTab, () => {
               
               <div class="item-actions">
                 <template v-if="currentActivityTab === 'future'">
-                  <Button variant="text-link" @click="openEditLightbox('editActivity', activity)">更改報名資料</Button>
-                  <Button variant="text-link" @click="confirmCancel('cancelConfirm', activity)">取消報名</Button>
+                  <Button variant="text-link" @click.stop="openEditLightbox('editActivity', activity)">更改報名資料</Button>
+                  <Button variant="text-link" @click.stop="confirmCancel('cancelConfirm', activity)">取消報名</Button>
                 </template>
 
                 <template v-else-if="currentActivityTab === 'past'">
                   <div class="item-badge">
                     <span class="amount-tag">志工時數: {{ activity.hours }}小時</span>
                   </div>
+                </template>
+
+                <template v-else-if="currentActivityTab === 'canceled'">
+                  <span class="status-canceled">已取消</span>
                 </template>
               </div>
             </div>
@@ -162,11 +169,12 @@ watch(currentActivityTab, () => {
 
         <Pagination
           v-if="totalPages > 1"
-          class="col-sm-4"
+          class="col-sm-4 pagination-spacing"
           :total-pages="totalPages"
           :current-page="currentPage"
           @page-change="goToPage"
         />
+
         <MemberLightbox 
           v-model="isLightboxOpen" 
           :type="activeType" 
@@ -175,11 +183,8 @@ watch(currentActivityTab, () => {
         />
       </div>
     </TabSwitcher>
-    
-    
   </div>
 </template>
-
 
 <style lang="scss" scoped>
 @import '@/assets/scss/base/_var.scss';
@@ -189,7 +194,21 @@ watch(currentActivityTab, () => {
   margin: 0 auto;
 }
 
-/* 志工時數區塊 */
+/* 讓整排看起來可以點擊 */
+.history-item.clickable-row {
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    // 使用龜途的次要色做極淺的背景，增加互動感
+    background-color: rgba($secondary-color, 0.03); 
+    
+    .activity-title {
+      color: $primary-color; // 懸停時標題稍微變色
+    }
+  }
+}
+
 .hours-summary {
   display: flex;
   align-items: center;
@@ -198,7 +217,7 @@ watch(currentActivityTab, () => {
   margin: rem(24px) 0;
   color: $primary-color;
   .hours-count {
-    font-size: $d-size-tertiary; // 24px
+    font-size: $d-size-tertiary;
     font-weight: 900;
   }
 }
@@ -248,14 +267,15 @@ watch(currentActivityTab, () => {
 }
 
 .activity-title {
-  font-size: $size-body-l; // 18px
+  font-size: $size-body-l;
   font-weight: 700;
   color: $text-color;
   margin-bottom: rem(8px);
+  transition: color 0.3s ease;
 }
 
 .item-info p {
-  font-size: $size-body; // 16px
+  font-size: $size-body;
   color: $text-color;
   margin-bottom: rem(4px);
 }
@@ -264,20 +284,28 @@ watch(currentActivityTab, () => {
   display: flex;
   gap: rem(16px);
   padding-bottom: rem(4px);
+  // 確保按鈕本身在點擊時有明確範圍
+  z-index: 5; 
 }
 
 .status-canceled {
   color: $page-number-color;
   font-size: $size-body;
+  font-weight: 500;
 }
 
-/* 金額標籤/時數標籤 */
 .item-badge .amount-tag {
-  background-color: $card-color; // 淺灰色背景
+  background-color: $card-color;
   color: $secondary-color;
   padding: rem(4px) rem(16px);
   border-radius: rem(20px);
   font-size: $d-size-caption;
   font-weight: 500;
+}
+
+.pagination-spacing {
+  margin-top: rem(40px);
+  display: flex;
+  justify-content: center;
 }
 </style>
