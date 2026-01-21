@@ -17,20 +17,23 @@ const openLightbox = (type, data = null) => {
 };
 
 // 處理確定終止
-const handleConfirmTerminate = (data) => {
+const handleLightboxConfirm = () => {
   if (activeType.value === 'terminate') {
-    console.log('正在向後端發送終止請求，捐款編號：', data.id);
+    console.log('正在向後端發送終止請求，捐款編號：', selectedDonation.value?.id);
     
-    // 1. 關閉確認燈箱
     isLightboxOpen.value = false;
-
-    // 2. 串接成功提示 (延遲一下讓轉場更平滑)
     setTimeout(() => {
-      openLightbox('success', { 
-        title: '申請成功', 
-        message: '您的終止捐款申請已送出，作業需 3-5 個工作天。' 
-      });
-    }, 400);
+      activeType.value = 'terminateSuccess';
+      isLightboxOpen.value = true;
+    }, 300);
+  } else if (activeType.value === 'editAmount') {
+    console.log('修改金額成功');
+    
+    isLightboxOpen.value = false;
+    setTimeout(() => {
+      activeType.value = 'editAmountSuccess';
+      isLightboxOpen.value = true;
+    }, 300);
   }
 };
 
@@ -165,13 +168,11 @@ watch(currentTab, () => {
       </div>
     </TabSwitcher>
     <MemberLightbox 
-  v-model="isLightboxOpen" 
-  :type="activeType" 
-  :initialData="selectedDonation"
-  :title="selectedDonation?.title"
-  :message="selectedDonation?.message"
-  @confirm="handleConfirmTerminate"
-/>
+    v-model="isLightboxOpen" 
+    :type="activeType" 
+    :initialData="selectedDonation"
+    @confirm="handleLightboxConfirm"
+    />
   </div>
 </template>
 

@@ -1,3 +1,67 @@
+<script setup>
+import { ref, reactive, watch } from 'vue';
+import Input from '@/components/auth/Input.vue';
+import Button from '@/components/auth/Button.vue';
+import MemberLightbox from '@/components/auth/MemberLightbox.vue';
+
+const isLightboxOpen = ref(false);
+const lightboxType = ref('');
+
+// 只保留這一個 handleUpdate
+const handleUpdate = () => {
+  console.log('送出資料：', form);
+  
+  // 觸發成功燈箱
+  isLightboxOpen.value = true;
+  lightboxType.value = 'updateSuccess';
+};
+
+const handleCancel = () => {
+  isChangingPassword.value = false;
+};
+
+const closeLightbox = () => {
+  isLightboxOpen.value = false;
+};
+
+// 建立響應式表單物件，包含所有 Mockup 欄位
+const form = reactive({
+  name: '王曉明',
+  email: '123gol@gmail.com',
+  phone: '',
+  idNumber: '',
+  birthday: '',
+  emergencyContact: '',
+  emergencyPhone: '',
+  newPassword: '',
+  confirmPassword: ''
+});
+
+const isChangingPassword = ref(false);
+const phoneError = ref(false);
+const emergencyPhoneError = ref(false);
+
+// 手機號碼格式驗證
+watch(() => form.phone, (newVal) => {
+  if (!newVal) {
+    phoneError.value = false;
+    return;
+  }
+  const phoneRegex = /^09\d{8}$/; // 檢查 09 開頭且共 10 碼
+  phoneError.value = !phoneRegex.test(newVal);
+});
+
+// 緊急聯絡人電話驗證
+watch(() => form.emergencyPhone, (newVal) => {
+  if (!newVal) {
+    emergencyPhoneError.value = false;
+    return;
+  }
+  const phoneRegex = /^09\d{8}$/;
+  emergencyPhoneError.value = !phoneRegex.test(newVal);
+});
+</script>
+
 <template>
     <div class="member-info-form">
         <div class="form-container">
@@ -73,61 +137,14 @@
             <Button variant="outline" @click="handleCancel">取消</Button>
         </div>
         </div>
+        <MemberLightbox 
+            v-model="isLightboxOpen" 
+            :type="lightboxType"
+            @confirm="closeLightbox"
+        />
     </div>
 </template>
 
-<script setup>
-import { ref, reactive, watch } from 'vue';
-import Input from '@/components/auth/Input.vue';
-import Button from '@/components/auth/Button.vue';
-
-// 建立響應式表單物件，包含所有 Mockup 欄位
-const form = reactive({
-  name: '王曉明',
-  email: '123gol@gmail.com',
-  phone: '',
-  idNumber: '',
-  birthday: '',
-  emergencyContact: '',
-  emergencyPhone: '',
-  newPassword: '',
-  confirmPassword: ''
-});
-
-const isChangingPassword = ref(false);
-const phoneError = ref(false);
-const emergencyPhoneError = ref(false);
-
-const handleUpdate = () => {
-  console.log('送出資料：', form);
-  alert('資料更新中...');
-};
-
-const handleCancel = () => {
-  isChangingPassword.value = false;
-  // 這裡可以加入 reset 邏輯
-};
-
-// 手機號碼格式驗證
-watch(() => form.phone, (newVal) => {
-  if (!newVal) {
-    phoneError.value = false;
-    return;
-  }
-  const phoneRegex = /^09\d{8}$/; // 檢查 09 開頭且共 10 碼
-  phoneError.value = !phoneRegex.test(newVal);
-});
-
-// 緊急聯絡人電話驗證
-watch(() => form.emergencyPhone, (newVal) => {
-  if (!newVal) {
-    emergencyPhoneError.value = false;
-    return;
-  }
-  const phoneRegex = /^09\d{8}$/;
-  emergencyPhoneError.value = !phoneRegex.test(newVal);
-});
-</script>
 
 <style lang="scss" scoped>
 // 使用你指定的正確路徑
