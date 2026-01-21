@@ -77,6 +77,9 @@ const parseAssets = (fileName) => {
   }
 }
 @media (max-width: 1023px) {
+  .article_wrapper {
+    padding-right: 10px;
+  }
   .img_area {
     .img_wrapper {
       flex-direction: row;

@@ -3,6 +3,7 @@ import AboutBanner from '@/components/about/Banner.vue'
 import AboutIntro from '@/components/about/Intro.vue'
 import AboutExperts from '@/components/about/Experts.vue'
 import AboutPartners from '@/components/about/Partners.vue'
+import AboutReport from '@/components/about/Report.vue'
 </script>
 <template>
   <div class="banner">
@@ -19,6 +20,10 @@ import AboutPartners from '@/components/about/Partners.vue'
     <h2>企業合作夥伴</h2>
     <AboutPartners />
   </div>
+  <div class="reports">
+    <h2>跨界公信，透明守護<br />我們的努力備受肯定</h2>
+    <AboutReport />
+  </div>
 </template>
 <style lang="scss" scoped>
 .banner {
@@ -31,6 +36,9 @@ import AboutPartners from '@/components/about/Partners.vue'
   margin-top: 9rem;
 }
 .partners {
+  margin-top: 9rem;
+}
+.reports {
   margin-top: 9rem;
 }
 

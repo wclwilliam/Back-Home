@@ -3,9 +3,12 @@ import TeamMemberCard from '@/components/cards/TeamMemberCard.vue'
 import { ref, onMounted } from 'vue'
 import { publicApi } from '@/utils/publicApi'
 import { Swiper, SwiperSlide } from 'swiper/vue'
+import { Pagination } from 'swiper/modules'
 import 'swiper/css'
+import 'swiper/css/pagination'
 
 const expertList = ref([])
+const modules = [Pagination]
 
 onMounted(() => {
   publicApi.get('data/experts.json').then((response) => {
@@ -23,7 +26,9 @@ onMounted(() => {
 
     <div class="mobile-swiper">
       <swiper
+        :modules="modules"
         :space-between="20"
+        :pagination="{ clickable: true }"
         :breakpoints="{
           // 當螢幕 >= 576px (你的平板斷點)
           '576': { slidesPerView: 2 },
@@ -73,7 +78,61 @@ onMounted(() => {
 }
 
 // 針對 Swiper 的樣式微調
-.swiper {
-  padding-bottom: 30px;
+.mobile-swiper {
+  .swiper {
+    padding-bottom: 50px; // 給分頁器留空間
+  }
+
+  // 分頁器樣式
+  :deep(.swiper-pagination-bullet) {
+    background: $primary-color;
+    opacity: 0.5;
+  }
+
+  :deep(.swiper-pagination-bullet-active) {
+    background: $secondary-color;
+    opacity: 1;
+  }
+
+  // 強制 SwiperSlide 和內部卡片等高並充滿容器
+  :deep(.swiper-slide) {
+    height: auto;
+    display: flex;
+    flex-direction: column;
+
+    // 針對 TeamMemberCard 的 col 容器
+    .col-lg-4,
+    .col-md-4 {
+      width: 100% !important;
+      max-width: 100% !important;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    // 針對 cardContainer
+    .cardContainer {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    // 針對 cardInfo
+    .cardInfo {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    // 針對 description 區域
+    .description {
+      flex: 1;
+    }
+  }
+
+  // 讓 Swiper wrapper 也使用 flexbox
+  :deep(.swiper-wrapper) {
+    align-items: stretch;
+  }
 }
 </style>

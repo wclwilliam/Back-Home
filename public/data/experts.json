@@ -1,7 +1,7 @@
 [
   {
     "id": 1,
-    "image": "https://picsum.photos/300/200?random=1",
+    "image": "/src/assets/image/about/staff/michael.png",
     "title": "林明杰 醫師 (Dr. Michael Lin)",
     "jobTitle": "醫療救援組長",
     "expertise": "專長：海龜臨床外科手術、爬蟲類放射線醫學。",
@@ -9,7 +9,7 @@
   },
   {
     "id": 2,
-    "image": "https://picsum.photos/300/200?random=2",
+    "image": "/src/assets/image/about/staff/alice.png",
     "title": "張雅涵 (Alice Chang)",
     "jobTitle": "棲地保育專員",
     "expertise": "專長：海洋生態監測、海洋廢棄物大數據分析。",
@@ -17,7 +17,7 @@
   },
   {
     "id": 3,
-    "image": "https://picsum.photos/300/200?random=3",
+    "image": "/src/assets/image/about/staff/enoch.png",
     "title": "陳以諾 (Enoch Chen)",
     "jobTitle": "公眾推廣與教育",
     "expertise": "專長：環境教育企劃、社群內容開發、危機溝通。",
