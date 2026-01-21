@@ -1,6 +1,5 @@
 <script setup>
 import { computed, ref } from 'vue'
-import Swal from 'sweetalert2'
 import Input from '../auth/Input.vue'
 
 const props = defineProps({
@@ -20,6 +19,8 @@ const avatar = computed(() => {
   return `https://ui-avatars.com/api/?name=${encodeURIComponent(userName.value)}&background=random&color=fff&size=128`
 })
 
+const emit = defineEmits(['report'])
+
 // --- 互動邏輯 ---
 const isLiked = ref(false)
 const likeCount = ref(props.review.likes || 10)
@@ -37,50 +38,11 @@ const toggleMenu = () => {
   isMenuOpen.value = !isMenuOpen.value
 }
 
-const handleReport = async () => {
-  if (isReported.value) {
-    isReported.value = false
-    isMenuOpen.value = false
-    return // 結束函式
-  }
-
-  const { value: reason } = await Swal.fire({
-    title: '請選擇檢舉原因',
-    input: 'radio',
-    inputOptions: {
-      'spam': '商業廣告或垃圾訊息',
-      'offensive': '不當或攻擊性內容',
-      'fake': '錯誤的資訊',
-      'other': '其他',
-    },
-    inputValidator: (value) => {
-      if (!value) {
-        return '請務必選擇一個原因' // 防呆：沒選不能送出
-      }
-    },
-    showCancelButton: true, // 顯示取消按鈕
-    confirmButtonText: '提交',
-    cancelButtonText: '取消',
-    confirmButtonColor: '#0E6872', // (選填) 配合你的主色系
-  })
-
-  if (reason) {
-    // 使用者選擇了原因並按下提交
-    isReported.value = true
-
-    Swal.fire({
-      title: '已收到您的檢舉',
-      text: '我們會盡快處理。',
-      icon: 'success', // 修正：設定 icon 為成功勾勾
-      confirmButtonColor: '#0E6872',
-    })
-  }else {
-
-    isReported.value = false // 取消檢舉
-
-  }
-  // 4. 最後關閉選單
+const handleReport = () => {
+  // 關閉選單
   isMenuOpen.value = false
+  // 發送檢舉事件，將當前評論物件傳出去
+  emit('report', props.review)
 }
 </script>
 
@@ -95,12 +57,12 @@ const handleReport = async () => {
             </div>
             <h4 class="user-name">{{ userName }}</h4>
           </div>
-  
+
           <div class="more-menu-container">
             <button class="icon-btn more-btn" @click="toggleMenu">
               <span class="material-symbols-outlined">more_vert</span>
             </button>
-  
+
             <div v-if="isMenuOpen" class="dropdown-menu">
               <button class="menu-item" :class="{ 'is-active': isReported }" @click="handleReport">
                 <span class="material-symbols-outlined icon">flag</span>
@@ -109,21 +71,31 @@ const handleReport = async () => {
             </div>
           </div>
         </div>
-  
+
         <div class="rating-stars">
-          <span v-for="n in 5" :key="n" class="material-symbols-outlined star-icon" :class="{ filled: n <= rating }">
+          <span
+            v-for="n in 5"
+            :key="n"
+            class="material-symbols-outlined star-icon"
+            :class="{ filled: n <= rating }"
+          >
             kid_star
           </span>
         </div>
-  
+
         <div class="card-body">
           <p class="content-label">心得內容 :</p>
           <p class="content-text">{{ comment }}</p>
         </div>
-  
+
         <div class="card-footer">
           <div class="action-group">
-            <button class="icon-btn action-btn like-btn" :class="{ active: isLiked }" @click="toggleLike" title="覺得實用">
+            <button
+              class="icon-btn action-btn like-btn"
+              :class="{ active: isLiked }"
+              @click="toggleLike"
+              title="覺得實用"
+            >
               <span class="material-symbols-outlined">
                 {{ isLiked ? 'thumb_up' : 'thumb_up_off_alt' }}
               </span>
