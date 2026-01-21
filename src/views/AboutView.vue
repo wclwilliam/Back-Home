@@ -4,6 +4,7 @@ import AboutIntro from '@/components/about/Intro.vue'
 import AboutExperts from '@/components/about/Experts.vue'
 import AboutPartners from '@/components/about/Partners.vue'
 import AboutReport from '@/components/about/Report.vue'
+import AboutAward from '@/components/about/Award.vue'
 </script>
 <template>
   <div class="banner">
@@ -13,16 +14,25 @@ import AboutReport from '@/components/about/Report.vue'
     <AboutIntro />
   </div>
   <div class="experts">
-    <h2>專業團隊</h2>
+    <div class="container">
+      <h2>專業團隊</h2>
+    </div>
     <AboutExperts />
   </div>
   <div class="partners">
-    <h2>企業合作夥伴</h2>
+    <div class="container">
+      <h2>企業合作夥伴</h2>
+    </div>
     <AboutPartners />
   </div>
   <div class="reports">
-    <h2>跨界公信，透明守護<br />我們的努力備受肯定</h2>
+    <div class="container">
+      <h2>跨界公信，透明守護<br />我們的努力備受肯定</h2>
+    </div>
     <AboutReport />
+  </div>
+  <div class="awards">
+    <AboutAward />
   </div>
 </template>
 <style lang="scss" scoped>
@@ -33,13 +43,13 @@ import AboutReport from '@/components/about/Report.vue'
   margin-top: 5.5rem;
 }
 .experts {
-  margin-top: 9rem;
+  margin-top: 8rem;
 }
 .partners {
-  margin-top: 9rem;
+  margin-top: 8rem;
 }
 .reports {
-  margin-top: 9rem;
+  margin-top: 8rem;
 }
 
 h2 {

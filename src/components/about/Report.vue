@@ -10,7 +10,7 @@
         </div>
         <div class="report-cnn-desc">
           CNN
-          記者走訪台灣沿海救援基地，紀錄了協會成員如何在風暴中搶救受傷與擱淺的海龜過程。經年守護的海灘除了有會殘存的「微塑膠碎粒生態系統」，新近指出海漂廢棄物明化且具侵蝕海洋棲地的破壞模式，已成為亞洲海洋守衛者組織的樣板。報導結語提到：「是人的行動為海洋打了劑力，是這群人的堅持，讓生命有機會見了回家的路。」
+          記者走訪台灣沿海救援基地，紀錄了協會成員如何在風暴中搶救受傷綠蠵龜的震撼過程。報導中特別強調了協會獨有的「海龜復健進度追蹤系統」，並指出這種高度透明化且具備科學實證的救援模式，已成為亞洲海洋保育組織的標杆。報導結語提到：「當人類的行為傷害了大海，是這群人的堅持，讓生命看見了回家的路。」
         </div>
       </div>
       <div class="report-cnn-img">
@@ -26,28 +26,27 @@
 
 .report-cnn-row {
   background: $highlight-color1;
-  display: grid;
-  grid-template-columns: 1fr 1.5fr;
-  gap: 0;
-  overflow: hidden;
+  display: flex;
   align-items: stretch;
-  min-height: 320px;
+  min-height: 400px;
 
   @media (max-width: 767px) {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto auto;
+    flex-direction: column;
   }
 }
 
 .report-cnn-text {
+  flex: 1;
   color: $text-white;
-  padding: 2.5rem 2rem 2.5rem 2.5rem;
+  padding: 3rem 2rem 3rem 3rem;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  min-width: 0;
+  position: relative;
+
   @media (max-width: 767px) {
-    padding: 2rem 1.5rem;
+    padding: 2rem;
+    order: 2;
   }
 }
 
@@ -55,30 +54,56 @@
   @include font-tertiary;
   background: $primary-color;
   color: $text-white;
-  padding: 1rem 1.5rem;
-  margin-bottom: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  padding: 1.5rem 2rem;
+  margin-bottom: 2rem;
+  margin-left: -3rem;
+  padding-left: 3rem;
+  width: fit-content;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+
+  a {
+    color: $text-white;
+    text-decoration: none;
+    display: block;
+  }
 
   @media (max-width: 767px) {
-    padding: 0.8rem 1rem;
+    margin-left: -2rem;
+    padding-left: 2rem;
+    width: calc(100% + 1rem);
   }
 }
 
 .report-cnn-desc {
   @include font-body;
-  margin-top: 0.5rem;
+  line-height: 1.8;
+  opacity: 0.9;
 }
 
 .report-cnn-img {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: stretch;
+  flex: 1.2;
+  position: relative;
+  min-height: 300px;
+
   img {
     width: 100%;
     height: 100%;
     object-fit: cover;
     display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+
+  @media (max-width: 767px) {
+    flex: auto;
+    height: 250px;
+    min-height: 250px;
+    position: relative;
+
+    img {
+      position: relative;
+    }
   }
 }
 </style>
