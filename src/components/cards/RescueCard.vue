@@ -1,6 +1,7 @@
 <script setup>
 //列表
 import { computed } from 'vue'
+import { parsePublicFile } from '@/utils/parseFile'
 // 定義外部傳入的資料
 const props = defineProps({
   id: { type: Number, required: true }, //海龜編號
@@ -10,6 +11,11 @@ const props = defineProps({
   description: { type: String, required: true },
   stage: { type: Number, default: 1 }, //階段：1~5
 })
+// 處理圖片路徑
+const imageUrl = computed(() => {
+  return parsePublicFile(props.image)
+})
+
 //計算百分比 (每個階段 20%)
 const progressPercent = computed(() => {
   let safeStage = props.stage
@@ -42,7 +48,7 @@ const progressText = computed(() => {
   <div class="col-sm-4 col-md-6 col-lg-4">
     <div class="cardContainer rescueCard">
       <div class="cardPic">
-        <img :src="image" :alt="name" />
+        <img :src="imageUrl" :alt="name" />
       </div>
 
       <div class="cardInfo">

@@ -30,20 +30,29 @@ const oceanBg = new URL(
 
 const containerRef = ref(null)
 const bgImageElRef = ref(null)
+const isLoading = ref(true)
 
 onMounted(() => {
   // 等待背景圖片加載完成後設置容器高度
   const bgImg = bgImageElRef.value
   if (bgImg) {
     if (bgImg.complete) {
-      initAnimation()
+      onImageLoaded()
     } else {
-      bgImg.addEventListener('load', initAnimation)
+      bgImg.addEventListener('load', onImageLoaded)
     }
   } else {
-    initAnimation()
+    onImageLoaded()
   }
 })
+
+const onImageLoaded = () => {
+  isLoading.value = false
+  // 稍微延遲以確保 DOM 更新
+  setTimeout(() => {
+    initAnimation()
+  }, 100)
+}
 
 const initAnimation = () => {
   // ==================== 1. 設定初始狀態 (重點修改) ====================
@@ -255,12 +264,27 @@ onUnmounted(() => {
 
 <template>
   <div class="ocean-container" ref="containerRef">
+    <!-- 載入中的 Loading 動畫 -->
+    <div class="loading-screen" :class="{ 'fade-out': !isLoading }">
+      <div class="loading-content">
+        <div class="loading-turtle">
+          <img :src="turtle" alt="載入中" />
+        </div>
+        <div class="loading-waves">
+          <div class="wave wave1"></div>
+          <div class="wave wave2"></div>
+          <div class="wave wave3"></div>
+        </div>
+        <p class="loading-text">海洋正在等待你...</p>
+      </div>
+    </div>
+
     <!-- 背景漸變層 -->
     <div class="bg-gradient"></div>
     <div class="ocean-overlay"></div>
 
     <!-- 背景圖片 -->
-    <div class="bg-image">
+    <div class="bg-image" :class="{ loaded: !isLoading }">
       <img :src="oceanBg" alt="ocean background" ref="bgImageElRef" />
     </div>
 
@@ -320,8 +344,127 @@ onUnmounted(() => {
   position: relative;
   width: 100%;
   height: 600vh; // 增加高度讓滾動節奏更優雅，使用者有更多時間體驗動畫
+  min-height: 100vh; // 確保至少有一個視窗高度
   overflow: visible;
   isolation: isolate; // 創建新的層疊上下文，不影響外部
+}
+
+// 載入中的 Loading 動畫
+.loading-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background: linear-gradient(
+    180deg,
+    rgba(79, 179, 212, 0.95) 0%,
+    rgba(42, 122, 158, 0.95) 50%,
+    rgba(26, 77, 92, 0.95) 100%
+  );
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.6s ease;
+
+  &.fade-out {
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+
+.loading-content {
+  text-align: center;
+  position: relative;
+}
+
+.loading-turtle {
+  width: 120px;
+  height: 120px;
+  margin: 0 auto 2rem;
+  animation: turtle-swim 2s ease-in-out infinite;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 20px rgba(0, 0, 0, 0.3));
+  }
+}
+
+@keyframes turtle-swim {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  25% {
+    transform: translateY(-15px) rotate(-3deg);
+  }
+  75% {
+    transform: translateY(-10px) rotate(3deg);
+  }
+}
+
+.loading-waves {
+  position: relative;
+  width: 200px;
+  height: 40px;
+  margin: 0 auto 1.5rem;
+}
+
+.wave {
+  position: absolute;
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  animation: wave-pulse 1.5s ease-in-out infinite;
+
+  &.wave1 {
+    animation-delay: 0s;
+  }
+
+  &.wave2 {
+    animation-delay: 0.3s;
+    opacity: 0.7;
+  }
+
+  &.wave3 {
+    animation-delay: 0.6s;
+    opacity: 0.5;
+  }
+}
+
+@keyframes wave-pulse {
+  0%,
+  100% {
+    transform: scaleX(0.8);
+    opacity: 0.3;
+  }
+  50% {
+    transform: scaleX(1.2);
+    opacity: 0.8;
+  }
+}
+
+.loading-text {
+  font-size: 1.25rem;
+  color: rgba(255, 255, 255, 0.95);
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  animation: text-fade 2s ease-in-out infinite;
+}
+
+@keyframes text-fade {
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
 }
 
 // Sticky 視窗層 - 在 banner 區域內保持固定
@@ -332,7 +475,7 @@ onUnmounted(() => {
   height: 100vh;
   z-index: 10;
   pointer-events: none;
-  overflow: hidden; // 隐藏超出范围的元素，防止横向滚动条
+  overflow: hidden; // 隱藏超出範圍的元素，防止橫向捲動條
 }
 
 // 背景圖片層（主要底圖）
@@ -343,6 +486,12 @@ onUnmounted(() => {
   width: 100%;
   height: 100%;
   z-index: 1;
+  opacity: 0;
+  transition: opacity 0.8s ease;
+
+  &.loaded {
+    opacity: 1;
+  }
 
   img {
     width: 100%;
