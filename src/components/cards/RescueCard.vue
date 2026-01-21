@@ -78,18 +78,40 @@ const progressText = computed(() => {
 <style lang="scss" scoped>
 @import '@/assets/scss/component/_card.scss';
 
-.rescueCard {
-  padding-bottom: 48px;
-  cursor: default;
+// 让 col 容器使用 flexbox
+.col-sm-4,
+.col-md-6,
+.col-lg-4 {
+  display: flex;
+  flex-direction: column;
+}
 
-  .subTitle {
-    @include font-body-l-bold;
-  }
+.rescueCard {
+  padding-bottom: 32px;
+  cursor: default;
+  display: flex;
+  flex-direction: column;
+  height: 100%; // 撑满父容器
 
   .cardInfo {
+    display: flex;
+    flex-direction: column;
+    flex: 1; // 让 cardInfo 占据剩余空间
+
     .cardTitle {
       @include font-tertiary;
     }
+
+    .description {
+      flex: 1; // 让 description 自动扩展填充空间
+      display: flex;
+      align-items: flex-start; // 文字从顶部开始
+    }
+  }
+
+  .subTitle {
+    @include font-body-l-bold;
+    margin-top: auto; // 推到 description 之后
   }
 }
 .progress-track-container {

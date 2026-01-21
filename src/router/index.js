@@ -44,18 +44,6 @@ const router = createRouter({
       component: () => import('@/views/GuideInfo.vue'),
     },
     {
-      path: '/about/info',
-      name: 'aboutInfo',
-      props: true,
-      component: () => import('@/views/AboutInfoView.vue'),
-    },
-    {
-      path: '/about/:id',
-      name: 'aboutDetail',
-      props: true,
-      component: () => import('@/views/AboutDetailVue.vue'),
-    },
-    {
       path: '/activity',
       name: 'activity',
       component: () => import('@/views/ActivityView.vue'),
@@ -90,12 +78,6 @@ const router = createRouter({
       },
     },
     {
-      path: '/product',
-      name: 'product',
-      component: () => import('@/views/ProductView.vue'),
-      meta: { hideFooter: true },
-    },
-    {
       path: '/member/:id',
       name: 'memberinfo',
       props: true,
@@ -108,16 +90,6 @@ const router = createRouter({
       path: '/login',
       name: 'login',
       component: () => import('@/views/Login.vue'),
-    },
-    {
-      path: '/product',
-      name: 'product',
-      component: () => import('@/views/ProductView.vue'),
-    },
-    {
-      path: '/product/:id',
-      name: 'productinfo',
-      component: () => import('@/views/ProductInfoView.vue'),
     },
     {
       path: '/test-lightbox',
