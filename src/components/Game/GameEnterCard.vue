@@ -53,7 +53,30 @@ const isTeenQ3BadGroup = computed(() =>
   props.nodeId.startsWith('teen_q3_bad')
 )
 
+const isAdultQ1Group = computed(() =>
+  props.nodeId.startsWith('adult_q1_') ||
+  props.nodeId?.startsWith('adult_q2')
+)
+const isAdultQ3BadGroup = computed(() =>
+  props.nodeId.startsWith('adult_q3_bad')
+)
+const isAdultQ3GoodGroup = computed(() =>
+  props.nodeId.startsWith('adult_q3_good')
+)
+
 const turtleSrc = computed(() => {
+  if (props.roleId === 'adult' && isAdultQ3BadGroup.value) {
+    return parsePublicFile('game-img/turtle-adult-plasticbag.png')
+  }
+
+  if (props.roleId === 'adult' && isAdultQ3GoodGroup.value) {
+    return parsePublicFile('game-img/turtle-adult-seaweed.png')
+  }
+
+  if (props.roleId === 'adult' && isAdultQ1Group.value) {
+    return parsePublicFile('game-img/turtle-adult.png')
+  }
+
   if (props.roleId === 'teen' && isTeenQ1BadGroup.value) {
     return parsePublicFile('game-img/turtle-teen-bind.png')
   }
@@ -293,7 +316,7 @@ onUnmounted(() => {
   transform: translate(var(--mx, 0px), var(--my, 0px));
 }
 
-/* ✅ 錨點：用 %，避免 px 跑掉 */
+/* 錨點：用 %，避免 px 跑掉 */
 .node-media--rt {
   top: 10%;
   right: -2%;
