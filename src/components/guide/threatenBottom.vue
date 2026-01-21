@@ -27,7 +27,7 @@ const modules = [Pagination];
 <template>
   <section class="desktopFlexCard container">
     <div v-for="item in cardData" :key="item.id" class="bottomcard" @click="openModal(item)">
-       <img :src="parsePublicFile(item.image)" :alt="item.title">
+      <img :src="parsePublicFile(item.image)" :alt="item.title">
       <div class="overlay">
         <div class="overlayContent">
           <h3>{{ item.title }}</h3>
@@ -39,8 +39,7 @@ const modules = [Pagination];
   <LightboxModal :isOpen="isModalOpen" :item="currentItem" @close="isModalOpen = false" />
 
   <div class="mobileFlexCard">
-    <swiper :modules="modules" :slides-per-view="1" :space-between="20"
-      :pagination="{ clickable: true }">
+    <swiper :modules="modules" :slides-per-view="1" :space-between="20" :pagination="{ clickable: true }">
       <swiper-slide v-for="item in cardData" :key="item.id">
         <div class="mobileCard">
           <div class="cardImage">
@@ -71,9 +70,9 @@ const modules = [Pagination];
   cursor: pointer;
   position: relative;
   overflow: hidden;
-  transition: flex 0.3s ease; 
+  transition: flex 0.3s ease;
   will-change: flex;
-  transform: translateZ(0); 
+  transform: translateZ(0);
 
   img {
     width: 100%;
@@ -84,6 +83,10 @@ const modules = [Pagination];
 
   &:hover {
     flex: 1.5;
+
+    img {
+      transform: scale(1.1);
+    }
 
     .overlay {
       opacity: 1;
@@ -101,7 +104,7 @@ const modules = [Pagination];
   background: rgba(0, 0, 0, 0.6);
   padding: 20px;
   box-sizing: border-box;
-  transition: opacity 0.3s ease; 
+  transition: opacity 0.3s ease;
 }
 
 
@@ -152,9 +155,10 @@ const modules = [Pagination];
     width: 80%;
     overflow: hidden;
     margin: auto;
-    @media(max-width:600px){
-         width: 100%;
-         height: 100%;
+
+    @media(max-width:600px) {
+      width: 100%;
+      height: 100%;
     }
 
     .cardImage {
