@@ -14,6 +14,7 @@
     "format": "prettier --write --experimental-cli src/"
   },
   "dependencies": {
+    "@bepo65/leaflet.fullscreen": "^2.0.2",
     "@fortawesome/fontawesome-free": "^7.1.0",
     "@vuepic/vue-datepicker": "^12.1.0",
     "@vueuse/core": "^14.1.0",
@@ -24,6 +25,7 @@
     "html2canvas": "^1.4.1",
     "jspdf": "^4.0.0",
     "leaflet": "^1.9.4",
+    "leaflet.fullscreen": "^5.3.0",
     "material-symbols": "^0.40.2",
     "pinia": "^3.0.4",
     "sweetalert2": "^11.26.17",

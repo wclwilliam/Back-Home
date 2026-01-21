@@ -3,6 +3,36 @@ import { ref, computed, watch } from 'vue'
 import TabSwitcher from '@/components/TabSwitcher.vue'
 import Button from '@/components/auth/Button.vue'
 import Pagination from '@/components/Pagination.vue'
+import MemberLightbox from '@/components/auth/MemberLightbox.vue';
+
+const isLightboxOpen = ref(false);
+const activeType = ref('');
+const selectedDonation = ref(null);
+
+// 開啟燈箱
+const openLightbox = (type, data = null) => {
+  activeType.value = type;
+  selectedDonation.value = data;
+  isLightboxOpen.value = true;
+};
+
+// 處理確定終止
+const handleConfirmTerminate = (data) => {
+  if (activeType.value === 'terminate') {
+    console.log('正在向後端發送終止請求，捐款編號：', data.id);
+    
+    // 1. 關閉確認燈箱
+    isLightboxOpen.value = false;
+
+    // 2. 串接成功提示 (延遲一下讓轉場更平滑)
+    setTimeout(() => {
+      openLightbox('success', { 
+        title: '申請成功', 
+        message: '您的終止捐款申請已送出，作業需 3-5 個工作天。' 
+      });
+    }, 400);
+  }
+};
 
 const currentTab = ref('single') 
 const currentPage = ref(1)
@@ -85,8 +115,8 @@ watch(currentTab, () => {
           </div>
 
           <div class="action-buttons">
-            <Button variant="primary">修改金額</Button>
-            <Button variant="outline">終止捐款</Button>
+            <Button variant="primary" @click="openLightbox('editAmount')">修改金額</Button>
+            <Button variant="outline" @click="openLightbox('terminate', { id: '123456' })">終止捐款</Button>
           </div>
         </template>
 
@@ -134,6 +164,14 @@ watch(currentTab, () => {
         />
       </div>
     </TabSwitcher>
+    <MemberLightbox 
+  v-model="isLightboxOpen" 
+  :type="activeType" 
+  :initialData="selectedDonation"
+  :title="selectedDonation?.title"
+  :message="selectedDonation?.message"
+  @confirm="handleConfirmTerminate"
+/>
   </div>
 </template>
 
@@ -147,7 +185,7 @@ watch(currentTab, () => {
 
 .subscription-status-card {
   background-color: #DDE8E8; 
-  /* 調整 3: 壓縮高度至 rem(20px) 上下 padding */
+  /* 壓縮高度至 rem(20px) 上下 padding */
   padding: rem(20px) rem(32px); 
   margin-top: rem(24px);
   width: 100%;
@@ -183,7 +221,7 @@ watch(currentTab, () => {
 
   .info-column {
     padding-left: rem(24px);
-    /* 調整 2: 細線顏色引用 $input-line-color1 */
+    /* 細線顏色引用 $input-line-color1 */
     border-left: 1px solid $input-line-color1; 
     
     p {
@@ -208,7 +246,7 @@ watch(currentTab, () => {
 
   .history-item {
     display: flex;
-    /* 調整 1: 移除 item 本身的 border-bottom，改用 timeline-line 處理視覺 */
+    /* 移除 item 本身的 border-bottom，改用 timeline-line 處理視覺 */
     position: relative;
     padding-bottom: rem(24px); 
   }
@@ -234,7 +272,7 @@ watch(currentTab, () => {
     }
   }
 
-  /* 調整 1: 視覺裝飾線與圓點精確定位 */
+  /* 視覺裝飾線與圓點 */
   .timeline-visual {
     position: relative;
     width: rem(40px); // 控制日期與文字間的距離
@@ -267,7 +305,7 @@ watch(currentTab, () => {
     justify-content: space-between;
     align-items: flex-end;
     padding-bottom: rem(16px);
-    /* 調整 1: 橫向分隔細線 */
+    /* 橫向分隔細線 */
     border-bottom: 1px solid $secondary-color; 
     padding-top: rem(10px);
   }
@@ -283,10 +321,10 @@ watch(currentTab, () => {
     }
   }
 
-  /* 調整 2: 金額標籤樣式修正 */
+  /* 金額標籤樣式 */
   .item-badge {
     .amount-tag {
-      background-color: $card-color; // 修正：使用 $card-color (#CFDEE0) 符合淡青色背景
+      background-color: $card-color; // 使用 $card-color (#CFDEE0) 淡青色背景
       color: $secondary-color;      // 文字使用二級主色
       padding: rem(4px) rem(16px);
       border-radius: rem(20px);

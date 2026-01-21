@@ -1,7 +1,7 @@
 export const cardData = [
   {
     id: 1,
-    image: 'img/GuideView/threatenBottom1.png',
+    image: 'img/GuideView/threatenBottom1.jpg',
     title: '海洋廢棄物',
     title2: '致命的偽裝，成為體內的利刃',
     modalTitle: '致命錯覺：美味水母還是塑膠袋？',
@@ -9,7 +9,7 @@ export const cardData = [
   },
   {
     id: 2,
-    image: 'img/GuideView/threatenBottom2.png',
+    image: 'img/GuideView/threatenBottom2.jpg',
     title: '幽靈漁具與混獲',
     title2: '被遺忘在海裡的兇器<br>無法浮上水面的絕望',
     modalTitle: '捕撈的幽靈：海龜的隱形殺手',
@@ -25,7 +25,7 @@ export const cardData = [
   },
   {
     id: 4,
-    image: 'img/GuideView/threatenBottom4.png',
+    image: 'img/GuideView/threatenBottom4.jpg',
     title: '氣候變遷',
     title2: '沒有退路的生存戰',
     modalTitle: '孤單的母親：誰來繁衍下一代？',

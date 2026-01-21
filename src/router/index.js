@@ -25,6 +25,7 @@ const router = createRouter({
       path: '/news',
       name: 'news',
       component: () => import('@/views/NewsView.vue'),
+      meta: { title: '最新消息' },
     },
     {
       path: '/news/:id',
@@ -36,25 +37,32 @@ const router = createRouter({
       path: '/guide',
       name: 'guide',
       component: () => import('@/views/GuideView.vue'),
+      meta: { title: '認識海龜' },
+    },
+    {
+      path: '/guidemap',
+      name: 'guidemap',
+      component: () => import('@/views/GuideBigMap.vue'),
+      meta: { title: '海龜地圖' },
     },
     {
       path: '/guide/:id',
       name: 'GuideInfo',
       props: true,
       component: () => import('@/views/GuideInfo.vue'),
+       meta: { title: '海龜圖鑑' }
     },
     {
       path: '/activity',
       name: 'activity',
       component: () => import('@/views/ActivityView.vue'),
-      meta: {
-        tilte: '志工活動'
-      }
+      meta: { title: '志工活動' },
     },
     {
       path: '/activity/:id',
       name: 'activityInfo',
       props: true,
+      meta: { title: '活動詳情', hideFooter: true,},
       component: () => import('@/views/ActivityInfoView.vue'),
     },
     {
@@ -84,7 +92,7 @@ const router = createRouter({
       component: () => import('@/views/MemberShipinfo.vue'),
       meta: {
         title: '我的活動',
-      }
+      },
     },
     {
       path: '/login',
@@ -102,9 +110,17 @@ const router = createRouter({
     {
       path: '/:pathMatch(.*)*',
       component: () => import('@/views/NotFound.vue'),
-    }
+    },
   ],
-
+  scrollBehavior(to, from, savedPosition) {
+    if (savedPosition) {
+      // 如果是按「上一頁」或 router.back()，會回到原本滾動的位置
+      return savedPosition
+    } else {
+      // 如果是前往新頁面，就回到最頂端
+      return { top: 0 }
+    }
+  },
 })
 
 // router.beforeEach(async (to, from) => {
@@ -113,6 +129,5 @@ const router = createRouter({
 // 	}
 // })
 router.beforeEach(authGuard)
-
 
 export default router

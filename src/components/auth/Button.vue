@@ -52,5 +52,22 @@ defineProps({
         background-color: transparent;   // 依然沒背景
         }
     }
+    // 底線文字樣式 (用於未來活動的 修改/取消)
+    &.text-link {
+    background: none;
+    border: none;
+    padding: 0;
+    text-decoration: underline;
+    color: $secondary-color; 
+    font-size: $size-body;
+    text-decoration: underline;
+    cursor: pointer;
+    transition: color 0.3s ease;
+
+    &:hover {
+        color: $highlight-color2; 
+        text-decoration: underline;
+        }
+    }
 }
 </style>
