@@ -6,11 +6,10 @@ import downloadReceipt from './downloadReceipt.vue'
 import ecpayCrypto from '@/utils/ecpayCrypto.js'
 import { useLocalStorage } from '@vueuse/core'
 import { publicApi } from '@/utils/publicApi'
-import { parsePublicFile } from '@/utils/parseFile'
 
 //海龜數據
 const rescueCase = ref({})
-const imgURL = ref("")
+// const imgURL = ref("")
 
 onMounted(() => {
   publicApi.get('data/rescueCases.json').then((response) => {
@@ -18,10 +17,38 @@ onMounted(() => {
     const randomIndex = Math.floor(Math.random() * response.data.length);
     rescueCase.value = response.data[randomIndex]
     //圖片路徑處理
-    imgURL.value = parsePublicFile(rescueCase.value.image.replace(/^\/+/, ""));
-    
+    // imgURL.value = parsePublicFile(rescueCase.value.image.replace(/^\/+/, ""));
     
   })
+})
+    // 處理圖片路徑 - 使用 Vite 動態 import 處理 assets 圖片
+const imageUrl = computed(() => {
+  if (!rescueCase.value.image) return 'https://picsum.photos/300/200'
+
+  // 如果路徑以 /src/ 開頭，轉換為相對路徑
+  let imagePath = rescueCase.value.image
+  if (imagePath.startsWith('/src/')) {
+    imagePath = imagePath.replace('/src/', '@/')
+  }
+
+  try {
+    // 使用 Vite 的 glob import
+    const imageModules = import.meta.glob('@/assets/image/**/*.{png,jpg,jpeg,gif,svg}', {
+      eager: true,
+    })
+    const fullPath = imagePath.replace('@/', '/src/')
+    const matchedModule = imageModules[fullPath]
+
+    if (matchedModule && matchedModule.default) {
+      return matchedModule.default
+    }
+
+    // 如果找不到，回傳預設圖片
+    return 'https://picsum.photos/300/200'
+  } catch (error) {
+    console.error('圖片載入失敗:', error)
+    return 'https://picsum.photos/300/200'
+  }
 })
 
 const auth = useAuthStore()
@@ -450,7 +477,7 @@ const goDonate = () => {
         </div>
   
         <div class="photo-box">
-          <img :src="imgURL" alt="Sea Turtle">
+          <img :src="imageUrl" alt="Sea Turtle">
           <div class="caption">您的支持正讓「{{rescueCase.name}}」這樣的海龜獲得重生。</div>
         </div>
         <MyButton @click="modalRef?.openModal" class=" btn-xxl" width="50%">下載收據</MyButton>
