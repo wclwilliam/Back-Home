@@ -6,15 +6,19 @@ import downloadReceipt from './downloadReceipt.vue'
 import ecpayCrypto from '@/utils/ecpayCrypto.js'
 import { useLocalStorage } from '@vueuse/core'
 import { publicApi } from '@/utils/publicApi'
+import { parsePublicFile } from '@/utils/parseFile'
 
 //海龜數據
 const rescueCase = ref({})
+const imgURL = ref("")
 
 onMounted(() => {
   publicApi.get('data/rescueCases.json').then((response) => {
     //取一隻救援海龜數據
     const randomIndex = Math.floor(Math.random() * response.data.length);
     rescueCase.value = response.data[randomIndex]
+    //圖片路徑處理
+    imgURL.value = parsePublicFile(rescueCase.value.image.replace(/^\/+/, ""));
     
     
   })
@@ -446,7 +450,7 @@ const goDonate = () => {
         </div>
   
         <div class="photo-box">
-          <img :src="rescueCase.image" alt="Sea Turtle">
+          <img :src="imgURL" alt="Sea Turtle">
           <div class="caption">您的支持正讓「{{rescueCase.name}}」這樣的海龜獲得重生。</div>
         </div>
         <MyButton @click="modalRef?.openModal" class=" btn-xxl" width="50%">下載收據</MyButton>
