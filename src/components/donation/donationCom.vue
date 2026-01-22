@@ -480,8 +480,7 @@ const goDonate = () => {
 
 .donation-card {
     position: sticky;
-    // margin-top: 32px; //到時候根據header高度做調整
-    top: 0px; //到時候根據header高度做調整
+    top: clamp(84px, 8vw, 100px); //到時候根據header高度做調整
     width: 100%;
     padding-bottom: 12px;
     border: 2px solid $secondary-color;
