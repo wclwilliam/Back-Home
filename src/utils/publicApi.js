@@ -12,3 +12,13 @@ export const musicApi = axios.create({
     baseURL: 'https://api.spotify.com',
     timeout: 5000
 })
+
+export const testApi = axios.create({
+    baseURL: 'https://tibamef2e.com/cjd101/g2/php',
+    timeout: 5000
+})
+
+export const testApi2 = axios.create({
+    baseURL: 'https://notes.webmix.cc/ajax/teach/api',
+    timeout: 5000
+})
