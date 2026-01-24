@@ -90,6 +90,9 @@ const router = createRouter({
       path: '/login',
       name: 'login',
       component: () => import('@/views/Login.vue'),
+      meta: {
+        title: 'Login 測試',
+      },
     },
     {
       path: '/test-lightbox',

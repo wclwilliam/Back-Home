@@ -1,8 +1,11 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
+import router from '@/router'
 
-const localStorageKey = 'USER'
-const USERS = [ { account: 'demo', password: '1234', token: 'fake_token_demo' }, { account: 'ingrid', password: '5678', token: 'fake_token_ingrid' } ]
+const localStorageKey = 'USER_TOKEN'
+const USERS = [
+    { account: 'demo@gmail.com', password: '1234ffgg', token: 'fake_token_demo' },
+    { account: 'ruby@gmail.com', password: '5678ccvv', token: 'fake_token_ruby' },]
 
 export const useUserStore = defineStore('user', () => {
     const errorMeg = ref('')
@@ -37,8 +40,23 @@ export const useUserStore = defineStore('user', () => {
     }
     const logout = () => {
         token.value = ''
-        loadStorage.removeItem(localStorageKey)
+        localStorage.removeItem(localStorageKey)
     }
     loadStorage()
     return { token, isLogin, login, logout }
     })
+
+//     router.beforeEach((to) => {
+//         console.log(to.fullPath)
+//     const userStore = useUserStore()
+//     if(to.meta.auth) {
+//         if(!userStore.isLogin) {
+//             return { 
+//                 path: '/login', 
+//                 query: { 
+//                     redirect: to.fullPath 
+//                 } 
+//             }
+//     }
+//     }
+// })   

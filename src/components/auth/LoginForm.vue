@@ -5,7 +5,7 @@ import { useAuthStore } from '@/stores/auth'
 import { storeToRefs } from 'pinia'
 import { useRouter } from 'vue-router'
 import Input from '@/components/auth/Input.vue'
-import Button from '@/components/auth/Button.vue'
+
 
 const emit = defineEmits(['change-mode'])
 const userStore = useUserStore()

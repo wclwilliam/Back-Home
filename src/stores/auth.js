@@ -15,6 +15,7 @@ export const useAuthStore = defineStore('auth', () => {
     isModalOpen.value = false
   }
 
+  
 
   return { isModalOpen ,isLogin , redirectAfterLogin , openLoginModal , loginSuccess}
 })

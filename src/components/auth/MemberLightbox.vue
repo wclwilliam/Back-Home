@@ -72,9 +72,14 @@ const close = () => {
         <div class="f-row"><label>緊急聯絡* ：</label><div class="f-field"><Input v-model="formData.emergencyName" /></div></div>
         <div class="f-row"><label>聯絡電話* ：</label><div class="f-field"><Input v-model="formData.emergencyPhone" /></div></div>
         <div class="checkbox-row">
-          <input type="checkbox" id="syncMember" v-model="formData.isSync">
-          <label for="syncMember">同步更新會員資料：將本次修改之資訊儲存至我的個人資訊</label>
-        </div>
+  <label class="custom-checkbox-wrapper">
+    <input type="checkbox" v-model="formData.isSync" class="hidden-checkbox" />
+    <span class="material-symbols-outlined checkbox-icon">
+      {{ formData.isSync ? 'check_box' : 'check_box_outline_blank' }}
+    </span>
+    <span class="checkbox-text">同步更新會員資料：將本次修改之資訊儲存至我的個人資訊</span>
+  </label>
+</div>
       </div>
 
       <div v-else-if="type === 'editAmount'" class="amount-container">
@@ -85,7 +90,7 @@ const close = () => {
         <div class="amount-input">
           <label>您想變更的金額為？</label>
           <div class="input-flex">
-            <span>新台幣 $</span>
+            <span>新台幣</span>
             <Input v-model="formData.newAmount" placeholder="請輸入金額" />
           </div>
           <p class="min-t">● 最低金額新台幣 $100</p>
@@ -177,16 +182,45 @@ const close = () => {
   gap: rem(8px);
   font-size: rem(14px);
 
-  input { 
-    cursor: pointer; 
-    width: rem(16px);
-    height: rem(16px);
-    }
+  /* 統一 Checkbox 樣式 - 跟 LoginForm 一致 */
+.custom-checkbox-wrapper {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+  gap: rem(8px);
 
-    label { 
-    cursor: pointer; 
-    margin: 0;
-    }
+  .hidden-checkbox {
+    display: none;
+  }
+
+  .checkbox-icon {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    color: #0E6273;
+    font-size: rem(24px);
+    line-height: 1;
+  }
+
+  .checkbox-text {
+    font-size: rem(14px);
+    color: #666;
+  }
+
+  input:checked + .checkbox-icon {
+    font-variation-settings: 'FILL' 1;
+  }
+}
+
+  // input { 
+  //   cursor: pointer; 
+  //   width: rem(16px);
+  //   height: rem(16px);
+  //   }
+
+  //   label { 
+  //   cursor: pointer; 
+  //   margin: 0;
+  //   }
 }
 
 :deep(.input-group) {
@@ -207,14 +241,32 @@ const close = () => {
 .amount-input {
   text-align: left;
   margin-bottom: rem(20px);
-  label { display: block; font-weight: bold; margin-bottom: rem(10px); }
+  label { 
+    display: block; 
+    font-weight: bold; 
+    margin-bottom: rem(10px); 
+  }
   .input-flex {
     display: flex;
     align-items: center;
     gap: rem(10px);
-    span { font-weight: bold; }
+    flex-wrap: nowrap;  // 加上這行，禁止換行
+
+    span { 
+      font-weight: bold; 
+      white-space: nowrap;  // 加上這行，禁止文字換行
+      flex-shrink: 0;  // 加上這行，防止縮小
+    }
+    :deep(.input-group) {
+      flex: 1;
+      min-width: 0;
+    }
   }
-  .min-t { font-size: 12px; color: #666; margin-top: rem(5px); }
+  .min-t { 
+    font-size: 12px; 
+    color: #666; 
+    margin-top: rem(5px); 
+  }
 }
 
 .red-alert-card {

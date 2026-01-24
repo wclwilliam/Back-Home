@@ -308,4 +308,67 @@ watch(currentActivityTab, () => {
   display: flex;
   justify-content: center;
 }
+// 手機板 RWD
+@media (max-width: 768px) {
+  .history-item.clickable-row {
+    &:hover {
+      background-color: transparent;
+    }
+  }
+
+  .hours-summary {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: rem(4px);
+    margin: rem(16px) 0;
+  }
+
+  .history-list {
+    .history-item {
+      flex-direction: column;
+      padding-bottom: rem(16px);
+    }
+
+    .item-date {
+      width: 100%;
+      margin-bottom: rem(12px);
+      text-align: left;
+    }
+
+    .timeline-visual {
+      display: none;
+    }
+
+    .item-content {
+      flex-direction: column;
+      align-items: flex-start;
+      border-bottom: 1px solid $secondary-color;
+      padding-top: 0;
+      padding-bottom: rem(12px);
+    }
+
+    .item-info {
+      width: 100%;
+      margin-bottom: rem(12px);
+    }
+
+    .item-actions {
+      flex-direction: column;
+      width: 100%;
+      gap: rem(8px);
+    }
+  }
+
+  .activity-title {
+    font-size: $size-body;
+  }
+
+  .item-info p {
+    font-size: rem(14px);
+  }
+
+  .pagination-spacing {
+    margin-top: rem(24px);
+  }
+}
 </style>

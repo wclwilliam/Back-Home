@@ -152,4 +152,19 @@ watch(currentTab, () => (currentPage.value = 1))
   color: #666; font-size: 18px; flex: 0 0 100%;
 }
 .cardList { margin-top: rem(20px); }
+// 手機板 RWD
+@media (max-width: 768px) {
+  :deep(.bookmark) {
+    color: $highlight-color2 !important;
+    font-variation-settings: 'FILL' 1 !important;
+  }
+
+  .no-data {
+    text-align: center;
+    padding: rem(20px);
+    color: #666;
+    font-size: rem(14px);
+    flex: 0 0 100%;
+  }
+}
 </style>
