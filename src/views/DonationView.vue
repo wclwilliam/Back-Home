@@ -7,7 +7,7 @@
     import AnimationNumber from "@/components/donation/AnimationNumber.vue";
     import CleanChart from "@/components/donation/CleanChart.vue";
     import {  ref, onMounted, computed, onUnmounted } from 'vue';
-    import { publicApi } from "@/utils/publicApi";
+    import { publicApi , backHomeApi } from "@/utils/publicApi";
     import { gsap } from 'gsap';
     import { ScrollTrigger } from 'gsap/ScrollTrigger';
     import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
@@ -61,25 +61,28 @@
     const selectedYear = ref('');
     const impactReports =ref([])
     
-    // onMounted( async () => {
-    // try {
-    //     const base = import.meta.env.BASE_URL
-    //     const response = await axios.get(base + 'data/impactReports.json')
-    //     impactReports.value = response.data
-    //     //進頁面給值
-    //     selectedYear.value = impactReports.value[0].year
-        
-    // }catch (error){
-    //     console.log(error)
-    // }
-    // })
-    onMounted(() => {
-        publicApi.get('data/impactReports.json').then((response) => {
+
+
+    // 連資料庫
+    onMounted(async () => {
+        await backHomeApi.get('impact_get.php').then((response) => {
             impactReports.value = response.data
+            
             //進頁面給值
             selectedYear.value = impactReports.value[0].year
         })
     })
+
+    // // 連json
+    // onMounted(() => {
+    //     publicApi.get('data/impactReports.json').then((response) => {
+    //         impactReports.value = response.data
+    //         console.log(impactReports.value);
+            
+    //         //進頁面給值
+    //         selectedYear.value = impactReports.value[0].year
+    //     })
+    // })
 
     const currentData = computed(() => {
     return impactReports.value.find(item => item.year === selectedYear.value) || {};

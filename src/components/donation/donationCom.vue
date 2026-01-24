@@ -9,15 +9,12 @@ import { publicApi } from '@/utils/publicApi'
 
 //海龜數據
 const rescueCase = ref({})
-// const imgURL = ref("")
 
 onMounted(() => {
   publicApi.get('data/rescueCases.json').then((response) => {
     //取一隻救援海龜數據
     const randomIndex = Math.floor(Math.random() * response.data.length);
     rescueCase.value = response.data[randomIndex]
-    //圖片路徑處理
-    // imgURL.value = parsePublicFile(rescueCase.value.image.replace(/^\/+/, ""));
     
   })
 })
@@ -310,179 +307,188 @@ const goDonate = () => {
         <span class="label">{{ stepLabels[s-1] }}</span>
       </div>
     </div>
-
-    <div v-if="currentStep === 1" class="step-content">
-      <div class="tab-group">
-        <button
-          @click="donationType = 'monthly'"
-          class="tabBtn"
-          :class="{ 'tabBtn-outline': donationType !== 'monthly' }"
-          style="border-left: none;"
-        >每月捐款</button>
-        <button
-          @click="donationType = 'once'"
-          class="tabBtn"
-          :class="{ 'tabBtn-outline': donationType !== 'once' }"
-          style="border-right: none;"
-        >單次捐款</button>
-      </div>
-
-      <p class="intro-text">
-        您的每一份支持，都是海龜重返海洋的生機；用專業的行動，將關懷轉化為守護力量。
-      </p>
-
-      <div class="amount-grid">
-        <MyButton
-          v-for="amt in activeAmountOptions" 
-          :key="amt"
-          @click="selectedAmount = amt; customAmount = ''; errors.customAmount = false"
-          class=" btn-xxl"
-          :class="{ 'btn-outline': selectedAmount !== amt }"
-          height="76px"
-          width="30%"
-        >${{ amt.toLocaleString() }}</MyButton>
-      </div>
-
-      <div class="input-wrapper">
-        <input 
-          v-model="customAmount"
-          type="number" 
-          placeholder="其他金額" 
-          @input="selectedAmount = null"
-          @blur="isGreater"
-        />
-        <p v-if="donationType === 'once'" class="error-msg" v-show="errors.customAmount">
-          <span class="material-symbols-outlined">
-          error
-          </span> 最低捐款金額為:300</p>
-        <p v-if="donationType === 'monthly'" class="error-msg" v-show="errors.customAmount">
-          <span class="material-symbols-outlined">
-          error
-          </span>最低捐款金額為:100</p>
-      </div>
-
-      <div class="payment-selection">
-        <span>選擇付款方式：</span>
-        <label>
-          <input type="radio" v-model="payment" value="ecpay"> 綠界金流(信用卡)
-        </label>
-        <label v-if="donationType === 'once'">
-          <input type="radio" v-model="payment" value="linepay"> Line Pay行動支付
-        </label>
-      </div>
-      <MyButton @click="goStepTwo" class=" btn-xxl" width="50%">我要捐款</MyButton>
-    </div>
-
-    <div v-if="currentStep === 2" class="step-content">
-      <div class="summary-header">
-        <h3 class="type-tag">{{ donationType === 'monthly' ? '每月捐款' : '單次捐款' }}</h3>
-        <p class="amount-display">新台幣 <span class="money">{{ finalAmount }}</span></p>
-        <div class="btn-back-group" @click="currentStep = 1; anonymous=false" >
-          <div class="back-arrow"></div>
-          <button class="btn-back">其他金額</button>
+    <Transition name="fade">
+      <div v-if="currentStep === 1" class="step-content">
+        <div class="tab-group">
+          <button
+            @click="donationType = 'monthly'"
+            class="tabBtn"
+            :class="{ 'tabBtn-outline': donationType !== 'monthly' }"
+            style="border-left: none;"
+          >每月捐款</button>
+          <button
+            @click="donationType = 'once'"
+            class="tabBtn"
+            :class="{ 'tabBtn-outline': donationType !== 'once' }"
+            style="border-right: none;"
+          >單次捐款</button>
         </div>
-      </div>
-
-      <div class="form-body">
-        <label class="checkbox-label">
-          <input type="checkbox" v-model="anonymous">
-          <span class="material-symbols-outlined checkbox" v-if="anonymous">
-            check_box
-            </span>
-            <span class="material-symbols-outlined checkbox" v-else>
-            check_box_outline_blank
-            </span>
-           我要匿名捐款（免填身分資料）
-        </label>
-        
-        <div class="form-group" v-if="anonymous === false" v-for="field,index in formFields" :key="field.id">
-          <input :id="field.id" :type="field.type" placeholder=" " class="form-input" @blur="validateField(field.id)" v-model="form[field.id]" :ref="el => inputs[index] = el" @keydown.enter.prevent="focusNext(index,field.id)">
-          <label :for="field.id">{{ field.label }}</label>
-          <p class="error-msg" v-if="isBlank[field.id]">
-            <span class="material-symbols-outlined">
-          error
-          </span>請填入以上資料</p>
-          <p class="error-msg" v-if="errors[field.id]">
-            <span class="material-symbols-outlined">
-          error
-          </span>格式有誤</p>
-        </div>
-        <div class="form-group" v-if="anonymous === true">
-          <input type="text" placeholder="善心人士" class="form-input" disabled>
-        </div>
-        <div class="form-group" v-if="anonymous === true">
-          <input id="email" type="email" placeholder=" " class="form-input" @blur="validateField('email')" v-model="form.email">
-          <label for="email">電子郵件</label>
-          <p class="error-msg" v-if="isBlank.email">
-            <span class="material-symbols-outlined">
-          error
-          </span>請填入以上資料</p>
-          <p class="error-msg" v-if="errors.email">
-            <span class="material-symbols-outlined">
-          error
-          </span>格式有誤</p>
-        </div>
-        <div class="policy-group">
-          <label class="checkbox-label policy">
-            <input type="checkbox" v-model="form.agree" @click="errors.agree=false">
-            
-            <span class="material-symbols-outlined checkbox" v-if="form.agree">
-            check_box
-            </span>
-            <span class="material-symbols-outlined checkbox" v-else>
-            check_box_outline_blank
-            </span>
-            <span>為確保保育資源能精確且即時地投入海洋保護工作，捐款程序一經完成，恕不接受退款申請。若對款項運用有任何疑問，歡迎隨時與我們聯繫，我們將竭誠為您說明。感謝您的慷慨支持！ </span>
-          </label>
-          <p class="error-msg" v-if="errors.agree">
-            <span class="material-symbols-outlined">
-          error
-          </span>您尚未同意保護政策</p> 
-
-        </div>
-      </div>
-      <form id="ecpayForm" method="post" action="https://payment-stage.ecpay.com.tw/Cashier/AioCheckOut/V5">
-            <input type="hidden" name="MerchantID" value="3002607">
-            <input type="hidden" name="MerchantTradeNo" id="MerchantTradeNo" value="">
-            <input type="hidden" name="MerchantTradeDate" id="MerchantTradeDate" value="">
-            <input type="hidden" name="PaymentType" value="aio">
-            <input type="hidden" name="TotalAmount" :value="rawFinalAmount">
-            <input type="hidden" name="TradeDesc" :value="donationType">
-            <input type="hidden" name="ItemName" value="捐款金額">
-            <input type="hidden" name="ReturnURL" value="https://tibamef2e.com/cjd102/g3/front/donation">
-            <input type="hidden" name="ChoosePayment" value="ALL">
-            <input type="hidden" name="EncryptType" value="1">
-            <input type="hidden" name="IgnorePayment" value="WeiXin#TWQR#BNPL#CVS#BARCODE#ATM#WebATM">
-            <!-- <input type="hidden" name="OrderResultURL" value="https://tibamef2e.com/cjd102/g3/front/donation"> -->
-            <input type="hidden" name="ClientBackURL" value="https://tibamef2e.com/cjd102/g3/front/donation">
-            <input type="hidden" name="CheckMacValue" id="CheckMacValue" value="">
-            <MyButton @click.prevent="goDonate" class=" btn-xxl" width="50%" >立即捐款</MyButton>
-        </form>
-    </div>
-
-    <div v-if="currentStep === 3" class="step-content">
-      <div class="success-page">
-        <h2 class="success-title">捐款成功</h2>
-        <p class="success-desc">
-          感謝您捐款 [{{ donationState.finalAmount }}] 支持海龜保育計畫。您的這筆款項將直接用於海龜的醫療救援與棲地維護。
-我們承諾將每一分錢透明、高效地運用。正式的電子收據請您留意查收。
-再次感謝您的信任與行動！
+  
+        <p class="intro-text">
+          您的每一份支持，都是海龜重返海洋的生機；用專業的行動，將關懷轉化為守護力量。
         </p>
   
-        <div class="info-card">
-          <p class="card-title">捐款摘要</p>
-          <p><strong>捐款金額：</strong>新台幣 <span>{{ donationState.finalAmount }}</span></p>
-          <p><strong>捐款類型：</strong>{{ donationState.donationType === 'monthly' ? '每月捐款' : '單次捐款' }}</p>
-          <p><strong>捐款時間：</strong>{{ nowTime }}</p>
+        <div class="amount-grid">
+          <MyButton
+            v-for="amt in activeAmountOptions" 
+            :key="amt"
+            @click="selectedAmount = amt; customAmount = ''; errors.customAmount = false"
+            class=" btn-xxl"
+            :class="{ 'btn-outline': selectedAmount !== amt }"
+            height="76px"
+            width="30%"
+          >${{ amt.toLocaleString() }}</MyButton>
         </div>
   
-        <div class="photo-box">
-          <img :src="imageUrl" alt="Sea Turtle">
-          <div class="caption">您的支持正讓「{{rescueCase.name}}」這樣的海龜獲得重生。</div>
+        <div class="input-wrapper">
+          <input 
+            v-model="customAmount"
+            type="number" 
+            placeholder="其他金額" 
+            @input="selectedAmount = null"
+            @blur="isGreater"
+          />
+          <p v-if="donationType === 'once'" class="error-msg" v-show="errors.customAmount">
+            <span class="material-symbols-outlined">
+            error
+            </span> 最低捐款金額為:300</p>
+          <p v-if="donationType === 'monthly'" class="error-msg" v-show="errors.customAmount">
+            <span class="material-symbols-outlined">
+            error
+            </span>最低捐款金額為:100</p>
         </div>
-        <MyButton @click="modalRef?.openModal" class=" btn-xxl" width="50%">下載收據</MyButton>
+  
+        <div class="payment-selection">
+          <span>選擇付款方式：</span>
+          <label>
+            <input type="radio" v-model="payment" value="ecpay"> 綠界金流(信用卡)
+          </label>
+          <Transition name="fade">
+            <label v-if="donationType === 'once'">
+              <input type="radio" v-model="payment" value="linepay"> Line Pay行動支付
+            </label>
+          </Transition>
+        </div>
+        <MyButton @click="goStepTwo" class=" btn-xxl" width="50%">我要捐款</MyButton>
       </div>
-    </div>
+
+    </Transition>
+    <Transition name="fade">
+      <div v-if="currentStep === 2" class="step-content">
+        <div class="summary-header">
+          <h3 class="type-tag">{{ donationType === 'monthly' ? '每月捐款' : '單次捐款' }}</h3>
+          <p class="amount-display">新台幣 <span class="money">{{ finalAmount }}</span></p>
+          <div class="btn-back-group" @click="currentStep = 1; anonymous=false" >
+            <div class="back-arrow"></div>
+            <button class="btn-back">其他金額</button>
+          </div>
+        </div>
+  
+        <div class="form-body">
+          <label class="checkbox-label">
+            <input type="checkbox" v-model="anonymous">
+            <span class="material-symbols-outlined checkbox" v-if="anonymous">
+              check_box
+              </span>
+              <span class="material-symbols-outlined checkbox" v-else>
+              check_box_outline_blank
+              </span>
+             我要匿名捐款（免填身分資料）
+          </label>
+          
+          <div class="form-group" v-if="anonymous === false" v-for="field,index in formFields" :key="field.id">
+            <input :id="field.id" :type="field.type" placeholder=" " class="form-input" @blur="validateField(field.id)" v-model="form[field.id]" :ref="el => inputs[index] = el" @keydown.enter.prevent="focusNext(index,field.id)">
+            <label :for="field.id">{{ field.label }}</label>
+            <p class="error-msg" v-if="isBlank[field.id]">
+              <span class="material-symbols-outlined">
+            error
+            </span>請填入以上資料</p>
+            <p class="error-msg" v-if="errors[field.id]">
+              <span class="material-symbols-outlined">
+            error
+            </span>格式有誤</p>
+          </div>
+            <div class="form-group" v-if="anonymous === true">
+              <input type="text" placeholder="善心人士" class="form-input" disabled>
+            </div>
+            
+          <div class="form-group" v-if="anonymous === true">
+            <input id="email" type="email" placeholder=" " class="form-input" @blur="validateField('email')" v-model="form.email">
+            <label for="email">電子郵件</label>
+            <p class="error-msg" v-if="isBlank.email">
+              <span class="material-symbols-outlined">
+            error
+            </span>請填入以上資料</p>
+            <p class="error-msg" v-if="errors.email">
+              <span class="material-symbols-outlined">
+            error
+            </span>格式有誤</p>
+          </div>
+          <div class="policy-group">
+            <label class="checkbox-label policy">
+              <input type="checkbox" v-model="form.agree" @click="errors.agree=false">
+              
+              <span class="material-symbols-outlined checkbox" v-if="form.agree">
+              check_box
+              </span>
+              <span class="material-symbols-outlined checkbox" v-else>
+              check_box_outline_blank
+              </span>
+              <span>為確保保育資源能精確且即時地投入海洋保護工作，捐款程序一經完成，恕不接受退款申請。若對款項運用有任何疑問，歡迎隨時與我們聯繫，我們將竭誠為您說明。感謝您的慷慨支持！ </span>
+            </label>
+            <p class="error-msg" v-if="errors.agree">
+              <span class="material-symbols-outlined">
+            error
+            </span>您尚未同意保護政策</p> 
+  
+          </div>
+        </div>
+        <form id="ecpayForm" method="post" action="https://payment-stage.ecpay.com.tw/Cashier/AioCheckOut/V5">
+              <input type="hidden" name="MerchantID" value="3002607">
+              <input type="hidden" name="MerchantTradeNo" id="MerchantTradeNo" value="">
+              <input type="hidden" name="MerchantTradeDate" id="MerchantTradeDate" value="">
+              <input type="hidden" name="PaymentType" value="aio">
+              <input type="hidden" name="TotalAmount" :value="rawFinalAmount">
+              <input type="hidden" name="TradeDesc" :value="donationType">
+              <input type="hidden" name="ItemName" value="捐款金額">
+              <input type="hidden" name="ReturnURL" value="https://tibamef2e.com/cjd102/g3/front/donation">
+              <input type="hidden" name="ChoosePayment" value="ALL">
+              <input type="hidden" name="EncryptType" value="1">
+              <input type="hidden" name="IgnorePayment" value="WeiXin#TWQR#BNPL#CVS#BARCODE#ATM#WebATM">
+              <!-- <input type="hidden" name="OrderResultURL" value="https://tibamef2e.com/cjd102/g3/front/donation"> -->
+              <input type="hidden" name="ClientBackURL" value="https://tibamef2e.com/cjd102/g3/front/donation">
+              <input type="hidden" name="CheckMacValue" id="CheckMacValue" value="">
+              <MyButton @click.prevent="goDonate" class=" btn-xxl" width="50%" >立即捐款</MyButton>
+          </form>
+      </div>
+
+    </Transition>
+    <Transition name="fade">
+      <div v-if="currentStep === 3" class="step-content">
+        <div class="success-page">
+          <h2 class="success-title">捐款成功</h2>
+          <p class="success-desc">
+            感謝您捐款 [{{ donationState.finalAmount }}] 支持海龜保育計畫。您的這筆款項將直接用於海龜的醫療救援與棲地維護。
+  我們承諾將每一分錢透明、高效地運用。正式的電子收據請您留意查收。
+  再次感謝您的信任與行動！
+          </p>
+    
+          <div class="info-card">
+            <p class="card-title">捐款摘要</p>
+            <p><strong>捐款金額：</strong>新台幣 <span>{{ donationState.finalAmount }}</span></p>
+            <p><strong>捐款類型：</strong>{{ donationState.donationType === 'monthly' ? '每月捐款' : '單次捐款' }}</p>
+            <p><strong>捐款時間：</strong>{{ nowTime }}</p>
+          </div>
+    
+          <div class="photo-box">
+            <img :src="imageUrl" alt="Sea Turtle">
+            <div class="caption">您的支持正讓「{{rescueCase.name}}」這樣的海龜獲得重生。</div>
+          </div>
+          <MyButton @click="modalRef?.openModal" class=" btn-xxl" width="50%">下載收據</MyButton>
+        </div>
+      </div>
+
+    </Transition>
   </div>
 </template>
 
@@ -516,19 +522,55 @@ const goDonate = () => {
     padding-bottom: 12px;
     border: 2px solid $secondary-color;
     background-color: $card-color;
-    overflow: hidden;
+
+    /* 進入和離開的過程：設置 0.5 秒的透明度變化 */
+.fade-enter-active{
+  transition: opacity 0.5s ease;
 }
+
+/* 隱藏狀態：透明度為 0 */
+.fade-enter-from {
+  opacity: 0;
+}
+    @media (768px<=width) {
+      overflow-y:auto;
+      max-height: calc(100vh - clamp(84px, 8vw, 100px));
+
+      //firefox卷軸樣式
+      scrollbar-width: thin;          /* 寬度：auto, thin, 或 none */
+      scrollbar-color: $primary-color $secondary-color;  /* 滑塊顏色 軌道顏色 */
+
+
+      //其他瀏覽器卷軸樣式
+      /* 1. 定義捲軸整體的寬度 */
+      &::-webkit-scrollbar {
+        width: 8px; /* 垂直捲軸寬度 */
+      }
+
+      /* 2. 定義捲軸軌道 (底色) */
+      &::-webkit-scrollbar-track {
+        background: $secondary-color; 
+      }
+
+      /* 3. 定義滑塊 (手柄部分) */
+      &::-webkit-scrollbar-thumb {
+        background: $primary-color; 
+        border-radius: 10px;
+      }
+
+          }
+  }
 
 // 步驟條樣式
 .stepper {
   display: flex;
   justify-content: space-around;
-  padding: 25px 0;
+  padding: 16px 0;
   position: relative;
 
   .progress-line {
     position: absolute;
-    top: 33px;
+    top: 24px;
     left: 15%;
     right: 15%;
     height: 2px;
@@ -580,7 +622,7 @@ const goDonate = () => {
 .tab-group {
   width: 100%;
   display: flex;
-  margin-bottom: 26px;
+  margin-bottom: 20px;
   .tabBtn {
     @include font-tertiary;
     display: inline-block;
@@ -602,10 +644,11 @@ const goDonate = () => {
 }
 
 .intro-text {
+  width: 90%;
   text-align: center;
   @include font-tertiary;
-  margin-bottom: 67px;
-  padding: 0 10px;
+  margin-bottom: 32px;
+  // padding: 0 10px;
 }
 
 // 金額按鈕網格
@@ -614,7 +657,7 @@ const goDonate = () => {
   display: flex;
   justify-content: space-between;
   gap: 3%;
-  margin-bottom: 46px;
+  margin-bottom: 32px;
   button {
     display: flex;
     align-items: center;
@@ -648,11 +691,23 @@ const goDonate = () => {
 .payment-selection {
   width: 90%;
   @include font-body;
-  margin-bottom: 30px;
+  margin-bottom: 24px;
   display: flex;
   align-items: center;
   flex-wrap: wrap;
   gap: 10px;
+
+  /* 進入和離開的過程：設置 0.5 秒的透明度變化 */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.25s ease;
+}
+
+/* 隱藏狀態：透明度為 0 */
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
 
   label {
     display: flex;
