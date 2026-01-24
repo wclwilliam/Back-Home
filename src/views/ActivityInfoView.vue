@@ -388,7 +388,7 @@ const handleReport = (review) => {
           <button class="btn-solid btn-large" @click="handleMockLogin">登入後立即報名</button>
         </div>
       </div>
-      <form v-else class="row signUpForm" @submit.prevent="submitReview">
+      <form v-else class="row signUpForm" @submit.prevent="submitForm">
         <div class="secondary-title col-sm-4">立即報名</div>
         <FormInput label="姓名" required htmlFor="name">
           <input
