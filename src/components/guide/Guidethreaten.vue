@@ -1,17 +1,22 @@
 <script setup>
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, nextTick } from 'vue';
 
 const statsGridRef = ref(null);
+const isLoading = ref(true); // 新增載入狀態
 
-// 數字滾動
+const stats = ref({
+    plastic_sea: 0,
+    ghost_gear: 0,
+    bycatch: 0,
+    lives_lost: 0
+});
+
 const animateValue = (obj, start, end, duration) => {
     let startTimestamp = null;
     const step = (timestamp) => {
         if (!startTimestamp) startTimestamp = timestamp;
         const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-
         obj.innerHTML = Math.floor(progress * (end - start) + start).toLocaleString();
-
         if (progress < 1) {
             window.requestAnimationFrame(step);
         } else {
@@ -21,12 +26,46 @@ const animateValue = (obj, start, end, duration) => {
     window.requestAnimationFrame(step);
 };
 
-onMounted(() => {
+const fetchApiData = async () => {
+    try {
+        isLoading.value = true; // 開始載入
+        const response = await fetch('http://localhost:8888/API/get_ocean_data.php');
+
+        if (!response.ok) {
+            throw new Error('網路回應不正常');
+        }
+
+        const result = await response.json();
+        console.log("抓到資料了:", result);
+
+        if (result.status === 'success') {
+            stats.value.plastic_sea = result.data.plastic_sea.value;
+            stats.value.ghost_gear = result.data.ghost_gear.value;
+            stats.value.bycatch = result.data.bycatch.value;
+            stats.value.lives_lost = result.data.lives_lost.value;
+        }
+    } catch (error) {
+        console.error("fetch 發生錯誤:", error);
+        // 使用預設值
+        stats.value = {
+            plastic_sea: 8000000,
+            ghost_gear: 640000,
+            bycatch: 9100000,
+            lives_lost: 1000000
+        };
+    } finally {
+        isLoading.value = false; // 載入完成
+    }
+};
+
+onMounted(async () => {
+    await fetchApiData();
+    await nextTick();
+
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
                 const counters = entry.target.querySelectorAll('.count-number');
-
                 counters.forEach(counter => {
                     const target = +counter.getAttribute('data-target');
                     const duration = target > 5000000 ? 2000 : 1500;
@@ -45,6 +84,10 @@ onMounted(() => {
 
 <template>
     <h1>海龜生態威脅</h1>
+    <div v-if="isLoading" class="loading-overlay">
+        <div class="spinner"></div>
+        <p>正在載入資料...</p>
+    </div>
     <section class="threatenBox-grid container" ref="statsGridRef">
 
         <div class="card card-1">
@@ -56,21 +99,22 @@ onMounted(() => {
 
         <div class="card card-2">
             <div class="titleBox">
-                <h2>每年塑膠入海量</h2>
+                <h2>台灣海洋廢棄物清理量</h2>
                 <p>相當於每分鐘倒一輛垃圾車入海</p>
             </div>
             <div class="number">
-                <h3 class="count-number" data-target="8000000">0</h3>
-                <p>公噸 / Tonnes +</p>
+                <h3 class="count-number" :data-target="Math.round(stats.plastic_sea)">0</h3>
+                <p>公噸 / Tonnes + (114年度累計統計)</p>
             </div>
         </div>
+
         <div class="card card-3">
             <div class="titleBox">
                 <h2>幽靈漁具</h2>
                 <p>漂流在海中的隱形殺手</p>
             </div>
             <div class="number">
-                <h3 class="count-number" data-target="640000">0</h3>
+                <h3 class="count-number" :data-target="stats.ghost_gear">0</h3>
                 <p>公噸 / Tonnes +</p>
             </div>
         </div>
@@ -81,7 +125,7 @@ onMounted(() => {
                 <p>無經濟價值被丟棄的魚獲</p>
             </div>
             <div class="number">
-                <h3 class="count-number" data-target="9100000">0</h3>
+                <h3 class="count-number" :data-target="stats.bycatch">0</h3>
                 <p>公噸 / Tonnes +</p>
             </div>
         </div>
@@ -92,13 +136,16 @@ onMounted(() => {
                 <p>因誤食或纏繞而死亡的海洋生物與海鳥</p>
             </div>
             <div class="number">
-                <h3 class="count-number" data-target="1000000">0</h3>
+                <h3 class="count-number" :data-target="stats.lives_lost">0</h3>
                 <p>隻 / Lives +</p>
             </div>
         </div>
-    </section>
-</template>
 
+    </section>
+    <p class="data-note" style="margin: 20px 0 0 100px ;">
+        *數據來源:海洋委員會海洋保育署,統計台灣各縣市海洋廢棄物清理量
+    </p>
+</template>
 <style lang="scss" scoped>
 h1 {
     @include font-secondary-md;
@@ -106,7 +153,8 @@ h1 {
     font-weight: bold;
     text-align: center;
     margin: 67px 0;
-    @media(max-width: 992px){
+
+    @media(max-width: 992px) {
         margin: 200px 0 67px 0;
     }
 }
@@ -189,7 +237,7 @@ h2 {
     grid-column: 2 / 3;
     background-image: url(/img/GuideView/threaten4.png);
     background-size: cover;
-    
+
     @media (max-width: 768px) {
         grid-column: 2 / 4;
         grid-row: 4;
