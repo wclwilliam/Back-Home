@@ -50,7 +50,7 @@ const router = createRouter({
       name: 'GuideInfo',
       props: true,
       component: () => import('@/views/GuideInfo.vue'),
-       meta: { title: '海龜圖鑑' }
+      meta: { title: '海龜圖鑑' }
     },
     {
       path: '/activity',

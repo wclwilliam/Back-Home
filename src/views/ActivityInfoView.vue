@@ -15,6 +15,8 @@ import LightboxRegisterCheck from '@/components/activity/Lightbox/LightboxRegist
 import LightboxRegisterSuccess from '@/components/activity/Lightbox/LightboxRegisterSuccess.vue'
 import LightboxReviewCheck from '@/components/activity/Lightbox/LightboxReviewCheck.vue'
 import LightboxReport from '@/components/activity/Lightbox/LightboxReport.vue'
+import { format } from 'crypto-js'
+import { formatDate } from '@vueuse/core'
 
 //**資料表：`activities`欄位名稱資料型態說明`status`**TINYINT**人工設定狀態**
 //  `0`: 草稿 (Draft)
@@ -153,6 +155,122 @@ const formData = reactive({
   agreePhoto: false, // 肖像權
 })
 
+//表單輸入資料的判斷
+const errors = reactive({
+  phone: '',
+  idNumber: '',
+  birthday: '',
+  emergencyName: '',
+  emergencyPhone: '',
+  agreeHealth: '',
+  agreePhoto: '',
+  stars: '',
+  comment: '',
+})
+
+//身份證字號的檢查
+const handleIdNumCheck = () => {
+  if (!formData.idNumber) return
+
+  //第一碼確認或轉型為大寫
+  formData.idNumber = formData.idNumber.toUpperCase()
+  //僅能輸入10碼
+  if (formData.idNumber.length > 10) {
+    formData.idNumber = formData.idNumber.slice(0, 10)
+  }
+}
+//檢查身分證格式是否符合要求
+const checkIdFormat = (id) => {
+  //第一碼為英文
+  //第二碼為1,2,or 3
+  //僅能10碼
+  //檢查碼不檢查
+  const idFormat = /^[A-Z][1-3]\d{8}/
+  return idFormat.test(id)
+}
+const handleSingUpSubmit = () => {
+  let isValid = true
+  //先檢查所有必填欄位
+  Object.keys(errors).forEach((key) => {
+    errors[key] = ''
+  })
+  //檢查
+  if (!formData.phone) {
+    errors.phone = '請輸入手機號碼'
+    isValid = false
+  } else if (!/^09\d{8}$/.test(formData.phone)) {
+    errors.phone = '手機格式錯誤 (09xxxxxxxx)'
+    isValid = false
+  }
+  if (!formData.idNumber) {
+    errors.idNumber = '請輸入身分證字號'
+    isValid = false
+  } else if (!checkIdFormat(formData.idNumber)) {
+    errors.idNumber = '身分證格式錯誤'
+    isValid = false
+  }
+  if (!formData.birthday) {
+    errors.birthday = '請輸入生日'
+    isValid = false
+  }
+  if (!formData.emergencyName) {
+    errors.emergencyName = '請輸入緊急聯絡人姓名'
+    isValid = false
+  }
+  if (!formData.emergencyPhone) {
+    errors.emergencyPhone = '請輸入緊急聯絡人電話'
+    isValid = false
+  } else if (!/^09\d{8}$/.test(formData.emergencyPhone)) {
+    errors.emergencyPhone = '手機格式錯誤 (09xxxxxxxx)'
+    isValid = false
+  }
+
+  //檢查是否同意健康聲明
+  if (!formData.agreeHealth) {
+    errors.agreeHealth = '請同意健康聲明'
+    isValid = false
+  }
+  //檢查是否同意肖像權
+  if (!formData.agreePhoto) {
+    errors.agreePhoto = '請同意肖像權'
+    isValid = false
+  }
+
+  //如果所有檢查都通過
+  if (isValid) {
+    submitForm()
+  }
+}
+
+const reviewData = reactive({
+  stars: 0,
+  comment: '',
+})
+
+const setRating = (star) => {
+  reviewData.stars = star
+
+  if (errors.stars) {
+    errors.stars = ''
+  }
+}
+const handleReviewSubmit = () => {
+  let isValid = true
+  Object.keys(errors).forEach((key) => {
+    errors[key] = ''
+  })
+  if (!reviewData.stars) {
+    errors.stars = '請輸入評分'
+    isValid = false
+  }
+  if (!reviewData.comment) {
+    errors.comment = '請輸入評論'
+    isValid = false
+  }
+  if (isValid) {
+    submitReview()
+  }
+}
 // 燈箱狀態控制
 const showCheckLightbox = ref(false)
 const showSuccessLightbox = ref(false)
@@ -173,24 +291,11 @@ const registrationData = computed(() => ({
   emergencyPhone: formData.emergencyPhone,
 }))
 
-const errors = reactive({
-  phone: '',
-  idNumber: '',
-})
-const reviewData = reactive({
-  stars: 0,
-  comment: '',
-})
-
-const setRating = (starCount) => {
-  reviewData.rating = starCount
-}
-
 const submitForm = () => {
   // 開啟確認燈箱
   showCheckLightbox.value = true
 }
-
+const isSignupSuccess = ref(false)
 // 確認報名處理
 const handleConfirmRegistration = async () => {
   try {
@@ -200,6 +305,7 @@ const handleConfirmRegistration = async () => {
     // 關閉確認燈箱，打開成功燈箱
     showCheckLightbox.value = false
     showSuccessLightbox.value = true
+    isSignupSuccess.value = true
   } catch (error) {
     console.error('報名失敗:', error)
     alert('報名失敗，請稍後再試')
@@ -211,6 +317,8 @@ const submitReview = () => {
   // 開啟留言確認燈箱
   showReviewCheckLightbox.value = true
 }
+// 留言送出狀態
+const isReviewSubmit = ref(false)
 
 // 確認送出留言
 const handleConfirmReview = () => {
@@ -223,6 +331,8 @@ const handleConfirmReview = () => {
   // 清空表單
   reviewData.rating = 0
   reviewData.comment = ''
+  //已送出留言
+  isReviewSubmit.value = true
 }
 
 // 處理檢舉留言
@@ -296,8 +406,15 @@ const handleReport = (review) => {
           <p>系統查無您的參加紀錄，只有實際參與本活動的志工可以填寫心得喔！</p>
         </div>
       </div>
+      <div v-else-if="isReviewSubmit" class="row login-cta-section">
+        <div class="cta-content col-sm-4 col-md-4">
+          <span class="material-symbols-outlined icon-success">check_circle</span>
+          <h3>已收到您的回饋</h3>
+          <p>感謝您的回饋，期待下次再見！</p>
+        </div>
+      </div>
 
-      <form v-else class="row commentSection" @submit.prevent="submitReview">
+      <form v-else class="row commentSection" @submit.prevent="handleReviewSubmit">
         <div class="commentForm col-sm-4 col-md-10 col-lg-10">
           <div class="leftContent col-sm-4 col-md-5 col-lg-5">
             <div class="secondary-title">分享你的感動</div>
@@ -316,28 +433,31 @@ const handleReport = (review) => {
             </div>
           </div>
           <div class="rightContent col-sm-4 col-md-7 col-lg-7">
-            <FormInput label="滿意度 : " required>
+            <FormInput label="滿意度 : " required :error="errors.stars">
               <div class="star-rating">
                 <span
                   v-for="star in 5"
                   :key="star"
                   class="material-symbols-outlined star"
-                  :class="{ 'is-active': star <= reviewData.rating }"
-                  @click="reviewData.rating = star"
+                  :class="{ 'is-active': star <= reviewData.stars }"
+                  @click="setRating(star)"
                 >
                   kid_star
                 </span>
               </div>
             </FormInput>
 
-            <FormInput label="心得內容" required htmlFor="comment">
-              <textarea
-                id="comment"
-                type="text"
-                v-model="reviewData.comment"
-                class="customInput"
-                placeholder="分享你的活動體驗(限100字)"
-              ></textarea>
+            <FormInput label="心得內容" required htmlFor="comment" :error="errors.comment">
+              <div class="input-wrapper">
+                <textarea
+                  id="comment"
+                  type="text"
+                  v-model="reviewData.comment"
+                  class="customInput"
+                  placeholder="分享你的活動體驗(限100字)"
+                ></textarea>
+                <span class="word-count">{{ reviewData.comment.length }} / 100</span>
+              </div>
             </FormInput>
 
             <div class="submit-btm col-sm-4">
@@ -379,6 +499,16 @@ const handleReport = (review) => {
         </div>
       </div>
     </template>
+    <!-- 報名成功 -->
+    <template v-else-if="isSignupSuccess">
+      <div class="row login-cta-section">
+        <div class="cta-content col-sm-4 col-md-4">
+          <span class="material-symbols-outlined icon-success">check_circle</span>
+          <h3>已收到您的報名</h3>
+          <p>感謝您的報名，我們活動見！</p>
+        </div>
+      </div>
+    </template>
     <!-- 活動報名中 -->
     <template v-else>
       <div v-if="!isLoggedIn" class="row login-cta-section">
@@ -388,7 +518,7 @@ const handleReport = (review) => {
           <button class="btn-solid btn-large" @click="handleMockLogin">登入後立即報名</button>
         </div>
       </div>
-      <form v-else class="row signUpForm" @submit.prevent="submitForm">
+      <form v-else class="row signUpForm" @submit.prevent="handleSingUpSubmit">
         <div class="secondary-title col-sm-4">立即報名</div>
         <FormInput label="姓名" required htmlFor="name">
           <input
@@ -422,17 +552,19 @@ const handleReport = (review) => {
           />
         </FormInput>
 
-        <FormInput label="身分證字號" required htmlFor="idNumber">
+        <FormInput label="身分證字號" required htmlFor="idNumber" :error="errors.idNumber">
           <input
             id="idNumber"
             type="text"
             v-model="formData.idNumber"
+            @input="handleIdNumCheck"
             class="customInput"
             placeholder="請輸入身分證字號"
+            maxlength="10"
           />
         </FormInput>
 
-        <FormInput label="出生年月日" required htmlFor="birthday">
+        <FormInput label="出生年月日" required htmlFor="birthday" :error="errors.birthday">
           <input
             id="birthday"
             type="date"
@@ -442,7 +574,12 @@ const handleReport = (review) => {
           />
         </FormInput>
 
-        <FormInput label="緊急聯絡人姓名" required htmlFor="emergencyName">
+        <FormInput
+          label="緊急聯絡人姓名"
+          required
+          htmlFor="emergencyName"
+          :error="errors.emergencyName"
+        >
           <input
             id="emergencyName"
             type="text"
@@ -455,7 +592,7 @@ const handleReport = (review) => {
           label="緊急聯絡人手機號碼"
           required
           htmlFor="emergencyPhone"
-          :error="errors.phone"
+          :error="errors.emergencyPhone"
         >
           <input
             id="emergencyPhone"
@@ -487,10 +624,15 @@ const handleReport = (review) => {
               <span
                 class="material-symbols-outlined checkIcon"
                 :class="{ isChecked: formData.agreeHealth }"
+                :error="errors.agreeHealth"
                 >{{ formData.agreeHealth ? 'check_box' : 'check_box_outline_blank' }}</span
               >
               <span>我確認無心臟病、高血壓等不適合烈日下活動的病史</span>
             </label>
+            <p v-if="errors.agreeHealth" class="error-text">
+              <span class="material-symbols-outlined icon-alert">error</span>
+              {{ errors.agreeHealth }}
+            </p>
           </div>
 
           <div class="checkbox-row">
@@ -499,10 +641,15 @@ const handleReport = (review) => {
               <span
                 class="material-symbols-outlined checkIcon"
                 :class="{ isChecked: formData.agreePhoto }"
+                :error="errors.agreePhoto"
                 >{{ formData.agreePhoto ? 'check_box' : 'check_box_outline_blank' }}</span
               >
               <span>我同意肖像權使用 (活動照片將用於海龜保育推廣，不作商業用途)。</span>
             </label>
+            <p v-if="errors.agreePhoto" class="error-text">
+              <span class="material-symbols-outlined icon-alert">error</span>
+              {{ errors.agreePhoto }}
+            </p>
           </div>
         </div>
         <div class="submit-btm col-sm-4">
@@ -573,6 +720,21 @@ const handleReport = (review) => {
   outline: none;
   transition: all 0.3s;
 }
+.error-text {
+  color: $highlight-color2;
+  font-size: 14px;
+  margin-top: 4px;
+  padding-left: 34px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+
+  .icon-alert {
+    color: $highlight-color2;
+    font-variation-settings: 'FILL' 1;
+    font-size: 16px;
+  }
+}
 
 .disable {
   background-color: $backstage-bar-line-color;
@@ -623,6 +785,18 @@ const handleReport = (review) => {
 }
 
 //留言表單
+.input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.word-count {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  font-size: 12px;
+  color: $page-number-color;
+}
 .row {
   padding: 24px;
 }
@@ -641,13 +815,11 @@ const handleReport = (review) => {
 
   .secondary-title {
     padding-bottom: 24px;
-    // padding-top: 0; // 視情況保留
     color: $primary-color;
-    text-align: left; // 確保標題靠左
-    width: 100%; // 確保標題佔滿一行
+    text-align: left;
+    width: 100%;
   }
 
-  /* 使用 :deep() 穿透 scoped 的限制 */
   :deep(.formItem) {
     @media (min-width: 768px) {
       display: flex;
@@ -676,9 +848,10 @@ const handleReport = (review) => {
   background-color: $card-color;
 }
 
-textarea {
+textarea.customInput {
   min-height: 150px;
   min-width: 200px;
+  max-width: 100%;
 }
 
 .rightContent {
@@ -817,6 +990,12 @@ textarea {
       cursor: pointer;
       color: $text-white !important;
     }
+  }
+  .icon-success {
+    font-size: 48px;
+    color: $secondary-color;
+    margin-bottom: 16px;
+    font-variation-settings: 'FILL' 1;
   }
 }
 
