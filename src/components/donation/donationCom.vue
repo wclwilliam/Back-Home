@@ -6,6 +6,7 @@ import downloadReceipt from './downloadReceipt.vue'
 import ecpayCrypto from '@/utils/ecpayCrypto.js'
 import { useLocalStorage } from '@vueuse/core'
 import { publicApi } from '@/utils/publicApi'
+import linepay from '@/utils/linepay'
 
 //海龜數據
 const rescueCase = ref({})
@@ -73,6 +74,7 @@ const selectedAmount = ref(1000)
 const customAmount = ref('')
 const payment = ref('ecpay')
 const anonymous = ref(false)
+const payLoading = ref(false);
 const form = reactive({
   userName:'',
   email: '',
@@ -262,7 +264,7 @@ const goDonate = () => {
       if (payment.value == "ecpay") { //判斷金流
         ecpayCrypto()
       } else {
-        currentStep.value = 3
+        handleCheckout()
       }
     }
   }else {
@@ -281,12 +283,45 @@ const goDonate = () => {
       if (payment.value == "ecpay") { //判斷金流
         ecpayCrypto()
       } else {
-        currentStep.value = 3
+        handleCheckout()
       }
   }
   }
 
 }
+
+
+
+
+
+
+const handleCheckout = async () => {
+  payLoading.value = true;
+  try {
+    const orderData = {
+      amount: rawFinalAmount.value,
+      productName: '單次捐款',
+      // 其他你需要傳給 PHP 的自訂資訊
+    };
+
+    const response = await linepay.createOrder(orderData);
+    console.log(response);
+    
+    
+    // 檢查後端是否成功回傳 LINE Pay 的支付網址
+    if (response.data && response.data.paymentUrl) {
+      // 關鍵動作：導向 LINE Pay 官方付款頁面
+      window.location.href = response.data.paymentUrl;
+    } else {
+      alert('無法取得付款連結，請稍後再試');
+    }
+  } catch (error) {
+    console.error('結帳發生錯誤:', error);
+    alert('伺服器連線失敗');
+  } finally {
+    payLoading.value = false;
+  }
+};
 
 
 </script>
@@ -443,7 +478,7 @@ const goDonate = () => {
   
           </div>
         </div>
-        <form id="ecpayForm" method="post" action="https://payment-stage.ecpay.com.tw/Cashier/AioCheckOut/V5">
+        <form v-if="payment== 'ecpay'" id="ecpayForm" class="payForm" method="post" action="https://payment-stage.ecpay.com.tw/Cashier/AioCheckOut/V5">
               <input type="hidden" name="MerchantID" value="3002607">
               <input type="hidden" name="MerchantTradeNo" id="MerchantTradeNo" value="">
               <input type="hidden" name="MerchantTradeDate" id="MerchantTradeDate" value="">
@@ -459,6 +494,23 @@ const goDonate = () => {
               <input type="hidden" name="ClientBackURL" value="https://tibamef2e.com/cjd102/g3/front/donation">
               <input type="hidden" name="CheckMacValue" id="CheckMacValue" value="">
               <MyButton @click.prevent="goDonate" class=" btn-xxl" width="50%" >立即捐款</MyButton>
+          </form>
+        <form v-else id="linepayForm" class="payForm" method="post" action="">
+              <input type="hidden" name="MerchantID" value="3002607">
+              <input type="hidden" name="MerchantTradeNo" id="MerchantTradeNo" value="">
+              <input type="hidden" name="MerchantTradeDate" id="MerchantTradeDate" value="">
+              <input type="hidden" name="PaymentType" value="aio">
+              <input type="hidden" name="TotalAmount" :value="rawFinalAmount">
+              <input type="hidden" name="TradeDesc" :value="donationType">
+              <input type="hidden" name="ItemName" value="捐款金額">
+              <input type="hidden" name="ReturnURL" value="https://tibamef2e.com/cjd102/g3/front/donation">
+              <input type="hidden" name="ChoosePayment" value="ALL">
+              <input type="hidden" name="EncryptType" value="1">
+              <input type="hidden" name="IgnorePayment" value="WeiXin#TWQR#BNPL#CVS#BARCODE#ATM#WebATM">
+              <!-- <input type="hidden" name="OrderResultURL" value="https://tibamef2e.com/cjd102/g3/front/donation"> -->
+              <input type="hidden" name="ClientBackURL" value="https://tibamef2e.com/cjd102/g3/front/donation">
+              <input type="hidden" name="CheckMacValue" id="CheckMacValue" value="">
+              <MyButton @click.prevent="goDonate" :disabled="payLoading" class=" btn-xxl" width="50%" >立即捐款</MyButton>
           </form>
       </div>
 
@@ -856,7 +908,7 @@ const goDonate = () => {
     }
   }
 }
-#ecpayForm {
+.payForm {
   width: 90%;
   display: flex;
   justify-content: center;

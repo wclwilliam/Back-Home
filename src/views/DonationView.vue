@@ -233,6 +233,7 @@
                         .select-wrapper {
                             select {
                                 @include font-body;
+                                color: $secondary-color;
                                 background-color: #CFDEE0;
                                 display: flex;
                                 align-items: center;
