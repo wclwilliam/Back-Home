@@ -9,14 +9,9 @@ export const publicApi = axios.create({
 })
 
 // 沒有攔截器，乾乾淨淨
-export const musicApi = axios.create({
-    baseURL: 'https://api.spotify.com',
-    timeout: 5000
-})
-//上課測試用
 export const testApi = axios.create({
-    baseURL: 'https://tibamef2e.com/cjd101/g1/api',
-    timeout: 5000,
+    baseURL: 'https://notes.webmix.cc/ajax/teach/api',
+    timeout: 5000
 })
 //上課測試用2
 export const test2Api = axios.create({
