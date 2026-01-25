@@ -8,6 +8,7 @@ import { Pagination } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/pagination';
 
+
 const route = useRoute()
 const router = useRouter()
 
@@ -21,7 +22,7 @@ const turtleInfo = computed(() => {
     return allTurtles.find(t => t.id === turtleId)
 })
 const goBack = () => {
-    router.back() 
+    router.back()
 }
 
 const modules = [Pagination];
@@ -33,6 +34,13 @@ const updateWidth = () => {
 
 onMounted(() => {
     window.addEventListener('resize', updateWidth);
+    if (!document.getElementById('model-viewer-script')) {
+        const script = document.createElement('script');
+        script.id = 'model-viewer-script';
+        script.type = 'module';
+        script.src = 'https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js';
+        document.head.appendChild(script);
+    }
 });
 
 onUnmounted(() => {
@@ -54,7 +62,13 @@ onUnmounted(() => {
             <div v-if="isDesktop" class="bubbles-desktop-grid">
 
                 <div class="grid-item-image">
-                    <img :src="parsePublicFile(turtleInfo.detailImage)" :alt="turtleInfo.nameCN" class="mainTurtle-img" />
+                    <model-viewer v-if="turtleInfo.modelPath" :src="parsePublicFile(turtleInfo.modelPath)"
+                    :camera-orbit="turtleInfo.initialOrbit || '0deg 75deg 105%'"
+                        alt="海龜 3D 模型" auto-rotate camera-controls shadow-intensity="0"
+                        style="width: 70%; height: 500px; outline: none;"></model-viewer>
+
+                    <img v-else :src="parsePublicFile(turtleInfo.detailImage)" :alt="turtleInfo.nameCN"
+                        class="mainTurtle-img" />
                 </div>
 
                 <div class="bubble profile">
@@ -77,7 +91,9 @@ onUnmounted(() => {
 
             <template v-else>
                 <div class="detailImage-container-mobile">
-                    <img :src="parsePublicFile(turtleInfo.detailImage)" :alt="turtleInfo.nameCN" class="mainTurtle-img" />
+                    <model-viewer v-if="turtleInfo.modelPath" :src="parsePublicFile(turtleInfo.modelPath)" auto-rotate
+                        camera-controls ar style="width: 100%; height: 300px; outline: none;"></model-viewer>
+                    <img v-else :src="parsePublicFile(turtleInfo.detailImage)" :alt="turtleInfo.nameCN" />
                 </div>
 
                 <swiper :modules="modules" :slides-per-view="1" :space-between="20" :centered-slides="true"
@@ -118,14 +134,17 @@ onUnmounted(() => {
         padding: 0 40px;
     }
 }
+
 .btn {
     @include font-caption;
     color: $text-white;
     margin-bottom: 20px;
+
     &:hover {
         color: $highlight-color2;
     }
 }
+
 .detailPage {
     width: 100%;
     min-height: 100vh;
@@ -166,20 +185,35 @@ onUnmounted(() => {
     object-fit: contain;
 }
 
+model-viewer {
+    // 消除選取時的藍色或灰色外框
+    --outline: none;
+    outline: none;
 
-@keyframes floating {
-    0% {
-        transform: translateY(0px);
-    }
+    // 確保背景完全透明，不產生色塊邊界
+    background-color: transparent;
 
-    50% {
-        transform: translateY(-15px);
-    }
+    // 移除可能存在的預設邊框
+    border: none;
 
-    100% {
-        transform: translateY(0px);
+    // 針對一些瀏覽器可能的預設 focus 樣式
+    &:focus, &:active, &:focus-visible {
+        outline: none;
     }
 }
+// @keyframes floating {
+//     0% {
+//         transform: translateY(0px);
+//     }
+
+//     50% {
+//         transform: translateY(-15px);
+//     }
+
+//     100% {
+//         transform: translateY(0px);
+//     }
+// }
 
 .bubbles-container {
     display: flex;
@@ -306,6 +340,7 @@ onUnmounted(() => {
         object-fit: contain;
     }
 }
+
 :deep(.swiper-pagination-bullet) {
     background-color: #ffffff !important;
     opacity: 0.5;
@@ -315,5 +350,4 @@ onUnmounted(() => {
     background-color: #ffffff !important;
     opacity: 1;
 }
-
 </style>
