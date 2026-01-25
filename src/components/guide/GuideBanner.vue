@@ -74,9 +74,14 @@ const guideMap = () => {
 .btn-xl {
     width: 300px;
     border-radius: 50px;
+    background-color: $primary-color;
+    border: none;
 
     @media (max-width: 768px) {
         width: 200px;
+    }
+    &:hover{
+         background-color: $highlight-color2;
     }
 }
 </style>
