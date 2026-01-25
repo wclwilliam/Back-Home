@@ -27,20 +27,39 @@ const formatDate = (dateString) => {
 }
 
 
+// NewsDetail.vue
+
 const loadData = async () => {
     try {
         const response = await publicApi.get('data/NewsList.json');
 
-        // 取得資料並排序
-        const sortedData = response.data.sort((a, b) => {
+        // 1. 基本排序
+        let sortedData = response.data.sort((a, b) => {
             return new Date(b.publish_time) - new Date(a.publish_time);
         });
+
+        // 2. 取得網址上的篩選參數
+        const fromCategory = route.query.fromCategory;
+        const fromSearch = route.query.fromSearch;
+
+        // 3. 執行「分類篩選」
+        if (fromCategory && fromCategory !== '全部') {
+            sortedData = sortedData.filter(item => item.category === fromCategory);
+        }
+
+        // 4. 執行「搜尋篩選」 (與列表頁邏輯一致)
+        if (fromSearch) {
+            const keyword = fromSearch.toLowerCase();
+            sortedData = sortedData.filter(item => 
+                item.title.toLowerCase().includes(keyword) || 
+                item.content.toLowerCase().includes(keyword)
+            );
+        }
+
         allNews.value = sortedData;
 
-        // 取得網址 ID
+        // 5. 計算索引值 (在「分類 + 搜尋」後的清單中找)
         const currentId = parseInt(route.params.id);
-
-        //上下頁
         const currentIndex = sortedData.findIndex(item => item.article_id === currentId);
 
         if (currentIndex !== -1) {
@@ -48,7 +67,9 @@ const loadData = async () => {
             prevArticle.value = currentIndex > 0 ? sortedData[currentIndex - 1] : null;
             nextArticle.value = currentIndex < sortedData.length - 1 ? sortedData[currentIndex + 1] : null;
         } else {
-            console.error('找不到文章 ID:', currentId);
+            // 回退邏輯：若沒篩選到，至少要顯示文章內容
+            const fallback = response.data.find(item => item.article_id === currentId);
+            if (fallback) article.value = fallback;
         }
 
     } catch (error) {
@@ -65,12 +86,24 @@ onMounted(() => {
     loadData();
 });
 
-const goBack = () => {
-    router.push({ name: 'news' });
+const goBackToList = () => {
+  router.push({
+    path: '/news', 
+    query: {
+      category: route.query.fromCategory,
+      page: route.query.fromPage,
+      search: route.query.fromSearch
+    }
+  });
 };
 
 const goToArticle = (id) => {
-    router.push({ name: 'NewsDetail', params: { id } });
+    router.push({ 
+        name: 'NewsDetail', 
+        params: { id },
+        // 關鍵：將目前的 query 參數（來自列表頁的紀錄）繼續帶給下一篇文章
+        query: route.query 
+    });
 };
 </script>
 
@@ -82,7 +115,7 @@ const goToArticle = (id) => {
         <div class="contentContainer" v-if="article">
 
             <div class="actionBar">
-                <button class="btn btn-outline btn-xs" @click="goBack">回列表</button>
+                <button class="btn btn-outline btn-xs" @click="goBackToList">回列表</button>
             </div>
 
             <div class="articleHeader">

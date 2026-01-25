@@ -172,7 +172,7 @@ h1 {
 
 #map {
     width: 70%;
-    height: 100%;
+    height: 80%;
 
     @media (max-width: 992px) {
         display: grid;
@@ -183,7 +183,7 @@ h1 {
 #mapInfo {
     @include font-body-l;
     width: 30%;
-    height: 100%;
+    height: 80%;
     padding: 20px;
     background: #E3D5CA;
     display: flex;
