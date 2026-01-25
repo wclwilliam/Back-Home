@@ -63,8 +63,8 @@ onUnmounted(() => {
 
                 <div class="grid-item-image">
                     <model-viewer v-if="turtleInfo.modelPath" :src="parsePublicFile(turtleInfo.modelPath)"
-                    :camera-orbit="turtleInfo.initialOrbit || '0deg 75deg 105%'"
-                        alt="海龜 3D 模型" auto-rotate camera-controls shadow-intensity="0"
+                        :camera-orbit="turtleInfo.initialOrbit || '0deg 75deg 105%'" alt="海龜 3D 模型" auto-rotate
+                        camera-controls shadow-intensity="0"
                         style="width: 70%; height: 500px; outline: none;"></model-viewer>
 
                     <img v-else :src="parsePublicFile(turtleInfo.detailImage)" :alt="turtleInfo.nameCN"
@@ -122,6 +122,13 @@ onUnmounted(() => {
 </template>
 
 <style lang="scss" scoped>
+:deep(model-viewer::part(default-progress-bar)) {
+    display: none !important;
+}
+
+:deep(model-viewer::part(default-progress-mask)) {
+    display: none !important;
+}
 .container {
     // 手機
     width: 100%;
@@ -197,10 +204,13 @@ model-viewer {
     border: none;
 
     // 針對一些瀏覽器可能的預設 focus 樣式
-    &:focus, &:active, &:focus-visible {
+    &:focus,
+    &:active,
+    &:focus-visible {
         outline: none;
     }
 }
+
 // @keyframes floating {
 //     0% {
 //         transform: translateY(0px);
