@@ -24,6 +24,11 @@ export const test2Api = axios.create({
   timeout: 5000,
 })
 
+export const backHomeApi = axios.create({
+  baseURL: APIBase,
+  timeout: 5000,
+})
+
 // 模擬登入驗證函數（預設帳號：demo，密碼：1234）
 export const mockLogin = async (account, password) => {
   return new Promise((resolve, reject) => {
