@@ -1,10 +1,10 @@
 <script setup>
-import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import GameQuestionCard from '@/components/Game/GameQuestionCard.vue'
-import StatusPanel from './StatusPanel.vue';
-import HealthBar from './HealthBar.vue';
-import GameDialogCard from './GameDialogCard.vue';
-import GameKnowledgeCard from './GameKnowledgeCard.vue';
+import StatusPanel from './StatusPanel.vue'
+import HealthBar from './HealthBar.vue'
+import GameDialogCard from './GameDialogCard.vue'
+import GameKnowledgeCard from './GameKnowledgeCard.vue'
 import GameResultCard from '@/components/Game/GameResultCard.vue'
 import { useHealthStore } from '@/stores/health'
 import { parsePublicFile } from '@/utils/parseFile'
@@ -37,32 +37,19 @@ const isBabyQ3Group = computed(() => {
   return props.nodeId.startsWith('baby_q3')
 })
 
-const isTeenQ1BadGroup = computed(() =>
-  props.nodeId.startsWith('teen_q1_bad')
-)
+const isTeenQ1BadGroup = computed(() => props.nodeId.startsWith('teen_q1_bad'))
 
-const isTeenQ2BadGroup = computed(() =>
-  props.nodeId.startsWith('teen_q2_bad')
-)
+const isTeenQ2BadGroup = computed(() => props.nodeId.startsWith('teen_q2_bad'))
 
-const isTeenQ2GoodGroup = computed(() =>
-  props.nodeId.startsWith('teen_q2_good')
-)
+const isTeenQ2GoodGroup = computed(() => props.nodeId.startsWith('teen_q2_good'))
 
-const isTeenQ3BadGroup = computed(() =>
-  props.nodeId.startsWith('teen_q3_bad')
-)
+const isTeenQ3BadGroup = computed(() => props.nodeId.startsWith('teen_q3_bad'))
 
-const isAdultQ1Group = computed(() =>
-  props.nodeId.startsWith('adult_q1_') ||
-  props.nodeId?.startsWith('adult_q2')
+const isAdultQ1Group = computed(
+  () => props.nodeId.startsWith('adult_q1_') || props.nodeId?.startsWith('adult_q2'),
 )
-const isAdultQ3BadGroup = computed(() =>
-  props.nodeId.startsWith('adult_q3_bad')
-)
-const isAdultQ3GoodGroup = computed(() =>
-  props.nodeId.startsWith('adult_q3_good')
-)
+const isAdultQ3BadGroup = computed(() => props.nodeId.startsWith('adult_q3_bad'))
+const isAdultQ3GoodGroup = computed(() => props.nodeId.startsWith('adult_q3_good'))
 
 const turtleSrc = computed(() => {
   if (props.roleId === 'adult' && isAdultQ3BadGroup.value) {
@@ -121,7 +108,7 @@ watch(
   () => props.currentNode,
   () => {
     showWarning.value = false
-  }
+  },
 )
 
 const onFeedbackNext = () => {
@@ -191,7 +178,6 @@ onMounted(() => {
 onUnmounted(() => {
   window.removeEventListener('mousemove', onMouseMove)
 })
-
 </script>
 <template>
   <section class="game-screen" :class="{ 'has-wave-sweep': showWaveSweep }">
@@ -204,7 +190,7 @@ onUnmounted(() => {
     <img v-if="mediaSrc" :key="mediaSrc" class="node-media anim-hand-in" :class="[
       `node-media--${mediaPos}`,
       `node-media--${mediaSize}`,
-      mediaAnim ? `anim-${mediaAnim}` : ''
+      mediaAnim ? `anim-${mediaAnim}` : '',
     ]" :style="mediaOffsetStyle" :src="mediaSrc" alt="" />
     <div class="turtle-wrapper" v-if="turtleSrc && mode !== 'result'">
       <img class="turtle" :class="`turtle--${props.roleId}`" :src="turtleSrc" alt="" />
@@ -237,7 +223,7 @@ onUnmounted(() => {
   grid-column: 1 / 7;
   grid-row: 3 / 4;
   justify-self: stretch;
-  align-self: stretch;
+  align-self: end;
 }
 
 .game-result-card {
@@ -260,7 +246,7 @@ onUnmounted(() => {
   height: 100%;
   display: block;
   object-fit: contain;
-  transform: translate(20%, -10%);
+  transform: translate(20%, -12%);
 }
 
 .turtle-wrapper {
@@ -294,10 +280,10 @@ onUnmounted(() => {
 }
 
 .node-media {
-  position: absolute;
-  z-index: 2;
+  z-index: -1;
   pointer-events: none;
   height: auto;
+  object-fit: contain;
 
   // 用 clamp 控制尺寸：手機不會爆、桌機不會太小
   &--sm {
@@ -309,57 +295,78 @@ onUnmounted(() => {
   }
 
   &--lg {
-    width: clamp(160px, 24vw, 340px);
+    width: clamp(120px, 18vw, 240px);
   }
 
   // offset（讓你每題微調不用開新 class）
-  transform: translate(var(--mx, 0px), var(--my, 0px));
+  transform: translate(-50%, -50%);
 }
 
-/* 錨點：用 %，避免 px 跑掉 */
+/* 使用 grid 定位，避免 RWD 時亂跑 */
 .node-media--rt {
-  top: 10%;
-  right: -2%;
+  grid-column: 5 / 7;
+  grid-row: 1 / 2;
+  justify-self: end;
+  align-self: start;
+  margin-right: -2%;
+  margin-top: 8%;
 }
 
 .node-media--lt {
-  top: 10%;
-  left: 6%;
+  grid-column: 1 / 2;
+  grid-row: 1 / 2;
+  justify-self: start;
+  align-self: start;
+  margin-left: 5%;
+  margin-top: 8%;
 }
 
 .node-media--rb {
-  bottom: 6%;
-  right: 0%;
+  grid-column: 6 / 7;
+  grid-row: 3 / 4;
+  justify-self: end;
+  align-self: end;
+  margin-right: -2%;
+  margin-bottom: 60%;
 }
 
 .node-media--lb {
-  bottom: 12%;
-  left: 6%;
+  grid-column: 1 / 2;
+  grid-row: 3 / 4;
+  justify-self: start;
+  align-self: end;
+  margin-left: 5%;
+  margin-bottom: 10%;
 }
 
 .node-media--ct {
-  top: 8%;
-  left: 50%;
-  transform: translate(-50%, 0) translate(var(--mx, 0px), var(--my, 0px));
+  grid-column: 3 / 5;
+  grid-row: 1 / 2;
+  justify-self: center;
+  align-self: start;
+  margin-top: 8%;
 }
 
 .node-media--cb {
-  bottom: 10%;
-  left: 50%;
-  transform: translate(-50%, 0) translate(var(--mx, 0px), var(--my, 0px));
+  grid-column: 3 / 5;
+  grid-row: 3 / 4;
+  justify-self: center;
+  align-self: end;
+  margin-bottom: 3%;
 }
 
 .node-media--cc {
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) translate(var(--mx, 0px), var(--my, 0px));
+  grid-column: 3 / 5;
+  grid-row: 2 / 3;
+  justify-self: center;
+  align-self: center;
 }
 
 /* ===== 手伸出來動畫 ===== */
 .anim-hand-in {
   will-change: transform, opacity;
   animation:
-    handInFromRight 0.8s cubic-bezier(.22, 1, .36, 1) both,
+    handInFromRight 0.8s cubic-bezier(0.22, 1, 0.36, 1) both,
     handWobble 1.6s ease-in-out infinite;
   animation-delay: 0s, 0.9s; // 晃動等進場完成再開始
 }
