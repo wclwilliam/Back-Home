@@ -1,8 +1,6 @@
 import { useAuthStore } from '@/stores/auth'
 import { useHealthStore } from '@/stores/health'
 
-
-
 export function authGuard(to) {
   const auth = useAuthStore()
   const healthStore = useHealthStore()
@@ -14,7 +12,11 @@ export function authGuard(to) {
   }
 
   if (to.meta.requiresAuth && !auth.isLogin) {
-    auth.openLoginModal(to.fullPath)
-    return false // 阻止導航
+    // 設定登入後要導向的頁面
+    auth.redirectAfterLogin = to.fullPath
+    // 開啟登入燈箱
+    auth.openLoginModal()
+    // 導向首頁並阻止原本的導航
+    return { name: 'home' }
   }
 }

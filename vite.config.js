@@ -17,7 +17,7 @@ export default defineConfig(({ mode }) => {
      vue({
       template: {
         compilerOptions: {
-          isCustomElement: (tag) => tag === 'model-viewer' // 告訴 Vue 看到這個標籤直接跳過，它是外部零件
+          isCustomElement: (tag) => tag === 'model-viewer' 
         }
       }
     })

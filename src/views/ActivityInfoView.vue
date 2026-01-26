@@ -6,6 +6,7 @@ import 'swiper/css'
 import 'swiper/css/pagination'
 import { Autoplay, Pagination } from 'swiper/modules'
 import { publicApi, base } from '@/utils/publicApi'
+import { useAuthStore } from '@/stores/auth'
 
 import ActivityCard from '@/components/cards/ActivityCard.vue'
 import FormInput from '@/components/activity/FormInput.vue'
@@ -33,22 +34,24 @@ import { formatDate } from '@vueuse/core'
 // 建立 route 物件
 const route = useRoute()
 const router = useRouter()
+const authStore = useAuthStore()
+
 //活動介紹
 const activityInfo = ref({})
 //輪播卡片
 const activityList = ref([])
 //活動照片，先以相同類型的照片代替
 const relatedImages = ref([])
-// --- 模擬登入狀態
-// 預設未登入
-const isLoggedIn = ref(false)
 // 預設未參加，留言時需檢查此狀態
 const isParticipant = ref(false)
-// 點擊按鈕後，直接變成已登入狀態
-const handleMockLogin = () => {
-  isLoggedIn.value = true
-  // 登入後，自動變成已參加過
-  isParticipant.value = true
+
+// 使用計算屬性取得登入狀態
+const isLoggedIn = computed(() => authStore.isLogin)
+
+// 開啟登入燈箱
+const handleLoginPrompt = () => {
+  // 不設定 redirectAfterLogin，讓用戶登入後停留在當前頁面
+  authStore.openLoginModal()
 }
 
 const fetchActivityData = (id) => {
@@ -395,7 +398,7 @@ const handleReport = (review) => {
         <div class="cta-content col-sm-4 col-md-4">
           <h3>想分享您的心得嗎？</h3>
           <p>登入會員並驗證參加紀錄後，即可發表留言。</p>
-          <button class="btn-solid btn-large" @click="handleMockLogin">登入後立即留言</button>
+          <button class="btn-solid btn-large" @click="handleLoginPrompt">登入後立即留言</button>
         </div>
       </div>
 
@@ -515,7 +518,7 @@ const handleReport = (review) => {
         <div class="cta-content col-sm-4 col-md-4">
           <h3>您尚未登入</h3>
           <p>登入會員後，即可快速帶入資料完成報名！</p>
-          <button class="btn-solid btn-large" @click="handleMockLogin">登入後立即報名</button>
+          <button class="btn-solid btn-large" @click="handleLoginPrompt">登入後立即報名</button>
         </div>
       </div>
       <form v-else class="row signUpForm" @submit.prevent="handleSingUpSubmit">
@@ -921,6 +924,7 @@ textarea.customInput {
     width: 100%;
     aspect-ratio: 4 / 3;
     overflow: hidden;
+
     img {
       width: 100%;
       height: 100%;

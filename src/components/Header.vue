@@ -23,16 +23,24 @@ const toggleMenu = () => {
 //使用者選單
 const authStore = useAuthStore()
 const isUserMenuOpen = ref(false)
-const userName = ref('Cathy') // 這裡之後可以從 authStore 取得使用者名稱
+
+// 從 authStore 取得使用者名稱
+const userName = ref('Demo User')
 
 const toggleUserMenu = () => {
-  // 如果未登入，開啟登入燈箱
+  // 如果未登入，開啟登入燈箱並設定登入後導向會員中心
   if (!authStore.isLogin) {
+    authStore.redirectAfterLogin = '/member'
     authStore.openLoginModal()
     return
   }
   // 已登入則切換選單顯示
   isUserMenuOpen.value = !isUserMenuOpen.value
+
+  // 更新使用者名稱
+  if (authStore.user?.name) {
+    userName.value = authStore.user.name
+  }
 }
 
 const goToMemberCenter = () => {
@@ -40,9 +48,11 @@ const goToMemberCenter = () => {
   isUserMenuOpen.value = false
 }
 
-const logout = () => {
-  authStore.isLogin = false
+const logout = async () => {
+  // 呼叫 authStore 的 logout 方法
+  await authStore.logout()
   isUserMenuOpen.value = false
+  // 導向首頁
   router.push({ name: 'home' })
 }
 // ========== 2026/1/16 Pinia 使用者選單功能結束 ==========

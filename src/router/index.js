@@ -62,7 +62,7 @@ const router = createRouter({
       path: '/activity/:id',
       name: 'activityInfo',
       props: true,
-      meta: { title: '活動詳情', hideFooter: true,},
+      meta: { title: '活動詳情', hideFooter: true },
       component: () => import('@/views/ActivityInfoView.vue'),
     },
     {
@@ -75,7 +75,7 @@ const router = createRouter({
       path: '/member',
       name: 'member',
       component: () => import('@/views/MemberShip.vue'),
-      meta: { title: '會員中心' },
+      meta: { title: '會員中心', requiresAuth: true },
     },
     {
       path: '/game',

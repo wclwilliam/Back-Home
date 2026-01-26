@@ -1,10 +1,13 @@
 <script setup>
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import { Navigation } from 'swiper/modules'
 import 'swiper/css'
 import 'swiper/css/navigation'
 import { parsePublicFile } from '@/utils/parseFile'
+
+const router = useRouter()
 
 const { startOptions } = defineProps({
   startOptions: { type: Array, required: true },
@@ -33,7 +36,8 @@ const handleSelect = (opt) => {
   selectedId.value = opt.id
 
   const index = startOptions.findIndex((o) => o.id === opt.id) // baby=0, teen=1, adult=2
-  if (index !== -1 && swiperIns.value) { //findIndex 的規則是找不到 → 回傳 -1
+  if (index !== -1 && swiperIns.value) {
+    //findIndex 的規則是找不到 → 回傳 -1
     swiperIns.value.slideTo(index)
   }
 }
@@ -42,9 +46,19 @@ const emit = defineEmits(['start'])
 const start = () => {
   emit('start', selectedId.value)
 }
+
+const goHome = () => {
+  router.push({ name: 'home' })
+}
 </script>
 <template>
   <div class="game-screen">
+    <!-- 返回首頁按鈕 (僅手機橫向顯示) -->
+    <button type="button" class="home-btn" @click="goHome">
+      <span class="material-symbols-outlined icon-home"> home </span>
+      <p>返回首頁</p>
+    </button>
+
     <div class="turtle-pic">
       <Swiper :modules="[Navigation]" navigation class="photoSwiper" @swiper="onSwiper" @slideChange="onSlideChange">
         <SwiperSlide v-for="(img, i) in images" :key="i">
@@ -52,7 +66,7 @@ const start = () => {
         </SwiperSlide>
       </Swiper>
     </div>
-    <button class="btn btn-solid btn-xl start-btn" @click="start">開始旅程</button>
+    <button class="btn btn-solid btn-xxl start-btn" @click="start">開始旅程</button>
 
     <div class="game-question-card">
       <h2 class="question-title">你的旅程將從哪裡開始？</h2>
@@ -77,8 +91,8 @@ const start = () => {
 }
 
 .turtle-pic {
-  width: clamp(140px, 28vw, 380px);
-  grid-column: 1 / 2;
+  width: clamp(140px, 35vw, 450px);
+  grid-column: 2 / 3;
   grid-row: 2 / 3;
   justify-self: center;
   align-self: self-end;
@@ -102,16 +116,16 @@ const start = () => {
 }
 
 .start-btn {
-  align-self: center;
-  justify-self: start;
+  align-self: end;
+  justify-self: center;
   grid-column: 2 / 3;
-  grid-row: 2 / 3;
-  z-index: 20; // 保險：比 question card 高
+  grid-row: 1 / 2;
+  z-index: 20;
+  transform: translateY(100%);
 }
 
 p {
   @include font-body-bold;
-  background-color: $primary-color;
   color: $text-white;
 }
 
@@ -128,7 +142,14 @@ p {
   gap: 40px;
   padding: 40px 60px;
 
-  background: linear-gradient(0deg, rgba(227, 213, 202, 1) 0%, rgba(227, 213, 202, 0.9) 20%, rgba(227, 213, 202, 0.8) 40%, rgba(227, 213, 202, 0.7) 60%, rgba(227, 213, 202, 0.6) 70%, rgba(227, 213, 202, 0.5) 80%, rgba(227, 213, 202, 0) 100%);
+  background: linear-gradient(0deg,
+      rgba(227, 213, 202, 1) 0%,
+      rgba(227, 213, 202, 0.9) 20%,
+      rgba(227, 213, 202, 0.8) 40%,
+      rgba(227, 213, 202, 0.7) 60%,
+      rgba(227, 213, 202, 0.6) 70%,
+      rgba(227, 213, 202, 0.5) 80%,
+      rgba(227, 213, 202, 0) 100%);
 
   z-index: 10;
   pointer-events: none;
@@ -138,8 +159,39 @@ p {
   @include font-body-l-bold;
 }
 
-/* 手機橫向：縮小文字大小 */
+/* 返回首頁按鈕 - 預設隱藏 */
+.home-btn {
+  display: none;
+  color: $text-color;
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 100;
+}
+
+p {
+  @include font-body-l-bold;
+}
+
+.icon-home {
+  @include icon-style($size: 40px);
+}
+
+/* 手機橫向：顯示返回首頁按鈕並縮小文字大小 */
 @media (pointer: coarse) and (orientation: landscape) {
+  .home-btn {
+    display: block;
+  }
+
+  p {
+    font-size: 0.9rem;
+    margin: 0;
+  }
+
+  .icon-home {
+    @include icon-style($size: 28px);
+  }
+
   .question-title {
     font-size: 0.9rem;
   }
