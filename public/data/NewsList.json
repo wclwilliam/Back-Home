@@ -1,61 +1,61 @@
 [
   {
     "article_id": 1,
-    "publisher_id": "admin_alex",
-    "title": "守護海洋安全第一：【龜途】2025 綠蠵龜棲地守護淨灘活動延期通知",
-    "category": "重要公告",
-    "publish_time": "2026-01-16T09:00:00Z",
-    "content": "親愛的用戶您好，本平台將於下週六凌晨進行例行性系統維護，預計暫停服務 4 小時，造成不便敬請見諒。",
-    "image_url": "img/News/news1.png",
-    "status": "published"
-  },
- {
-    "article_id": 2,
-    "publisher_id": "admin_system",
-    "title": "【系統維護】網站伺服器將於 2026/02/01 暫停服務兩小時",
-    "category": "重要公告",
-    "publish_time": "2026-01-12T09:00:00Z",
-    "content": "為了提供更穩定的連線品質，本站將於 2026 年 2 月 1 日凌晨 02:00 至 04:00 進行伺服器維護，期間將暫停所有報名與捐款功能。",
-    "image_url": "img/News/news2.jpg",
-    "status": "published"
-  },
-  {
-    "article_id": 3,
     "publisher_id": "editor_mark",
     "title": "還給海龜乾淨的家：2026 小琉球春季大型淨灘招募啟動",
     "category": "重要公告",
     "publish_time": "2026-01-25T14:30:00Z",
     "content": "春暖花開，正是海龜準備洄游的季節。邀請您與我們一同前往小琉球，清除沙灘廢棄物，迎接海龜媽媽回家。",
-    "image_url": "img/News/news3.png",
+    "image_url": "img/News/news1.png",
     "status": "published"
   },
   {
-    "article_id": 4,
+    "article_id": 2,
     "publisher_id": "editor_lisa",
     "title": "【緊急異動】因強烈颱風接近，本週六「海龜生態講座」延期",
     "category": "異動通知",
     "publish_time": "2026-01-20T10:00:00Z",
     "content": "考量志工與學員安全，原定本週六於基隆舉辦的生態講座將延期至下個月，詳細退費或保留資格辦法請見內文。",
-    "image_url": "img/News/news4.png",
+    "image_url": "img/News/news2.jpg",
     "status": "published"
   },
   {
-    "article_id": 5,
+    "article_id": 3,
     "publisher_id": "editor_sarah",
     "title": "好消息！重傷綠蠵龜「安安」康復，將於本週日進行野放",
     "category": "重要公告",
     "publish_time": "2026-01-18T16:20:00Z",
     "content": "經過獸醫團隊長達半年的細心照料，誤食塑膠袋的綠蠵龜「安安」終於恢復健康，誠摯邀請大家到場給予祝福。",
-    "image_url": "img/News/news5.jpg",
+    "image_url": "img/News/news3.png",
+    "status": "published"
+  },
+    {
+    "article_id": 4,
+    "publisher_id": "admin_alex",
+    "title": "守護海洋安全第一：【龜途】2025 綠蠵龜棲地守護淨灘活動延期通知",
+    "category": "重要公告",
+    "publish_time": "2026-01-16T09:00:00Z",
+    "content": "親愛的用戶您好，本平台將於下週六凌晨進行例行性系統維護，預計暫停服務 4 小時，造成不便敬請見諒。",
+    "image_url": "img/News/news4.png",
     "status": "published"
   },
   {
-    "article_id": 6,
+    "article_id": 5,
     "publisher_id": "editor_mark",
     "title": "【資安升級】會員系統更新說明，請盡快重設您的密碼",
     "category": "重要公告",
     "publish_time": "2026-01-15T08:00:00Z",
     "content": "為了加強個人資料保護，我們已全面升級會員加密系統。請所有會員登入後依照指示重設密碼，以確保帳戶安全。",
+    "image_url": "img/News/news5.jpg",
+    "status": "published"
+  },
+   {
+    "article_id": 6,
+    "publisher_id": "admin_system",
+    "title": "【系統維護】網站伺服器將於 2026/02/01 暫停服務兩小時",
+    "category": "重要公告",
+    "publish_time": "2026-01-14T09:00:00Z",
+    "content": "為了提供更穩定的連線品質，本站將於 2026 年 2 月 1 日凌晨 02:00 至 04:00 進行伺服器維護，期間將暫停所有報名與捐款功能。",
     "image_url": "img/News/news6.jpg",
     "status": "published"
   },
