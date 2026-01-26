@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
 import { publicApi, base } from '@/utils/publicApi'
+import { useRouter, useRoute } from 'vue-router'
 import Banner from '@/components/Banner.vue'
 import clickBar from '@/components/clickBar.vue'
 import SearchBar from '@/components/activity/SearchBar.vue'
@@ -9,10 +10,20 @@ import Ranking from '@/components/activity/Ranking.vue'
 import Pagination from '@/components/Pagination.vue'
 
 const bgUrl = `${base}image/activity/activity_bg.jpg`
+const router = useRouter()
+const route = useRoute() //當前網址
+const createDefaultFilters = () => ({
+  topics: [],
+  locations: [],
+  times: [],
+  dateRange: null,
+})
 
+const activeFilters = ref(createDefaultFilters())
 const fetchAct = async () => {
+  const url = `${base}data/activityData.json`.replace('//', '/')
   publicApi
-    .get('data/activityData.json')
+    .get(url)
     .then((response) => {
       let rawData = response.data
 
@@ -52,12 +63,52 @@ const fetchAct = async () => {
     })
 }
 
+//更改網址
+const updateUrl = () => {
+  const filterString = JSON.stringify(activeFilters.value) //把篩選器轉成字串
+
+  router.replace({
+    name: 'activity',
+    query: {
+      category: currentActivityTab.value, // 紀錄目前的 Tab
+      search: searchQuery.value || undefined, // 紀錄目前的搜尋關鍵字
+      page: currentPage.value, // 紀錄目前的頁數
+      filter: filterString, //紀錄篩選器
+    },
+  })
+}
+
 // // 獲取活動資料
 onMounted(() => {
   fetchAct()
   updateItemsPerPage()
-  window.addEventListener('resize', updateItemsPerPage)
-  //重新計算頁面放置卡片數量
+  window.addEventListener('resize', updateItemsPerPage) //重新計算頁面放置卡片數量
+
+  // console.log(route.query)
+  if (route.query.category) {
+    currentActivityTab.value = route.query.category
+  }
+  if (route.query.search) {
+    searchQuery.value = route.query.search
+    activeSearchKeyword.value = route.query.search
+  }
+  if (route.query.filter) {
+    try {
+      const parsedFilters = JSON.parse(route.query.filter)
+      // 確保篩選器結構正確
+      activeFilters.value = {
+        ...createDefaultFilters(),
+        ...parsedFilters,
+        // 如果需要確保 dateRange 是陣列
+        dateRange: parsedFilters.dateRange || null,
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
+  if (route.query.page) {
+    currentPage.value = Number(route.query.page)
+  }
 })
 onUnmounted(() => {
   window.removeEventListener('resize', updateItemsPerPage)
@@ -74,13 +125,6 @@ const activityList = ref(null)
 const currentPage = ref(1)
 const itemsPerPage = ref(9)
 
-const activeFilters = ref({
-  topics: [],
-  locations: [],
-  times: [],
-  dateRange: null,
-})
-
 // 關鍵字搜索
 const handleSearchInput = (query) => {
   searchQuery.value = query
@@ -88,7 +132,7 @@ const handleSearchInput = (query) => {
 }
 //篩選器
 const handleFilterApply = (filters) => {
-  activeFilters.value = filters
+  activeFilters.value = { ...createDefaultFilters(), ...filters }
   currentPage.value = 1
 }
 
@@ -151,7 +195,7 @@ const filteredActivities = computed(() => {
       return actDate >= start && actDate <= end
     })
   } else if (filters.times.length > 0) {
-    // 本月 / 下個月
+    // 本月 / 下個月 / 上個月
     const now = new Date()
     const currentMonth = now.getMonth()
     const currentYear = now.getFullYear()
@@ -173,6 +217,16 @@ const filteredActivities = computed(() => {
           if (targetMonth > 11) {
             targetMonth = 0
             targetYear += 1
+          }
+          return actMonth === targetMonth && actYear === targetYear
+        }
+        if (timeOption === '上個月') {
+          // 處理跨年問題 (12月的下個月是明年1月)
+          let targetMonth = currentMonth - 1
+          let targetYear = currentYear
+          if (targetMonth < 0) {
+            targetMonth = 11
+            targetYear -= 1
           }
           return actMonth === targetMonth && actYear === targetYear
         }
@@ -206,16 +260,12 @@ const goToPage = (page) => {
 }
 
 //  Tab 切換時，清空搜尋條件
-watch(currentActivityTab, () => {
+watch(currentActivityTab, (newVal) => {
   currentPage.value = 1
   searchQuery.value = ''
   activeSearchKeyword.value = ''
-  activeFilters.value = {
-    topics: [],
-    locations: [],
-    times: [],
-    dateRange: null,
-  }
+  activeFilters.value = { ...createDefaultFilters() }
+  updateUrl()
 })
 watch(searchQuery, (newVal) => {
   if (timer) {
@@ -224,7 +274,19 @@ watch(searchQuery, (newVal) => {
   timer = setTimeout(() => {
     activeSearchKeyword.value = newVal
     currentPage.value = 1
+    updateUrl()
   }, 800)
+})
+watch(
+  activeFilters,
+  () => {
+    currentPage.value = 1
+    updateUrl()
+  },
+  { deep: true },
+)
+watch(currentPage, () => {
+  updateUrl()
 })
 </script>
 <template>
@@ -234,7 +296,12 @@ watch(searchQuery, (newVal) => {
       <div class="row cardList">
         <clickBar v-model="currentActivityTab" :tabs="activityTabs" />
 
-        <SearchBar @search="handleSearchInput" @filter="handleFilterApply" />
+        <SearchBar
+          :init-filters="activeFilters"
+          :current-tab="currentActivityTab"
+          @search="handleSearchInput"
+          @filter="handleFilterApply"
+        />
 
         <div
           class="col-sm-4 col-md-6 col-lg-4"

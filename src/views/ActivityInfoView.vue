@@ -16,6 +16,7 @@ import LightboxRegisterCheck from '@/components/activity/Lightbox/LightboxRegist
 import LightboxRegisterSuccess from '@/components/activity/Lightbox/LightboxRegisterSuccess.vue'
 import LightboxReviewCheck from '@/components/activity/Lightbox/LightboxReviewCheck.vue'
 import LightboxReport from '@/components/activity/Lightbox/LightboxReport.vue'
+import ActResult from '@/components/activity/ActResult.vue'
 import { format } from 'crypto-js'
 import { formatDate } from '@vueuse/core'
 
@@ -343,41 +344,32 @@ const handleReport = (review) => {
   console.log('檢舉留言:', review)
   showReportLightbox.value = true
 }
+
+const goBackToList = () => {
+  router.push({
+    path: '/activity',
+    query: {
+      category: route.query.fromCategory || '目前活動',
+      page: route.query.fromPage || 1,
+      search: route.query.fromSearch || undefined,
+    },
+  })
+}
 </script>
 <template>
   <div class="container">
     <div class="row introduce">
+      <div class="actionBar">
+        <button class="btn btn-outline btn-xs" @click="goBackToList">回列表</button>
+      </div>
       <ActivityIntroduce v-if="activityInfo.id" :activity="activityInfo" />
     </div>
     <!-- 活動結束 -->
     <template v-if="isEnded">
-      <div class="row result" v-if="activityInfo.results">
+      <div class="row result">
         <div class="secondary-title col-sm-4">成果數據區</div>
-        <div class="data col-sm-3 col-md-5">
-          <ul class="resultData">
-            <li v-if="activityInfo.results.totalWeight">
-              清理總重量：{{ activityInfo.results.totalWeight }} 公斤
-            </li>
-            <li v-if="activityInfo.results.bagsCount">
-              清理袋數：{{ activityInfo.results.bagsCount }} 袋
-            </li>
 
-            <li v-if="activityInfo.results.turtlesCared">
-              照護海龜數：{{ activityInfo.results.turtlesCared }} 隻
-            </li>
-            <li v-if="activityInfo.results.foodPrepared">
-              備餐重量：{{ activityInfo.results.foodPrepared }} 公斤
-            </li>
-
-            <li v-if="activityInfo.results.tracksFound">
-              發現爬痕：{{ activityInfo.results.tracksFound }} 處
-            </li>
-            <li v-if="activityInfo.results.nestsConfirmed">
-              確認產卵窩數：{{ activityInfo.results.nestsConfirmed }} 窩
-            </li>
-          </ul>
-        </div>
-
+        <ActResult :activityInfo="activityInfo" />
         <div class="picArea col-sm-4">
           <div class="pic" v-for="(img, index) in relatedImages" :key="index">
             <img :src="img" :alt="activityInfo.title + ' 成果花絮'" />
@@ -699,7 +691,14 @@ const handleReport = (review) => {
   </div>
 </template>
 <style lang="scss" scoped>
-@import '@/assets/scss/component/_btn.scss';
+.btn {
+  margin-bottom: 20px;
+
+  @media (max-width: 1600px) {
+    //height: 40px;
+    padding: 16px 10px;
+  }
+}
 
 .signUpForm {
   padding: 24px;

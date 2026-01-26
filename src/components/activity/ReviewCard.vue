@@ -1,6 +1,8 @@
 <script setup>
 import { computed, ref } from 'vue'
-import Input from '../auth/Input.vue'
+import { useAuthStore } from '@/stores/auth'
+
+const authStore = useAuthStore()
 
 const props = defineProps({
   review: {
@@ -28,6 +30,10 @@ const isReported = ref(false)
 const isMenuOpen = ref(false) // [新增] 控制選單開關
 
 const toggleLike = () => {
+  if (!authStore.isLogin) {
+    authStore.openLoginModal()
+    return
+  }
   isLiked.value = !isLiked.value
   if (isLiked.value) likeCount.value++
   else likeCount.value--
@@ -39,6 +45,10 @@ const toggleMenu = () => {
 }
 
 const handleReport = () => {
+  if (!authStore.isLogin) {
+    authStore.openLoginModal()
+    return
+  }
   // 關閉選單
   isMenuOpen.value = false
   // 發送檢舉事件，將當前評論物件傳出去
