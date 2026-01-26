@@ -115,18 +115,30 @@
             
                                 <div class="stats-grid">
                                     <div class="stat-item">
+                                        <span class="material-symbols-outlined">
+                                        healing
+                                        </span>
                                     <span class="label">救援海龜總數</span>
                                     <AnimationNumber :value="currentData.core_metrics?.total_rescued_turtles || 0" class="value">隻</AnimationNumber>
                                     </div>
                                     <div class="stat-item">
+                                        <span class="material-symbols-outlined">
+                                        egg
+                                        </span>
                                     <span class="label">引導入海幼龜</span>
                                     <AnimationNumber :value="currentData.core_metrics?.hatchlings_guided_to_sea || 0" class="value">隻</AnimationNumber>
                                     </div>
                                     <div class="stat-item">
+                                        <span class="material-symbols-outlined">
+                                        anchor
+                                        </span>
                                     <span class="label">巡邏海岸線</span>
                                     <AnimationNumber :value="currentData.core_metrics?.patrolled_coastline_km || 0" class="value">公里</AnimationNumber>
                                     </div>
                                     <div class="stat-item">
+                                        <span class="material-symbols-outlined">
+                                        health_cross
+                                        </span>
                                     <span class="label">專業醫療手術</span>
                                     <AnimationNumber :value="currentData.core_metrics?.professional_medical_surgeries || 0" class="value">場</AnimationNumber>
                                     </div>
@@ -250,9 +262,19 @@
                     .stats-grid {
                         display: flex;
                         flex-wrap: wrap;
+                        justify-content: space-between;
                         width: 100%;
-                        gap: 52px 20%;
+                        gap: 52px 16px;
                         margin-bottom: 80px;
+                        .material-symbols-outlined {
+                        font-variation-settings:
+                        'FILL' 0,
+                        'wght' 400,
+                        'GRAD' 0,
+                        'opsz' 20;
+                        @include font-body-l;
+                        color: #Fff;
+                        }
                         .stat-item {
                             min-width: 40%; //暫時
                             display: flex;
