@@ -6,6 +6,7 @@ import 'swiper/css'
 import 'swiper/css/pagination'
 import { Autoplay, Pagination } from 'swiper/modules'
 import { publicApi, base } from '@/utils/publicApi'
+import { useAuthStore } from '@/stores/auth'
 
 import ActivityCard from '@/components/cards/ActivityCard.vue'
 import FormInput from '@/components/activity/FormInput.vue'
@@ -31,22 +32,24 @@ import LightboxReport from '@/components/activity/Lightbox/LightboxReport.vue'
 // 建立 route 物件
 const route = useRoute()
 const router = useRouter()
+const authStore = useAuthStore()
+
 //活動介紹
 const activityInfo = ref({})
 //輪播卡片
 const activityList = ref([])
 //活動照片，先以相同類型的照片代替
 const relatedImages = ref([])
-// --- 模擬登入狀態
-// 預設未登入
-const isLoggedIn = ref(false)
 // 預設未參加，留言時需檢查此狀態
 const isParticipant = ref(false)
-// 點擊按鈕後，直接變成已登入狀態
-const handleMockLogin = () => {
-  isLoggedIn.value = true
-  // 登入後，自動變成已參加過
-  isParticipant.value = true
+
+// 使用計算屬性取得登入狀態
+const isLoggedIn = computed(() => authStore.isLogin)
+
+// 開啟登入燈箱
+const handleLoginPrompt = () => {
+  // 不設定 redirectAfterLogin，讓用戶登入後停留在當前頁面
+  authStore.openLoginModal()
 }
 
 const fetchActivityData = (id) => {
@@ -273,11 +276,8 @@ const handleReport = (review) => {
       </div>
       <div class="row review">
         <div class="secondary-title col-sm-4">志工回饋牆</div>
-        <ReviewSwiper
-          v-if="activityInfo.messages && activityInfo.messages.length > 0"
-          :messages="activityInfo.messages"
-          @report="handleReport"
-        />
+        <ReviewSwiper v-if="activityInfo.messages && activityInfo.messages.length > 0" :messages="activityInfo.messages"
+          @report="handleReport" />
         <div v-else class="no-review">目前尚無回饋</div>
       </div>
 
@@ -285,7 +285,7 @@ const handleReport = (review) => {
         <div class="cta-content col-sm-4 col-md-4">
           <h3>想分享您的心得嗎？</h3>
           <p>登入會員並驗證參加紀錄後，即可發表留言。</p>
-          <button class="btn-solid btn-large" @click="handleMockLogin">登入後立即留言</button>
+          <button class="btn-solid btn-large" @click="handleLoginPrompt">登入後立即留言</button>
         </div>
       </div>
 
@@ -318,26 +318,16 @@ const handleReport = (review) => {
           <div class="rightContent col-sm-4 col-md-7 col-lg-7">
             <FormInput label="滿意度 : " required>
               <div class="star-rating">
-                <span
-                  v-for="star in 5"
-                  :key="star"
-                  class="material-symbols-outlined star"
-                  :class="{ 'is-active': star <= reviewData.rating }"
-                  @click="reviewData.rating = star"
-                >
+                <span v-for="star in 5" :key="star" class="material-symbols-outlined star"
+                  :class="{ 'is-active': star <= reviewData.rating }" @click="reviewData.rating = star">
                   kid_star
                 </span>
               </div>
             </FormInput>
 
             <FormInput label="心得內容" required htmlFor="comment">
-              <textarea
-                id="comment"
-                type="text"
-                v-model="reviewData.comment"
-                class="customInput"
-                placeholder="分享你的活動體驗(限100字)"
-              ></textarea>
+              <textarea id="comment" type="text" v-model="reviewData.comment" class="customInput"
+                placeholder="分享你的活動體驗(限100字)"></textarea>
             </FormInput>
 
             <div class="submit-btm col-sm-4">
@@ -353,11 +343,8 @@ const handleReport = (review) => {
         <div class="cta-content col-sm-4 col-md-4">
           <h3>{{ isOpening ? '活動進行中' : '報名截止' }}</h3>
           <p>{{ isOpening ? '活動正在進行，無法受理報名。' : '報名已截止，請探索其他活動。' }}</p>
-          <router-link
-            :to="{ name: 'activity' }"
-            class="btn-solid btn-large"
-            style="display: inline-block; text-decoration: none"
-          >
+          <router-link :to="{ name: 'activity' }" class="btn-solid btn-large"
+            style="display: inline-block; text-decoration: none">
             查看其他活動
           </router-link>
         </div>
@@ -369,11 +356,8 @@ const handleReport = (review) => {
         <div class="cta-content col-sm-4 col-md-4">
           <h3>名額已滿</h3>
           <p>名額已滿，請探索其他活動</p>
-          <router-link
-            :to="{ name: 'activity' }"
-            class="btn-solid btn-large"
-            style="display: inline-block; text-decoration: none"
-          >
+          <router-link :to="{ name: 'activity' }" class="btn-solid btn-large"
+            style="display: inline-block; text-decoration: none">
             查看其他活動
           </router-link>
         </div>
@@ -385,95 +369,48 @@ const handleReport = (review) => {
         <div class="cta-content col-sm-4 col-md-4">
           <h3>您尚未登入</h3>
           <p>登入會員後，即可快速帶入資料完成報名！</p>
-          <button class="btn-solid btn-large" @click="handleMockLogin">登入後立即報名</button>
+          <button class="btn-solid btn-large" @click="handleLoginPrompt">登入後立即報名</button>
         </div>
       </div>
       <form v-else class="row signUpForm" @submit.prevent="submitForm">
         <div class="secondary-title col-sm-4">立即報名</div>
         <FormInput label="姓名" required htmlFor="name">
-          <input
-            id="name"
-            type="text"
-            v-model="formData.name"
-            class="customInput disable"
-            disabled
-          />
+          <input id="name" type="text" v-model="formData.name" class="customInput disable" disabled />
           <template #message>
             <span class="material-symbols-outlined info">info</span>
             如需修改姓名，請至 <a href="#" class="link">會員中心</a> 更新資料
           </template>
         </FormInput>
         <FormInput label="電子信箱" required htmlFor="email">
-          <input
-            id="email"
-            type="text"
-            v-model="formData.email"
-            class="customInput disable"
-            disabled
-          />
+          <input id="email" type="text" v-model="formData.email" class="customInput disable" disabled />
         </FormInput>
         <FormInput label="手機號碼" required htmlFor="phone" :error="errors.phone">
-          <input
-            id="phone"
-            type="tel"
-            v-model="formData.phone"
-            class="customInput"
-            placeholder="請輸入手機號碼"
-          />
+          <input id="phone" type="tel" v-model="formData.phone" class="customInput" placeholder="請輸入手機號碼" />
         </FormInput>
 
         <FormInput label="身分證字號" required htmlFor="idNumber">
-          <input
-            id="idNumber"
-            type="text"
-            v-model="formData.idNumber"
-            class="customInput"
-            placeholder="請輸入身分證字號"
-          />
+          <input id="idNumber" type="text" v-model="formData.idNumber" class="customInput" placeholder="請輸入身分證字號" />
         </FormInput>
 
         <FormInput label="出生年月日" required htmlFor="birthday">
-          <input
-            id="birthday"
-            type="date"
-            v-model="formData.birthday"
-            class="customInput"
-            placeholder="請選擇日期"
-          />
+          <input id="birthday" type="date" v-model="formData.birthday" class="customInput" placeholder="請選擇日期" />
         </FormInput>
 
         <FormInput label="緊急聯絡人姓名" required htmlFor="emergencyName">
-          <input
-            id="emergencyName"
-            type="text"
-            v-model="formData.emergencyName"
-            class="customInput"
-          />
+          <input id="emergencyName" type="text" v-model="formData.emergencyName" class="customInput" />
         </FormInput>
 
-        <FormInput
-          label="緊急聯絡人手機號碼"
-          required
-          htmlFor="emergencyPhone"
-          :error="errors.phone"
-        >
-          <input
-            id="emergencyPhone"
-            type="tel"
-            v-model="formData.emergencyPhone"
-            class="customInput"
-            placeholder="請輸入緊急聯絡人手機號碼"
-          />
+        <FormInput label="緊急聯絡人手機號碼" required htmlFor="emergencyPhone" :error="errors.phone">
+          <input id="emergencyPhone" type="tel" v-model="formData.emergencyPhone" class="customInput"
+            placeholder="請輸入緊急聯絡人手機號碼" />
         </FormInput>
 
         <div class="checkbox-row col-sm-3 col-md-8">
           <label class="check-label">
             <input type="checkbox" v-model="formData.syncData" hidden />
-            <span
-              class="material-symbols-outlined checkIcon"
-              :class="{ isChecked: formData.syncData }"
-              >{{ formData.syncData ? 'check_box' : 'check_box_outline_blank' }}</span
-            >
+            <span class="material-symbols-outlined checkIcon" :class="{ isChecked: formData.syncData }">{{
+              formData.syncData ?
+                'check_box' : 'check_box_outline_blank' }}</span>
             <span>同步更新會員資料：將本次填寫之資訊儲存至我的會員中心，下次報名更快速！</span>
           </label>
         </div>
@@ -484,11 +421,8 @@ const handleReport = (review) => {
           <div class="checkbox-row">
             <label class="check-label">
               <input type="checkbox" v-model="formData.agreeHealth" hidden />
-              <span
-                class="material-symbols-outlined checkIcon"
-                :class="{ isChecked: formData.agreeHealth }"
-                >{{ formData.agreeHealth ? 'check_box' : 'check_box_outline_blank' }}</span
-              >
+              <span class="material-symbols-outlined checkIcon" :class="{ isChecked: formData.agreeHealth }">{{
+                formData.agreeHealth ? 'check_box' : 'check_box_outline_blank' }}</span>
               <span>我確認無心臟病、高血壓等不適合烈日下活動的病史</span>
             </label>
           </div>
@@ -496,11 +430,8 @@ const handleReport = (review) => {
           <div class="checkbox-row">
             <label class="check-label">
               <input type="checkbox" v-model="formData.agreePhoto" hidden />
-              <span
-                class="material-symbols-outlined checkIcon"
-                :class="{ isChecked: formData.agreePhoto }"
-                >{{ formData.agreePhoto ? 'check_box' : 'check_box_outline_blank' }}</span
-              >
+              <span class="material-symbols-outlined checkIcon" :class="{ isChecked: formData.agreePhoto }">{{
+                formData.agreePhoto ? 'check_box' : 'check_box_outline_blank' }}</span>
               <span>我同意肖像權使用 (活動照片將用於海龜保育推廣，不作商業用途)。</span>
             </label>
           </div>
@@ -513,29 +444,19 @@ const handleReport = (review) => {
     <!-- 推薦的活動 -->
     <div class="row recommendActivity">
       <div class="secondary-title col-sm-4">你可能會喜歡這些活動</div>
-      <swiper
-        :modules="[Autoplay, Pagination]"
-        :slides-per-view="1"
-        :space-between="24"
-        :autoplay="{ delay: 3000 }"
-        :pagination="{ clickable: true }"
-        :breakpoints="{
+      <swiper :modules="[Autoplay, Pagination]" :slides-per-view="1" :space-between="24" :autoplay="{ delay: 3000 }"
+        :pagination="{ clickable: true }" :breakpoints="{
           '768': { slidesPerView: 2.3 },
           '1024': { slidesPerView: 3.3 },
-        }"
-        class="recommend-swiper"
-      >
+        }" class="recommend-swiper">
         <swiper-slide v-for="activity in activityList" :key="activity.id">
           <ActivityCard :event="activity" />
         </swiper-slide>
       </swiper>
 
       <!-- 報名確認燈箱 -->
-      <LightboxRegisterCheck
-        v-model="showCheckLightbox"
-        :form-data="registrationData"
-        @confirm="handleConfirmRegistration"
-      />
+      <LightboxRegisterCheck v-model="showCheckLightbox" :form-data="registrationData"
+        @confirm="handleConfirmRegistration" />
 
       <!-- 留言確認燈箱 -->
       <LightboxReviewCheck v-model="showReviewCheckLightbox" @confirm="handleConfirmReview" />
@@ -748,6 +669,7 @@ textarea {
     width: 100%;
     aspect-ratio: 4 / 3;
     overflow: hidden;
+
     img {
       width: 100%;
       height: 100%;

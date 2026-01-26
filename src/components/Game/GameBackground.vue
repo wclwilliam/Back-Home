@@ -62,7 +62,7 @@ const nodeBgGroupMap = [
 ]
 
 const bgMap = {
-  start: 'game-img/wave.jpg',
+  start: 'game-img/wave.png',
   action: 'game-img/wave.jpg', // CTA 專用圖
   enter: {
     baby: 'game-img/turtle-baby-bg.jpg',
@@ -101,6 +101,8 @@ const bgStyle = computed(() => ({
 }))
 
 const enableAnim = computed(() => {
+  // 排除行動呼籲頁面
+  if (props.nodeId === 'call_to_action') return false
   return !props.nodeId?.startsWith('baby_q2_bad') && !props.nodeId?.startsWith('adult_q1_bad')
 })
 </script>
@@ -117,17 +119,17 @@ const enableAnim = computed(() => {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+}
 
-  /* 波浪變形層 */
-  &::after {
-    content: '';
-    position: absolute;
-    inset: -10%;
-    background: inherit;
-    opacity: 0.35;
-    filter: blur(6px);
-    pointer-events: none;
-  }
+/* 波浪變形層（僅在有動畫時顯示） */
+.bg-game.is-anim::after {
+  content: '';
+  position: absolute;
+  inset: -10%;
+  background: inherit;
+  opacity: 0.35;
+  filter: blur(6px);
+  pointer-events: none;
 }
 
 /* 整體微移 */
