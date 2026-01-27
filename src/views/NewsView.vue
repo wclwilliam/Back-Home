@@ -50,7 +50,7 @@ watch(currentNewsTab, () => {
 // 連資料庫 ，將資料存入 newslist
 onMounted(async () => {
   try {
-    await backHomeApi.get('news_get.php').then((response) => {
+    await backHomeApi.get('./news/news_get.php').then((response) => {
       newslist.value = response.data
       // 進頁面給值 
     })

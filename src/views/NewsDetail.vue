@@ -29,7 +29,7 @@ const formatDate = (dateString) => {
 const loadData = async () => {
     try {
         // A. 抓取全部資料來做前後篇排序
-        const response = await backHomeApi.get('news_get.php');
+        const response = await backHomeApi.get('./news/news_get.php');
         
         // B. 排序與篩選邏輯 (保留你原本的邏輯)
         // 註：PHP 的 SQL 已經寫了 ORDER BY，但這裡再排一次更保險
