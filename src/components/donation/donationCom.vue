@@ -1,5 +1,5 @@
 <script setup>
-import { ref,reactive, computed,watch, onMounted } from 'vue'
+import { ref, reactive, computed, watch, onMounted } from 'vue'
 import MyButton from './MyButton.vue'
 import { useAuthStore } from '@/stores/auth'
 import downloadReceipt from './downloadReceipt.vue'
@@ -16,10 +16,10 @@ onMounted(() => {
     //取一隻救援海龜數據
     const randomIndex = Math.floor(Math.random() * response.data.length);
     rescueCase.value = response.data[randomIndex]
-    
+
   })
 })
-    // 處理圖片路徑 - 使用 Vite 動態 import 處理 assets 圖片
+// 處理圖片路徑 - 使用 Vite 動態 import 處理 assets 圖片
 const imageUrl = computed(() => {
   if (!rescueCase.value.image) return 'https://picsum.photos/300/200'
 
@@ -76,7 +76,7 @@ const payment = ref('ecpay')
 const anonymous = ref(false)
 const payLoading = ref(false);
 const form = reactive({
-  userName:'',
+  userName: '',
   email: '',
   phone: '',
   birthYear: '',
@@ -84,14 +84,14 @@ const form = reactive({
   agree: '',
 })
 const isBlank = reactive({
-  userName:false,
+  userName: false,
   email: false,
   phone: false,
   birthYear: false,
   identity: false,
 })
 const errors = reactive({
-  userName:false,
+  userName: false,
   email: false,
   phone: false,
   birthYear: false,
@@ -124,7 +124,7 @@ const isGreater = () => {
         errors.customAmount = false
       }
     }
-    
+
   }
 }
 
@@ -136,22 +136,22 @@ const finalAmount = computed(() => {
 const rawFinalAmount = computed(() => customAmount.value ? Number(customAmount.value) : selectedAmount.value
 )
 
-watch(donationType,(newValue)=>{
-    // 金額預設選中間
-    selectedAmount.value = amountOptions[newValue][1];
-    // 輸入值為空
-    customAmount.value='';
-    errors.customAmount = false;
-    //付款切回ecpay
-    payment.value='ecpay';
-  })
+watch(donationType, (newValue) => {
+  // 金額預設選中間
+  selectedAmount.value = amountOptions[newValue][1];
+  // 輸入值為空
+  customAmount.value = '';
+  errors.customAmount = false;
+  //付款切回ecpay
+  payment.value = 'ecpay';
+})
 
-  //localstorage
+//localstorage
 const donationState = useLocalStorage('donationState', {
-  currentStep : 1,
-  donationType : 'monthly',
-  finalAmount : 0
-  
+  currentStep: 1,
+  donationType: 'monthly',
+  finalAmount: 0
+
 })
 if (donationState.value.currentStep == 3) {
   currentStep.value = 3
@@ -164,6 +164,8 @@ const goStepTwo = () => {
       // 前往第二步
       currentStep.value = 2
     } else {
+      // 清除重定向，讓用戶登入後停留在當前頁面
+      auth.redirectAfterLogin = null
       auth.isModalOpen = true
     }
   }
@@ -183,11 +185,11 @@ function validateTWID(id) {
   if (!regex.test(id)) return false
 
   const city = {
-    A:10, B:11, C:12, D:13, E:14, F:15,
-    G:16, H:17, I:34, J:18, K:19,
-    L:20, M:21, N:22, O:35, P:23,
-    Q:24, R:25, S:26, T:27, U:28,
-    V:29, W:32, X:30, Y:31, Z:33
+    A: 10, B: 11, C: 12, D: 13, E: 14, F: 15,
+    G: 16, H: 17, I: 34, J: 18, K: 19,
+    L: 20, M: 21, N: 22, O: 35, P: 23,
+    Q: 24, R: 25, S: 26, T: 27, U: 28,
+    V: 29, W: 32, X: 30, Y: 31, Z: 33
   }
 
   // 英文字母轉兩碼
@@ -199,7 +201,7 @@ function validateTWID(id) {
   const idNums = code.concat(numbers)
 
   // ✅ 正確 11 碼權重
-  const weights = [1,9,8,7,6,5,4,3,2,1,1]
+  const weights = [1, 9, 8, 7, 6, 5, 4, 3, 2, 1, 1]
 
   const sum = idNums.reduce((acc, n, i) => acc + n * weights[i], 0)
 
@@ -233,7 +235,7 @@ const validateField = (field) => {
   if (!isBlank[field]) {
     errors[field] = !validators[field](form[field])
   }
-  
+
 }
 //enter跳下個input
 const inputs = ref([])
@@ -255,7 +257,7 @@ const goDonate = () => {
   }
   if (anonymous.value) { //是否匿名
     validateField('email')
-    
+
     if (!errors.email && !isBlank.email && !errors.agree) {
       //先寫入localstorage示意
       donationState.value.currentStep = 3
@@ -267,7 +269,7 @@ const goDonate = () => {
         handleCheckout()
       }
     }
-  }else {
+  } else {
     validateField('userName')
     validateField('email')
     validateField('phone')
@@ -285,7 +287,7 @@ const goDonate = () => {
       } else {
         handleCheckout()
       }
-  }
+    }
   }
 
 }
@@ -328,71 +330,51 @@ const handleCheckout = async () => {
 
 <template>
   <div class="donation-card">
-    <downloadReceipt ref="modalRef"/>
+    <downloadReceipt ref="modalRef" />
     <div class="stepper">
       <div class="progress-line">
         <div class="progress-fill" :style="{ width: ((currentStep - 1) / 2) * 100 + '%' }"></div>
       </div>
-      <div 
-        v-for="s in 3" 
-        :key="s" 
-        :class="['step-item', { active: currentStep >= s }]"
-      >
+      <div v-for="s in 3" :key="s" :class="['step-item', { active: currentStep >= s }]">
         <div class="dot"></div>
-        <span class="label">{{ stepLabels[s-1] }}</span>
+        <span class="label">{{ stepLabels[s - 1] }}</span>
       </div>
     </div>
     <Transition name="fade">
       <div v-if="currentStep === 1" class="step-content">
         <div class="tab-group">
-          <button
-            @click="donationType = 'monthly'"
-            class="tabBtn"
-            :class="{ 'tabBtn-outline': donationType !== 'monthly' }"
-            style="border-left: none;"
-          >每月捐款</button>
-          <button
-            @click="donationType = 'once'"
-            class="tabBtn"
-            :class="{ 'tabBtn-outline': donationType !== 'once' }"
-            style="border-right: none;"
-          >單次捐款</button>
+          <button @click="donationType = 'monthly'" class="tabBtn"
+            :class="{ 'tabBtn-outline': donationType !== 'monthly' }" style="border-left: none;">每月捐款</button>
+          <button @click="donationType = 'once'" class="tabBtn" :class="{ 'tabBtn-outline': donationType !== 'once' }"
+            style="border-right: none;">單次捐款</button>
         </div>
-  
+
         <p class="intro-text">
           您的每一份支持，都是海龜重返海洋的生機；用專業的行動，將關懷轉化為守護力量。
         </p>
-  
+
         <div class="amount-grid">
-          <MyButton
-            v-for="amt in activeAmountOptions" 
-            :key="amt"
-            @click="selectedAmount = amt; customAmount = ''; errors.customAmount = false"
-            class=" btn-xxl"
-            :class="{ 'btn-outline': selectedAmount !== amt }"
-            height="76px"
-            width="30%"
-          >${{ amt.toLocaleString() }}</MyButton>
+          <MyButton v-for="amt in activeAmountOptions" :key="amt"
+            @click="selectedAmount = amt; customAmount = ''; errors.customAmount = false" class=" btn-xxl"
+            :class="{ 'btn-outline': selectedAmount !== amt }" height="76px" width="30%">${{ amt.toLocaleString() }}
+          </MyButton>
         </div>
-  
+
         <div class="input-wrapper">
-          <input 
-            v-model="customAmount"
-            type="number" 
-            placeholder="其他金額" 
-            @input="selectedAmount = null"
-            @blur="isGreater"
-          />
+          <input v-model="customAmount" type="number" placeholder="其他金額" @input="selectedAmount = null"
+            @blur="isGreater" />
           <p v-if="donationType === 'once'" class="error-msg" v-show="errors.customAmount">
             <span class="material-symbols-outlined">
-            error
-            </span> 最低捐款金額為:300</p>
+              error
+            </span> 最低捐款金額為:300
+          </p>
           <p v-if="donationType === 'monthly'" class="error-msg" v-show="errors.customAmount">
             <span class="material-symbols-outlined">
-            error
-            </span>最低捐款金額為:100</p>
+              error
+            </span>最低捐款金額為:100
+          </p>
         </div>
-  
+
         <div class="payment-selection">
           <span>選擇付款方式：</span>
           <label>
@@ -413,69 +395,77 @@ const handleCheckout = async () => {
         <div class="summary-header">
           <h3 class="type-tag">{{ donationType === 'monthly' ? '每月捐款' : '單次捐款' }}</h3>
           <p class="amount-display">新台幣 <span class="money">{{ finalAmount }}</span></p>
-          <div class="btn-back-group" @click="currentStep = 1; anonymous=false" >
+          <div class="btn-back-group" @click="currentStep = 1; anonymous = false">
             <div class="back-arrow"></div>
             <button class="btn-back">其他金額</button>
           </div>
         </div>
-  
+
         <div class="form-body">
           <label class="checkbox-label">
             <input type="checkbox" v-model="anonymous">
             <span class="material-symbols-outlined checkbox" v-if="anonymous">
               check_box
-              </span>
-              <span class="material-symbols-outlined checkbox" v-else>
+            </span>
+            <span class="material-symbols-outlined checkbox" v-else>
               check_box_outline_blank
-              </span>
-             我要匿名捐款（免填身分資料）
+            </span>
+            我要匿名捐款（免填身分資料）
           </label>
-          
-          <div class="form-group" v-if="anonymous === false" v-for="field,index in formFields" :key="field.id">
-            <input :id="field.id" :type="field.type" placeholder=" " class="form-input" @blur="validateField(field.id)" v-model="form[field.id]" :ref="el => inputs[index] = el" @keydown.enter.prevent="focusNext(index,field.id)">
+
+          <div class="form-group" v-if="anonymous === false" v-for="field, index in formFields" :key="field.id">
+            <input :id="field.id" :type="field.type" placeholder=" " class="form-input" @blur="validateField(field.id)"
+              v-model="form[field.id]" :ref="el => inputs[index] = el"
+              @keydown.enter.prevent="focusNext(index, field.id)">
             <label :for="field.id">{{ field.label }}</label>
             <p class="error-msg" v-if="isBlank[field.id]">
               <span class="material-symbols-outlined">
-            error
-            </span>請填入以上資料</p>
+                error
+              </span>請填入以上資料
+            </p>
             <p class="error-msg" v-if="errors[field.id]">
               <span class="material-symbols-outlined">
-            error
-            </span>格式有誤</p>
+                error
+              </span>格式有誤
+            </p>
           </div>
-            <div class="form-group" v-if="anonymous === true">
-              <input type="text" placeholder="善心人士" class="form-input" disabled>
-            </div>
-            
           <div class="form-group" v-if="anonymous === true">
-            <input id="email" type="email" placeholder=" " class="form-input" @blur="validateField('email')" v-model="form.email">
+            <input type="text" placeholder="善心人士" class="form-input" disabled>
+          </div>
+
+          <div class="form-group" v-if="anonymous === true">
+            <input id="email" type="email" placeholder=" " class="form-input" @blur="validateField('email')"
+              v-model="form.email">
             <label for="email">電子郵件</label>
             <p class="error-msg" v-if="isBlank.email">
               <span class="material-symbols-outlined">
-            error
-            </span>請填入以上資料</p>
+                error
+              </span>請填入以上資料
+            </p>
             <p class="error-msg" v-if="errors.email">
               <span class="material-symbols-outlined">
-            error
-            </span>格式有誤</p>
+                error
+              </span>格式有誤
+            </p>
           </div>
           <div class="policy-group">
             <label class="checkbox-label policy">
-              <input type="checkbox" v-model="form.agree" @click="errors.agree=false">
-              
+              <input type="checkbox" v-model="form.agree" @click="errors.agree = false">
+
               <span class="material-symbols-outlined checkbox" v-if="form.agree">
-              check_box
+                check_box
               </span>
               <span class="material-symbols-outlined checkbox" v-else>
-              check_box_outline_blank
+                check_box_outline_blank
               </span>
               <span>為確保保育資源能精確且即時地投入海洋保護工作，捐款程序一經完成，恕不接受退款申請。若對款項運用有任何疑問，歡迎隨時與我們聯繫，我們將竭誠為您說明。感謝您的慷慨支持！ </span>
             </label>
             <p class="error-msg" v-if="errors.agree">
               <span class="material-symbols-outlined">
-            error
-            </span>您尚未同意保護政策</p> 
-  
+                error
+              </span>您尚未同意保護政策
+            </p>
+
           </div>
         </div>
         <form v-if="payment== 'ecpay'" id="ecpayForm" class="payForm" method="post" action="https://payment-stage.ecpay.com.tw/Cashier/AioCheckOut/V5">
@@ -521,20 +511,20 @@ const handleCheckout = async () => {
           <h2 class="success-title">捐款成功</h2>
           <p class="success-desc">
             感謝您捐款 [{{ donationState.finalAmount }}] 支持海龜保育計畫。您的這筆款項將直接用於海龜的醫療救援與棲地維護。
-  我們承諾將每一分錢透明、高效地運用。正式的電子收據請您留意查收。
-  再次感謝您的信任與行動！
+            我們承諾將每一分錢透明、高效地運用。正式的電子收據請您留意查收。
+            再次感謝您的信任與行動！
           </p>
-    
+
           <div class="info-card">
             <p class="card-title">捐款摘要</p>
             <p><strong>捐款金額：</strong>新台幣 <span>{{ donationState.finalAmount }}</span></p>
             <p><strong>捐款類型：</strong>{{ donationState.donationType === 'monthly' ? '每月捐款' : '單次捐款' }}</p>
             <p><strong>捐款時間：</strong>{{ nowTime }}</p>
           </div>
-    
+
           <div class="photo-box">
             <img :src="imageUrl" alt="Sea Turtle">
-            <div class="caption">您的支持正讓「{{rescueCase.name}}」這樣的海龜獲得重生。</div>
+            <div class="caption">您的支持正讓「{{ rescueCase.name }}」這樣的海龜獲得重生。</div>
           </div>
           <MyButton @click="modalRef?.openModal" class=" btn-xxl" width="50%">下載收據</MyButton>
         </div>
@@ -545,73 +535,78 @@ const handleCheckout = async () => {
 </template>
 
 <style lang="scss" scoped>
-  $btn-green: #0E6273;
+$btn-green: #0E6273;
+
 //google font
 .material-symbols-outlined {
   font-variation-settings:
-  'FILL' 1,
-  'wght' 700,
-  'GRAD' 0,
-  'opsz' 20;
+    'FILL' 1,
+    'wght' 700,
+    'GRAD' 0,
+    'opsz' 20;
   color: $highlight-color2;
   font-size: 16px;
 }
 
 .checkbox {
-      font-variation-settings:
-      'FILL' 0,
-      'wght' 400,
-      'GRAD' 0,
-      'opsz' 24;
-      color: $btn-green;
-      font-size: 24px;
-    }
+  font-variation-settings:
+    'FILL' 0,
+    'wght' 400,
+    'GRAD' 0,
+    'opsz' 24;
+  color: $btn-green;
+  font-size: 24px;
+}
 
 .donation-card {
-    position: sticky;
-    top: clamp(84px, 8vw, 100px); //到時候根據header高度做調整
-    width: 100%;
-    padding-bottom: 12px;
-    border: 2px solid $secondary-color;
-    background-color: $card-color;
+  position: sticky;
+  top: clamp(84px, 8vw, 100px); //到時候根據header高度做調整
+  width: 100%;
+  padding-bottom: 12px;
+  border: 2px solid $secondary-color;
+  background-color: $card-color;
 
-    /* 進入和離開的過程：設置 0.5 秒的透明度變化 */
-.fade-enter-active{
-  transition: opacity 0.5s ease;
-}
-
-/* 隱藏狀態：透明度為 0 */
-.fade-enter-from {
-  opacity: 0;
-}
-    @media (768px<=width) {
-      overflow-y:auto;
-      max-height: calc(100vh - clamp(84px, 8vw, 100px));
-
-      //firefox卷軸樣式
-      scrollbar-width: thin;          /* 寬度：auto, thin, 或 none */
-      scrollbar-color: $primary-color $secondary-color;  /* 滑塊顏色 軌道顏色 */
-
-
-      //其他瀏覽器卷軸樣式
-      /* 1. 定義捲軸整體的寬度 */
-      &::-webkit-scrollbar {
-        width: 8px; /* 垂直捲軸寬度 */
-      }
-
-      /* 2. 定義捲軸軌道 (底色) */
-      &::-webkit-scrollbar-track {
-        background: $secondary-color; 
-      }
-
-      /* 3. 定義滑塊 (手柄部分) */
-      &::-webkit-scrollbar-thumb {
-        background: $primary-color; 
-        border-radius: 10px;
-      }
-
-          }
+  /* 進入和離開的過程：設置 0.5 秒的透明度變化 */
+  .fade-enter-active {
+    transition: opacity 0.5s ease;
   }
+
+  /* 隱藏狀態：透明度為 0 */
+  .fade-enter-from {
+    opacity: 0;
+  }
+
+  @media (768px<=width) {
+    overflow-y: auto;
+    max-height: calc(100vh - clamp(84px, 8vw, 100px));
+
+    //firefox卷軸樣式
+    scrollbar-width: thin;
+    /* 寬度：auto, thin, 或 none */
+    scrollbar-color: $primary-color $secondary-color;
+    /* 滑塊顏色 軌道顏色 */
+
+
+    //其他瀏覽器卷軸樣式
+    /* 1. 定義捲軸整體的寬度 */
+    &::-webkit-scrollbar {
+      width: 8px;
+      /* 垂直捲軸寬度 */
+    }
+
+    /* 2. 定義捲軸軌道 (底色) */
+    &::-webkit-scrollbar-track {
+      background: $secondary-color;
+    }
+
+    /* 3. 定義滑塊 (手柄部分) */
+    &::-webkit-scrollbar-thumb {
+      background: $primary-color;
+      border-radius: 10px;
+    }
+
+  }
+}
 
 // 步驟條樣式
 .stepper {
@@ -649,7 +644,7 @@ const handleCheckout = async () => {
       border-radius: 50%;
       margin-bottom: 10px;
       transition: background 0.3s;
-      transform: translate(0 ,2px);
+      transform: translate(0, 2px);
     }
 
     .label {
@@ -658,7 +653,9 @@ const handleCheckout = async () => {
     }
 
     &.active {
-      .dot { background-color: $primary-color; }
+      .dot {
+        background-color: $primary-color;
+      }
     }
   }
 }
@@ -675,6 +672,7 @@ const handleCheckout = async () => {
   width: 100%;
   display: flex;
   margin-bottom: 20px;
+
   .tabBtn {
     @include font-tertiary;
     display: inline-block;
@@ -688,6 +686,7 @@ const handleCheckout = async () => {
     color: #ffffff;
     border-color: $btn-green;
   }
+
   .tabBtn-outline {
     background-color: transparent;
     color: $btn-green;
@@ -710,6 +709,7 @@ const handleCheckout = async () => {
   justify-content: space-between;
   gap: 3%;
   margin-bottom: 32px;
+
   button {
     display: flex;
     align-items: center;
@@ -721,6 +721,7 @@ const handleCheckout = async () => {
 .input-wrapper {
   margin-bottom: 20px;
   width: 90%;
+
   input {
     width: 100%;
     height: 48px;
@@ -750,33 +751,36 @@ const handleCheckout = async () => {
   gap: 10px;
 
   /* 進入和離開的過程：設置 0.5 秒的透明度變化 */
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.25s ease;
-}
+  .fade-enter-active,
+  .fade-leave-active {
+    transition: opacity 0.25s ease;
+  }
 
-/* 隱藏狀態：透明度為 0 */
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
+  /* 隱藏狀態：透明度為 0 */
+  .fade-enter-from,
+  .fade-leave-to {
+    opacity: 0;
+  }
 
   label {
     display: flex;
     align-items: center;
     cursor: pointer;
-    input { 
+
+    input {
       border: 1px solid $input-line-color1;
       width: 16px;
       height: 16px;
       border-radius: 50%;
       margin: 0;
       padding: 2px;
-      margin-right: 5px; 
+      margin-right: 5px;
       cursor: pointer;
+
       &:checked {
         background-color: $secondary-color;
-        background-clip: content-box;/* 讓顏色只填在中間，不會碰到邊框 */
+        background-clip: content-box;
+        /* 讓顏色只填在中間，不會碰到邊框 */
       }
     }
   }
@@ -788,28 +792,31 @@ const handleCheckout = async () => {
   width: 90%;
   display: grid;
   grid-template-columns: 1fr auto;
-  grid-template-areas: 
+  grid-template-areas:
     "tag tag"
     "amount back";
-  
+
   margin-bottom: 8px;
+
   @media (width<390px) {
-    grid-template-areas: 
-    "tag back"
-    "amount amount";
+    grid-template-areas:
+      "tag back"
+      "amount amount";
   }
 
-  .type-tag { 
+  .type-tag {
     @include font-body-l-bold;
     color: $primary-color;
-    margin: 0; 
-    grid-area:tag;
+    margin: 0;
+    grid-area: tag;
   }
+
   .amount-display {
     @include font-secondary;
     color: $primary-color;
-    grid-area:amount;
-    .money { 
+    grid-area: amount;
+
+    .money {
       // 手機
       font-size: $d-size-primary;
       line-height: 1.2;
@@ -818,12 +825,14 @@ const handleCheckout = async () => {
       color: $primary-color;
     }
   }
+
   .btn-back-group {
     display: flex;
     align-items: center;
     gap: 4px;
-    grid-area:back;
+    grid-area: back;
     cursor: pointer;
+
     .back-arrow {
       width: 1.25rem;
       height: 1.25rem;
@@ -832,6 +841,7 @@ const handleCheckout = async () => {
       background-size: 1.25rem;
       flex-shrink: 0;
     }
+
     .btn-back {
       background: none;
       border: none;
@@ -849,20 +859,27 @@ const handleCheckout = async () => {
   display: flex;
   flex-direction: column;
   gap: 20px;
-  @media (width<=768px){
+
+  @media (width<=768px) {
     gap: 12px;
   }
+
   .form-group {
     position: relative;
+
     label {
       position: absolute;
       @include font-body;
       left: 10px;
-      top: 12px;            /* 預設位置在 input 中間 */
+      top: 12px;
+      /* 預設位置在 input 中間 */
       color: #3338;
-      pointer-events: none; /* 重要：點擊標籤時要能穿透點到 input */
-      transition: all 0.2s ease; /* 平滑動畫 */
+      pointer-events: none;
+      /* 重要：點擊標籤時要能穿透點到 input */
+      transition: all 0.2s ease;
+      /* 平滑動畫 */
     }
+
     .form-input {
       width: 100%;
       padding: 12px;
@@ -872,18 +889,21 @@ const handleCheckout = async () => {
       box-sizing: border-box;
 
       // 當 input 獲得焦點，或是內容不為空時
-      &:focus + label,
-      &:not(:placeholder-shown) + label {
-        top: -2px;          /* 往上移動 */
-        left: 8px;           /* 微調左邊距 */
+      &:focus+label,
+      &:not(:placeholder-shown)+label {
+        top: -2px;
+        /* 往上移動 */
+        left: 8px;
+        /* 微調左邊距 */
         @include font-caption;
       }
 
-      
+
 
       &:disabled {
         background-color: #D9D9D9;
-        cursor:no-drop;
+        cursor: no-drop;
+
         &::placeholder {
           color: $text-color;
         }
@@ -898,12 +918,15 @@ const handleCheckout = async () => {
     color: $text-color;
     gap: 8px;
     cursor: pointer;
-    input { 
-      display: none; /* 隱藏原始checkbox */
+
+    input {
+      display: none;
+      /* 隱藏原始checkbox */
     }
-    &.policy { 
-      line-height: 1.4; 
-      margin-bottom: 5px; 
+
+    &.policy {
+      line-height: 1.4;
+      margin-bottom: 5px;
       align-items: flex-start;
     }
   }
@@ -918,30 +941,37 @@ const handleCheckout = async () => {
 .success-page {
   text-align: center;
   width: 90%;
-  .success-title { 
+
+  .success-title {
     @include font-secondary;
-    color: $primary-color; 
-    margin-bottom: 16px; 
+    color: $primary-color;
+    margin-bottom: 16px;
   }
-  .success-desc { 
-    text-align: left; 
+
+  .success-desc {
+    text-align: left;
     @include font-body;
-    margin-bottom: 8px; }
+    margin-bottom: 8px;
+  }
 }
 
 .info-card {
   text-align: left;
   margin-bottom: 16px;
-  .card-title { 
-    @include font-tertiary; 
-    margin-bottom: 8px; 
+
+  .card-title {
+    @include font-tertiary;
+    margin-bottom: 8px;
   }
-  p { 
+
+  p {
     @include font-body;
-    margin: 8px 0; 
+    margin: 8px 0;
+
     strong {
       @include font-body-bold;
     }
+
     span {
       @include font-tertiary;
     }
@@ -951,7 +981,12 @@ const handleCheckout = async () => {
 .photo-box {
   position: relative;
   margin-bottom: 20px;
-  img { width: 100%; display: block; }
+
+  img {
+    width: 100%;
+    display: block;
+  }
+
   .caption {
     position: absolute;
     bottom: 0;
