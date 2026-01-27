@@ -11,19 +11,19 @@ import { EffectCards } from 'swiper/modules'
 
 const rescueCases = ref([])
 
-// 連資料庫
-onMounted(async () => {
-  await backHomeApi.get('./savedcases/rescue_get.php').then((response) => {
-    rescueCases.value = response.data
-  })
-})
-
-// // 連json
-// onMounted(() => {
-//   publicApi.get('data/rescueCases.json').then((response) => {
+// // 連資料庫
+// onMounted(async () => {
+//   await backHomeApi.get('./savedcases/rescue_get.php').then((response) => {
 //     rescueCases.value = response.data
 //   })
 // })
+
+// 連json
+onMounted(() => {
+  publicApi.get('data/rescueCases.json').then((response) => {
+    rescueCases.value = response.data
+  })
+})
 
 // 定義變數，這會自動暴露給 template
 const modules = [EffectCards]
