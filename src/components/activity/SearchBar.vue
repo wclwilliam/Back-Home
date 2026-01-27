@@ -1,27 +1,50 @@
 <script setup>
-import { ref, reactive, computed } from 'vue';
-// Import VueDatePicker
-import { VueDatePicker } from '@vuepic/vue-datepicker';
+import { ref, reactive, computed, watch, onMounted, onUnmounted } from 'vue'
+import { VueDatePicker } from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
 
+const props = defineProps({
+  initFilters: {
+    type: Object,
+    default: () => ({}),
+  },
+  currentTab: {
+    type: String,
+    default: '目前活動',
+  },
+})
 
 //定義動作
 const emit = defineEmits(['search', 'filter'])
 //篩選器預設關閉
-const isFilterOpen = ref(false);
+const isFilterOpen = ref(false)
 //篩選器項目
-const filterOptions = {
+const filterOptions = computed(() => ({
   topics: ['淨灘', '巡守', '照護'],
   locations: ['北部', '中部', '南部', '東部', '離島'],
-  times: ['本月', '下個月']
-}
+  times: props.currentTab === '活動回顧' ? ['本月', '上個月'] : ['本月', '下個月'],
+}))
 //使用者選擇的項目
 const userOptions = reactive({
   topics: [],
   locations: [],
   times: [],
-  dateRange: null
+  dateRange: null,
 })
+
+watch(
+  () => props.initFilters,
+  (newFilters) => {
+    if (newFilters) {
+      // 使用 Optional Chaining (?.) 避免報錯
+      userOptions.topics = newFilters.topics || []
+      userOptions.locations = newFilters.locations || []
+      userOptions.times = newFilters.times || []
+      userOptions.dateRange = newFilters.dateRange || null
+    }
+  },
+  { immediate: true, deep: true },
+)
 
 //選取與取消選取
 const toggleOption = (category, value) => {
@@ -29,12 +52,11 @@ const toggleOption = (category, value) => {
   const index = chooseList.indexOf(value)
 
   if (category === 'times') {
-    userOptions.dateRange = null;
+    userOptions.dateRange = null
   }
   if (index === -1) {
     chooseList.push(value)
-  }
-  else {
+  } else {
     chooseList.splice(index, 1)
   }
 }
@@ -44,7 +66,6 @@ const dateChange = (date) => {
     userOptions.times = []
   }
 }
-
 
 const dateButtonText = computed(() => {
   const dates = userOptions.dateRange
@@ -68,7 +89,7 @@ const dateButtonText = computed(() => {
 })
 
 //關鍵字搜索
-const searchQuery = ref('');
+const searchQuery = ref('')
 const handleSearch = () => {
   emit('search', searchQuery.value)
 }
@@ -86,28 +107,49 @@ const resetFilter = () => {
   userOptions.times = []
   userOptions.dateRange = null
 }
-
+//關閉篩選器
+const filterContainerRef = ref(null)
+const handleClickOutside = (e) => {
+  if (
+    isFilterOpen.value &&
+    filterContainerRef.value &&
+    !filterContainerRef.value.contains(e.target)
+  ) {
+    isFilterOpen.value = false
+  }
+}
+onMounted(() => {
+  window.addEventListener('click', handleClickOutside)
+})
+onUnmounted(() => {
+  window.removeEventListener('click', handleClickOutside)
+})
 </script>
+
 <template>
   <div class="searchBar col-sm-4 col-md-12 col-lg-12">
-    <div class="search-section  col-md-6">
-      <div class="search-input ">
-  
-        <input 
-          type="text" 
-          v-model="searchQuery" 
-          class="keywordSearch" 
+    <div class="search-section col-md-6">
+      <div class="search-input">
+        <input
+          type="text"
+          v-model="searchQuery"
+          class="keywordSearch"
           placeholder="搜尋活動關鍵字..."
           @input="$emit('search', $event.target.value)"
           @keyup.enter="handleSearch"
+        />
+        <span class="material-symbols-outlined search-icon-desktop" @click="handleSearch"
+          >search</span
         >
-        <span class="material-symbols-outlined search-icon-desktop" @click="handleSearch">search</span>
       </div>
-      <button class="mobile-search-btn btn-outline btn" @click="handleSearch ">搜尋</button>
+      <button class="mobile-search-btn btn-outline btn" @click="handleSearch">搜尋</button>
     </div>
-    <div class="filter-section">
-      <button class="filter-btn btn btn-outline " :class="{'active' : isFilterOpen}"
-        @click="isFilterOpen = !isFilterOpen">
+    <div class="filter-section" ref="filterContainerRef">
+      <button
+        class="filter-btn btn btn-outline"
+        :class="{ active: isFilterOpen }"
+        @click="isFilterOpen = !isFilterOpen"
+      >
         篩選
         <span class="material-symbols-outlined filter-icon">filter_alt</span>
       </button>
@@ -115,62 +157,69 @@ const resetFilter = () => {
         <div class="filter-row">
           <span class="label col-sm-1">主題</span>
           <div class="option col-sm-3">
-            <span 
-              v-for="topic in filterOptions.topics" :key="topic" 
+            <span
+              v-for="topic in filterOptions.topics"
+              :key="topic"
               class="tag"
-              :class="{'is-selected': userOptions.topics.includes(topic)}" 
+              :class="{ 'is-selected': userOptions.topics.includes(topic) }"
               @click="toggleOption('topics', topic)"
             >
-              {{topic }}
+              {{ topic }}
             </span>
           </div>
         </div>
         <div class="filter-row">
           <span class="label col-sm-1">地點</span>
           <div class="option col-sm-3">
-            <span 
-              v-for="location in filterOptions.locations" 
-              :key="location" 
+            <span
+              v-for="location in filterOptions.locations"
+              :key="location"
               class="tag"
-              :class="{'is-selected': userOptions.locations.includes(location)}"
-              @click="toggleOption('locations', location)">
-                {{ location }}
-              </span>
+              :class="{ 'is-selected': userOptions.locations.includes(location) }"
+              @click="toggleOption('locations', location)"
+            >
+              {{ location }}
+            </span>
           </div>
         </div>
         <div class="filter-row">
           <span class="label col-sm-1">時間</span>
           <div class="option col-sm-3">
-            <span 
-              v-for="time in filterOptions.times" :key="time" 
+            <span
+              v-for="time in filterOptions.times"
+              :key="time"
               class="tag"
-              :class="{'is-selected': userOptions.times.includes(time)}" @click="toggleOption('times', time)">
-                {{ time}}
-              </span>
-  
-            <vueDatePicker 
-              v-model="userOptions.dateRange" 
-              range 
-              :enable-time-picker="false" 
+              :class="{ 'is-selected': userOptions.times.includes(time) }"
+              @click="toggleOption('times', time)"
+            >
+              {{ time }}
+            </span>
+
+            <vueDatePicker
+              v-model="userOptions.dateRange"
+              range
+              :enable-time-picker="false"
               auto-apply
-              :partial-range="false" teleport="body" @update:model-value="dateChange" class="custom-date-picker">
+              :partial-range="false"
+              teleport="body"
+              @update:model-value="dateChange"
+              class="custom-date-picker"
+            >
               <template #trigger>
-                <span class="tag" :class="{'is-selected' : userOptions.dateRange}">
+                <span class="tag" :class="{ 'is-selected': userOptions.dateRange }">
                   {{ dateButtonText }}
                 </span>
               </template>
             </vueDatePicker>
-  
           </div>
         </div>
-  
+
         <div class="filter-actions col-sm-4">
-          <button class="btn-confirm btn btn-solid " @click="confirmFilter">確認篩選</button>
-          <button class="btn-reset btn btn-outline " @click="resetFilter">清除重設</button>
+          <button class="btn-confirm btn btn-solid" @click="confirmFilter">確認篩選</button>
+          <button class="btn-reset btn btn-outline" @click="resetFilter">清除重設</button>
         </div>
       </div>
     </div>
-  
   </div>
 </template>
 <style lang="scss" scoped>
@@ -212,7 +261,6 @@ const resetFilter = () => {
       white-space: nowrap;
       /* 防止文字換行 */
     }
-
   }
 
   .filter-section {
@@ -275,7 +323,7 @@ const resetFilter = () => {
               display: inline-block;
               height: max-content;
             }
-            
+
             // :deep(.dp__pointer) {
             //   border: none;
             //   padding: 0;
@@ -300,15 +348,15 @@ const resetFilter = () => {
         }
       }
       .filter-actions {
-          display: flex;
-          margin-top: 20px;
-          justify-content: space-around;
+        display: flex;
+        margin-top: 20px;
+        justify-content: space-around;
 
-          button.btn {
-            flex: 1;
-            width: 50% !important;
-          }
+        button.btn {
+          flex: 1;
+          width: 50% !important;
         }
+      }
     }
   }
 }
@@ -329,6 +377,7 @@ const resetFilter = () => {
 
       .search-input {
         width: 300px;
+        height: fit-content;
         padding: 0 32px 0 8px;
 
         .search-icon-desktop {
@@ -355,7 +404,7 @@ const resetFilter = () => {
 }
 
 :root {
-  --dp-primary-color: #0E6872;
+  --dp-primary-color: #0e6872;
   /* $secondary-color */
 }
 </style>

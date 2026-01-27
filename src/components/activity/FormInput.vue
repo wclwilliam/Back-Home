@@ -1,22 +1,22 @@
 <script setup>
-  const props = defineProps({
-    label : {
-      type : String,
-      required: true
-    },
-    required: {
-      type : Boolean,
-      default : false
-    },
-    error : {
-      type : String,
-      default: ''
-    },
-    htmlFor: {
-      type : String,
-      default : ''
-    }
-  })
+const props = defineProps({
+  label: {
+    type: String,
+    required: true,
+  },
+  required: {
+    type: Boolean,
+    default: false,
+  },
+  error: {
+    type: String,
+    default: '',
+  },
+  htmlFor: {
+    type: String,
+    default: '',
+  },
+})
 </script>
 
 <template>
@@ -28,8 +28,13 @@
 
     <div class="formContent col-sm-4 col-md-10 col-lg-8">
       <slot></slot>
-      <p v-if="error" class="errorMessage">{{ error }}</p>
-      <div v-if="$slots.message"  class="message">
+
+      <p v-if="error" class="errorMessage">
+        <span class="material-symbols-outlined icon-alert">error</span>
+        {{ error }}
+      </p>
+
+      <div v-if="$slots.message" class="message">
         <slot name="message"></slot>
       </div>
     </div>
@@ -37,7 +42,7 @@
 </template>
 
 <style lang="scss" scoped>
-  .formItem {
+.formItem {
   flex-direction: column;
   margin-bottom: 24px;
 }
@@ -51,14 +56,28 @@
   margin-left: 4px;
 }
 
-.message{
+.message {
   @include font-caption;
 }
 @media (min-width: 768px) {
-  .formItem{
+  .formItem {
     display: flex;
     flex-direction: row;
     align-self: flex-start;
+  }
+}
+.errorMessage {
+  color: $highlight-color2;
+  font-size: 14px;
+  margin-top: 6px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  .icon-alert {
+    color: $highlight-color2;
+    font-variation-settings: 'FILL' 1;
+    font-size: 16px;
   }
 }
 </style>
