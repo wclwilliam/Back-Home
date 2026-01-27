@@ -19,7 +19,7 @@ const searchKeyword = ref('');
 const activeSearchKeyword = ref('');
 let timer = null;
 
-// --- 這裡保留你本來的變數名稱 newslist ---
+
 const newslist = ref([])
 const pageSize = 9;
 
@@ -47,25 +47,19 @@ watch(currentNewsTab, () => {
 
 
 
-// 連資料庫 (這部分我整合了你本來的 onMounted 邏輯，但將資料存入 newslist)
+// 連資料庫 ，將資料存入 newslist
 onMounted(async () => {
   try {
     await backHomeApi.get('news_get.php').then((response) => {
-      // 將 API 回傳的資料存入 newslist，這樣下方的 computed 才能抓到資料
       newslist.value = response.data
-
-      // 進頁面給值 (保留你原本對 selectedYear 的邏輯參考，但加上防錯)
-      if (newslist.value.length > 0) {
-        // 註：如果你是想抓新聞年份，這邊可以調整，目前先保留你的語法結構
-        // selectedYear.value = newslist.value[0].published_at.substring(0, 4)
-      }
+      // 進頁面給值 
     })
   } catch (error) {
     console.error('資料庫連線失敗:', error);
   }
 })
 
-/* 你原本註解掉的 publicApi 部分保留如下 */
+/* 原本的 publicApi */
 // onMounted(() => {
 //   publicApi.get('data/NewsList.json')
 //     .then((response) => {
@@ -89,10 +83,9 @@ const formatDate = (dateString) => {
 
 const goToDetail = (id) => {
   router.push({
-    name: 'NewsDetail', // 確保你的路由名稱正確
+    name: 'NewsDetail', 
     params: { id },
     query: {
-      // 將目前的過濾狀態帶入網址，方便詳細頁知道是從哪來的
       fromCategory: currentNewsTab.value === '全部' ? undefined : currentNewsTab.value,
       fromPage: currentPage.value === 1 ? undefined : currentPage.value,
       fromSearch: activeSearchKeyword.value || undefined
