@@ -29,7 +29,7 @@ const animateValue = (obj, start, end, duration) => {
 const fetchApiData = async () => {
     try {
         isLoading.value = true; // 開始載入
-        const response = await fetch('http://localhost:8888/API/get_ocean_data.php');
+        const response = await fetch('http://localhost:8888/API/threaten_get.php');
 
         if (!response.ok) {
             throw new Error('網路回應不正常');
@@ -84,10 +84,10 @@ onMounted(async () => {
 
 <template>
     <h1>海龜生態威脅</h1>
-    <div v-if="isLoading" class="loading-overlay">
+    <!-- <div v-if="isLoading" class="loading-overlay">
         <div class="spinner"></div>
         <p>正在載入資料...</p>
-    </div>
+    </div> -->
     <section class="threatenBox-grid container" ref="statsGridRef">
 
         <div class="card card-1">
