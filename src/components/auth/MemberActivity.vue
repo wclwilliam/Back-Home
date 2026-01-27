@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router' // 引入路由
 import TabSwitcher from '@/components/TabSwitcher.vue'
 import Button from '@/components/auth/Button.vue'
 import Pagination from '@/components/Pagination.vue'
-import MemberLightbox from '@/components/auth/MemberLightbox.vue'
+import MemberActivityLightbox from '@/components/auth/MemberActivityLightbox.vue'
 
 const router = useRouter()
 
@@ -175,11 +175,11 @@ watch(currentActivityTab, () => {
           @page-change="goToPage"
         />
 
-        <MemberLightbox 
-          v-model="isLightboxOpen" 
-          :type="activeType" 
-          :initialData="selectedActivity"
-          @confirm="handleLightboxConfirm"
+        <MemberActivityLightbox 
+  v-model="isLightboxOpen" 
+  :type="activeType" 
+  :initialData="selectedActivity"
+  @confirm="handleLightboxConfirm"
         />
       </div>
     </TabSwitcher>
