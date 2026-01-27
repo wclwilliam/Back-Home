@@ -11,11 +11,7 @@ export const publicApi = axios.create({
 // 沒有攔截器，乾乾淨淨
 export const testApi = axios.create({
   baseURL: 'https://notes.webmix.cc/ajax/teach/api',
-<<<<<<< HEAD
-  timeout: 5000
-=======
   timeout: 5000,
->>>>>>> cathy
 })
 //上課測試用
 export const testApi2 = axios.create({
