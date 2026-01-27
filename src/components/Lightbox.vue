@@ -47,9 +47,14 @@ defineEmits(['update:modelValue', 'confirm']);
 
 .lightbox-overlay {
     position: fixed;
-    top: 0; left: 0; width: 100vw; height: 100vh;
-    background: rgba(0, 0, 0, 0.5); // 稍微加深遮罩感
-    display: flex; justify-content: center; align-items: center;
+    top: 0; 
+    left: 0; 
+    width: 100vw; 
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.4); 
+    display: flex; 
+    justify-content: center; 
+    align-items: center;
     z-index: 2000;
 }
 
@@ -60,8 +65,7 @@ defineEmits(['update:modelValue', 'confirm']);
     min-height: rem(200px);
     padding: rem(40px) rem(30px);
     position: relative;
-    border-radius: rem(8px); // 增加一點圓角更精緻
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    text-align: center;
 }
 
 .title {

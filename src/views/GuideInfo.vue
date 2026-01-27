@@ -8,6 +8,7 @@ import { Pagination } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/pagination';
 
+
 const route = useRoute()
 const router = useRouter()
 
@@ -21,18 +22,30 @@ const turtleInfo = computed(() => {
     return allTurtles.find(t => t.id === turtleId)
 })
 const goBack = () => {
-    router.back() 
+    router.back()
 }
 
 const modules = [Pagination];
 const isDesktop = ref(window.innerWidth >= 992);
+const modelLoading = ref(true);
 
 const updateWidth = () => {
     isDesktop.value = window.innerWidth >= 992;
 };
 
+const handleModelLoad = () => {
+    modelLoading.value = false;
+};
+
 onMounted(() => {
     window.addEventListener('resize', updateWidth);
+    if (!document.getElementById('model-viewer-script')) {
+        const script = document.createElement('script');
+        script.id = 'model-viewer-script';
+        script.type = 'module';
+        script.src = 'https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js';
+        document.head.appendChild(script);
+    }
 });
 
 onUnmounted(() => {
@@ -54,7 +67,15 @@ onUnmounted(() => {
             <div v-if="isDesktop" class="bubbles-desktop-grid">
 
                 <div class="grid-item-image">
-                    <img :src="parsePublicFile(turtleInfo.detailImage)" :alt="turtleInfo.nameCN" class="mainTurtle-img" />
+                    <div v-if="modelLoading" class="model-loading">
+                        <p>海龜載入中...</p>
+                    </div>
+                    <model-viewer v-if="turtleInfo.modelPath" :src="parsePublicFile(turtleInfo.modelPath)"
+                        :camera-orbit="turtleInfo.initialOrbit || '0deg 75deg 105%'" alt="海龜 3D 模型" auto-rotate
+                        camera-controls shadow-intensity="0" @load="handleModelLoad"
+                        :class="{ loaded: !modelLoading }"
+                        style="width: 80%; height: 500px; outline: none;">
+                    </model-viewer>
                 </div>
 
                 <div class="bubble profile">
@@ -77,29 +98,38 @@ onUnmounted(() => {
 
             <template v-else>
                 <div class="detailImage-container-mobile">
-                    <img :src="parsePublicFile(turtleInfo.detailImage)" :alt="turtleInfo.nameCN" class="mainTurtle-img" />
+                    <div v-if="modelLoading" class="model-loading mobile">
+                        <p>海龜載入中...</p>
+                    </div>
+                    <model-viewer v-if="turtleInfo.modelPath" :src="parsePublicFile(turtleInfo.modelPath)" auto-rotate
+                        camera-controls ar @load="handleModelLoad" 
+                        :class="{ loaded: !modelLoading }"
+                        style="width: 100%; height: 300px; outline: none;">
+                    </model-viewer>
                 </div>
 
-                <swiper :modules="modules" :slides-per-view="1" :space-between="20" :centered-slides="true"
-                    :pagination="{ clickable: true }" class="bubbles-mobile-swiper">
-                    <swiper-slide class="bubble profile">
-                        <h3>物種檔案</h3>
-                        <p>{{ turtleInfo.profile }}</p>
-                    </swiper-slide>
-                    <swiper-slide class="bubble habit">
-                        <h3>生活習性</h3>
-                        <p>{{ turtleInfo.habit }}</p>
-                    </swiper-slide>
-                    <swiper-slide class="bubble feature">
-                        <h3>辨識重點</h3>
-                        <p>{{ turtleInfo.feature }}</p>
-                    </swiper-slide>
-                    <swiper-slide class="bubble status">
-                        <h3>保育現況</h3>
-                        <p>{{ turtleInfo.status }}</p>
-                    </swiper-slide>
-                    <div class="swiper-pagination"></div>
-                </swiper>
+                <div v-if="turtleInfo.modelPath">
+                    <swiper :modules="modules" :slides-per-view="1" :space-between="20" :centered-slides="true"
+                        :pagination="{ clickable: true }" class="bubbles-mobile-swiper">
+                        <swiper-slide class="bubble profile">
+                            <h3>物種檔案</h3>
+                            <p>{{ turtleInfo.profile }}</p>
+                        </swiper-slide>
+                        <swiper-slide class="bubble habit">
+                            <h3>生活習性</h3>
+                            <p>{{ turtleInfo.habit }}</p>
+                        </swiper-slide>
+                        <swiper-slide class="bubble feature">
+                            <h3>辨識重點</h3>
+                            <p>{{ turtleInfo.feature }}</p>
+                        </swiper-slide>
+                        <swiper-slide class="bubble status">
+                            <h3>保育現況</h3>
+                            <p>{{ turtleInfo.status }}</p>
+                        </swiper-slide>
+                        <div class="swiper-pagination"></div>
+                    </swiper>
+                </div>
             </template>
         </div>
     </div>
@@ -118,14 +148,17 @@ onUnmounted(() => {
         padding: 0 40px;
     }
 }
+
 .btn {
     @include font-caption;
     color: $text-white;
     margin-bottom: 20px;
+
     &:hover {
         color: $highlight-color2;
     }
 }
+
 .detailPage {
     width: 100%;
     min-height: 100vh;
@@ -159,25 +192,50 @@ onUnmounted(() => {
     z-index: 1;
 }
 
-.mainTurtle-img {
-    max-width: 100%;
-    height: auto;
-    animation: floating 3s ease-in-out infinite;
-    object-fit: contain;
+// 載入狀態樣式
+.model-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 70%;
+    height: 500px;
+
+    &.mobile {
+        width: 100%;
+        height: 300px;
+    }
+
+    p {
+        color: $text-white;
+        font-size: 18px;
+        opacity: 0.8;
+    }
 }
 
+:deep(model-viewer::part(default-progress-bar)) {
+    display: none !important;
+}
 
-@keyframes floating {
-    0% {
-        transform: translateY(0px);
+:deep(model-viewer::part(default-progress-mask)) {
+    display: none !important;
+}
+
+model-viewer {
+    --outline: none;
+    outline: none;
+    background-color: transparent;
+    border: none;
+    opacity: 0;
+    transition: opacity 0.1s ease-in;
+
+    &.loaded {
+        opacity: 1;
     }
 
-    50% {
-        transform: translateY(-15px);
-    }
-
-    100% {
-        transform: translateY(0px);
+    &:focus,
+    &:active,
+    &:focus-visible {
+        outline: none;
     }
 }
 
@@ -238,6 +296,9 @@ onUnmounted(() => {
     .grid-item-image {
         grid-column: 1/3;
         grid-row: 1;
+        display: flex;
+        align-items: center;
+        position: relative;
 
         img {
             max-width: 150%;
@@ -299,13 +360,8 @@ onUnmounted(() => {
     margin-bottom: 30px;
     position: relative;
     z-index: 1;
-
-    img {
-        width: 100%;
-        height: auto;
-        object-fit: contain;
-    }
 }
+
 :deep(.swiper-pagination-bullet) {
     background-color: #ffffff !important;
     opacity: 0.5;
@@ -315,5 +371,4 @@ onUnmounted(() => {
     background-color: #ffffff !important;
     opacity: 1;
 }
-
 </style>

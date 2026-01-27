@@ -14,8 +14,13 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [
-      vue(),
-      // vueDevTools(),
+     vue({
+      template: {
+        compilerOptions: {
+          isCustomElement: (tag) => tag === 'model-viewer' 
+        }
+      }
+    })
     ],
     resolve: {
       alias: {

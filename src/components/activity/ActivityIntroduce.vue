@@ -1,26 +1,29 @@
 <script setup>
 import { computed, ref } from 'vue'
+import { useAuthStore } from '@/stores/auth'
+
+const authStore = useAuthStore()
 
 const props = defineProps({
   activity: {
     type: Object,
-    required: true
-  }
+    required: true,
+  },
 })
 
 // --- 1. 地區判斷邏輯 (與 ActivityView 一致) ---
 const regionMap = {
-  '北部': ['台北', '新北', '基隆', '桃園', '新竹', '宜蘭'],
-  '中部': ['苗栗', '台中', '彰化', '南投', '雲林'],
-  '南部': ['嘉義', '台南', '高雄', '屏東'],
-  '東部': ['花蓮', '台東'],
-  '離島': ['澎湖', '金門', '馬祖', '連江', '綠島', '蘭嶼', '小琉球']
+  北部: ['台北', '新北', '基隆', '桃園', '新竹', '宜蘭'],
+  中部: ['苗栗', '台中', '彰化', '南投', '雲林'],
+  南部: ['嘉義', '台南', '高雄', '屏東'],
+  東部: ['花蓮', '台東'],
+  離島: ['澎湖', '金門', '馬祖', '連江', '綠島', '蘭嶼', '小琉球'],
 }
 
 const regionTag = computed(() => {
   const loc = props.activity.location || ''
   for (const [region, cities] of Object.entries(regionMap)) {
-    if (cities.some(city => loc.includes(city))) {
+    if (cities.some((city) => loc.includes(city))) {
       return region
     }
   }
@@ -35,7 +38,7 @@ const progressStyle = computed(() => {
   return { width: `${percent}%` }
 })
 
-// 收藏功能邏輯 
+// 收藏功能邏輯
 const isBookmarked = ref(false) // 是否已收藏
 const isHovering = ref(false) // 是否正在 hover
 
@@ -47,35 +50,45 @@ const bookmarkIcon = computed(() => {
     return isHovering.value ? 'bookmark_add' : 'bookmark'
   }
 })
-
+const handleLoginPrompt = () => {
+  // 不設定 redirectAfterLogin，讓用戶登入後停留在當前頁面
+  authStore.openLoginModal()
+}
 const toggleBookmark = (e) => {
   //防止點愛心時觸發卡片跳轉
   e.stopPropagation()
+  if (!authStore.isLogin) {
+    handleLoginPrompt()
+    return
+  }
   isBookmarked.value = !isBookmarked.value
 }
-
 </script>
 
 <template>
   <div class="intro-container">
-  
     <div class="hero-row g-0">
       <div class="col-md-6 hero-image-col">
         <div class="pic">
-          <img :src="activity.image" :alt="activity.title">
+          <img :src="activity.image" :alt="activity.title" />
         </div>
       </div>
-  
+
       <div class="col-md-6 hero-info-col">
         <div class="info-content">
           <div class="info-header">
             <h1 class="title">{{ activity.title }}</h1>
-            <span class="material-symbols-outlined bookmark" :class="{ 'is-active': isBookmarked }"
-              @click="toggleBookmark" @mouseenter="isHovering = true" @mouseleave="isHovering = false">
+            <span
+              class="material-symbols-outlined bookmark"
+              :class="{ 'is-active': isBookmarked }"
+              @click="toggleBookmark"
+              @mouseenter="isHovering = true"
+              @mouseleave="isHovering = false"
+            >
               {{ bookmarkIcon }}
             </span>
           </div>
-  
+
           <div class="meta-list">
             <div class="meta-item">
               <span class="material-symbols-outlined icon">calendar_today</span>
@@ -90,9 +103,7 @@ const toggleBookmark = (e) => {
               <span class="text">{{ activity.type }}</span>
             </div>
           </div>
-  
-  
-  
+
           <div class="progress-section">
             <span class="material-symbols-outlined icon">group</span>
             <div class="progress-track-container">
@@ -104,16 +115,15 @@ const toggleBookmark = (e) => {
         </div>
       </div>
     </div>
-  
-    <div class="details-row ">
-  
+
+    <div class="details-row">
       <div class="desc-col">
         <div class="content-box desc-box">
           <h3 class="section-title">活動簡介</h3>
           <p class="section-text">{{ activity.description }}</p>
         </div>
       </div>
-  
+
       <div class="notice-col">
         <div class="content-box notice-box">
           <h3 class="section-title">注意事項：</h3>
@@ -124,9 +134,7 @@ const toggleBookmark = (e) => {
           </ul>
         </div>
       </div>
-  
     </div>
-  
   </div>
 </template>
 
@@ -150,8 +158,10 @@ const toggleBookmark = (e) => {
 
   .pic {
     width: 100%;
+    aspect-ratio: 4/3;
     height: 100%;
-    min-height: 320px; // 手機版最小高度
+    overflow: hidden;
+    min-height: 320px;
 
     img {
       width: 100%;
@@ -163,15 +173,15 @@ const toggleBookmark = (e) => {
 }
 
 .hero-info-col {
-  padding: 0; 
-  background-color: $card-color; 
+  padding: 0;
+  background-color: $card-color;
   display: flex;
   flex-direction: column;
   justify-content: center;
 }
 
 .info-content {
-  padding: 24px; 
+  padding: 24px;
 
   .info-header {
     display: flex;
@@ -281,14 +291,13 @@ const toggleBookmark = (e) => {
   margin-top: 16px;
 }
 
-.content-box{
+.content-box {
   padding: 24px;
   min-height: 200px; // 確保高度一致
   height: 100%;
 }
 
-
-// 活動簡介 
+// 活動簡介
 .desc-box {
   width: 100%;
   background-color: $card-color;
@@ -301,7 +310,7 @@ const toggleBookmark = (e) => {
   }
 }
 
-//注意事項 
+//注意事項
 .notice-box {
   width: 100%;
   background-color: none;
@@ -330,17 +339,13 @@ const toggleBookmark = (e) => {
 
 // --- RWD 調整 ---
 @media (min-width: 768px) {
-
   .info-content,
   .content-box {
     padding: 24px;
   }
 
-  
-
   .hero-row {
     flex-wrap: nowrap;
-
   }
 
   .info-content {
@@ -360,8 +365,9 @@ const toggleBookmark = (e) => {
     min-height: 250px;
   }
 
-  .desc-col, .notice-col{
-  width: 50%;
-}
+  .desc-col,
+  .notice-col {
+    width: 50%;
+  }
 }
 </style>

@@ -1,14 +1,12 @@
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
-import { useUserStore } from '@/stores/user'
+import { ref } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { storeToRefs } from 'pinia'
 import { useRouter } from 'vue-router'
 import Input from '@/components/auth/Input.vue'
-import Button from '@/components/auth/Button.vue'
+
 
 const emit = defineEmits(['change-mode'])
-const userStore = useUserStore()
 const authStore = useAuthStore()
 const { redirectAfterLogin } = storeToRefs(authStore)
 const { loginSuccess } = authStore
@@ -17,23 +15,38 @@ const router = useRouter()
 const account = ref('')
 const password = ref('')
 const isPasswordVisible = ref(false)
-const form = reactive({ remember: false })
+const errorMessage = ref('')
+const isLoading = ref(false)
 
-onMounted(() => {
-    const savedEmail = localStorage.getItem('userEmail')
-    if (savedEmail) {
-        account.value = savedEmail
-        form.remember = true
+async function handleLogin() {
+    // 清除之前的錯誤訊息
+    errorMessage.value = ''
+
+    // 驗證輸入
+    if (!account.value || !password.value) {
+        errorMessage.value = '請輸入帳號和密碼'
+        return
     }
-})
 
-function handleLoginSuccess() {
-    if (form.remember) localStorage.setItem('userEmail', account.value)
-    else localStorage.removeItem('userEmail')
-    loginSuccess()
-    if (redirectAfterLogin.value) {
-        router.push(redirectAfterLogin.value)
-        redirectAfterLogin.value = null
+    isLoading.value = true
+
+    try {
+        // 呼叫登入 API
+        await authStore.login({
+            account: account.value,
+            password: password.value
+        })
+
+        // 登入成功，燈箱會自動關閉
+        // 如果有需要導向的頁面則導向
+        if (redirectAfterLogin.value) {
+            router.push(redirectAfterLogin.value)
+            redirectAfterLogin.value = null
+        }
+    } catch (error) {
+        errorMessage.value = error.message || '登入失敗，請檢查帳號密碼'
+    } finally {
+        isLoading.value = false
     }
 }
 </script>
@@ -42,9 +55,13 @@ function handleLoginSuccess() {
     <div class="fade-in-content">
         <h2 class="form-title">歡迎回來</h2>
         <p class="subtitle">請登入會員</p>
-        <form @submit.prevent="handleLoginSuccess">
+        <form @submit.prevent="handleLogin">
+            <div v-if="errorMessage" class="error-message">
+                {{ errorMessage }}
+            </div>
+
             <Input v-model="account" placeholder="請輸入電子郵件">
-                <template #icon><span class="material-symbols-outlined">mail</span></template>
+                <template #icon><span class="material-symbols-outlined">person</span></template>
             </Input>
             <Input v-model="password" :type="isPasswordVisible ? 'text' : 'password'" placeholder="請輸入密碼">
                 <template #icon><span class="material-symbols-outlined">lock</span></template>
@@ -55,19 +72,14 @@ function handleLoginSuccess() {
                     </span>
                 </template>
             </Input>
-            
+
             <div class="form-utility">
-                <label class="custom-checkbox-wrapper">
-                    <input type="checkbox" v-model="form.remember" class="hidden-checkbox" />
-                    <span class="material-symbols-outlined checkbox-icon">
-                        {{ form.remember ? 'check_box' : 'check_box_outline_blank' }}
-                    </span>
-                    <span class="checkbox-text">記住密碼</span>
-                </label>
                 <a class="link-text" @click="$emit('change-mode', 'forgot')">忘記密碼？</a>
             </div>
 
-            <button class="btn btn-solid btn-l">登入</button>
+            <button type="submit" class="btn btn-solid btn-l" :disabled="isLoading">
+                {{ isLoading ? '登入中...' : '登入' }}
+            </button>
 
             <div class="register-wrapper">
                 <a class="link-text" @click="$emit('change-mode', 'register')">立即註冊</a>
@@ -113,7 +125,7 @@ function handleLoginSuccess() {
 
     .password-toggle {
         position: absolute;
-        right: rem(12px); 
+        right: rem(12px);
         top: 50%;
         transform: translateY(-50%);
         z-index: 10;
@@ -151,42 +163,22 @@ form {
     width: 100%;
 }
 
-.form-utility {
-    display: flex;
-    justify-content: space-between;
-    width: 100%;
-    margin: rem(12px) 0;
+.error-message {
+    background-color: #fee;
+    color: #c33;
+    padding: rem(12px);
+    border-radius: rem(4px);
+    margin-bottom: rem(16px);
+    font-size: rem(14px);
+    text-align: center;
+    border: 1px solid #fcc;
 }
 
-/* --- 按照組員樣式統一的 Checkbox --- */
-.custom-checkbox-wrapper {
+.form-utility {
     display: flex;
-    align-items: center;
-    cursor: pointer;
-    user-select: none;
-    gap: rem(8px); // 對齊捐款頁 gap
-
-    .hidden-checkbox {
-        display: none; // 組員寫法是直接隱藏
-    }
-
-    .checkbox-icon {
-        // 使用組員指定的 font-variation
-        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-        color: #0E6273; // 使用組員定義的 $btn-green 色值
-        font-size: 24px;
-        line-height: 1;
-    }
-
-    .checkbox-text {
-        font-size: rem(16px);
-        color: #666;
-    }
-
-    /* 勾選時圖示變填充感，但不做顏色 hover */
-    input:checked + .checkbox-icon {
-        font-variation-settings: 'FILL' 1;
-    }
+    justify-content: flex-end;
+    width: 100%;
+    margin: rem(12px) 0;
 }
 
 /* 恢復你原本的按鈕樣式 */
@@ -195,6 +187,11 @@ form {
     padding-bottom: rem(14px);
     width: 100%;
     cursor: pointer;
+
+    &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
 }
 
 .register-wrapper {
@@ -207,6 +204,7 @@ form {
     cursor: pointer;
     color: $secondary-color;
     text-decoration: underline;
+
     &:hover {
         color: $highlight-color2;
     }
@@ -215,15 +213,18 @@ form {
 .social-login {
     width: 100%;
     margin-top: rem(30px);
+
     .divider {
         text-align: center;
         margin-bottom: 15px;
         color: #ccc;
     }
+
     .social-icons {
         display: flex;
         justify-content: center;
         gap: 20px;
+
         img {
             width: 30px;
         }

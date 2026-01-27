@@ -334,4 +334,67 @@ watch(currentTab, () => {
     }
   }
 }
+// 手機板 RWD
+@media (max-width: 768px) {
+  .subscription-status-card {
+    padding: rem(16px) rem(12px);
+    
+    .status-grid {
+      flex-direction: column;
+      gap: rem(12px);
+    }
+
+    .status-box,
+    .info-column {
+      width: 100%;
+      padding-left: 0;
+      border-left: none;
+      border-top: 1px solid $input-line-color1;
+      padding-top: rem(12px);
+    }
+  }
+
+  .action-buttons {
+    flex-direction: column;
+    gap: rem(8px);
+    
+    button {
+      width: 100%;
+    }
+  }
+
+  .history-list {
+    .history-item {
+      flex-direction: column;
+      padding-bottom: rem(16px);
+    }
+
+    .item-date {
+      width: 100%;
+      margin-bottom: rem(12px);
+      text-align: left;
+    }
+
+    .timeline-visual {
+      display: none;
+    }
+
+    .item-content {
+      flex-direction: column;
+      align-items: flex-start;
+      border-bottom: 1px solid $secondary-color;
+      padding-top: 0;
+      padding-bottom: rem(12px);
+    }
+
+    .item-info {
+      width: 100%;
+      margin-bottom: rem(12px);
+    }
+
+    .item-badge {
+      width: 100%;
+    }
+  }
+}
 </style>

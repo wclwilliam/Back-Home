@@ -50,7 +50,7 @@ const router = createRouter({
       name: 'GuideInfo',
       props: true,
       component: () => import('@/views/GuideInfo.vue'),
-       meta: { title: '海龜圖鑑' }
+      meta: { title: '海龜圖鑑' }
     },
     {
       path: '/activity',
@@ -62,7 +62,7 @@ const router = createRouter({
       path: '/activity/:id',
       name: 'activityInfo',
       props: true,
-      meta: { title: '活動詳情', hideFooter: true,},
+      meta: { title: '活動詳情', hideFooter: true },
       component: () => import('@/views/ActivityInfoView.vue'),
     },
     {
@@ -75,7 +75,7 @@ const router = createRouter({
       path: '/member',
       name: 'member',
       component: () => import('@/views/MemberShip.vue'),
-      meta: { title: '會員中心' },
+      meta: { title: '會員中心', requiresAuth: true },
     },
     {
       path: '/game',
@@ -90,6 +90,9 @@ const router = createRouter({
       path: '/login',
       name: 'login',
       component: () => import('@/views/Login.vue'),
+      meta: {
+        title: 'Login 測試',
+      },
     },
     {
       path: '/test-lightbox',

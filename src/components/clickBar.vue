@@ -35,7 +35,7 @@ const selectTab = (tabName) => {
     width: 100%;
     height: 65px;
     display: flex;
-    margin: 100px 0 48px 0;
+    margin: 50px 0 48px 0;
     background-color: #FFFFFF;
     cursor: pointer;
 

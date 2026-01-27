@@ -166,12 +166,12 @@ onBeforeUnmount(() => {
 .game-page {
   position: relative;
   width: 100%;
-  height: calc(100dvh - clamp(84px, 8vw, 100px));
+  height: calc(100dvh - clamp(84px, 8vw, 100px)) !important;
   overflow: hidden;
 
-  /* 手機橫向：恢復為 100% 因為 header 會隱藏 */
-  @media (pointer: coarse) and (orientation: landscape) {
-    height: 100%;
+  /* 手機橫向：填滿整個視窗 */
+  @media (max-width: 820px) or (orientation: landscape) {
+    height: 100dvh;
   }
 }
 

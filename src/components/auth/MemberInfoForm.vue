@@ -227,10 +227,35 @@ watch(() => form.emergencyPhone, (newVal) => {
 @media (max-width: 768px) {
   .form-group {
     flex-direction: column;
+    align-items: stretch;
     .form-label {
       width: 100%;
       margin-bottom: rem(8px);
     }
+    .input-wrapper {
+      width: 100%;  // 加上這行，讓 input 占滿寬度
+      flex-grow: 1;
+    }
+  }
+
+  .error-text {
+    margin-left: 0;  // 手機版移除左邊距
+  }
+  
+
+  .form-container {
+    width: 100%;
+    max-width: 100%;
+    padding: 0 rem(16px);
+  }
+
+  .form-actions {
+    flex-direction: column;
+    gap: rem(8px);
+  }
+
+  .form-actions button {
+    width: 100%;
   }
 }
 

@@ -1,52 +1,60 @@
 <script setup>
 //列表
-import { computed , ref } from 'vue'
-import { useRouter } from 'vue-router'
-
+import { computed, ref } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
 
 //頁面跳轉
 const router = useRouter()
+const route = useRoute()
+const authStore = useAuthStore()
+
 const goToDetail = () => {
   // 跳轉到詳情頁，並帶入該活動的 id
-  router.push({ 
-    name: 'activityInfo', 
-    params: { id: props.event.id } })
-}
+  router.push({
+    name: 'activityInfo',
+    params: { id: props.event.id },
 
+    query: {
+      formCategory: route.query.category || '目前活動',
+      formPage: route.query.page || 1,
+      formSearch: route.query.search || '',
+    },
+  })
+}
 
 // 接收外部傳入的資料
 const props = defineProps({
-  event: { type: Object, required: true }
+  event: { type: Object, required: true },
 })
 const status = computed(() => {
   const today = new Date()
-  today.setHours(0, 0, 0, 0);
+  today.setHours(0, 0, 0, 0)
   const todayTime = today.getTime()
 
-  const actDate =new Date(props.event.date)
-  actDate.setHours(0, 0, 0, 0);
-  const  actTime = actDate.getTime()
+  const actDate = new Date(props.event.date)
+  actDate.setHours(0, 0, 0, 0)
+  const actTime = actDate.getTime()
 
   const deadlineDate = new Date(actDate)
   deadlineDate.setDate(actDate.getDate() - 1)
   const deadlineTime = deadlineDate.getTime()
   // console.log(deadlineDate)
 
-  if(todayTime > actTime) {
-    return  'ended'
+  if (todayTime > actTime) {
+    return 'ended'
   }
-  if(todayTime === actTime) {
+  if (todayTime === actTime) {
     return 'opening'
   }
-  if(todayTime === deadlineTime ) {
+  if (todayTime === deadlineTime) {
     return 'deadline'
   }
   return 'upcoming'
-  
-}) 
- //邏輯處理
+})
+//邏輯處理
 const isEnded = computed(() => status.value === 'ended')
-const isOpening = computed(() => status.value === 'opening' )
+const isOpening = computed(() => status.value === 'opening')
 const isDeadline = computed(() => status.value === 'deadline')
 const isFulled = computed(() => {
   if (!props.event.maxPeople) return false
@@ -68,7 +76,7 @@ const progressStyle = computed(() => {
   return { width: `${percent}%` }
 })
 
-// 收藏功能邏輯 
+// 收藏功能邏輯
 const isBookmarked = ref(false) // 是否已收藏
 const isHovering = ref(false) // 是否正在 hover
 
@@ -83,14 +91,20 @@ const bookmarkIcon = computed(() => {
 
 const toggleBookmark = (e) => {
   //防止點愛心時觸發卡片跳轉
-  e.stopPropagation() 
+  e.stopPropagation()
+
+  if (!authStore.isLogin) {
+    authStore.openLoginModal()
+    return
+  }
+
   isBookmarked.value = !isBookmarked.value
 }
 </script>
 <template>
-    <a class="cardContainer activityCard" @click="goToDetail">
+  <a class="cardContainer activityCard" @click="goToDetail">
     <div class="cardPic">
-      <img :src="event.image" :alt="event.title">
+      <img :src="event.image" :alt="event.title" />
       <div v-if="isEnded" class="statusBadge">已結束</div>
       <div class="typeBadge">
         <span class="material-symbols-outlined">sell</span>
@@ -101,15 +115,15 @@ const toggleBookmark = (e) => {
     <div class="cardInfo">
       <div class="cardTitle">
         <p>{{ event.title }}</p>
-        <span 
-        class="material-symbols-outlined bookmark"
-        :class="{ 'is-active': isBookmarked }"
-        @click="toggleBookmark"
-        @mouseenter="isHovering = true"
-        @mouseleave="isHovering = false"
-      >
-        {{ bookmarkIcon }}
-      </span>
+        <span
+          class="material-symbols-outlined bookmark"
+          :class="{ 'is-active': isBookmarked }"
+          @click="toggleBookmark"
+          @mouseenter="isHovering = true"
+          @mouseleave="isHovering = false"
+        >
+          {{ bookmarkIcon }}
+        </span>
       </div>
       <div class="divider"></div>
       <div class="rowInfo dateTime">
@@ -120,7 +134,7 @@ const toggleBookmark = (e) => {
         <span class="material-symbols-outlined location">location_on</span>
         <h3>{{ event.location }}</h3>
       </div>
-      
+
       <div v-if="!isEnded" class="rowInfo signUpNum">
         <span class="material-symbols-outlined group">group_add</span>
         <div class="progress-track-container">
@@ -139,14 +153,14 @@ const toggleBookmark = (e) => {
 </template>
 
 <style lang="scss" scoped>
-@import "@/assets/scss/component/_card.scss";
+@import '@/assets/scss/component/_card.scss';
 .activityCard {
-  cursor: pointer; 
+  cursor: pointer;
   &:hover {
     .btn {
       background-color: $secondary-color;
       color: $text-white !important;
-      border-color: $secondary-color; 
+      border-color: $secondary-color;
 
       .arrow {
         color: $text-white;
@@ -155,102 +169,98 @@ const toggleBookmark = (e) => {
   }
 }
 .cardPic {
-      width: 100%;            
-      aspect-ratio: 4 / 3;    
-      overflow: hidden;
-    .statusBadge {
-      position: absolute;
-      top: 16px;
-      left: 0;
-      padding: 8px ;
-      background-color: $highlight-color2;
-      color: $activity-card-color !important;
-      @include font-body-bold;
-    }
-
-    .typeBadge {
-      position: absolute;
-      top: 0px;
-      right: 0px;
-      gap: 8px;
-      padding: 8px;
-      background-color: $highlight-color3;
-      @include font-body-bold;
-      display: flex;
-      align-items: center;
-    }
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  .statusBadge {
+    position: absolute;
+    top: 16px;
+    left: 0;
+    padding: 8px;
+    background-color: $highlight-color2;
+    color: $activity-card-color !important;
+    @include font-body-bold;
   }
 
-  .cardInfo {
-    .cardTitle {
-      min-height: 3rem;
-    }
-    .bookmark {
+  .typeBadge {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    gap: 8px;
+    padding: 8px;
+    background-color: $highlight-color3;
+    @include font-body-bold;
+    display: flex;
+    align-items: center;
+  }
+}
+
+.cardInfo {
+  .cardTitle {
+    min-height: 3rem;
+  }
+  .bookmark {
     font-size: 24px;
-    cursor: pointer;         
-    transition: all 0.2s ease; 
-    color: $secondary-color;       
-    user-select: none;        
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: $secondary-color;
+    user-select: none;
 
     &:hover {
-      color: $highlight-color2; 
+      color: $highlight-color2;
     }
 
     &.is-active {
-      color: $highlight-color2; 
-      font-variation-settings: 'FILL' 1; 
+      color: $highlight-color2;
+      font-variation-settings: 'FILL' 1;
     }
   }
 
-    .rowInfo {
-      display: flex;
-      flex-wrap: wrap;
-      @include font-body-l;
-      color: $text-color;
-      margin-bottom: 8px;
-      gap: 8px;
-
-      }
-      .rowInfo.location {
-      display: flex;
-      flex-wrap: nowrap;
-      align-self: start;
-      margin-bottom: 8px;
-      gap: 8px;
-
-      }
-    }
-
-    .signUpNum {
-      margin-bottom: 0;
-    }
-
-  .btn {
-    width: 100%;
-    padding: 12px;
+  .rowInfo {
     display: flex;
-    justify-content: center;
-    align-items: center;
+    flex-wrap: wrap;
+    @include font-body-l;
+    color: $text-color;
+    margin-bottom: 8px;
     gap: 8px;
-    border: 2px solid $secondary-color;
-    border-bottom: 2px solid #ffffff00;
-    border-right: 0;
-    border-left: 0;
-    transition: all 0.3s ease;
-
-    .arrow {
-      color: $secondary-color;
-      transition: color 0.3s ease;
-    }
-
   }
+  .rowInfo.location {
+    display: flex;
+    flex-wrap: nowrap;
+    align-self: start;
+    margin-bottom: 8px;
+    gap: 8px;
+  }
+}
 
+.signUpNum {
+  margin-bottom: 0;
+}
 
-  @media (min-width: 768px) {
-    .cardInfo {
-      .bookmark {
-        font-size: 40px
-      }
+.btn {
+  width: 100%;
+  padding: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  border: 2px solid $secondary-color;
+  border-bottom: 2px solid #ffffff00;
+  border-right: 0;
+  border-left: 0;
+  transition: all 0.3s ease;
+
+  .arrow {
+    color: $secondary-color;
+    transition: color 0.3s ease;
+  }
+}
+
+@media (min-width: 768px) {
+  .cardInfo {
+    .bookmark {
+      font-size: 40px;
     }
   }
+}
 </style>

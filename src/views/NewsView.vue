@@ -1,28 +1,50 @@
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue'
 import { publicApi } from '@/utils/publicApi'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import NewsCard from '../components/cards/NewsCard.vue'
 import Banner from "@/components/Banner.vue";
 import clickBar from '@/components/clickBar.vue';
 import searchBox from '@/components/searchBox.vue';
 import Pagination from '@/components/Pagination.vue';
 
+const router = useRouter()
+const route = useRoute() 
 const newsTabs = ['全部', '重要公告', '異動通知'];
-const currentNewsTab = ref('全部');
-const searchKeyword = ref('');
 
-//加這兩個變數設定
+//初始化時從網址讀取狀態，若無則預設
+const currentNewsTab = ref(route.query.category || '全部');
+const currentPage = ref(Number(route.query.page) || 1);
+const searchKeyword = ref('');
 const activeSearchKeyword = ref('');
 let timer = null;
 
-
-
-const router = useRouter()
 const newslist = ref([])
-
-const currentPage = ref(1);
 const pageSize = 9;
+//監聽網址變化 
+watch(() => route.query, (newQuery) => {
+  currentNewsTab.value = newQuery.category || '全部';
+  currentPage.value = Number(newQuery.page) || 1;
+});
+
+//建立更新網址
+const updateQueryParams = () => {
+  router.push({
+    query: {
+      ...route.query, 
+      category: currentNewsTab.value === '全部' ? undefined : currentNewsTab.value, 
+      page: currentPage.value === 1 ? undefined : currentPage.value 
+    }
+  });
+};
+
+
+
+
+watch(currentNewsTab, () => {
+  currentPage.value = 1;
+  updateQueryParams();
+});
 
 onMounted(() => {
   publicApi.get('data/NewsList.json')
@@ -47,9 +69,15 @@ const formatDate = (dateString) => {
 
 const goToDetail = (id) => {
   router.push({
-    name: 'NewsDetail',
-    params: { id: id }
-  })
+    name: 'NewsDetail', // 確保你的路由名稱正確
+    params: { id },
+    query: {
+      // 將目前的過濾狀態帶入網址，方便詳細頁知道是從哪來的
+      fromCategory: currentNewsTab.value === '全部' ? undefined : currentNewsTab.value,
+      fromPage: currentPage.value === 1 ? undefined : currentPage.value,
+      fromSearch: activeSearchKeyword.value || undefined
+    }
+  });
 }
 
 // Tab 與搜尋框篩選在這邊
@@ -84,18 +112,25 @@ const totalPages = computed(() => {
 // 換頁函式
 const changePage = (page) => {
   currentPage.value = page;
+  updateQueryParams(); // 更新網址
   window.scrollTo({ top: 0, behavior: 'smooth' });
 };
 
 // 搜尋框延遲計數器在這邊
 watch(searchKeyword, (newVal) => {
-  if (timer) {
-    clearTimeout(timer);
-  }
+  if (timer) clearTimeout(timer);
   timer = setTimeout(() => {
-    activeSearchKeyword.value = newVal; 
-    currentPage.value = 1; 
-  }, 800); 
+    activeSearchKeyword.value = newVal;
+    currentPage.value = 1;
+    // 將搜尋字串同步網址
+    router.push({
+      query: {
+        ...route.query,
+        search: newVal || undefined,
+        page: 1
+      }
+    });
+  }, 800);
 });
 
 </script>
