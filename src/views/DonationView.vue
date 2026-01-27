@@ -7,14 +7,18 @@
     import AnimationNumber from "@/components/donation/AnimationNumber.vue";
     import CleanChart from "@/components/donation/CleanChart.vue";
     import {  ref, onMounted, computed, onUnmounted } from 'vue';
-    import { publicApi , backHomeApi } from "@/utils/publicApi";
+    import { publicApi , backHomeApi, APIBase } from "@/utils/publicApi";
     import { gsap } from 'gsap';
     import { ScrollTrigger } from 'gsap/ScrollTrigger';
     import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
+    import axios from "axios";
 
     // 註冊外掛
     gsap.registerPlugin(ScrollTrigger,ScrollToPlugin);
 
+    
+
+    // gsap邏輯
     const targetComponent = ref(null);
     const bottomBtn = ref(null);
     // 點擊按鈕前往捐款組件函式
@@ -58,18 +62,20 @@
     ScrollTrigger.getAll().forEach(t => t.kill());
     });
 
-    const selectedYear = ref('');
+    const impactSelectedYear = ref('');
     const impactReports =ref([])
+    const reportSelectYear = ref('');
+    const creditReports = ref([]);
     
 
 
-    // 連資料庫
+    // 連資料庫我們的影響力
     onMounted(async () => {
-        await backHomeApi.get('impact_get.php').then((response) => {
+        await backHomeApi.get('donation/impact_get.php').then((response) => {
             impactReports.value = response.data
             
             //進頁面給值
-            selectedYear.value = impactReports.value[0].year
+            impactSelectedYear.value = impactReports.value[0].year
         })
     })
 
@@ -80,14 +86,99 @@
     //         console.log(impactReports.value);
             
     //         //進頁面給值
-    //         selectedYear.value = impactReports.value[0].year
+    //         impactSelectedYear.value = impactReports.value[0].year
     //     })
     // })
 
-    const currentData = computed(() => {
-    return impactReports.value.find(item => item.year === selectedYear.value) || {};
+    // 連資料庫徵信資料
+    onMounted(async () => {
+        await backHomeApi.get('donation/report_get.php').then((response) => {
+            console.log(response.data);
+            creditReports.value = response.data
+
+            //進頁面給值
+            reportSelectYear.value = creditReports.value[0].DATA_YEAR
+        })
+    })
+
+    const impactCurrentData = computed(() => {
+    return impactReports.value.find(item => item.year === impactSelectedYear.value) || {};
+    });
+
+    const reportCurrentData = computed(() => {
+    return creditReports.value.find(item => item.DATA_YEAR === reportSelectYear.value) || {};
     });
     
+
+
+    /**
+ * 非同步下載圖片函數
+ * @param {string} imgName - 圖片的識別名稱（例如：2025_Q1）
+ */
+const downloadImage = async (imgName) => {
+  try {
+    // 使用 axios 發送請求
+    const response = await axios({
+      // 組裝後端 API URL，並帶入 query string 參數
+      url: `${APIBase}donation/report_download.php?file=financial_report_${imgName}.png`,
+      
+      method: 'GET',
+      
+      /**
+       * 關鍵設定：responseType
+       * 告訴 axios 將伺服器回傳的數據處理成 'blob' (Binary Large Object)
+       * 這對於圖片、PDF、Excel 等非文字檔案是必須的，否則數據會被當作字串解析導致損壞
+       */
+      responseType: 'blob', 
+    });
+
+    /**
+     * 1. 建立一個指向該 Blob 數據的臨時 URL
+     * response.data 包含了從伺服器拿到的二進位原始數據
+     * URL.createObjectURL 會產生一個像 "blob:http://localhost:5173/..." 的字串
+     * 這個字串可以被瀏覽器當作實體檔案路徑來讀取
+     */
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    
+    /**
+     * 2. 模擬使用者點擊下載連結
+     * 由於 blob URL 不能直接用 window.open 開啟，我們必須建立一個虛擬的 <a> 標籤
+     */
+    const link = document.createElement('a');
+    link.href = url;
+    
+    /**
+     * 設定 download 屬性
+     * 這會強制瀏覽器執行「下載」而非「開啟」
+     * 這裡自定義了下載後的檔案名稱
+     */
+    link.setAttribute('download', imgName + "徵信資料.png"); 
+    
+    // 將標籤暫時加入 DOM 樹中（某些瀏覽器要求標籤必須在 DOM 內才能觸發 click）
+    document.body.appendChild(link);
+    
+    // 程式觸發點擊動作
+    link.click();
+
+    /**
+     * 3. 資源清理 (Memory Management)
+     * 檔案下載後，這個標籤就不再需要了，將其從頁面移除
+     */
+    link.parentNode.removeChild(link);
+    
+    /**
+     * 釋放記憶體
+     * URL.createObjectURL 產生的 URL 會一直佔用瀏覽器記憶體
+     * 使用 revokeObjectURL 告訴瀏覽器可以回收這個資源了
+     */
+    window.URL.revokeObjectURL(url);
+
+  } catch (error) {
+    // 捕捉請求失敗、檔案不存在或網路問題
+    console.error("下載失敗:", error);
+    alert("無法下載圖片，請檢查後端路徑或權限。");
+  }
+};
 
     
 </script>
@@ -105,7 +196,7 @@
                                 <div class="section-header">
                                     <h3>救援海龜數據</h3>
                                     <div class="select-wrapper">
-                                    <select v-model="selectedYear">
+                                    <select v-model="impactSelectedYear">
                                         <option v-for="item in impactReports" :value="item.year" :key="item.year">
                                             {{item.year +"年"}}
                                         </option>
@@ -119,34 +210,34 @@
                                         healing
                                         </span>
                                     <span class="label">救援海龜總數</span>
-                                    <AnimationNumber :value="currentData.core_metrics?.total_rescued_turtles || 0" class="value">隻</AnimationNumber>
+                                    <AnimationNumber :value="impactCurrentData.core_metrics?.total_rescued_turtles || 0" class="value">隻</AnimationNumber>
                                     </div>
                                     <div class="stat-item">
                                         <span class="material-symbols-outlined">
                                         egg
                                         </span>
                                     <span class="label">引導入海幼龜</span>
-                                    <AnimationNumber :value="currentData.core_metrics?.hatchlings_guided_to_sea || 0" class="value">隻</AnimationNumber>
+                                    <AnimationNumber :value="impactCurrentData.core_metrics?.hatchlings_guided_to_sea || 0" class="value">隻</AnimationNumber>
                                     </div>
                                     <div class="stat-item">
                                         <span class="material-symbols-outlined">
                                         anchor
                                         </span>
                                     <span class="label">巡邏海岸線</span>
-                                    <AnimationNumber :value="currentData.core_metrics?.patrolled_coastline_km || 0" class="value">公里</AnimationNumber>
+                                    <AnimationNumber :value="impactCurrentData.core_metrics?.patrolled_coastline_km || 0" class="value">公里</AnimationNumber>
                                     </div>
                                     <div class="stat-item">
                                         <span class="material-symbols-outlined">
                                         health_cross
                                         </span>
                                     <span class="label">專業醫療手術</span>
-                                    <AnimationNumber :value="currentData.core_metrics?.professional_medical_surgeries || 0" class="value">場</AnimationNumber>
+                                    <AnimationNumber :value="impactCurrentData.core_metrics?.professional_medical_surgeries || 0" class="value">場</AnimationNumber>
                                     </div>
                                 </div>
                             </section>
                             <section class="clean-section">
                                 <h3>清除海洋廢棄物</h3>
-                                <CleanChart :data="currentData.ocean_debris_removed_kg"/>
+                                <CleanChart :data="impactCurrentData.ocean_debris_removed_kg"/>
                             </section>
                         </div>
                         <div class="rescueCards">
@@ -157,10 +248,10 @@
                         <div class="report">
                             <h2>徵信資料</h2>
                             <div class="reportContent">
-                                <select name="" id="">
-                                    <option value="">2025徵信資料表</option>
+                                <select name="" id="" v-model="reportSelectYear">
+                                    <option v-for="item in creditReports" :value="item.DATA_YEAR">{{item.DATA_YEAR}}徵信資料表</option>
                                 </select>
-                                <MyButton class="btn-xxl" height="71px">資料下載</MyButton>
+                                <MyButton class="btn-xxl" height="71px" @click="downloadImage(reportCurrentData.DATA_YEAR)">資料下載</MyButton>
                             </div>
                         </div>
                 </section>

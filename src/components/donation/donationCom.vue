@@ -5,7 +5,7 @@ import { useAuthStore } from '@/stores/auth'
 import downloadReceipt from './downloadReceipt.vue'
 import ecpayCrypto from '@/utils/ecpayCrypto.js'
 import { useLocalStorage } from '@vueuse/core'
-import { publicApi } from '@/utils/publicApi'
+import { publicApi, APIBase } from '@/utils/publicApi'
 import linepay from '@/utils/linepay'
 
 //海龜數據
@@ -75,6 +75,7 @@ const customAmount = ref('')
 const payment = ref('ecpay')
 const anonymous = ref(false)
 const payLoading = ref(false);
+const ecpayForm = ref(null);
 const form = reactive({
   userName:'',
   email: '',
@@ -262,9 +263,9 @@ const goDonate = () => {
       donationState.value.donationType = donationType.value
       donationState.value.finalAmount = finalAmount
       if (payment.value == "ecpay") { //判斷金流
-        ecpayCrypto()
+        ecpayForm.value.submit() //測試改成php傳
       } else {
-        handleCheckout()
+        goLinepay()
       }
     }
   }else {
@@ -283,7 +284,7 @@ const goDonate = () => {
       if (payment.value == "ecpay") { //判斷金流
         ecpayCrypto()
       } else {
-        handleCheckout()
+        goLinepay()
       }
   }
   }
@@ -295,7 +296,8 @@ const goDonate = () => {
 
 
 
-const handleCheckout = async () => {
+
+const goLinepay = async () => {
   payLoading.value = true;
   try {
     const orderData = {
@@ -305,8 +307,6 @@ const handleCheckout = async () => {
     };
 
     const response = await linepay.createOrder(orderData);
-    console.log(response);
-    
     
     // 檢查後端是否成功回傳 LINE Pay 的支付網址
     if (response.data && response.data.paymentUrl) {
@@ -478,7 +478,7 @@ const handleCheckout = async () => {
   
           </div>
         </div>
-        <form v-if="payment== 'ecpay'" id="ecpayForm" class="payForm" method="post" action="https://payment-stage.ecpay.com.tw/Cashier/AioCheckOut/V5">
+        <!-- <form v-if="payment== 'ecpay'" id="ecpayForm" class="payForm" method="post" action="https://payment-stage.ecpay.com.tw/Cashier/AioCheckOut/V5">
               <input type="hidden" name="MerchantID" value="3002607">
               <input type="hidden" name="MerchantTradeNo" id="MerchantTradeNo" value="">
               <input type="hidden" name="MerchantTradeDate" id="MerchantTradeDate" value="">
@@ -487,29 +487,21 @@ const handleCheckout = async () => {
               <input type="hidden" name="TradeDesc" :value="donationType">
               <input type="hidden" name="ItemName" value="捐款金額">
               <input type="hidden" name="ReturnURL" value="https://tibamef2e.com/cjd102/g3/front/donation">
-              <input type="hidden" name="ChoosePayment" value="ALL">
+              <input type="hidden" name="ChoosePayment" value="Credit">
               <input type="hidden" name="EncryptType" value="1">
               <input type="hidden" name="IgnorePayment" value="WeiXin#TWQR#BNPL#CVS#BARCODE#ATM#WebATM">
-              <!-- <input type="hidden" name="OrderResultURL" value="https://tibamef2e.com/cjd102/g3/front/donation"> -->
               <input type="hidden" name="ClientBackURL" value="https://tibamef2e.com/cjd102/g3/front/donation">
               <input type="hidden" name="CheckMacValue" id="CheckMacValue" value="">
               <MyButton @click.prevent="goDonate" class=" btn-xxl" width="50%" >立即捐款</MyButton>
-          </form>
-        <form v-else id="linepayForm" class="payForm" method="post" action="">
-              <input type="hidden" name="MerchantID" value="3002607">
-              <input type="hidden" name="MerchantTradeNo" id="MerchantTradeNo" value="">
-              <input type="hidden" name="MerchantTradeDate" id="MerchantTradeDate" value="">
-              <input type="hidden" name="PaymentType" value="aio">
+          </form> -->
+        <form v-if="payment== 'ecpay'" id="ecpayForm" class="payForm" ref="ecpayForm" method="post" :action="APIBase +'donation/epay.php'">
+              <input type="hidden" name="UseEcpay" value="ecpay">
               <input type="hidden" name="TotalAmount" :value="rawFinalAmount">
               <input type="hidden" name="TradeDesc" :value="donationType">
               <input type="hidden" name="ItemName" value="捐款金額">
-              <input type="hidden" name="ReturnURL" value="https://tibamef2e.com/cjd102/g3/front/donation">
-              <input type="hidden" name="ChoosePayment" value="ALL">
-              <input type="hidden" name="EncryptType" value="1">
-              <input type="hidden" name="IgnorePayment" value="WeiXin#TWQR#BNPL#CVS#BARCODE#ATM#WebATM">
-              <!-- <input type="hidden" name="OrderResultURL" value="https://tibamef2e.com/cjd102/g3/front/donation"> -->
-              <input type="hidden" name="ClientBackURL" value="https://tibamef2e.com/cjd102/g3/front/donation">
-              <input type="hidden" name="CheckMacValue" id="CheckMacValue" value="">
+              <MyButton @click.prevent="goDonate"  class=" btn-xxl" width="50%" >立即捐款</MyButton>
+          </form>
+        <form v-else id="linepayForm" class="payForm" method="post" action="">
               <MyButton @click.prevent="goDonate" :disabled="payLoading" class=" btn-xxl" width="50%" >立即捐款</MyButton>
           </form>
       </div>
