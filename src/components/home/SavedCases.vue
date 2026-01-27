@@ -1,7 +1,7 @@
 <script setup>
 import RescueCard from '@/components/cards/RescueCard.vue'
 import { ref, onMounted } from 'vue'
-import { publicApi } from '@/utils/publicApi'
+import { publicApi, backHomeApi } from '@/utils/publicApi'
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import { Pagination } from 'swiper/modules'
 import 'swiper/css'
@@ -10,11 +10,23 @@ import 'swiper/css/pagination'
 const rescueCases = ref([])
 const modules = [Pagination]
 
-onMounted(() => {
-  publicApi.get('data/rescueCases.json').then((response) => {
+// 連資料庫
+onMounted(async () => {
+  try {
+    const response = await backHomeApi.get('./savedcases/rescue_get.php')
+    console.log('API Response (./savedcases/rescue_get.php):', response.data)
     rescueCases.value = response.data
-  })
+  } catch (error) {
+    console.error('API Error (./savedcases/rescue_get.php):', error)
+  }
 })
+
+// // 連json
+// onMounted(() => {
+//   publicApi.get('data/rescueCases.json').then((response) => {
+//     rescueCases.value = response.data
+//   })
+// })
 </script>
 
 <template>

@@ -10,7 +10,7 @@ const lightboxType = ref('');
 // 只保留這一個 handleUpdate
 const handleUpdate = () => {
   console.log('送出資料：', form);
-  
+
   // 觸發成功燈箱
   isLightboxOpen.value = true;
   lightboxType.value = 'updateSuccess';
@@ -63,86 +63,85 @@ watch(() => form.emergencyPhone, (newVal) => {
 </script>
 
 <template>
-    <div class="member-info-form">
-        <div class="form-container">
-        
-        <div class="form-group">
-            <label class="form-label">姓名 * :</label>
-            <div class="input-wrapper">
-            <Input v-model="form.name" placeholder="王曉明" />
-            </div>
-        </div>
+  <div class="member-info-form">
+    <div class="form-container">
 
-        <div class="form-group">
-            <label class="form-label">電子郵件 * :</label>
-            <div class="input-wrapper">
-            <Input v-model="form.email" :readonly="true" />
-            </div>
+      <div class="form-group">
+        <label class="form-label">姓名 * :</label>
+        <div class="input-wrapper">
+          <Input v-model="form.name" placeholder="王曉明" autocomplete="name" />
         </div>
+      </div>
 
-        <div class="form-group">
-            <label class="form-label">手機號碼 :</label>
-            <div class="input-wrapper">
-            <Input v-model="form.phone" placeholder="請輸入手機號碼" />
-            <p v-if="phoneError" style="color: #E14720; font-size: 12px;">手機格式錯誤 (09xxxxxxxx)</p>
-            </div>
+      <div class="form-group">
+        <label class="form-label">電子郵件 * :</label>
+        <div class="input-wrapper">
+          <Input v-model="form.email" :readonly="true" autocomplete="email" />
         </div>
+      </div>
 
-        <div class="form-group">
-            <label class="form-label">身分證字號 :</label>
-            <div class="input-wrapper">
-            <Input v-model="form.idNumber" placeholder="請輸入身分證字號" />
-            </div>
+      <div class="form-group">
+        <label class="form-label">手機號碼 :</label>
+        <div class="input-wrapper">
+          <Input v-model="form.phone" placeholder="請輸入手機號碼" autocomplete="tel" />
+          <p v-if="phoneError" style="color: #E14720; font-size: 12px;">手機格式錯誤 (09xxxxxxxx)</p>
         </div>
+      </div>
 
-        <div class="form-group">
-            <label class="form-label">出生年月日 :</label>
-            <div class="input-wrapper">
-            <Input v-model="form.birthday" type="date" />
-            </div>
+      <div class="form-group">
+        <label class="form-label">身分證字號 :</label>
+        <div class="input-wrapper">
+          <Input v-model="form.idNumber" placeholder="請輸入身分證字號" autocomplete="off" />
         </div>
+      </div>
 
-        <div class="form-group">
-            <label class="form-label">緊急聯絡人姓名 :</label>
-            <div class="input-wrapper">
-            <Input v-model="form.emergencyContact" placeholder="請輸入緊急聯絡人姓名" />
-            </div>
+      <div class="form-group">
+        <label class="form-label">出生年月日 :</label>
+        <div class="input-wrapper">
+          <Input v-model="form.birthday" type="date" autocomplete="bday" />
         </div>
+      </div>
 
-        <div class="form-group">
-            <label class="form-label">緊急聯絡人電話 :</label>
-            <div class="input-wrapper">
-            <Input v-model="form.emergencyPhone" placeholder="請輸入緊急聯絡人手機號碼" />
-            <p v-if="emergencyPhoneError" style="color: #E14720; font-size: 12px;">手機格式錯誤 (09xxxxxxxx)</p>
-            </div>
+      <div class="form-group">
+        <label class="form-label">緊急聯絡人姓名 :</label>
+        <div class="input-wrapper">
+          <Input v-model="form.emergencyContact" placeholder="請輸入緊急聯絡人姓名" autocomplete="off" />
         </div>
+      </div>
 
-        <div class="form-group password-area">
-            <label class="form-label">密碼 * :</label>
-            <div class="input-wrapper">
-            <button v-if="!isChangingPassword" type="button" class="btn-text-link" @click="isChangingPassword = true">
-                更改密碼
-            </button>
-            
-            <div v-else class="password-fields">
-                <Input v-model="form.newPassword" type="password" placeholder="請輸入新密碼" />
-                <p class="hint">● 密碼需 8 個字元以上，且包含英文字母大小寫、數字</p>
-                <Input v-model="form.confirmPassword" type="password" placeholder="請再次輸入新密碼" />
-            </div>
-            </div>
+      <div class="form-group">
+        <label class="form-label">緊急聯絡人電話 :</label>
+        <div class="input-wrapper">
+          <Input v-model="form.emergencyPhone" placeholder="請輸入緊急聯絡人手機號碼" autocomplete="tel" />
+          <p v-if="emergencyPhoneError" style="color: #E14720; font-size: 12px;">手機格式錯誤 (09xxxxxxxx)</p>
         </div>
+      </div>
 
-        <div class="form-actions">
-            <Button variant="primary" @click="handleUpdate">變更資訊</Button>
-            <Button variant="outline" @click="handleCancel">取消</Button>
+      <div class="form-group password-area">
+        <label class="form-label">密碼 * :</label>
+        <div class="input-wrapper">
+          <button v-if="!isChangingPassword" type="button" class="btn-text-link" @click="isChangingPassword = true">
+            更改密碼
+          </button>
+
+          <div v-else class="password-fields">
+            <Input v-model="form.newPassword" type="password" placeholder="請輸入新密碼" autocomplete="new-password" />
+            <p class="hint">
+              <span class="material-symbols-outlined">info</span>
+              密碼需 8 個字元以上，且包含英文字母大小寫、數字
+            </p>
+            <Input v-model="form.confirmPassword" type="password" placeholder="請再次輸入新密碼" autocomplete="new-password" />
+          </div>
         </div>
-        </div>
-        <MemberLightbox 
-            v-model="isLightboxOpen" 
-            :type="lightboxType"
-            @confirm="closeLightbox"
-        />
+      </div>
+
+      <div class="form-actions">
+        <Button variant="primary" @click="handleUpdate">變更資訊</Button>
+        <Button variant="outline" @click="handleCancel">取消</Button>
+      </div>
     </div>
+    <MemberLightbox v-model="isLightboxOpen" :type="lightboxType" @confirm="closeLightbox" />
+  </div>
 </template>
 
 
@@ -178,16 +177,19 @@ watch(() => form.emergencyPhone, (newVal) => {
 
   .input-wrapper {
     flex-grow: 1; // 輸入框佔滿右側
-    
+
     .password-fields {
       display: flex;
       flex-direction: column;
       gap: rem(12px);
-      
+
       .hint {
-        font-size: $m-size-caption;
-        color: #666;
-        margin: 0;
+        font-size: $size-body;
+        color: #999;
+        margin: rem(-4px) 0 0 0;
+        display: flex;
+        align-items: center;
+        gap: rem(4px);
       }
     }
   }
@@ -201,7 +203,7 @@ watch(() => form.emergencyPhone, (newVal) => {
   padding: rem(10px) 0;
   color: $text-color;
   font-size: $size-body;
-  
+
   &:hover {
     color: $secondary-color;
   }
@@ -220,7 +222,7 @@ watch(() => form.emergencyPhone, (newVal) => {
   font-size: rem(12px);
   margin-top: rem(4px);
   // 讓提示文字縮排，對齊輸入框
-  margin-left: rem(150px); 
+  margin-left: rem(150px);
 }
 
 // 響應式手機版
@@ -228,20 +230,22 @@ watch(() => form.emergencyPhone, (newVal) => {
   .form-group {
     flex-direction: column;
     align-items: stretch;
+
     .form-label {
       width: 100%;
       margin-bottom: rem(8px);
     }
+
     .input-wrapper {
-      width: 100%;  // 加上這行，讓 input 占滿寬度
+      width: 100%; // 加上這行，讓 input 占滿寬度
       flex-grow: 1;
     }
   }
 
   .error-text {
-    margin-left: 0;  // 手機版移除左邊距
+    margin-left: 0; // 手機版移除左邊距
   }
-  
+
 
   .form-container {
     width: 100%;
@@ -258,5 +262,4 @@ watch(() => form.emergencyPhone, (newVal) => {
     width: 100%;
   }
 }
-
 </style>
