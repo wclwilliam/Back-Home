@@ -90,7 +90,6 @@ watch(currentTab, () => {
 <template>
   <div class="container">
     <TabSwitcher v-model="currentTab" :tabs="donationTabs">
-      <div class="donation-container">
         
         <template v-if="currentTab === 'subscription'">
           <div class="subscription-status-card">
@@ -165,7 +164,6 @@ watch(currentTab, () => {
           :current-page="currentPage"
           @page-change="goToPage"
         />
-      </div>
     </TabSwitcher>
     <MemberLightbox 
     v-model="isLightboxOpen" 
@@ -179,9 +177,10 @@ watch(currentTab, () => {
 <style lang="scss" scoped>
 @import '@/assets/scss/base/_var.scss';
 
-.donation-container {
-  max-width: rem(1000px);
+.container {
+  max-width: rem(1200px);
   margin: 0 auto;
+  padding: 0 rem(20px);
 }
 
 .subscription-status-card {
@@ -246,10 +245,15 @@ watch(currentTab, () => {
   margin-top: rem(20px);
 
   .history-item {
+    background: linear-gradient(to right, rgba(14, 98, 115, 0.1) rem(4px), transparent rem(4px));
+    background-position: left center;
+    background-size: rem(4px) rem(80px);
+    background-repeat: no-repeat;
+    padding-left: rem(16px);
     display: flex;
-    /* 移除 item 本身的 border-bottom，改用 timeline-line 處理視覺 */
     position: relative;
-    padding-bottom: rem(24px); 
+    padding-bottom: rem(24px);
+    align-items: center;  // 垂直置中
   }
 
   /* 日期文字 */
@@ -273,7 +277,7 @@ watch(currentTab, () => {
     }
   }
 
-  /* 視覺裝飾線與圓點 */
+  /* 視覺裝飾線 */
   .timeline-visual {
     position: relative;
     width: rem(40px); // 控制日期與文字間的距離
@@ -288,15 +292,6 @@ watch(currentTab, () => {
       background-color: $secondary-color; // 使用二級主色
     }
 
-    .timeline-dot {
-      position: absolute;
-      top: rem(50px); // 圓點對齊列表項目的水平中心位置
-      width: rem(8px);
-      height: rem(8px);
-      background-color: $secondary-color;
-      border-radius: 50%;
-      z-index: 2;
-    }
   }
 
   /* 內容區域 */

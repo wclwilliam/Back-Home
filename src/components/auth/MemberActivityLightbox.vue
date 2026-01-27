@@ -33,7 +33,7 @@ watch(() => props.modelValue, (isOpen) => {
 <template>
     <Lightbox 
         :modelValue="modelValue" 
-        :width="isMobile ? '90vw' : '650px'"
+        :width="isMobile ? '85vw' : '650px'"
         @update:modelValue="close"
         @confirm="handleConfirm"
     >
@@ -98,8 +98,16 @@ watch(() => props.modelValue, (isOpen) => {
     <style lang="scss" scoped>
     @import '@/assets/scss/base/_var.scss';
 
+    :deep(.lightbox-content) {
+    max-width: 650px;
+    max-height: 70vh;
+    overflow-y: auto;
+    }
+
     .member-lightbox-inner {
     color: $text-color;
+    max-height: 65vh;
+    overflow-y: auto;
     }
 
     .form-container {
@@ -238,26 +246,7 @@ watch(() => props.modelValue, (isOpen) => {
         padding: rem(12px) 0;
     }
     }
-
-    /* 超小螢幕 - 480px 以下 */
-    @media (max-width: 480px) {
-    .f-row {
-        label {
-        font-size: rem(13px);
-        }
-        
-        margin-bottom: rem(4px);
-    }
-
-    .checkbox-row .custom-checkbox-wrapper .checkbox-text {
-        font-size: rem(12px);
-    }
-
-    .form-container {
-        gap: rem(8px);
-    }
-    }
-    /* 超小螢幕 - 480px 以下 */
+        /* 超小螢幕 - 480px 以下 */
     @media (max-width: 480px) {
     .f-row {
         label {
@@ -276,27 +265,4 @@ watch(() => props.modelValue, (isOpen) => {
     }
     }
 
-    /* 高度限制 - 768px 以下 */
-    @media (max-width: 768px) {
-    :deep(.lightbox-content) {
-        max-height: 85vh;
-        overflow-y: auto;
-    }
-
-    .member-lightbox-inner {
-        max-height: 70vh;
-        overflow-y: auto;
-    }
-    }
-
-    /* 高度限制 - 480px 以下 */
-    @media (max-width: 480px) {
-    :deep(.lightbox-content) {
-        max-height: 80vh;
-    }
-
-    .member-lightbox-inner {
-        max-height: 65vh;
-    }
-}
 </style>
