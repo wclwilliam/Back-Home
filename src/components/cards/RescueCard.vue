@@ -1,52 +1,74 @@
 <script setup>
 //列表
 import { computed } from 'vue'
+
+// 從環境變數讀取檔案 URL 基礎路徑
+const fileBaseUrl = import.meta.env.VITE_FILE_URL
+
 // 定義外部傳入的資料
 const props = defineProps({
   id: { type: Number, required: true }, //海龜編號
-  image: { type: String, default: 'https://picsum.photos/300/200' },
+  imageSrc: { type: String, default: 'https://picsum.photos/300/200' },
   name: { type: String, required: true }, // 名字 (阿福)
   species: { type: String, required: true }, //品種(綠蠵龜)
   description: { type: String, required: true },
-  stage: { type: Number, default: 1 }, //階段：1~5
+  status: { type: String, default: '入院檢查' }, //階段：入院檢查、醫療照護、休養觀察、準備野放、重返大海
 })
-// 處理圖片路徑 - 使用 Vite 動態 import 處理 assets 圖片
+// 處理圖片路徑 - 支援三種模式：
+// 1. /src/assets/... - 本地開發時的資產路徑（Vite 動態 import）
+// 2. /images/... - 遠端文件路徑（從環境變數的 FILE_URL 讀取）
+// 3. savedcases/... - 相對路徑（直接拼接環境變數）
 const imageUrl = computed(() => {
-  if (!props.image) return 'https://picsum.photos/300/200'
+  if (!props.imageSrc) return 'https://picsum.photos/300/200'
 
-  // 如果路徑以 /src/ 開頭，轉換為相對路徑
-  let imagePath = props.image
+  const imagePath = props.imageSrc
+
+  console.log('圖片路徑:', imagePath, 'fileBaseUrl:', fileBaseUrl)
+
+  // 模式 1: 如果是 /src/assets/ 路徑，使用 Vite 動態 import（開發模式）
   if (imagePath.startsWith('/src/')) {
-    imagePath = imagePath.replace('/src/', '@/')
-  }
+    try {
+      const imageModules = import.meta.glob('@/assets/image/**/*.{png,jpg,jpeg,gif,svg}', {
+        eager: true,
+      })
+      const fullPath = imagePath.replace('@/', '/src/')
+      const matchedModule = imageModules[fullPath]
 
-  try {
-    // 使用 Vite 的 glob import
-    const imageModules = import.meta.glob('@/assets/image/**/*.{png,jpg,jpeg,gif,svg}', {
-      eager: true,
-    })
-    const fullPath = imagePath.replace('@/', '/src/')
-    const matchedModule = imageModules[fullPath]
-
-    if (matchedModule && matchedModule.default) {
-      return matchedModule.default
+      if (matchedModule && matchedModule.default) {
+        return matchedModule.default
+      }
+    } catch (error) {
+      console.error('本地圖片載入失敗:', error)
     }
-
-    // 如果找不到，回傳預設圖片
-    return 'https://picsum.photos/300/200'
-  } catch (error) {
-    console.error('圖片載入失敗:', error)
-    return 'https://picsum.photos/300/200'
   }
+
+  // 模式 2: 如果是 /images/ 路徑，使用環境變數拼接完整 URL（生產模式）
+  if (imagePath.startsWith('/images/')) {
+    return `${fileBaseUrl}${imagePath}`
+  }
+
+  // 模式 3: 相對路徑（如 savedcases/xxx.png），直接拼接環境變數
+  // 這是從資料庫取得的路徑格式
+  if (!imagePath.startsWith('http') && !imagePath.startsWith('/')) {
+    const url = `${fileBaseUrl}${imagePath}`
+    console.log('最終圖片 URL:', url)
+    return url
+  }
+
+  // 如果都不符合，回傳預設圖片
+  return 'https://picsum.photos/300/200'
 })
 
-//計算百分比 (每個階段 20%)
+// 根據字串狀態計算百分比
 const progressPercent = computed(() => {
-  let safeStage = props.stage
-  if (safeStage < 1) safeStage = 1
-  if (safeStage > 5) safeStage = 5
-
-  return safeStage * 20
+  const statusMap = {
+    入院檢查: 20,
+    醫療照護: 40,
+    休養觀察: 60,
+    準備野放: 80,
+    重返大海: 100,
+  }
+  return statusMap[props.status] || 20 // 預設為入院檢查
 })
 
 //進度條%
@@ -57,15 +79,9 @@ const progressWidth = computed(() => {
 const pointStyle = computed(() => {
   return { left: `${progressPercent.value - 2}%` }
 })
-//進度條文字
+//進度條文字（直接使用 status）
 const progressText = computed(() => {
-  let s = props.stage
-  if (s === 1) return '入院檢查'
-  if (s === 2) return '醫療照護'
-  if (s === 3) return '休養觀察'
-  if (s === 4) return '準備野放'
-  if (s >= 4) return '重返大海'
-  return '入院檢查'
+  return props.status
 })
 </script>
 <template>
