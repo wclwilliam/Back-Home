@@ -10,8 +10,8 @@ export const publicApi = axios.create({
 
 // 沒有攔截器，乾乾淨淨
 export const testApi = axios.create({
-    baseURL: 'https://notes.webmix.cc/ajax/teach/api',
-    timeout: 5000
+  baseURL: 'https://notes.webmix.cc/ajax/teach/api',
+  timeout: 5000
 })
 //上課測試用
 export const testApi2 = axios.create({
