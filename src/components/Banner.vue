@@ -33,7 +33,7 @@ const imgURL = computed(() => {
         .banner {
                 width: 100%;
                 height: 250px;
-                background-position-x: center;
+                background-position: center;
                 
                 display: flex;
                 justify-content: center;
