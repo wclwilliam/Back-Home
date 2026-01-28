@@ -11,6 +11,9 @@ const parsePublicFile = (imgURL) => {
     return imgURL ? `${base}${imgURL}` : ''
 }
 
+const fileUrl = import.meta.env.VITE_FILE_URL
+
+
 const article = ref(null);
 const prevArticle = ref(null);
 const nextArticle = ref(null);
@@ -121,8 +124,8 @@ const goToArticle = (id) => {
                 <h2 class="title">{{ article.title }}</h2>
             </div>
 
-            <div class="articleImage" v-if="article.image_path">
-                <img :src="parsePublicFile(article.image_path)" :alt="article.title">
+              <div class="articleImage" v-if="article.image_path">
+                <img :src="fileUrl + article.image_path" :alt="article.title">
             </div>
 
             <article class="articleBody">
