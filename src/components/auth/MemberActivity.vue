@@ -258,6 +258,7 @@ watch(currentActivityTab, () => {
     display: flex;
     justify-content: center;
     .timeline-line { position: absolute; top: 0; bottom: 0; width: 1px; background-color: $secondary-color; }
+    
   }
   .item-content {
     flex: 1;

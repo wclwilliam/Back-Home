@@ -141,11 +141,6 @@ watch(currentTab, () => (currentPage.value = 1))
 <style lang="scss" scoped>
 @import "@/assets/scss/base/_var.scss";
 
-.container {
-  max-width: rem(1200px);
-  margin: 0 auto;
-  padding: 0 rem(20px);
-}
 // 讓愛心強行變橘色實心 (驗證視覺)
 :deep(.bookmark) {
   color: $highlight-color2 !important;

@@ -245,15 +245,10 @@ watch(currentTab, () => {
   margin-top: rem(20px);
 
   .history-item {
-    background: linear-gradient(to right, rgba(14, 98, 115, 0.1) rem(4px), transparent rem(4px));
-    background-position: left center;
-    background-size: rem(4px) rem(80px);
-    background-repeat: no-repeat;
-    padding-left: rem(16px);
     display: flex;
+    /* 移除 item 本身的 border-bottom，改用 timeline-line 處理視覺 */
     position: relative;
-    padding-bottom: rem(24px);
-    align-items: center;  // 垂直置中
+    padding-bottom: rem(24px); 
   }
 
   /* 日期文字 */
@@ -277,7 +272,7 @@ watch(currentTab, () => {
     }
   }
 
-  /* 視覺裝飾線 */
+  /* 視覺裝飾線與圓點 */
   .timeline-visual {
     position: relative;
     width: rem(40px); // 控制日期與文字間的距離
@@ -292,6 +287,7 @@ watch(currentTab, () => {
       background-color: $secondary-color; // 使用二級主色
     }
 
+    
   }
 
   /* 內容區域 */
