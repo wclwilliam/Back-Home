@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { publicApi } from '@/utils/publicApi'
+import { publicApi, backHomeApi } from "@/utils/publicApi";
 
 const route = useRoute();
 const router = useRouter();
@@ -11,7 +11,9 @@ const parsePublicFile = (imgURL) => {
     return imgURL ? `${base}${imgURL}` : ''
 }
 
-// 資料容器
+const fileUrl = import.meta.env.VITE_FILE_URL
+
+
 const article = ref(null);
 const prevArticle = ref(null);
 const nextArticle = ref(null);
@@ -27,18 +29,19 @@ const formatDate = (dateString) => {
 }
 
 
-
 const loadData = async () => {
     try {
-        const response = await publicApi.get('data/NewsList.json');
-
+        // A. 抓取全部資料來做前後篇排序
+        const response = await backHomeApi.get('./news/news_get.php');
+        
+        // B. 排序與篩選邏輯 (保留你原本的邏輯)
+        // 註：PHP 的 SQL 已經寫了 ORDER BY，但這裡再排一次更保險
         let sortedData = response.data.sort((a, b) => {
-            return new Date(b.publish_time) - new Date(a.publish_time);
+            return new Date(b.published_at) - new Date(a.published_at);
         });
 
         const fromCategory = route.query.fromCategory;
         const fromSearch = route.query.fromSearch;
-
       
         if (fromCategory && fromCategory !== '全部') {
             sortedData = sortedData.filter(item => item.category === fromCategory);
@@ -54,15 +57,17 @@ const loadData = async () => {
 
         allNews.value = sortedData;
 
+        // C. 查找當前文章、上一篇、下一篇 (注意 ID 欄位名稱從 article_id 改為 id)
         const currentId = parseInt(route.params.id);
-        const currentIndex = sortedData.findIndex(item => item.article_id === currentId);
+        const currentIndex = sortedData.findIndex(item => item.id === currentId);
 
         if (currentIndex !== -1) {
             article.value = sortedData[currentIndex];
             prevArticle.value = currentIndex > 0 ? sortedData[currentIndex - 1] : null;
             nextArticle.value = currentIndex < sortedData.length - 1 ? sortedData[currentIndex + 1] : null;
         } else {
-            const fallback = response.data.find(item => item.article_id === currentId);
+            // 如果在篩選清單找不到（可能直接貼網址進來），就去全部資料裡找
+            const fallback = response.data.find(item => item.id === currentId);
             if (fallback) article.value = fallback;
         }
 
@@ -113,14 +118,14 @@ const goToArticle = (id) => {
 
             <div class="articleHeader">
                 <div class="metaInfo">
-                    <span class="date">{{ formatDate(article.publish_time) }}</span>
+                    <span class="date">{{ formatDate(article.published_at) }}</span>
                     <span class="category">{{ article.category }}</span>
                 </div>
                 <h2 class="title">{{ article.title }}</h2>
             </div>
 
-            <div class="articleImage" v-if="article.image_url">
-                <img :src="parsePublicFile(article.image_url)" :alt="article.title">
+              <div class="articleImage" v-if="article.image_path">
+                <img :src="fileUrl + article.image_path" :alt="article.title">
             </div>
 
             <article class="articleBody">
@@ -133,14 +138,14 @@ const goToArticle = (id) => {
 
             <div class="paginationNav">
                 <div class="navItem prev">
-                    <div v-if="prevArticle" @click="goToArticle(prevArticle.article_id)" class="linkWrap">
+                    <div v-if="prevArticle" @click="goToArticle(prevArticle.id)" class="linkWrap">
                         <button class="btn btn-outline">上一篇</button>
                         <span class="navTitle">{{ prevArticle.title }}</span>
                     </div>
                 </div>
                 <div class="divider">|</div>
                 <div class="navItem next">
-                    <div v-if="nextArticle" @click="goToArticle(nextArticle.article_id)" class="linkWrapNext">
+                    <div v-if="nextArticle" @click="goToArticle(nextArticle.id)" class="linkWrapNext">
                         <button class="btn btn-outline ">下一篇</button>
                         <span class="navTitle">{{ nextArticle.title }}</span>
                     </div>

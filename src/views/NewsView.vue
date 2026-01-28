@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue'
-import { publicApi } from '@/utils/publicApi'
+import { publicApi, backHomeApi } from "@/utils/publicApi";
 import { useRouter, useRoute } from 'vue-router'
 import NewsCard from '../components/cards/NewsCard.vue'
 import Banner from "@/components/Banner.vue";
@@ -9,7 +9,7 @@ import searchBox from '@/components/searchBox.vue';
 import Pagination from '@/components/Pagination.vue';
 
 const router = useRouter()
-const route = useRoute() 
+const route = useRoute()
 const newsTabs = ['全部', '重要公告', '異動通知'];
 
 //初始化時從網址讀取狀態，若無則預設
@@ -19,8 +19,10 @@ const searchKeyword = ref('');
 const activeSearchKeyword = ref('');
 let timer = null;
 
+
 const newslist = ref([])
 const pageSize = 9;
+
 //監聽網址變化 
 watch(() => route.query, (newQuery) => {
   currentNewsTab.value = newQuery.category || '全部';
@@ -31,32 +33,44 @@ watch(() => route.query, (newQuery) => {
 const updateQueryParams = () => {
   router.push({
     query: {
-      ...route.query, 
-      category: currentNewsTab.value === '全部' ? undefined : currentNewsTab.value, 
-      page: currentPage.value === 1 ? undefined : currentPage.value 
+      ...route.query,
+      category: currentNewsTab.value === '全部' ? undefined : currentNewsTab.value,
+      page: currentPage.value === 1 ? undefined : currentPage.value
     }
   });
 };
-
-
-
 
 watch(currentNewsTab, () => {
   currentPage.value = 1;
   updateQueryParams();
 });
 
-onMounted(() => {
-  publicApi.get('data/NewsList.json')
-    .then((response) => {
-      newslist.value = response.data.sort((a, b) => {
-        return new Date(b.publish_time) - new Date(a.publish_time);
-      });
+
+
+// 連資料庫 ，將資料存入 newslist
+onMounted(async () => {
+  try {
+    await backHomeApi.get('./news/news_get.php').then((response) => {
+      newslist.value = response.data
+      // 進頁面給值 
     })
-    .catch((error) => {
-      console.error('載入新聞列表失敗:', error);
-    })
+  } catch (error) {
+    console.error('資料庫連線失敗:', error);
+  }
 })
+
+/* 原本的 publicApi */
+// onMounted(() => {
+//   publicApi.get('data/NewsList.json')
+//     .then((response) => {
+//       newslist.value = response.data.sort((a, b) => {
+//         return new Date(b.publish_time) - new Date(a.publish_time);
+//       });
+//     })
+//     .catch((error) => {
+//       console.error('載入新聞列表失敗:', error);
+//     })
+// })
 
 const formatDate = (dateString) => {
   if (!dateString) return ''
@@ -69,10 +83,9 @@ const formatDate = (dateString) => {
 
 const goToDetail = (id) => {
   router.push({
-    name: 'NewsDetail', // 確保你的路由名稱正確
+    name: 'NewsDetail', 
     params: { id },
     query: {
-      // 將目前的過濾狀態帶入網址，方便詳細頁知道是從哪來的
       fromCategory: currentNewsTab.value === '全部' ? undefined : currentNewsTab.value,
       fromPage: currentPage.value === 1 ? undefined : currentPage.value,
       fromSearch: activeSearchKeyword.value || undefined
@@ -143,9 +156,9 @@ watch(searchKeyword, (newVal) => {
     <searchBox v-model="searchKeyword" />
 
     <div class="row" v-if="filteredNews.length > 0">
-      <NewsCard v-for="item in displayNews" :key="item.article_id" :id="item.article_id" :title="item.title"
-        :date="formatDate(item.publish_time)" :typeBadge="item.category" :image="item.image_url"
-        @click="goToDetail(item.article_id)" style="cursor: pointer;" />
+      <NewsCard v-for="item in displayNews" :key="item.id" :id="item.id" :title="item.title"
+        :date="formatDate(item.published_at)" :typeBadge="item.category" :image="item.image_path"
+        @click="goToDetail(item.id)" style="cursor: pointer;" />
     </div>
 
     <div v-else class="noData">

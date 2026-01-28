@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router' // 引入路由
 import TabSwitcher from '@/components/TabSwitcher.vue'
 import Button from '@/components/auth/Button.vue'
 import Pagination from '@/components/Pagination.vue'
-import MemberLightbox from '@/components/auth/MemberLightbox.vue'
+import MemberActivityLightbox from '@/components/auth/MemberActivityLightbox.vue'
 
 const router = useRouter()
 
@@ -115,7 +115,6 @@ watch(currentActivityTab, () => {
 <template>
   <div class="container">
     <TabSwitcher v-model="currentActivityTab" :tabs="activityTabs">
-      <div class="activity-container">
         
         <div v-if="currentActivityTab === 'past'" class="hours-summary">
           <span class="material-symbols-outlined">schedule</span>
@@ -175,13 +174,12 @@ watch(currentActivityTab, () => {
           @page-change="goToPage"
         />
 
-        <MemberLightbox 
-          v-model="isLightboxOpen" 
-          :type="activeType" 
-          :initialData="selectedActivity"
-          @confirm="handleLightboxConfirm"
+        <MemberActivityLightbox 
+  v-model="isLightboxOpen" 
+  :type="activeType" 
+  :initialData="selectedActivity"
+  @confirm="handleLightboxConfirm"
         />
-      </div>
     </TabSwitcher>
   </div>
 </template>
@@ -189,9 +187,10 @@ watch(currentActivityTab, () => {
 <style lang="scss" scoped>
 @import '@/assets/scss/base/_var.scss';
 
-.activity-container {
-  max-width: rem(1000px);
+.container {
+  max-width: rem(1200px);
   margin: 0 auto;
+  padding: 0 rem(20px);
 }
 
 /* 讓整排看起來可以點擊 */
@@ -225,10 +224,16 @@ watch(currentActivityTab, () => {
 .history-list {
   width: 100%;
   .history-item {
-    display: flex;
-    position: relative;
-    padding-bottom: rem(24px); 
-  }
+  background: linear-gradient(to right, rgba(14, 98, 115, 0.1) rem(4px), transparent rem(4px));
+  background-position: left center;
+  background-size: rem(4px) rem(80px);
+  background-repeat: no-repeat;
+  padding-left: rem(16px);
+  display: flex;
+  position: relative;
+  padding-bottom: rem(24px);
+  align-items: center;  // 垂直置中
+}
   .item-date {
     width: rem(60px);
     text-align: center;
@@ -253,16 +258,16 @@ watch(currentActivityTab, () => {
     display: flex;
     justify-content: center;
     .timeline-line { position: absolute; top: 0; bottom: 0; width: 1px; background-color: $secondary-color; }
-    .timeline-dot { position: absolute; top: rem(50px); width: rem(8px); height: rem(8px); background-color: $secondary-color; border-radius: 50%; z-index: 2; }
+    
   }
   .item-content {
     flex: 1;
     display: flex;
     justify-content: space-between;
-    align-items: flex-end;
-    padding-bottom: rem(16px);
+    align-items: center;
+    padding-bottom: rem(13px);
     border-bottom: 1px solid $secondary-color; 
-    padding-top: rem(10px);
+    padding-top: rem(16px);
   }
 }
 

@@ -90,7 +90,6 @@ watch(currentTab, () => {
 <template>
   <div class="container">
     <TabSwitcher v-model="currentTab" :tabs="donationTabs">
-      <div class="donation-container">
         
         <template v-if="currentTab === 'subscription'">
           <div class="subscription-status-card">
@@ -165,7 +164,6 @@ watch(currentTab, () => {
           :current-page="currentPage"
           @page-change="goToPage"
         />
-      </div>
     </TabSwitcher>
     <MemberLightbox 
     v-model="isLightboxOpen" 
@@ -179,9 +177,10 @@ watch(currentTab, () => {
 <style lang="scss" scoped>
 @import '@/assets/scss/base/_var.scss';
 
-.donation-container {
-  max-width: rem(1000px);
+.container {
+  max-width: rem(1200px);
   margin: 0 auto;
+  padding: 0 rem(20px);
 }
 
 .subscription-status-card {
@@ -288,15 +287,7 @@ watch(currentTab, () => {
       background-color: $secondary-color; // 使用二級主色
     }
 
-    .timeline-dot {
-      position: absolute;
-      top: rem(50px); // 圓點對齊列表項目的水平中心位置
-      width: rem(8px);
-      height: rem(8px);
-      background-color: $secondary-color;
-      border-radius: 50%;
-      z-index: 2;
-    }
+    
   }
 
   /* 內容區域 */
