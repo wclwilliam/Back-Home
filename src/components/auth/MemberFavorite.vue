@@ -1,9 +1,13 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router' // 引入路由
 import TabSwitcher from '@/components/TabSwitcher.vue'
 import ActivityCard from '@/components/cards/ActivityCard.vue'
 import Pagination from '@/components/Pagination.vue'
 import MemberLightbox from '@/components/auth/MemberLightbox.vue'
+
+const router = useRouter()
+const route = useRoute()
 
 // --- 基礎狀態 ---
 const currentTab = ref("未來活動")
@@ -96,10 +100,30 @@ const paginatedFavorites = computed(() => {
 
 const goToPage = (page) => {
   currentPage.value = page
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  router.push({
+    query: {
+      tab: currentTab.value,
+      page: page === 1 ? undefined : page
+    }
+  })
+  window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
-watch(currentTab, () => (currentPage.value = 1))
+watch(currentTab, () => {
+  currentPage.value = 1
+  router.push({
+    query: {
+      tab: currentTab.value,
+      page: undefined
+    }
+  })
+})
+
+// 加上這段：初始化時從 URL 讀取
+watch(() => route.query, () => {
+  if (route.query.tab) currentTab.value = route.query.tab
+  if (route.query.page) currentPage.value = parseInt(route.query.page)
+}, { immediate: true })
 </script>
 
 <template>
