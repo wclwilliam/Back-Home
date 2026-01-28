@@ -14,51 +14,6 @@ import {
 // import axios from 'axios'
 import { publicApi } from '@/utils/publicApi'
 
-// 0124串php資料
-import { testApi, testApi2 } from '@/utils/publicApi'
-// const phpData = ref(null)
-// onMounted(() => {
-//   // debugger
-//   testApi.get('/activities/list-latest.php').then((res) => {
-//     if (res) {
-//       phpData.value = res.data ? res.data : null
-//     }
-//   })
-// })
-
-const phpData2 = ref(null)
-// onMounted(() => {
-//   // debugger
-//   testApi2
-//     .get('/list.php?', {
-//       params: {
-//         user_id: 3,
-//       },
-//     })
-//     .then((res) => {
-//       if (res) {
-//         phpData2.value = res.data ? res.data : null
-//       }
-//     })
-// })
-
-onMounted(async () => {
-  try {
-    console.log('開始')
-    const userID = 3
-    const res = await testApi2.get(`/list.php?user_id=${userID}`)
-    if (res && res.data) {
-      phpData2.value = res.data
-    }
-    console.log(2)
-  } catch (error) {
-    console.log(error)
-  } finally {
-    console.log('結束')
-  }
-})
-// 0124串php資料
-
 // 註冊 Chart.js 組件
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 
