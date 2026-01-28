@@ -56,14 +56,15 @@ async function handleLogin() {
         <h2 class="form-title">歡迎回來</h2>
         <p class="subtitle">請登入會員</p>
         <form @submit.prevent="handleLogin">
-            <div v-if="errorMessage" class="error-message">
-                {{ errorMessage }}
+            <div v-if="errorMessage" class="error-msg">
+                <span class="material-symbols-outlined">error</span>{{ errorMessage }}
             </div>
 
-            <Input v-model="account" placeholder="請輸入電子郵件">
+            <Input v-model="account" placeholder="請輸入電子郵件" autocomplete="email">
                 <template #icon><span class="material-symbols-outlined">person</span></template>
             </Input>
-            <Input v-model="password" :type="isPasswordVisible ? 'text' : 'password'" placeholder="請輸入密碼">
+            <Input v-model="password" :type="isPasswordVisible ? 'text' : 'password'" placeholder="請輸入密碼"
+                autocomplete="current-password">
                 <template #icon><span class="material-symbols-outlined">lock</span></template>
                 <template #append>
                     <span class="material-symbols-outlined password-toggle"
@@ -163,15 +164,16 @@ form {
     width: 100%;
 }
 
-.error-message {
-    background-color: #fee;
-    color: #c33;
-    padding: rem(12px);
-    border-radius: rem(4px);
+.error-msg {
+    @include font-body;
+    color: $highlight-color2;
+    margin-top: -4px;
     margin-bottom: rem(16px);
-    font-size: rem(14px);
-    text-align: center;
-    border: 1px solid #fcc;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    width: 100%;
+    text-align: left;
 }
 
 .form-utility {
@@ -229,5 +231,15 @@ form {
             width: 30px;
         }
     }
+}
+
+.material-symbols-outlined {
+    font-variation-settings:
+        'FILL' 1,
+        'wght' 700,
+        'GRAD' 0,
+        'opsz' 20;
+    color: $highlight-color2;
+    font-size: 16px;
 }
 </style>

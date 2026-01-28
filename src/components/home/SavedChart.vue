@@ -14,6 +14,51 @@ import {
 // import axios from 'axios'
 import { publicApi } from '@/utils/publicApi'
 
+// 0124串php資料
+import { testApi, testApi2 } from '@/utils/publicApi'
+// const phpData = ref(null)
+// onMounted(() => {
+//   // debugger
+//   testApi.get('/activities/list-latest.php').then((res) => {
+//     if (res) {
+//       phpData.value = res.data ? res.data : null
+//     }
+//   })
+// })
+
+const phpData2 = ref(null)
+// onMounted(() => {
+//   // debugger
+//   testApi2
+//     .get('/list.php?', {
+//       params: {
+//         user_id: 3,
+//       },
+//     })
+//     .then((res) => {
+//       if (res) {
+//         phpData2.value = res.data ? res.data : null
+//       }
+//     })
+// })
+
+onMounted(async () => {
+  try {
+    console.log('開始')
+    const userID = 3
+    const res = await testApi2.get(`/list.php?user_id=${userID}`)
+    if (res && res.data) {
+      phpData2.value = res.data
+    }
+    console.log(2)
+  } catch (error) {
+    console.log(error)
+  } finally {
+    console.log('結束')
+  }
+})
+// 0124串php資料
+
 // 註冊 Chart.js 組件
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 
@@ -28,7 +73,6 @@ const animatedTotal = ref(0)
 const maxTick = ref(1600) // Y軸最大刻度（動態計算）
 const tickStep = ref(400) // Y軸刻度間距（動態計算）
 
-// 千分位格式化
 // 千分位格式化
 const formattedTotal = computed(() => {
   return Math.floor(animatedTotal.value).toLocaleString('en-US')
@@ -314,6 +358,13 @@ const chartOptions = ref({
 </script>
 
 <template>
+  <!-- 0124串php資料 -->
+
+  <!-- {{ phpData }} -->
+  {{ phpData2 }}
+
+  <!-- 0124串php資料 -->
+
   <div class="container">
     <div class="row">
       <div class="savedChart col-lg-7 col-md-12 col-sm-4">
