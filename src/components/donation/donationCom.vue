@@ -486,6 +486,7 @@ const goLinepay = async () => {
           </form> -->
         <form v-if="payment== 'ecpay'" id="ecpayForm" class="payForm" ref="ecpayForm" method="post" :action="APIBase +'donation/epay.php'">
               <input type="hidden" name="UseEcpay" value="ecpay">
+              <input type="hidden" name="CustomField1" value="10">
               <input type="hidden" name="TotalAmount" :value="rawFinalAmount">
               <input type="hidden" name="TradeDesc" :value="donationType">
               <input type="hidden" name="ItemName" value="捐款金額">
