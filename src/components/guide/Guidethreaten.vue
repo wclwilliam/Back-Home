@@ -104,7 +104,7 @@ onMounted(async () => {
             </div>
             <div class="number">
                 <h3 class="count-number" :data-target="Math.round(stats.plastic_sea)">0</h3>
-                <p>公噸 / Tonnes + (114年度累計統計)</p>
+                <p>公噸 / Tonnes + (*數據來源:海洋委員會海洋保育署114年度累計統計)</p>
             </div>
         </div>
 
@@ -142,9 +142,7 @@ onMounted(async () => {
         </div>
 
     </section>
-    <p class="data-note" style="margin: 20px 0 0 100px ;">
-        *數據來源:海洋委員會海洋保育署,統計台灣各縣市海洋廢棄物清理量
-    </p>
+   
 </template>
 <style lang="scss" scoped>
 h1 {
