@@ -1,9 +1,13 @@
 <script setup>
 import { ref, computed, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router' // 引入路由
 import TabSwitcher from '@/components/TabSwitcher.vue'
 import Button from '@/components/auth/Button.vue'
 import Pagination from '@/components/Pagination.vue'
 import MemberLightbox from '@/components/auth/MemberLightbox.vue';
+
+const router = useRouter()
+const route = useRoute()
 
 const isLightboxOpen = ref(false);
 const activeType = ref('');
@@ -77,13 +81,30 @@ const pagedRecords = computed(() => {
 
 const goToPage = (page) => {
   currentPage.value = page
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  router.push({
+    query: {
+      tab: currentTab.value,
+      page: page === 1 ? undefined : page
+    }
+  })
+  window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
-// 修正：切換 Tab 時重置頁碼
 watch(currentTab, () => {
   currentPage.value = 1
+  router.push({
+    query: {
+      tab: currentTab.value,
+      page: undefined
+    }
+  })
 })
+
+// 加上這段：初始化時從 URL 讀取
+watch(() => route.query, () => {
+  if (route.query.tab) currentTab.value = route.query.tab
+  if (route.query.page) currentPage.value = parseInt(route.query.page)
+}, { immediate: true })
 
 </script>
 

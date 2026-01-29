@@ -1,7 +1,7 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 // import http from '@/api/http' // 未來串接真實 API 時取消註解
-import { mockLogin } from '@/utils/publicApi'
+import { login as apiLogin } from '@/utils/publicApi'
 
 const TOKEN_KEY = 'bh_front_token'
 
@@ -29,8 +29,8 @@ export const useAuthStore = defineStore('auth', () => {
 
   const login = async ({ account, password }) => {
     try {
-      // 使用模擬登入 API（帳號：demo，密碼：1234）
-      const data = await mockLogin(account, password)
+      // 使用真實登入 API
+      const data = await apiLogin(account, password)
 
       // 儲存 token 和用戶資料
       setToken(data.token)
