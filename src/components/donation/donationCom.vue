@@ -3,16 +3,55 @@ import { ref, reactive, computed, watch, onMounted } from 'vue'
 import MyButton from './MyButton.vue'
 import { useAuthStore } from '@/stores/auth'
 import downloadReceipt from './downloadReceipt.vue'
-import ecpayCrypto from '@/utils/ecpayCrypto.js'
+// import ecpayCrypto from '@/utils/ecpayCrypto.js'
 import { useLocalStorage } from '@vueuse/core'
-import { publicApi, APIBase } from '@/utils/publicApi'
+import { publicApi, APIBase,backHomeApi } from '@/utils/publicApi'
 import linepay from '@/utils/linepay'
+import { useRoute} from 'vue-router';
+
+const route = useRoute();
+
+//判斷最近有沒有捐款有就呈現捐款成功組件
+onMounted(() => { //傳會員id
+  if (!route.query.transactionId) {//用這個query參數判斷是不是綠界
+    backHomeApi.get(`donation/donateTime.php?memberId=${1}`).then((response) => {
+      // console.log(response.data);
+      // console.log(route.query.transactionId);
+      if (response.data.recent_donate) {
+        currentStep.value = 3
+      }
+    })
+    
+  }
+})
+
+//linepay成功付款後邏輯
+//linepay回傳值為transactionId orderId(orderid是我們建立的transactionId是linepay給的)
+onMounted(async () => {
+  const tid = route.query.transactionId; // 抓網址的參數
+  const oid = route.query.orderId; // 抓網址的參數
+  const amount = route.query.amount; // 抓網址的參數
+  
+  
+  if (tid) {
+    try {
+      const response = await backHomeApi.get(`donation/linepayback.php?transactionId=${tid}&orderId=${oid}&memberId=${1}&amount=${amount}`);
+      if (response.data.status === 'success') {
+        // 後端確定成功後邏輯
+        currentStep.value = 3
+      }
+    } catch (err) {
+      alert('付款確認失敗');
+    }
+  }
+});
 
 //海龜數據
 const rescueCase = ref({})
 
+// 捐款成功取一隻海龜邏輯
 onMounted(() => {
-  publicApi.get('data/rescueCases.json').then((response) => {
+  backHomeApi.get('savedcases/rescue_get.php').then((response) => {
     //取一隻救援海龜數據
     const randomIndex = Math.floor(Math.random() * response.data.length);
     rescueCase.value = response.data[randomIndex]
@@ -48,6 +87,44 @@ const imageUrl = computed(() => {
     return 'https://picsum.photos/300/200'
   }
 })
+// //取json
+// onMounted(() => {
+//   publicApi.get('data/rescueCases.json').then((response) => {
+//     //取一隻救援海龜數據
+//     const randomIndex = Math.floor(Math.random() * response.data.length);
+//     rescueCase.value = response.data[randomIndex]
+
+//   })
+// })
+// // 處理圖片路徑 - 使用 Vite 動態 import 處理 assets 圖片
+// const imageUrl = computed(() => {
+//   if (!rescueCase.value.image) return 'https://picsum.photos/300/200'
+
+//   // 如果路徑以 /src/ 開頭，轉換為相對路徑
+//   let imagePath = rescueCase.value.image
+//   if (imagePath.startsWith('/src/')) {
+//     imagePath = imagePath.replace('/src/', '@/')
+//   }
+
+//   try {
+//     // 使用 Vite 的 glob import
+//     const imageModules = import.meta.glob('@/assets/image/**/*.{png,jpg,jpeg,gif,svg}', {
+//       eager: true,
+//     })
+//     const fullPath = imagePath.replace('@/', '/src/')
+//     const matchedModule = imageModules[fullPath]
+
+//     if (matchedModule && matchedModule.default) {
+//       return matchedModule.default
+//     }
+
+//     // 如果找不到，回傳預設圖片
+//     return 'https://picsum.photos/300/200'
+//   } catch (error) {
+//     console.error('圖片載入失敗:', error)
+//     return 'https://picsum.photos/300/200'
+//   }
+// })
 
 const auth = useAuthStore()
 
@@ -151,11 +228,13 @@ watch(donationType, (newValue) => {
 const donationState = useLocalStorage('donationState', {
   currentStep: 1,
   donationType: 'monthly',
-  finalAmount: 0
+  finalAmount: 0,
+  rawFinalAmount:0
 
 })
+//如果localstorage當前狀態是3
 if (donationState.value.currentStep == 3) {
-  currentStep.value = 3
+  // currentStep.value = 3
 }
 
 const goStepTwo = () => {
@@ -264,6 +343,8 @@ const goDonate = () => {
       donationState.value.currentStep = 3
       donationState.value.donationType = donationType.value
       donationState.value.finalAmount = finalAmount
+      donationState.value.rawFinalAmount = rawFinalAmount
+
       if (payment.value == "ecpay") { //判斷金流
         ecpayForm.value.submit() //測試改成php傳
       } else {
@@ -283,8 +364,10 @@ const goDonate = () => {
       donationState.value.currentStep = 3
       donationState.value.donationType = donationType.value
       donationState.value.finalAmount = finalAmount
+      donationState.value.rawFinalAmount = rawFinalAmount
       if (payment.value == "ecpay") { //判斷金流
-        ecpayCrypto()
+        // ecpayCrypto() //在前端寫加密檢查碼
+        ecpayForm.value.submit()
       } else {
         goLinepay()
       }
@@ -313,6 +396,8 @@ const goLinepay = async () => {
     // 檢查後端是否成功回傳 LINE Pay 的支付網址
     if (response.data && response.data.paymentUrl) {
       // 關鍵動作：導向 LINE Pay 官方付款頁面
+      console.log(response.data.paymentUrl);
+      
       window.location.href = response.data.paymentUrl;
     } else {
       alert('無法取得付款連結，請稍後再試');
@@ -324,6 +409,8 @@ const goLinepay = async () => {
     payLoading.value = false;
   }
 };
+
+
 
 
 </script>
@@ -486,7 +573,8 @@ const goLinepay = async () => {
           </form> -->
         <form v-if="payment== 'ecpay'" id="ecpayForm" class="payForm" ref="ecpayForm" method="post" :action="APIBase +'donation/epay.php'">
               <input type="hidden" name="UseEcpay" value="ecpay">
-              <input type="hidden" name="CustomField1" value="10">
+              <input type="hidden" name="CustomField1" value="1"><!-- 會員id 之後要改 -->
+              <input type="hidden" name="CustomField2" :value="donationType">
               <input type="hidden" name="TotalAmount" :value="rawFinalAmount">
               <input type="hidden" name="TradeDesc" :value="donationType">
               <input type="hidden" name="ItemName" value="捐款金額">
