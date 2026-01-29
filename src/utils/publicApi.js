@@ -8,22 +8,6 @@ export const publicApi = axios.create({
   timeout: 5000,
 })
 
-// 沒有攔截器，乾乾淨淨
-export const testApi = axios.create({
-  baseURL: 'https://notes.webmix.cc/ajax/teach/api',
-  timeout: 5000,
-})
-//上課測試用
-export const testApi2 = axios.create({
-  baseURL: 'https://tibamef2e.com/cjd101/g1/api',
-  timeout: 5000,
-})
-//上課測試用2
-export const test2Api = axios.create({
-  baseURL: 'https://tibamef2e.com/cjd101/g2/php/activities/list-latest.php',
-  timeout: 5000,
-})
-
 export const backHomeApi = axios.create({
   baseURL: APIBase,
   timeout: 5000,
@@ -55,7 +39,7 @@ export const mockLogin = async (account, password) => {
 // 發送驗證碼API
 export const sendVerificationCode = async (email) => {
   try {
-    const response = await backHomeApi.post('/member_auth_register_send_code.php', { email })
+    const response = await backHomeApi.post('/member/auth_register_send_code.php', { email })
     return response.data
   } catch (error) {
     // 如果是后端返回的错误，直接抛出
@@ -81,7 +65,7 @@ export const sendVerificationCode = async (email) => {
 // 註冊API
 export const register = async (data) => {
   try {
-    const response = await backHomeApi.post('/member_auth_register.php', {
+    const response = await backHomeApi.post('/member/auth_register.php', {
       email: data.email,
       code: data.code,
       password: data.password,
@@ -104,6 +88,46 @@ export const register = async (data) => {
             return
           }
           resolve({ ok: true })
+        }, 500)
+      })
+    }
+
+    throw error.response?.data || error
+  }
+}
+
+// 登入 API
+export const login = async (email, password) => {
+  try {
+    const response = await backHomeApi.post('/member/auth_login.php', {
+      email,
+      password,
+    })
+    return response.data
+  } catch (error) {
+    // 如果是后端返回的错误，直接抛出
+    if (error.response?.data) {
+      throw error.response.data
+    }
+
+    // 只有在网络错误时才使用mock（例如后端未启动）
+    if (!error.response) {
+      console.warn('後端API不可用，使用開發測試模式', error)
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          if (email === 'demo@test.com' && password === 'Demo1234') {
+            resolve({
+              ok: true,
+              token: 'mock_token_' + Date.now(),
+              user: {
+                id: 1,
+                name: 'Demo User',
+                email: 'demo@test.com',
+              },
+            })
+          } else {
+            reject({ error: 'invalid email or password' })
+          }
         }, 500)
       })
     }
