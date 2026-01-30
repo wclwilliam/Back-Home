@@ -52,7 +52,7 @@ const logout = async () => {
   // 呼叫 authStore 的 logout 方法
   await authStore.logout()
   isUserMenuOpen.value = false
-  // 導向首頁
+  // 登出後導向首頁
   router.push({ name: 'home' })
 }
 // ========== 2026/1/16 Pinia 使用者選單功能結束 ==========

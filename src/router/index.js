@@ -50,7 +50,7 @@ const router = createRouter({
       name: 'GuideInfo',
       props: true,
       component: () => import('@/views/GuideInfo.vue'),
-      meta: { title: '海龜圖鑑' }
+      meta: { title: '海龜圖鑑' },
     },
     {
       path: '/activity',
@@ -84,6 +84,26 @@ const router = createRouter({
       meta: {
         title: '海洋守護',
         hideFooter: true,
+      },
+    },
+    {
+      path: '/reset-password',
+      name: 'resetPassword',
+      beforeEnter: (to, from, next) => {
+        const token = to.query.token
+        if (token) {
+          // 動態 import auth store
+          import('@/stores/auth').then(({ useAuthStore }) => {
+            const authStore = useAuthStore()
+            authStore.openResetPasswordModal(token)
+          })
+        }
+        // 重定向到首頁
+        next('/')
+      },
+      component: () => import('@/views/HomeView.vue'),
+      meta: {
+        title: '重設密碼',
       },
     },
     {

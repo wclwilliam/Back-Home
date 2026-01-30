@@ -1,7 +1,7 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
-// import http from '@/api/http' // 未來串接真實 API 時取消註解
 import { login as apiLogin } from '@/utils/publicApi'
+import { fetchMemberInfo } from '@/api/memberApi'
 
 const TOKEN_KEY = 'bh_front_token'
 
@@ -10,6 +10,7 @@ export const useAuthStore = defineStore('auth', () => {
   const user = ref(null)
   const redirectAfterLogin = ref(null)
   const isModalOpen = ref(false)
+  const resetToken = ref('')
 
   const isLogin = computed(() => !!token.value)
 
@@ -23,8 +24,14 @@ export const useAuthStore = defineStore('auth', () => {
     isModalOpen.value = true
   }
 
+  const openResetPasswordModal = (token) => {
+    resetToken.value = token
+    isModalOpen.value = true
+  }
+
   const closeLoginModal = () => {
     isModalOpen.value = false
+    resetToken.value = ''
   }
 
   const login = async ({ account, password }) => {
@@ -54,8 +61,20 @@ export const useAuthStore = defineStore('auth', () => {
 
   const fetchMe = async () => {
     if (!token.value) return null
-    // 如果有 token，返回已儲存的用戶資料
-    return user.value
+
+    try {
+      // 從 API 獲取最新的會員資料
+      const response = await fetchMemberInfo()
+      if (response.status === 'success' && response.member) {
+        user.value = response.member
+        return response.member
+      }
+      return null
+    } catch (error) {
+      // 如果 API 失敗（例如 token 過期），清除登入狀態
+      console.error('獲取會員資料失敗', error)
+      return user.value // 返回已儲存的資料作為後備
+    }
   }
 
   return {
@@ -64,11 +83,13 @@ export const useAuthStore = defineStore('auth', () => {
     isLogin,
     isModalOpen,
     redirectAfterLogin,
+    resetToken,
     login,
     logout,
     fetchMe,
     setToken,
     openLoginModal,
+    openResetPasswordModal,
     closeLoginModal,
   }
 })

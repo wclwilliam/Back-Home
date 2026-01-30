@@ -4,6 +4,7 @@ import { useAuthStore } from '@/stores/auth'
 import { storeToRefs } from 'pinia'
 import { useRouter } from 'vue-router'
 import Input from '@/components/auth/Input.vue'
+import { googleLogin } from '@/utils/publicApi.js'
 
 
 const emit = defineEmits(['change-mode'])
@@ -49,6 +50,49 @@ async function handleLogin() {
         isLoading.value = false
     }
 }
+
+// Google 登入 callback
+const callback = async (response) => {
+    errorMessage.value = ''
+    isLoading.value = true
+
+    try {
+        // 調用後端 Google 登入 API
+        const result = await googleLogin(response.credential)
+
+        if (result.status === 'success' && result.token) {
+            // 儲存 token 和用戶資料到 store
+            localStorage.setItem('token', result.token)
+            authStore.token = result.token
+            authStore.user = {
+                MEMBER_ID: result.member.MEMBER_ID,
+                MEMBER_REALNAME: result.member.MEMBER_NAME,
+                MEMBER_EMAIL: result.member.MEMBER_EMAIL || '',
+            }
+
+            // 關閉登入 modal
+            authStore.closeLoginModal()
+
+            // 如果有需要導向的頁面則導向
+            if (redirectAfterLogin.value) {
+                router.push(redirectAfterLogin.value)
+                redirectAfterLogin.value = null
+            }
+        }
+    } catch (error) {
+        console.error('Google 登入失敗:', error)
+
+        if (error.error === 'Invalid Google token') {
+            errorMessage.value = 'Google 登入驗證失敗，請重試'
+        } else if (error.error === 'account is inactive') {
+            errorMessage.value = '此帳號已被停用'
+        } else {
+            errorMessage.value = error.error || 'Google 登入失敗，請稍後再試'
+        }
+    } finally {
+        isLoading.value = false
+    }
+}
 </script>
 
 <template>
@@ -89,9 +133,7 @@ async function handleLogin() {
         <div class="social-login">
             <div class="divider">或</div>
             <div class="social-icons">
-                <img src="@/assets/image/auth/line.png" alt="Line" />
-                <img src="@/assets/image/auth/google.png" alt="Google" />
-                <img src="@/assets/image/auth/fb.png" alt="FB" />
+                <GoogleLogin :callback="callback" />
             </div>
         </div>
     </div>
@@ -225,11 +267,6 @@ form {
     .social-icons {
         display: flex;
         justify-content: center;
-        gap: 20px;
-
-        img {
-            width: 30px;
-        }
     }
 }
 
