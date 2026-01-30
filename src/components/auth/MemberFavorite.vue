@@ -28,26 +28,32 @@ const selectedActivity = ref(null)
 // --- API 串接：讀取收藏清單 ---
 const fetchFavorites = async () => {
   try {
-    // 指向你的 PHP API
     const response = await fetch('http://localhost:8888/api/member/auth_favorite_list.php');
-    if (!response.ok) throw new Error('網路回應不正確');
-    
     const data = await response.json();
     
-    // 將資料庫格式對應至 Vue 元件所需的格式
-    favoriteList.value = data.map(item => ({
-      id: item.activityId,
-      title: item.title,
-      date: item.startDate,
-      location: item.location,
-      image: item.image,
-      isFavorite: true, // 既然是在收藏清單，預設皆為 true
-      currentPeople: 0, // 若資料庫未提供則給預設值
-      maxPeople: 100,
-      type: '活動'
-    }));
+    favoriteList.value = data.map(item => {
+      // 關鍵！因為 PHP 回傳的是 "image": "care_01.png"
+      const fileName = item.image; 
+      
+      // 這裡組合出絕對路徑，請確保路徑層級跟你的 MAMP 檔案夾對齊
+      const finalImage = fileName 
+        ? `http://localhost:8888/api/uploads/actCover/${fileName}` 
+        : '';
+
+      return {
+        id: item.activityId, 
+        title: item.title,
+        date: item.startDate,
+        location: item.location,
+        image: finalImage,    // 這會變成 http://localhost:8888/api/uploads/actCover/care_01.png
+        isFavorite: true,
+        currentPeople: 0,
+        maxPeople: 100,
+        type: '活動'
+      };
+    });
   } catch (error) {
-    console.error('抓取收藏失敗:', error);
+    console.error('抓取失敗:', error);
   }
 };
 

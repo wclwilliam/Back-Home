@@ -233,13 +233,96 @@ const goToArticle = (id) => {
     }
 }
 
+
+
 .articleBody {
     @include font-body-l;
-    white-space: pre-wrap;
     text-align: justify;
+    line-height: 1.8;
+    color: #333;
     margin-bottom: 60px;
-}
+    
+    :deep(h2) {
+        display: block;
+        font-size: 2rem;
+        font-weight: bold;
+        color: $primary-color;
+        margin: 1.5rem 0 1rem 0;
+        line-height: 1.3;
+    }
 
+    :deep(h3) {
+        display: block;
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: $primary-color;
+        margin: 1.2rem 0 0.8rem 0;
+        line-height: 1.3;
+    }
+
+    :deep(h4) {
+        display: block;
+        font-size: 1.25rem;
+        font-weight: bold;
+        margin: 1rem 0 0.6rem 0;
+    }
+
+
+    :deep(p) {
+        margin-bottom: 1.2rem;
+    }
+
+
+    :deep(strong), :deep(b) {
+        font-weight: bold;
+    }
+
+    :deep(i), :deep(em) {
+        font-style: italic;
+    }
+
+
+    :deep(ul) {
+        list-style-type: disc;
+        padding-left: 2rem;
+        margin-bottom: 1.2rem;
+        li { margin-bottom: 0.5rem; }
+    }
+
+    :deep(ol) {
+        list-style-type: decimal;
+        padding-left: 2rem;
+        margin-bottom: 1.2rem;
+        li { margin-bottom: 0.5rem; }
+    }
+
+
+    :deep(a) {
+        color: $primary-color;
+        text-decoration: underline;
+        &:hover {
+            opacity: 0.8;
+        }
+    }
+
+
+    :deep(blockquote) {
+        border-left: 5px solid $primary-color;
+        padding: 10px 20px;
+        margin: 1.5rem 0;
+        background-color: rgba(0, 0, 0, 0.05);
+        font-style: italic;
+    }
+
+    :deep(img) {
+        max-width: 100%;
+        height: auto;
+        display: block;
+        margin: 2rem auto;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+}
 .signature {
     margin-top: 40px;
     margin-bottom: 60px;

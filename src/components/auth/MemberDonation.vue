@@ -1,6 +1,6 @@
 <script setup>
-import { ref, computed, watch } from 'vue'
-import { useRouter, useRoute } from 'vue-router' // 引入路由
+import { ref, computed, watch, onMounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import TabSwitcher from '@/components/TabSwitcher.vue'
 import Button from '@/components/auth/Button.vue'
 import Pagination from '@/components/Pagination.vue'
@@ -13,6 +13,64 @@ const isLightboxOpen = ref(false);
 const activeType = ref('');
 const selectedDonation = ref(null);
 
+// --- API 資料儲存 ---
+const subscriptionRecords = ref([]); // 歷史紀錄：定期定額
+const singleRecords = ref([]);       // 歷史紀錄：單筆捐款
+const activeSubscription = ref(null); // 進行中的定期計畫 (卡片用)
+
+const currentTab = ref('single') 
+const currentPage = ref(1)
+const pageSize = 5 
+
+const donationTabs = [
+  { label: '單筆捐款', value: 'single' },
+  { label: '定期定額', value: 'subscription' }
+]
+
+// --- 取得並轉換資料 ---
+const fetchData = async () => {
+  try {
+    // 1. 抓取所有捐款歷史 (auth_donation_list.php)
+    const historyRes = await fetch('http://localhost:8888/api/member/auth_donation_list.php');
+    const historyData = await historyRes.json();
+    
+    const formatRecord = (item) => {
+      const dateObj = new Date(item.DONATION_DATE);
+      const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+      return {
+        id: item.DONATION_ID,
+        month: months[dateObj.getMonth()],
+        day: String(dateObj.getDate()).padStart(2, '0'),
+        amount: item.AMOUNT,
+        fullDate: item.DONATION_DATE.split(' ')[0].replace(/-/g, '.'),
+        payType: item.PAYMENT_METHOD,
+        orderId: item.TRANSACTION_ID,
+        donor: '會員', 
+        payMonth: `${dateObj.getMonth() + 1}月`
+      };
+    };
+
+    // 依據類型分類並轉換格式
+    subscriptionRecords.value = historyData
+      .filter(d => d.DONATION_TYPE === '定期定額')
+      .map(formatRecord);
+    singleRecords.value = historyData
+      .filter(d => d.DONATION_TYPE === '單次捐款')
+      .map(formatRecord);
+
+    // 2. 抓取進行中的定期計畫 (auth_subscription_list.php)
+    const activeRes = await fetch('http://localhost:8888/api/member/auth_subscription_list.php');
+    const activeData = await activeRes.json();
+    // 取得第一筆狀態為 1 的計畫
+    activeSubscription.value = activeData.length > 0 ? activeData[0] : null;
+
+  } catch (err) {
+    console.error("資料抓取失敗:", err);
+  }
+};
+
+onMounted(fetchData);
+
 // 開啟燈箱
 const openLightbox = (type, data = null) => {
   activeType.value = type;
@@ -20,87 +78,80 @@ const openLightbox = (type, data = null) => {
   isLightboxOpen.value = true;
 };
 
-// 處理確定終止
-const handleLightboxConfirm = () => {
+// 處理燈箱確定動作 (正式對接 Update API)
+const handleLightboxConfirm = async (updatedData) => {
+  // 取得當前計畫的 ID
+  const subId = activeSubscription.value?.SUBSCRIPTION_ID;
+
   if (activeType.value === 'terminate') {
-    console.log('正在向後端發送終止請求，捐款編號：', selectedDonation.value?.id);
-    
-    isLightboxOpen.value = false;
-    setTimeout(() => {
-      activeType.value = 'terminateSuccess';
-      isLightboxOpen.value = true;
-    }, 300);
+    try {
+      const res = await fetch('http://localhost:8888/api/member/auth_donation_update.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          subscriptionId: subId,
+          action: 'cancel'
+        })
+      });
+      const result = await res.json();
+      if (result.status === 'success') {
+        isLightboxOpen.value = false;
+        await fetchData(); // 立即重新抓取資料，卡片會消失
+        setTimeout(() => {
+          activeType.value = 'terminateSuccess';
+          isLightboxOpen.value = true;
+        }, 300);
+      }
+    } catch (err) { console.error("終止失敗", err); }
+
   } else if (activeType.value === 'editAmount') {
-    console.log('修改金額成功');
-    
-    isLightboxOpen.value = false;
-    setTimeout(() => {
-      activeType.value = 'editAmountSuccess';
-      isLightboxOpen.value = true;
-    }, 300);
+    try {
+      const res = await fetch('http://localhost:8888/api/member/auth_donation_update.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          subscriptionId: subId,
+          action: 'updateAmount',
+          amount: updatedData.newAmount // 💡 改成 newAmount，才會對應到燈箱的輸入框
+        })
+      });
+      const result = await res.json();
+      if (result.status === 'success') {
+        isLightboxOpen.value = false;
+        await fetchData(); // 💡 重新抓取資料，卡片金額會立刻更新
+        setTimeout(() => {
+          activeType.value = 'editAmountSuccess';
+          isLightboxOpen.value = true;
+        }, 300);
+      }
+    } catch (err) { console.error("修改金額失敗", err); }
   }
 };
 
-const currentTab = ref('single') 
-const currentPage = ref(1)
-const pageSize = 5 // 每頁顯示 5 筆
-
-const donationTabs = [
-  { label: '單筆捐款', value: 'single' },
-  { label: '定期定額', value: 'subscription' }
-]
-
-// 模擬大量資料以測試分頁
-const subscriptionData = ref(Array.from({ length: 12 }, (_, i) => ({
-  id: i + 1, 
-  month: 'DEC', 
-  day: '29', 
-  payMonth: `${12 - (i % 12)}月`, 
-  amount: '2000', 
-  fullDate: '2025.12.29',
-  payType: '信用卡' 
-})))
-
-const singleData = ref(Array.from({ length: 15 }, (_, i) => ({
-  id: 100 + i, month: 'DEC', day: '29', orderId: `SN${123456 + i}`, payType: '信用卡', donor: '王曉明', fullDate: '2025.12.29', amount: '2000'
-})))
-
-// 修正：計算當前 Tab 的總頁數
+// 分頁與導航邏輯
 const totalPages = computed(() => {
-  const data = currentTab.value === 'subscription' ? subscriptionData.value : singleData.value
-  return Math.ceil(data.length / pageSize)
+  const data = currentTab.value === 'subscription' ? subscriptionRecords.value : singleRecords.value;
+  return Math.ceil(data.length / pageSize);
 })
 
-// 修正：根據當前頁碼切割數據 (Slice)
 const pagedRecords = computed(() => {
-  const data = currentTab.value === 'subscription' ? subscriptionData.value : singleData.value
-  const start = (currentPage.value - 1) * pageSize
-  const end = start + pageSize
-  return data.slice(start, end)
+  const data = currentTab.value === 'subscription' ? subscriptionRecords.value : singleRecords.value;
+  const start = (currentPage.value - 1) * pageSize;
+  const end = start + pageSize;
+  return data.slice(start, end);
 })
 
 const goToPage = (page) => {
   currentPage.value = page
-  router.push({
-    query: {
-      tab: currentTab.value,
-      page: page === 1 ? undefined : page
-    }
-  })
+  router.push({ query: { tab: currentTab.value, page: page === 1 ? undefined : page } })
   window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
 watch(currentTab, () => {
   currentPage.value = 1
-  router.push({
-    query: {
-      tab: currentTab.value,
-      page: undefined
-    }
-  })
+  router.push({ query: { tab: currentTab.value, page: undefined } })
 })
 
-// 加上這段：初始化時從 URL 讀取
 watch(() => route.query, () => {
   if (route.query.tab) currentTab.value = route.query.tab
   if (route.query.page) currentPage.value = parseInt(route.query.page)
@@ -113,7 +164,7 @@ watch(() => route.query, () => {
     <TabSwitcher v-model="currentTab" :tabs="donationTabs">
         
         <template v-if="currentTab === 'subscription'">
-          <div class="subscription-status-card">
+          <div v-if="activeSubscription" class="subscription-status-card">
             <div class="status-grid">
               <div class="grid-item status-box">
                 <span class="label">狀態:</span>
@@ -123,23 +174,27 @@ watch(() => route.query, () => {
                 </div>
               </div>
               <div class="grid-item info-column">
-                <p>定期定額編號：123456</p>
-                <p>開始日期：2025.11.29</p>
+                <p>定期定額編號：{{ activeSubscription.SUBSCRIPTION_ID }}</p>
+                <p>開始日期：{{ activeSubscription.START_DATE.replace(/-/g, '.') }}</p>
               </div>
               <div class="grid-item info-column">
                 <p>扣款週期：每月</p>
-                <p>每期金額：$2000</p>
+                <p>每期金額：${{ activeSubscription.AMOUNT }}</p>
               </div>
               <div class="grid-item info-column">
-                <p>最近扣款日：2025.12.29 (成功)</p>
-                <p>下次扣款日：2026.01.29</p>
+                <p>最近扣款日：已成功</p>
+                <p>下次扣款日：待更新</p>
               </div>
             </div>
           </div>
+          
+          <div v-if="activeSubscription" class="action-buttons">
+            <Button variant="primary" @click="openLightbox('editAmount', activeSubscription)">修改金額</Button>
+            <Button variant="outline" @click="openLightbox('terminate', activeSubscription)">終止捐款</Button>
+          </div>
 
-          <div class="action-buttons">
-            <Button variant="primary" @click="openLightbox('editAmount')">修改金額</Button>
-            <Button variant="outline" @click="openLightbox('terminate', { id: '123456' })">終止捐款</Button>
+          <div v-else class="no-subscription-msg">
+            <p>目前沒有進行中的定期定額計畫。</p>
           </div>
         </template>
 
@@ -186,14 +241,37 @@ watch(() => route.query, () => {
           @page-change="goToPage"
         />
     </TabSwitcher>
+
     <MemberLightbox 
-    v-model="isLightboxOpen" 
-    :type="activeType" 
-    :initialData="selectedDonation"
-    @confirm="handleLightboxConfirm"
+      v-model="isLightboxOpen" 
+      :type="activeType" 
+      :initialData="selectedDonation"
+      @confirm="handleLightboxConfirm"
     />
   </div>
 </template>
+
+<style lang="scss" scoped>
+@import '@/assets/scss/base/_var.scss';
+
+// 原有的樣式保持不變，額外增加無資料時的樣式
+.no-subscription-msg {
+  text-align: center;
+  padding: rem(40px);
+  background: #f9f9f9;
+  border-radius: rem(8px);
+  margin: rem(24px) 0;
+  color: $secondary-color;
+}
+
+/* ... 以下為你原本提供的所有樣式內容 ... */
+.container {
+  max-width: rem(1200px);
+  margin: 0 auto;
+  padding: 0 rem(20px);
+}
+// (樣式太長，這裡省略，請保留你原本 style 標籤內的所有內容)
+</style>
 
 <style lang="scss" scoped>
 @import '@/assets/scss/base/_var.scss';
@@ -239,6 +317,15 @@ watch(() => route.query, () => {
       }
     }
   }
+
+  .no-subscription-msg {
+  text-align: center;
+  padding: rem(40px);
+  background: #f9f9f9;
+  border-radius: rem(8px);
+  margin: rem(24px) 0;
+  color: $secondary-color;
+}
 
   .info-column {
     padding-left: rem(24px);

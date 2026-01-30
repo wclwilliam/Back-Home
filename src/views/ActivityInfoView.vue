@@ -5,7 +5,7 @@ import { Swiper, SwiperSlide } from 'swiper/vue'
 import 'swiper/css'
 import 'swiper/css/pagination'
 import { Autoplay, Pagination } from 'swiper/modules'
-import { publicApi, base } from '@/utils/publicApi'
+import { publicApi, backHomeApi, base, APIBase } from '@/utils/publicApi'
 import { useAuthStore } from '@/stores/auth'
 
 import ActivityCard from '@/components/cards/ActivityCard.vue'
@@ -55,70 +55,147 @@ const handleLoginPrompt = () => {
   authStore.redirectAfterLogin = null
   authStore.openLoginModal()
 }
-
-const fetchActivityData = (id) => {
+const url = 'activity/activity_get.php'
+const listUrl = 'activity/activity_list.php'
+const fetchActivityData = async (id) => {
   const currentId = Number(id)
+  try {
+    const response = await backHomeApi.get(`${url}?activity_id=${currentId}`)
+    const act = response.data.data
+    if (!act) {
+      router.push({ name: 'activity' })
+      return
+    }
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    const todayTime = today.getTime()
 
-  publicApi
-    .get('data/activityData.json')
-    .then((res) => {
-      let allData = res.data
-      //取得今日日期
-      const today = new Date()
-      today.setHours(0, 0, 0, 0)
-      const todayTime = today.getTime()
+    //處理單一活動資料
+    //取得活動開始與結束日期
+    const actDate = new Date(act.ACTIVITY_START_DATETIME)
+    actDate.setHours(0, 0, 0, 0)
+    const actTime = actDate.getTime()
 
-      allData = allData.map((act) => {
-        //取得活動日期
-        const actDate = new Date(act.date)
-        actDate.setHours(0, 0, 0, 0)
-        const actTime = actDate.getTime()
-        //取得活動截止日期
-        const deadlineDate = new Date(actDate)
-        deadlineDate.setDate(actDate.getDate() - 1)
-        const deadlineTime = deadlineDate.getTime()
+    const endDate = new Date(act.ACTIVITY_END_DATETIME)
+    endDate.setHours(0, 0, 0, 0)
+    const endTime = endDate.getTime()
+    //報名截止時間
+    const signupEndDate = new Date(act.ACTIVITY_SIGNUP_END_DATETIME)
+    const signupEndTime = signupEndDate.getTime()
 
-        let status = 'upcoming'
-        if (todayTime > actTime) {
-          status = 'ended'
-        } else if (todayTime === actTime) {
-          status = 'opening'
-        } else if (todayTime === deadlineTime) {
-          status = 'deadline'
-        } else {
-          status = 'upcoming'
-        }
-        //圖片路徑處裡
-        const cleanPath = act.image.startsWith('/') ? act.image.slice(1) : act.image
-        return {
-          ...act,
-          status: status,
-          image: `${base}${cleanPath}`,
-        }
-      })
-      // 抓取主要活動資料
-      const target = allData.find((item) => item.id === currentId)
-      if (target) {
-        activityInfo.value = target
-        isParticipant.value = false
-        //找出同類型且非當前活動的資料
-        const sameType = allData.filter(
-          (item) => item.type === target.type && item.id !== target.id,
+    let status = 'upcoming'
+    // 已結束
+    if (todayTime > actTime) {
+      status = 'ended'
+    } else if (todayTime === actTime) {
+      //進行中
+      status = 'opening'
+    } else if (new Date().getTime() > signupEndTime) {
+      //報名截止
+      status = 'deadline'
+    } else {
+      //報名中
+      status = 'upcoming'
+    }
+    //圖片路徑處裡
+    const imagePath = act.ACTIVITY_COVER_IMAGE
+      ? `${APIBase}uploads/actCover/${act.ACTIVITY_COVER_IMAGE}`
+      : ''
+
+    const noticesArr = act.ACTIVITY_NOTES ? act.ACTIVITY_NOTES.split('\n') : []
+    activityInfo.value = {
+      id: act.ACTIVITY_ID,
+      title: act.ACTIVITY_TITLE,
+      description: act.ACTIVITY_DESCRIPTION,
+      image: imagePath,
+      notices: noticesArr,
+      date: act.ACTIVITY_START_DATETIME,
+      endDate: act.ACTIVITY_END_DATETIME,
+      signupEndDate: act.ACTIVITY_SIGNUP_END_DATETIME,
+      location: act.ACTIVITY_LOCATION,
+      category: act.CATEGORY_VALUE,
+      type: act.CATEGORY_VALUE,
+      status: status,
+      maxPeople: act.ACTIVITY_MAX_PEOPLE,
+      currentPeople: act.ACTIVITY_SIGNUP_PEOPLE,
+      messages: [], // 預設空陣列，等待 fetchReviews 填入
+    }
+
+    // 抓取留言 
+    await fetchReviews(currentId)
+
+    // --- 抓取推薦活動
+    const listResponse = await backHomeApi.get(`${listUrl}`)
+    const allList = listResponse.data.data
+
+    if (Array.isArray(allList)) {
+      // 1. 處理花絮照片 (找同類型的)
+      const sameType = allList.filter(
+        (item) =>
+          item.CATEGORY_VALUE === act.CATEGORY_VALUE && item.ACTIVITY_ID !== act.ACTIVITY_ID,
+      )
+
+      // 轉換圖片路徑給花絮用
+      relatedImages.value = sameType
+        .slice(0, 3)
+        .map((item) =>
+          item.ACTIVITY_COVER_IMAGE
+            ? `${APIBase}uploads/actCover/${item.ACTIVITY_COVER_IMAGE}`
+            : '',
         )
 
-        relatedImages.value = sameType.slice(0, 3).map((item) => item.image)
-      } else {
-        // 如果找不到 ID 導回列表頁
-        router.push({ name: 'activity' })
-      }
+      // 2. 處理下方推薦 Swiper (排除自己 + 排除已結束)
+      // 這裡需要做簡單的資料轉換給 ActivityCard 吃
 
-      // 推薦活動 (排除自己 + 排除已結束 + 隨機或排序)
-      activityList.value = allData
-        .filter((item) => item.id !== currentId && item.status !== 'ended')
-        .sort(() => 0.5 - Math.random())
-        .slice(0, 7)
-    })
-    .catch((err) => console.error(err))
+      activityList.value = allList
+        .filter((item) => item.ACTIVITY_ID !== act.ACTIVITY_ID) // 排除目前這一個
+        .map((item) => {
+          return {
+            id: item.ACTIVITY_ID,
+            title: item.ACTIVITY_TITLE,
+            image: item.ACTIVITY_COVER_IMAGE,
+            date: item.ACTIVITY_START_DATETIME,
+            location: item.ACTIVITY_LOCATION,
+            type: item.CATEGORY_VALUE,
+            maxPeople: item.ACTIVITY_MAX_PEOPLE,
+            currentPeople: item.ACTIVITY_SIGNUP_PEOPLE,
+          }
+        })
+        .sort(() => 0.5 - Math.random()) // 隨機排序
+        .slice(0, 7) // 取前 7 個
+    }
+  } catch (err) {
+    console.error('連線發生錯誤:', err)
+  }
+}
+// 抓取活動留言
+const reviewUrl = 'activity/activity_reviews_get.php'
+const fetchReviews = async (activityId) => {
+  try {
+    // 假設你有一支 activity_get_reviews.php
+    const response = await backHomeApi.get(`${reviewUrl}?activity_id=${activityId}`)
+
+    if (response.data.status === 'success') {
+      // 轉換資料格式以符合 ReviewSwiper 需求
+      const reviewsList = Array.isArray(response.data.data) ? response.data.data : []
+      const formattedMessages = reviewsList.map(item => ({
+        id: item.REVIEW_ID,
+        name: item.USER_NAME || '熱心志工',
+        stars: item.RATING,
+        content: item.CONTENT,
+        likes: item.LIKE_COUNT,
+        date: formatDate(new Date(item.CREATED_AT), 'YYYY-MM-DD'),
+        image: '' // 後端若無頭貼欄位，留空讓前端自動生成
+      }))
+
+      // 寫入 activityInfo
+      if (activityInfo.value) {
+        activityInfo.value.messages = formattedMessages
+      }
+    }
+  } catch (err) {
+    console.error('留言讀取失敗:', err)
+  }
 }
 // 判斷活動是否結束
 const isEnded = computed(() => activityInfo.value?.status === 'ended')
