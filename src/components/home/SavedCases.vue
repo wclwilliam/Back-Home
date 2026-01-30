@@ -1,7 +1,7 @@
 <script setup>
 import RescueCard from '@/components/cards/RescueCard.vue'
 import { ref, onMounted } from 'vue'
-import { publicApi, backHomeApi } from '@/utils/publicApi'
+import { backHomeApi } from '@/utils/publicApi'
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import { Pagination } from 'swiper/modules'
 import 'swiper/css'

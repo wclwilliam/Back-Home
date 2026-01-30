@@ -23,8 +23,6 @@ const imageUrl = computed(() => {
 
   const imagePath = props.imageSrc
 
-  console.log('圖片路徑:', imagePath, 'fileBaseUrl:', fileBaseUrl)
-
   // 模式 1: 如果是 /src/assets/ 路徑，使用 Vite 動態 import（開發模式）
   if (imagePath.startsWith('/src/')) {
     try {
@@ -51,7 +49,6 @@ const imageUrl = computed(() => {
   // 這是從資料庫取得的路徑格式
   if (!imagePath.startsWith('http') && !imagePath.startsWith('/')) {
     const url = `${fileBaseUrl}${imagePath}`
-    console.log('最終圖片 URL:', url)
     return url
   }
 
