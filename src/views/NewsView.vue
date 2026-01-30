@@ -41,7 +41,7 @@ const updateQueryParams = () => {
 };
 
 watch(currentNewsTab, () => {
-  currentPage.value = 1;
+  currentPage.value = 1; 
   updateQueryParams();
 });
 
