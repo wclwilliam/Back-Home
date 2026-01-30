@@ -128,9 +128,7 @@ const goToArticle = (id) => {
                 <img :src="fileUrl + article.image_path" :alt="article.title">
             </div>
 
-            <article class="articleBody">
-                {{ article.content }}
-            </article>
+            <article class="articleBody" v-html="article.content"></article>
 
             <div class="signature">
                 龜途 團隊 敬啟
