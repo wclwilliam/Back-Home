@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
-import { publicApi, base } from '@/utils/publicApi'
+import { backHomeApi, base } from '@/utils/publicApi'
 import { useRouter, useRoute } from 'vue-router'
 import Banner from '@/components/Banner.vue'
 import clickBar from '@/components/clickBar.vue'
@@ -20,48 +20,74 @@ const createDefaultFilters = () => ({
 })
 
 const activeFilters = ref(createDefaultFilters())
+const allActivities = ref([]) //所有活動資料
+const url = 'activity/activity_list.php';
 const fetchAct = async () => {
-  const url = `${base}data/activityData.json`.replace('//', '/')
-  publicApi
-    .get(url)
-    .then((response) => {
-      let rawData = response.data
+  try {
+    // 1. 發送請求
+    const response = await backHomeApi.get(url);
 
-      const today = new Date()
-      today.setHours(0, 0, 0, 0)
-      const todayTime = today.getTime()
-      // console.log(todayTime)
-      rawData = rawData.map((act) => {
-        const actDate = new Date(act.date)
-        actDate.setHours(0, 0, 0, 0)
-        const actTime = actDate.getTime()
-        // console.log(actTime)
+    // 2.【關鍵修正】取得資料的位置
+    // 因為你的 PHP 回傳 { status: 'success', data: [...] }
+    // 所以正確的資料在 response.data.data 裡面
+    const dbData = response.data.data;
 
-        let status = 'upcoming'
-        if (todayTime > actTime) {
-          status = 'ended'
-        } else if (todayTime === actTime) {
-          status = 'opening'
-        } else {
-          status = 'upcoming'
-        }
-        // console.log(rawData)
+    // 防呆：如果沒資料，就給空陣列
+    if (!Array.isArray(dbData)) {
+      console.warn('API 回傳資料格式錯誤或無資料', dbData);
+      allActivities.value = [];
+      return;
+    }
 
-        const cleanPath = act.image.startsWith('/') ? act.image.slice(1) : act.image
-        return {
-          ...act,
-          status: status,
-          image: `${base}${cleanPath}`,
-        }
-      })
+    const todayTime = new Date().setHours(0, 0, 0, 0);
 
-      activityList.value = rawData
-      // console.log("資料處理完成:", activityList.value)
-    })
-    .catch((error) => {
-      console.log(error)
-    })
-}
+    // 3.【關鍵修正】欄位名稱對應 (Mapping)
+    // 左邊是 Vue 要用的(小寫) : 右邊是 PHP 給你的(大寫)
+    activityList.value = dbData.map((act) => {
+      
+      const actDate = new Date(act.ACTIVITY_START_DATETIME);
+      const actTime = actDate.getTime();
+
+      const endDateObj = new Date(act.ACTIVITY_END_DATETIME);
+      const endTime = endDateObj.setHours(0,0,0,0);
+
+      // 取得報名截止時間
+      const signupEndTime = new Date(act.ACTIVITY_SIGNUP_END_DATETIME).getTime();
+      const nowTime = new Date().getTime(); // 取得包含時分秒的當下時間
+
+      // 狀態判斷邏輯
+      let status = 'upcoming';
+      if (todayTime > endTime) {
+        status = 'ended';
+      } else if (todayTime >= actTime && todayTime <= endTime) {
+        status = 'opening';
+      } else if (nowTime > signupEndTime) { 
+        // 如果現在時間超過報名截止時間
+        status = 'deadline';
+      }
+
+      return {
+        // ⚠️ 這裡一定要對應資料庫的大寫欄位
+        id: act.ACTIVITY_ID,                    
+        title: act.ACTIVITY_TITLE,              
+        description: act.ACTIVITY_DESCRIPTION,  
+        image: act.ACTIVITY_COVER_IMAGE,        
+        date: act.ACTIVITY_START_DATETIME,      
+        endDate: act.ACTIVITY_END_DATETIME,    
+        signupEndDate: act.ACTIVITY_SIGNUP_END_DATETIME, 
+        location: act.ACTIVITY_LOCATION,        
+        category: act.CATEGORY_VALUE, // 這是 JOIN 出來的欄位       
+        type: act.CATEGORY_VALUE,   
+        status: status,
+        maxPeople: act.ACTIVITY_MAX_PEOPLE,
+        currentPeople: act.ACTIVITY_SIGNUP_PEOPLE
+      };
+    });
+
+  } catch (error) {
+    console.error('連線發生錯誤:', error);
+  }
+};
 
 //更改網址
 const updateUrl = () => {
