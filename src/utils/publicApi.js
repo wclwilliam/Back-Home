@@ -13,41 +13,18 @@ export const backHomeApi = axios.create({
   timeout: 5000,
 })
 
-// 模擬登入驗證函數（預設帳號：demo，密碼：1234）
-export const mockLogin = async (account, password) => {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      if (account === 'demo' && password === '1234') {
-        const mockData = {
-          token: 'mock_token_' + Date.now(),
-          user: {
-            id: 1,
-            name: 'Demo User',
-            email: 'demo@backhome.com',
-            account: 'demo',
-            createdAt: new Date().toISOString(),
-          },
-        }
-        resolve(mockData)
-      } else {
-        reject(new Error('帳號或密碼錯誤'))
-      }
-    }, 500) // 模擬網路延遲
-  })
-}
-
 // 發送驗證碼API
 export const sendVerificationCode = async (email) => {
   try {
     const response = await backHomeApi.post('/member/auth_register_send_code.php', { email })
     return response.data
   } catch (error) {
-    // 如果是后端返回的错误，直接抛出
+    // 如果是後端返回的錯誤，直接拋出
     if (error.response?.data) {
       throw error.response.data
     }
 
-    // 只有在网络错误时才使用mock（例如后端未启动）
+    // 只有在網路錯誤時才使用mock（例如後端未啟動）
     if (!error.response) {
       console.warn('後端API不可用，使用開發測試模式', error)
       return new Promise((resolve) => {
@@ -73,12 +50,12 @@ export const register = async (data) => {
     })
     return response.data
   } catch (error) {
-    // 如果是后端返回的错误，直接抛出
+    // 如果是後端返回的錯誤，直接拋出
     if (error.response?.data) {
       throw error.response.data
     }
 
-    // 只有在网络错误时才使用mock（例如后端未启动）
+    // 只有在網路錯誤時才使用mock（例如後端未啟動）
     if (!error.response) {
       console.warn('後端API不可用，使用開發測試模式', error)
       return new Promise((resolve, reject) => {
@@ -105,12 +82,12 @@ export const login = async (email, password) => {
     })
     return response.data
   } catch (error) {
-    // 如果是后端返回的错误，直接抛出
+    // 如果是後端返回的錯誤，直接拋出
     if (error.response?.data) {
       throw error.response.data
     }
 
-    // 只有在网络错误时才使用mock（例如后端未启动）
+    // 只有在網路錯誤時才使用mock（例如後端未啟動）
     if (!error.response) {
       console.warn('後端API不可用，使用開發測試模式', error)
       return new Promise((resolve, reject) => {
@@ -132,6 +109,51 @@ export const login = async (email, password) => {
       })
     }
 
+    throw error.response?.data || error
+  }
+}
+
+// Google 登入 API
+export const googleLogin = async (credential) => {
+  try {
+    const response = await backHomeApi.post('/member/auth_google_login.php', {
+      credential,
+    })
+    return response.data
+  } catch (error) {
+    // 如果是後端返回的錯誤，直接拋出
+    if (error.response?.data) {
+      throw error.response.data
+    }
+    throw error.response?.data || error
+  }
+}
+
+// 發送重設密碼連結 API
+export const forgotPassword = async (email) => {
+  try {
+    const response = await backHomeApi.post('/member/auth_forgot_password.php', { email })
+    return response.data
+  } catch (error) {
+    if (error.response?.data) {
+      throw error.response.data
+    }
+    throw error.response?.data || error
+  }
+}
+
+// 重設密碼 API
+export const resetPassword = async (token, newPassword) => {
+  try {
+    const response = await backHomeApi.post('/member/auth_reset_password.php', {
+      token,
+      new_password: newPassword,
+    })
+    return response.data
+  } catch (error) {
+    if (error.response?.data) {
+      throw error.response.data
+    }
     throw error.response?.data || error
   }
 }

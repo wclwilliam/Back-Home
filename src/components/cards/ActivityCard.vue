@@ -3,6 +3,7 @@
 import { computed, ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { APIBase } from '@/utils/publicApi'
 
 //頁面跳轉
 const router = useRouter()
@@ -27,27 +28,43 @@ const goToDetail = () => {
 const props = defineProps({
   event: { type: Object, required: true },
 })
+
+const imgSrc = computed(() => {
+  const imgName = props.event.image
+  if (!imgName) return '' 
+  
+  if (imgName.startsWith('http') || imgName.startsWith('data:')) {
+    return imgName
+  }
+
+  return `${APIBase}uploads/actCover/${imgName}`
+})
+
 const status = computed(() => {
   const today = new Date()
   today.setHours(0, 0, 0, 0)
   const todayTime = today.getTime()
+  const nowTime = new Date().getTime()
 
   const actDate = new Date(props.event.date)
   actDate.setHours(0, 0, 0, 0)
   const actTime = actDate.getTime()
 
-  const deadlineDate = new Date(actDate)
-  deadlineDate.setDate(actDate.getDate() - 1)
-  const deadlineTime = deadlineDate.getTime()
-  // console.log(deadlineDate)
+  const endDate = new Date(props.event.endDate) // 假設你有傳 endDate 進來
+  endDate.setHours(0, 0, 0, 0)
+  const endTime = endDate.getTime()
+  //使用 props 傳進來的報名截止時間
+  const signupEndTime = props.event.signupEndDate 
+    ? new Date(props.event.signupEndDate).getTime() 
+    : actTime
 
-  if (todayTime > actTime) {
+  if (todayTime > endTime) {
     return 'ended'
   }
-  if (todayTime === actTime) {
+  if (todayTime >= actTime && todayTime <= endTime) {
     return 'opening'
   }
-  if (todayTime === deadlineTime) {
+  if (nowTime > signupEndTime) {
     return 'deadline'
   }
   return 'upcoming'
@@ -104,7 +121,7 @@ const toggleBookmark = (e) => {
 <template>
   <a class="cardContainer activityCard" @click="goToDetail">
     <div class="cardPic">
-      <img :src="event.image" :alt="event.title" />
+      <img :src="imgSrc" :alt="event.title" />
       <div v-if="isEnded" class="statusBadge">已結束</div>
       <div class="typeBadge">
         <span class="material-symbols-outlined">sell</span>

@@ -156,8 +156,17 @@ const handleSendCode = async () => {
       errorMessage.value = '此電子郵件已註冊'
     } else if (error.error === 'invalid email format') {
       errorMessage.value = '電子郵件格式不正確'
+    } else if (error.error === 'server_error') {
+      // 處理伺服器錯誤，根據 message 顯示更友善的訊息
+      if (error.message === 'brevo_api_key_missing') {
+        errorMessage.value = '郵件服務設定錯誤，請聯繫管理員'
+      } else if (error.message === 'email_send_failed') {
+        errorMessage.value = '郵件發送失敗，請稍後再試'
+      } else {
+        errorMessage.value = '伺服器錯誤，請稍後再試'
+      }
     } else {
-      errorMessage.value = error.error || '發送驗證碼失敗，請稍後再試'
+      errorMessage.value = error.error || error.message || '發送驗證碼失敗，請稍後再試'
     }
   } finally {
     isSendingCode.value = false

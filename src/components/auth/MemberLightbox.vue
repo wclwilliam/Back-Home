@@ -83,7 +83,7 @@ const close = () => {
 
           <div v-if="type.toLowerCase().includes('amount') || type.toLowerCase().includes('terminate')" class="service-note">
             <p>若有疑問，請聯繫客服中心辦理退款事宜。</p>
-            <p>● 客服專線：02-XXXX-XXXX</p>
+            <p>● 客服專線：03-425-1108</p>
           </div>
         </template>
 

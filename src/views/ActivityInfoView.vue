@@ -5,7 +5,7 @@ import { Swiper, SwiperSlide } from 'swiper/vue'
 import 'swiper/css'
 import 'swiper/css/pagination'
 import { Autoplay, Pagination } from 'swiper/modules'
-import { publicApi, base } from '@/utils/publicApi'
+import { publicApi, backHomeApi, base, APIBase } from '@/utils/publicApi'
 import { useAuthStore } from '@/stores/auth'
 
 import ActivityCard from '@/components/cards/ActivityCard.vue'
@@ -51,73 +51,151 @@ const isLoggedIn = computed(() => authStore.isLogin)
 
 // 開啟登入燈箱
 const handleLoginPrompt = () => {
-  // 不設定 redirectAfterLogin，讓用戶登入後停留在當前頁面
+  // 清空 redirectAfterLogin，確保登入後停留在當前頁面
+  authStore.redirectAfterLogin = null
   authStore.openLoginModal()
 }
-
-const fetchActivityData = (id) => {
+const url = 'activity/activity_get.php'
+const listUrl = 'activity/activity_list.php'
+const fetchActivityData = async (id) => {
   const currentId = Number(id)
+  try {
+    const response = await backHomeApi.get(`${url}?activity_id=${currentId}`)
+    const act = response.data.data
+    if (!act) {
+      router.push({ name: 'activity' })
+      return
+    }
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    const todayTime = today.getTime()
 
-  publicApi
-    .get('data/activityData.json')
-    .then((res) => {
-      let allData = res.data
-      //取得今日日期
-      const today = new Date()
-      today.setHours(0, 0, 0, 0)
-      const todayTime = today.getTime()
+    //處理單一活動資料
+    //取得活動開始與結束日期
+    const actDate = new Date(act.ACTIVITY_START_DATETIME)
+    actDate.setHours(0, 0, 0, 0)
+    const actTime = actDate.getTime()
 
-      allData = allData.map((act) => {
-        //取得活動日期
-        const actDate = new Date(act.date)
-        actDate.setHours(0, 0, 0, 0)
-        const actTime = actDate.getTime()
-        //取得活動截止日期
-        const deadlineDate = new Date(actDate)
-        deadlineDate.setDate(actDate.getDate() - 1)
-        const deadlineTime = deadlineDate.getTime()
+    const endDate = new Date(act.ACTIVITY_END_DATETIME)
+    endDate.setHours(0, 0, 0, 0)
+    const endTime = endDate.getTime()
+    //報名截止時間
+    const signupEndDate = new Date(act.ACTIVITY_SIGNUP_END_DATETIME)
+    const signupEndTime = signupEndDate.getTime()
 
-        let status = 'upcoming'
-        if (todayTime > actTime) {
-          status = 'ended'
-        } else if (todayTime === actTime) {
-          status = 'opening'
-        } else if (todayTime === deadlineTime) {
-          status = 'deadline'
-        } else {
-          status = 'upcoming'
-        }
-        //圖片路徑處裡
-        const cleanPath = act.image.startsWith('/') ? act.image.slice(1) : act.image
-        return {
-          ...act,
-          status: status,
-          image: `${base}${cleanPath}`,
-        }
-      })
-      // 抓取主要活動資料
-      const target = allData.find((item) => item.id === currentId)
-      if (target) {
-        activityInfo.value = target
-        isParticipant.value = false
-        //找出同類型且非當前活動的資料
-        const sameType = allData.filter(
-          (item) => item.type === target.type && item.id !== target.id,
+    let status = 'upcoming'
+    // 已結束
+    if (todayTime > actTime) {
+      status = 'ended'
+    } else if (todayTime === actTime) {
+      //進行中
+      status = 'opening'
+    } else if (new Date().getTime() > signupEndTime) {
+      //報名截止
+      status = 'deadline'
+    } else {
+      //報名中
+      status = 'upcoming'
+    }
+    //圖片路徑處裡
+    const imagePath = act.ACTIVITY_COVER_IMAGE
+      ? `${APIBase}uploads/actCover/${act.ACTIVITY_COVER_IMAGE}`
+      : ''
+
+    const noticesArr = act.ACTIVITY_NOTES ? act.ACTIVITY_NOTES.split('\n') : []
+    activityInfo.value = {
+      id: act.ACTIVITY_ID,
+      title: act.ACTIVITY_TITLE,
+      description: act.ACTIVITY_DESCRIPTION,
+      image: imagePath,
+      notices: noticesArr,
+      date: act.ACTIVITY_START_DATETIME,
+      endDate: act.ACTIVITY_END_DATETIME,
+      signupEndDate: act.ACTIVITY_SIGNUP_END_DATETIME,
+      location: act.ACTIVITY_LOCATION,
+      category: act.CATEGORY_VALUE,
+      type: act.CATEGORY_VALUE,
+      status: status,
+      maxPeople: act.ACTIVITY_MAX_PEOPLE,
+      currentPeople: act.ACTIVITY_SIGNUP_PEOPLE,
+      messages: [], // 預設空陣列，等待 fetchReviews 填入
+    }
+
+    // 抓取留言 
+    await fetchReviews(currentId)
+
+    // --- 抓取推薦活動
+    const listResponse = await backHomeApi.get(`${listUrl}`)
+    const allList = listResponse.data.data
+
+    if (Array.isArray(allList)) {
+      // 1. 處理花絮照片 (找同類型的)
+      const sameType = allList.filter(
+        (item) =>
+          item.CATEGORY_VALUE === act.CATEGORY_VALUE && item.ACTIVITY_ID !== act.ACTIVITY_ID,
+      )
+
+      // 轉換圖片路徑給花絮用
+      relatedImages.value = sameType
+        .slice(0, 3)
+        .map((item) =>
+          item.ACTIVITY_COVER_IMAGE
+            ? `${APIBase}uploads/actCover/${item.ACTIVITY_COVER_IMAGE}`
+            : '',
         )
 
-        relatedImages.value = sameType.slice(0, 3).map((item) => item.image)
-      } else {
-        // 如果找不到 ID 導回列表頁
-        router.push({ name: 'activity' })
-      }
+      // 2. 處理下方推薦 Swiper (排除自己 + 排除已結束)
+      // 這裡需要做簡單的資料轉換給 ActivityCard 吃
 
-      // 推薦活動 (排除自己 + 排除已結束 + 隨機或排序)
-      activityList.value = allData
-        .filter((item) => item.id !== currentId && item.status !== 'ended')
-        .sort(() => 0.5 - Math.random())
-        .slice(0, 7)
-    })
-    .catch((err) => console.error(err))
+      activityList.value = allList
+        .filter((item) => item.ACTIVITY_ID !== act.ACTIVITY_ID) // 排除目前這一個
+        .map((item) => {
+          return {
+            id: item.ACTIVITY_ID,
+            title: item.ACTIVITY_TITLE,
+            image: item.ACTIVITY_COVER_IMAGE,
+            date: item.ACTIVITY_START_DATETIME,
+            location: item.ACTIVITY_LOCATION,
+            type: item.CATEGORY_VALUE,
+            maxPeople: item.ACTIVITY_MAX_PEOPLE,
+            currentPeople: item.ACTIVITY_SIGNUP_PEOPLE,
+          }
+        })
+        .sort(() => 0.5 - Math.random()) // 隨機排序
+        .slice(0, 7) // 取前 7 個
+    }
+  } catch (err) {
+    console.error('連線發生錯誤:', err)
+  }
+}
+// 抓取活動留言
+const reviewUrl = 'activity/activity_reviews_get.php'
+const fetchReviews = async (activityId) => {
+  try {
+    // 假設你有一支 activity_get_reviews.php
+    const response = await backHomeApi.get(`${reviewUrl}?activity_id=${activityId}`)
+
+    if (response.data.status === 'success') {
+      // 轉換資料格式以符合 ReviewSwiper 需求
+      const reviewsList = Array.isArray(response.data.data) ? response.data.data : []
+      const formattedMessages = reviewsList.map(item => ({
+        id: item.REVIEW_ID,
+        name: item.USER_NAME || '熱心志工',
+        stars: item.RATING,
+        content: item.CONTENT,
+        likes: item.LIKE_COUNT,
+        date: formatDate(new Date(item.CREATED_AT), 'YYYY-MM-DD'),
+        image: '' // 後端若無頭貼欄位，留空讓前端自動生成
+      }))
+
+      // 寫入 activityInfo
+      if (activityInfo.value) {
+        activityInfo.value.messages = formattedMessages
+      }
+    }
+  } catch (err) {
+    console.error('留言讀取失敗:', err)
+  }
 }
 // 判斷活動是否結束
 const isEnded = computed(() => activityInfo.value?.status === 'ended')
@@ -378,11 +456,8 @@ const goBackToList = () => {
       </div>
       <div class="row review">
         <div class="secondary-title col-sm-4">志工回饋牆</div>
-        <ReviewSwiper
-          v-if="activityInfo.messages && activityInfo.messages.length > 0"
-          :messages="activityInfo.messages"
-          @report="handleReport"
-        />
+        <ReviewSwiper v-if="activityInfo.messages && activityInfo.messages.length > 0" :messages="activityInfo.messages"
+          @report="handleReport" />
         <div v-else class="no-review">目前尚無回饋</div>
       </div>
 
@@ -430,13 +505,8 @@ const goBackToList = () => {
           <div class="rightContent col-sm-4 col-md-7 col-lg-7">
             <FormInput label="滿意度 : " required :error="errors.stars">
               <div class="star-rating">
-                <span
-                  v-for="star in 5"
-                  :key="star"
-                  class="material-symbols-outlined star"
-                  :class="{ 'is-active': star <= reviewData.stars }"
-                  @click="setRating(star)"
-                >
+                <span v-for="star in 5" :key="star" class="material-symbols-outlined star"
+                  :class="{ 'is-active': star <= reviewData.stars }" @click="setRating(star)">
                   kid_star
                 </span>
               </div>
@@ -444,13 +514,8 @@ const goBackToList = () => {
 
             <FormInput label="心得內容" required htmlFor="comment" :error="errors.comment">
               <div class="input-wrapper">
-                <textarea
-                  id="comment"
-                  type="text"
-                  v-model="reviewData.comment"
-                  class="customInput"
-                  placeholder="分享你的活動體驗(限100字)"
-                ></textarea>
+                <textarea id="comment" type="text" v-model="reviewData.comment" class="customInput"
+                  placeholder="分享你的活動體驗(限100字)"></textarea>
                 <span class="word-count">{{ reviewData.comment.length }} / 100</span>
               </div>
             </FormInput>
@@ -468,11 +533,8 @@ const goBackToList = () => {
         <div class="cta-content col-sm-4 col-md-4">
           <h3>{{ isOpening ? '活動進行中' : '報名截止' }}</h3>
           <p>{{ isOpening ? '活動正在進行，無法受理報名。' : '報名已截止，請探索其他活動。' }}</p>
-          <router-link
-            :to="{ name: 'activity' }"
-            class="btn-solid btn-large"
-            style="display: inline-block; text-decoration: none"
-          >
+          <router-link :to="{ name: 'activity' }" class="btn-solid btn-large"
+            style="display: inline-block; text-decoration: none">
             查看其他活動
           </router-link>
         </div>
@@ -484,11 +546,8 @@ const goBackToList = () => {
         <div class="cta-content col-sm-4 col-md-4">
           <h3>名額已滿</h3>
           <p>名額已滿，請探索其他活動</p>
-          <router-link
-            :to="{ name: 'activity' }"
-            class="btn-solid btn-large"
-            style="display: inline-block; text-decoration: none"
-          >
+          <router-link :to="{ name: 'activity' }" class="btn-solid btn-large"
+            style="display: inline-block; text-decoration: none">
             查看其他活動
           </router-link>
         </div>
@@ -516,96 +575,43 @@ const goBackToList = () => {
       <form v-else class="row signUpForm" @submit.prevent="handleSingUpSubmit">
         <div class="secondary-title col-sm-4">立即報名</div>
         <FormInput label="姓名" required htmlFor="name">
-          <input
-            id="name"
-            type="text"
-            v-model="formData.name"
-            class="customInput disable"
-            disabled
-          />
+          <input id="name" type="text" v-model="formData.name" class="customInput disable" disabled />
           <template #message>
             <span class="material-symbols-outlined info">info</span>
             如需修改姓名，請至 <a href="#" class="link">會員中心</a> 更新資料
           </template>
         </FormInput>
         <FormInput label="電子信箱" required htmlFor="email">
-          <input
-            id="email"
-            type="text"
-            v-model="formData.email"
-            class="customInput disable"
-            disabled
-          />
+          <input id="email" type="text" v-model="formData.email" class="customInput disable" disabled />
         </FormInput>
         <FormInput label="手機號碼" required htmlFor="phone" :error="errors.phone">
-          <input
-            id="phone"
-            type="tel"
-            v-model="formData.phone"
-            class="customInput"
-            placeholder="請輸入手機號碼"
-          />
+          <input id="phone" type="tel" v-model="formData.phone" class="customInput" placeholder="請輸入手機號碼" />
         </FormInput>
 
         <FormInput label="身分證字號" required htmlFor="idNumber" :error="errors.idNumber">
-          <input
-            id="idNumber"
-            type="text"
-            v-model="formData.idNumber"
-            @input="handleIdNumCheck"
-            class="customInput"
-            placeholder="請輸入身分證字號"
-            maxlength="10"
-          />
+          <input id="idNumber" type="text" v-model="formData.idNumber" @input="handleIdNumCheck" class="customInput"
+            placeholder="請輸入身分證字號" maxlength="10" />
         </FormInput>
 
         <FormInput label="出生年月日" required htmlFor="birthday" :error="errors.birthday">
-          <input
-            id="birthday"
-            type="date"
-            v-model="formData.birthday"
-            class="customInput"
-            placeholder="請選擇日期"
-          />
+          <input id="birthday" type="date" v-model="formData.birthday" class="customInput" placeholder="請選擇日期" />
         </FormInput>
 
-        <FormInput
-          label="緊急聯絡人姓名"
-          required
-          htmlFor="emergencyName"
-          :error="errors.emergencyName"
-        >
-          <input
-            id="emergencyName"
-            type="text"
-            v-model="formData.emergencyName"
-            class="customInput"
-          />
+        <FormInput label="緊急聯絡人姓名" required htmlFor="emergencyName" :error="errors.emergencyName">
+          <input id="emergencyName" type="text" v-model="formData.emergencyName" class="customInput" />
         </FormInput>
 
-        <FormInput
-          label="緊急聯絡人手機號碼"
-          required
-          htmlFor="emergencyPhone"
-          :error="errors.emergencyPhone"
-        >
-          <input
-            id="emergencyPhone"
-            type="tel"
-            v-model="formData.emergencyPhone"
-            class="customInput"
-            placeholder="請輸入緊急聯絡人手機號碼"
-          />
+        <FormInput label="緊急聯絡人手機號碼" required htmlFor="emergencyPhone" :error="errors.emergencyPhone">
+          <input id="emergencyPhone" type="tel" v-model="formData.emergencyPhone" class="customInput"
+            placeholder="請輸入緊急聯絡人手機號碼" />
         </FormInput>
 
         <div class="checkbox-row col-sm-3 col-md-8">
           <label class="check-label">
             <input type="checkbox" v-model="formData.syncData" hidden />
-            <span
-              class="material-symbols-outlined checkIcon"
-              :class="{ isChecked: formData.syncData }"
-              >{{ formData.syncData ? 'check_box' : 'check_box_outline_blank' }}</span
-            >
+            <span class="material-symbols-outlined checkIcon" :class="{ isChecked: formData.syncData }">{{
+              formData.syncData ?
+                'check_box' : 'check_box_outline_blank' }}</span>
             <span>同步更新會員資料：將本次填寫之資訊儲存至我的會員中心，下次報名更快速！</span>
           </label>
         </div>
@@ -616,12 +622,8 @@ const goBackToList = () => {
           <div class="checkbox-row">
             <label class="check-label">
               <input type="checkbox" v-model="formData.agreeHealth" hidden />
-              <span
-                class="material-symbols-outlined checkIcon"
-                :class="{ isChecked: formData.agreeHealth }"
-                :error="errors.agreeHealth"
-                >{{ formData.agreeHealth ? 'check_box' : 'check_box_outline_blank' }}</span
-              >
+              <span class="material-symbols-outlined checkIcon" :class="{ isChecked: formData.agreeHealth }"
+                :error="errors.agreeHealth">{{ formData.agreeHealth ? 'check_box' : 'check_box_outline_blank' }}</span>
               <span>我確認無心臟病、高血壓等不適合烈日下活動的病史</span>
             </label>
             <p v-if="errors.agreeHealth" class="error-text">
@@ -633,12 +635,8 @@ const goBackToList = () => {
           <div class="checkbox-row">
             <label class="check-label">
               <input type="checkbox" v-model="formData.agreePhoto" hidden />
-              <span
-                class="material-symbols-outlined checkIcon"
-                :class="{ isChecked: formData.agreePhoto }"
-                :error="errors.agreePhoto"
-                >{{ formData.agreePhoto ? 'check_box' : 'check_box_outline_blank' }}</span
-              >
+              <span class="material-symbols-outlined checkIcon" :class="{ isChecked: formData.agreePhoto }"
+                :error="errors.agreePhoto">{{ formData.agreePhoto ? 'check_box' : 'check_box_outline_blank' }}</span>
               <span>我同意肖像權使用 (活動照片將用於海龜保育推廣，不作商業用途)。</span>
             </label>
             <p v-if="errors.agreePhoto" class="error-text">
@@ -655,29 +653,19 @@ const goBackToList = () => {
     <!-- 推薦的活動 -->
     <div class="row recommendActivity">
       <div class="secondary-title col-sm-4">你可能會喜歡這些活動</div>
-      <swiper
-        :modules="[Autoplay, Pagination]"
-        :slides-per-view="1"
-        :space-between="24"
-        :autoplay="{ delay: 3000 }"
-        :pagination="{ clickable: true }"
-        :breakpoints="{
+      <swiper :modules="[Autoplay, Pagination]" :slides-per-view="1" :space-between="24" :autoplay="{ delay: 3000 }"
+        :pagination="{ clickable: true }" :breakpoints="{
           '768': { slidesPerView: 2.3 },
           '1024': { slidesPerView: 3.3 },
-        }"
-        class="recommend-swiper"
-      >
+        }" class="recommend-swiper">
         <swiper-slide v-for="activity in activityList" :key="activity.id">
           <ActivityCard :event="activity" />
         </swiper-slide>
       </swiper>
 
       <!-- 報名確認燈箱 -->
-      <LightboxRegisterCheck
-        v-model="showCheckLightbox"
-        :form-data="registrationData"
-        @confirm="handleConfirmRegistration"
-      />
+      <LightboxRegisterCheck v-model="showCheckLightbox" :form-data="registrationData"
+        @confirm="handleConfirmRegistration" />
 
       <!-- 留言確認燈箱 -->
       <LightboxReviewCheck v-model="showReviewCheckLightbox" @confirm="handleConfirmReview" />
@@ -722,6 +710,7 @@ const goBackToList = () => {
   outline: none;
   transition: all 0.3s;
 }
+
 .error-text {
   color: $highlight-color2;
   font-size: 14px;
@@ -799,6 +788,7 @@ const goBackToList = () => {
   font-size: 12px;
   color: $page-number-color;
 }
+
 .row {
   padding: 24px;
 }
@@ -994,6 +984,7 @@ textarea.customInput {
       color: $text-white !important;
     }
   }
+
   .icon-success {
     font-size: 48px;
     color: $secondary-color;

@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
-import { useRouter, useRoute } from 'vue-router' // 引入路由
+import { useRouter, useRoute } from 'vue-router'
 import TabSwitcher from '@/components/TabSwitcher.vue'
 import ActivityCard from '@/components/cards/ActivityCard.vue'
 import Pagination from '@/components/Pagination.vue'
@@ -25,24 +25,76 @@ const isLightboxOpen = ref(false)
 const activeType = ref('')
 const selectedActivity = ref(null)
 
-// --- RWD 邏輯 ---
+// --- API 串接：讀取收藏清單 ---
+const fetchFavorites = async () => {
+  try {
+    const response = await fetch('http://localhost:8888/api/member/auth_favorite_list.php');
+    const data = await response.json();
+    
+    favoriteList.value = data.map(item => {
+      // 關鍵！因為 PHP 回傳的是 "image": "care_01.png"
+      const fileName = item.image; 
+      
+      // 這裡組合出絕對路徑，請確保路徑層級跟你的 MAMP 檔案夾對齊
+      const finalImage = fileName 
+        ? `http://localhost:8888/api/uploads/actCover/${fileName}` 
+        : '';
+
+      return {
+        id: item.activityId, 
+        title: item.title,
+        date: item.startDate,
+        location: item.location,
+        image: finalImage,    // 這會變成 http://localhost:8888/api/uploads/actCover/care_01.png
+        isFavorite: true,
+        currentPeople: 0,
+        maxPeople: 100,
+        type: '活動'
+      };
+    });
+  } catch (error) {
+    console.error('抓取失敗:', error);
+  }
+};
+
+// --- API 串接：執行移除收藏 ---
+const handleLightboxConfirm = async () => {
+  if (activeType.value === 'removeFavorite') {
+    try {
+      const response = await fetch('http://localhost:8888/api/member/auth_favorite_delete.php', {
+        method: 'POST', // 配合你目前的 PHP 接收邏輯
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ activityId: selectedActivity.value.id })
+      });
+
+      const result = await response.json();
+      
+      if (result.status === 'success') {
+        // 從前端陣列中移除，達成即時更新
+        favoriteList.value = favoriteList.value.filter(act => act.id !== selectedActivity.value.id);
+        
+        isLightboxOpen.value = false;
+        // 顯示成功移除的燈箱
+        setTimeout(() => {
+          activeType.value = 'removeFavoriteSuccess';
+          isLightboxOpen.value = true;
+        }, 300);
+      }
+    } catch (error) {
+      console.error('移除失敗:', error);
+      alert('移除收藏時發生錯誤');
+    }
+  }
+};
+
+// --- RWD 與 生命週期 ---
 const updateItemsPerPage = () => {
   const width = window.innerWidth;
   itemsPerPage.value = width < 1024 ? 6 : 9;
 };
 
 onMounted(() => {
-  favoriteList.value = Array.from({ length: 27 }, (_, i) => ({
-    id: i + 1,
-    title: `收藏活動 - ${i + 1}`,
-    date: i < 15 ? '2026-05-20' : '2025-01-01',
-    location: '新北市萬里區',
-    currentPeople: 50,
-    maxPeople: 100,
-    type: '淨灘',
-    image: 'https://picsum.photos/400/300',
-    isFavorite: true // 模擬已收藏
-  }))
+  fetchFavorites(); // 組件掛載後抓取真實資料
   updateItemsPerPage();
   window.addEventListener('resize', updateItemsPerPage);
 })
@@ -51,39 +103,23 @@ onUnmounted(() => {
   window.removeEventListener('resize', updateItemsPerPage)
 })
 
-// --- 燈箱邏輯 ---
-
+// --- 燈箱邏輯與點擊攔截 ---
 const openRemoveConfirm = (activity) => {
   selectedActivity.value = activity;
   activeType.value = 'removeFavorite';
   isLightboxOpen.value = true;
 };
 
-// 使用捕獲模式攔截愛心點擊
 const handleWrapperClick = (e, activity) => {
-  // 向上尋找是否有 .bookmark 類別的元素
   const bookmarkEl = e.target.closest('.bookmark');
   if (bookmarkEl) {
     e.preventDefault();
-    e.stopPropagation(); // 阻止卡片跳轉
-    console.log('✅ 攔截到愛心點擊');
+    e.stopPropagation();
     openRemoveConfirm(activity);
   }
 };
 
-const handleLightboxConfirm = () => {
-  if (activeType.value === 'removeFavorite') {
-    console.log('移出收藏夾，ID:', selectedActivity.value?.id);
-    
-    isLightboxOpen.value = false;
-    setTimeout(() => {
-      activeType.value = 'removeFavoriteSuccess';
-      isLightboxOpen.value = true;
-    }, 300);
-  }
-};
-
-// --- 分頁邏輯 ---
+// --- 分頁與過濾邏輯 ---
 const filteredFavorites = computed(() => {
   const todayTime = new Date().setHours(0, 0, 0, 0)
   return favoriteList.value.filter(act => {
@@ -100,26 +136,15 @@ const paginatedFavorites = computed(() => {
 
 const goToPage = (page) => {
   currentPage.value = page
-  router.push({
-    query: {
-      tab: currentTab.value,
-      page: page === 1 ? undefined : page
-    }
-  })
+  router.push({ query: { ...route.query, page: page === 1 ? undefined : page } })
   window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
 watch(currentTab, () => {
   currentPage.value = 1
-  router.push({
-    query: {
-      tab: currentTab.value,
-      page: undefined
-    }
-  })
+  router.push({ query: { tab: currentTab.value, page: undefined } })
 })
 
-// 加上這段：初始化時從 URL 讀取
 watch(() => route.query, () => {
   if (route.query.tab) currentTab.value = route.query.tab
   if (route.query.page) currentPage.value = parseInt(route.query.page)

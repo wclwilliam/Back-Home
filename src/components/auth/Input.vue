@@ -1,26 +1,21 @@
 <template>
   <div class="input-group">
-    
+
     <label v-if="label" class="input-label">{{ label }}</label>
 
     <div :class="['input-container', { 'is-readonly': readonly }]">
-      
+
       <div v-if="$slots.icon" class="icon-wrap">
         <slot name="icon"></slot>
       </div>
 
-      <input
-        v-bind="$attrs"
-        :value="modelValue"
-        :readonly="readonly"
-        @input="$emit('update:modelValue', $event.target.value)"
-        class="input-field"
-      />
+      <input v-bind="$attrs" :value="modelValue" :readonly="readonly"
+        @input="$emit('update:modelValue', $event.target.value)" class="input-field" />
 
       <div v-if="$slots.append" class="icon-wrap is-append">
         <slot name="append"></slot>
       </div>
-      
+
     </div>
   </div>
 </template>
@@ -45,15 +40,14 @@ defineOptions({ inheritAttrs: false })
 @import '@/assets/scss/base/_var.scss';
 
 .input-group {
-  margin-bottom: rem(20px); // 使用全域 rem 函式，下方留點距離
   width: 100%;
 }
 
 .input-label {
   display: block;
   margin-bottom: rem(8px);
-  color: $primary-color;   // 使用全域變數：深藍色
-  font-size: $size-body;   // 16px
+  color: $primary-color; // 使用全域變數：深藍色
+  font-size: $size-body; // 16px
   font-weight: 500;
   font-family: $font-main; // 使用全域字體
 }
@@ -61,11 +55,11 @@ defineOptions({ inheritAttrs: false })
 .input-container {
   display: flex;
   align-items: center;
-  height: rem(48px);                 // 統一高度 48px
+  height: rem(48px); // 統一高度 48px
   border: 1px solid $input-line-color1; // 預設黑框
   background-color: $text-white;
   padding: 0 rem(16px);
-  transition: all 0.2s ease;         // 讓變色效果變平滑
+  transition: all 0.2s ease; // 讓變色效果變平滑
 
   /* 聚焦效果：當點擊輸入框時，外框變色 */
   &:focus-within {
@@ -74,10 +68,10 @@ defineOptions({ inheritAttrs: false })
 
   /* 唯讀狀態樣式 (例如：個人資訊頁不可修改的 Email) */
   &.is-readonly {
-    background-color: $bg-color;      // 使用全域變數：淺灰色背景
+    background-color: $bg-color; // 使用全域變數：淺灰色背景
     border-color: $page-number-color; // 框線變淡
-    cursor: not-allowed;              // 滑鼠變成「禁止點擊」符號
-    
+    cursor: not-allowed; // 滑鼠變成「禁止點擊」符號
+
     .input-field {
       color: $page-number-color;
       cursor: not-allowed;
@@ -107,13 +101,13 @@ defineOptions({ inheritAttrs: false })
 
   /* 真正的文字輸入區域 */
   .input-field {
-    flex: 1;               // 佔滿剩餘空間
-    border: none;          // 拿掉原本醜醜的邊框
-    outline: none;         // 拿掉點擊時的藍色外框
+    flex: 1; // 佔滿剩餘空間
+    border: none; // 拿掉原本醜醜的邊框
+    outline: none; // 拿掉點擊時的藍色外框
     background: transparent;
     height: 100%;
     font-size: $size-body; // 使用 16px
-    color: $text-color;    // 使用全域深灰色文字
+    color: $text-color; // 使用全域深灰色文字
 
     /* 提示文字 placeholder 的顏色 */
     &::placeholder {
