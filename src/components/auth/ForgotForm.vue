@@ -190,13 +190,34 @@ async function handleResetPassword() {
 :deep(.input-group) {
   margin-bottom: rem(16px);
   width: 100%;
+  position: relative;
 
   .input-container {
     border: 1px solid $secondary-color !important;
+    background-color: transparent !important;
+    display: flex;
+    align-items: center;
 
     .icon-wrap,
     span {
       color: $secondary-color !important;
+      flex-shrink: 0;
+    }
+  }
+
+  .input-field {
+    border: none !important;
+    box-shadow: none !important;
+    padding-right: rem(40px) !important;
+  }
+
+  .password-toggle {
+    cursor: pointer;
+    color: #999;
+    transition: color 0.2s;
+
+    &:hover {
+      color: $secondary-color;
     }
   }
 }
