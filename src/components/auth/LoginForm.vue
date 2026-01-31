@@ -61,14 +61,11 @@ const callback = async (response) => {
         const result = await googleLogin(response.credential)
 
         if (result.status === 'success' && result.token) {
-            // 儲存 token 和用戶資料到 store
-            localStorage.setItem('token', result.token)
-            authStore.token = result.token
-            authStore.user = {
-                MEMBER_ID: result.member.MEMBER_ID,
-                MEMBER_REALNAME: result.member.MEMBER_NAME,
-                MEMBER_EMAIL: result.member.MEMBER_EMAIL || '',
-            }
+            // 使用 auth store 的 setToken 方法儲存（會自動存到正確的 key）
+            authStore.setToken(result.token)
+
+            // 登入成功後，從後端獲取完整的會員資料
+            await authStore.fetchMe()
 
             // 關閉登入 modal
             authStore.closeLoginModal()

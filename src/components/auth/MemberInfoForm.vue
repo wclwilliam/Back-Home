@@ -70,10 +70,10 @@ const handleUpdate = async () => {
 
     if (form.name) updateData.MEMBER_REALNAME = form.name
     if (form.phone) updateData.MEMBER_PHONE = form.phone
-    if (form.idNumber) updateData.ID_NUMBER = form.idNumber
-    if (form.birthday) updateData.BIRTHDAY = form.birthday
-    if (form.emergencyContact) updateData.EMERGENCY = form.emergencyContact
-    if (form.emergencyPhone) updateData.EMERGENCY_TEL = form.emergencyPhone
+    if (form.idNumber) updateData.MEMBER_IDNUMBER = form.idNumber
+    if (form.birthday) updateData.MEMBER_BIRTHDAY = form.birthday
+    if (form.emergencyContact) updateData.MEMBER_EMERGENCY_NAME = form.emergencyContact
+    if (form.emergencyPhone) updateData.MEMBER_EMERGENCY_PHONE = form.emergencyPhone
 
     const response = await updateMemberInfo(updateData)
 
@@ -134,6 +134,7 @@ onMounted(async () => {
     await authStore.fetchMe()
 
     if (authStore.user) {
+      // 基本資料
       form.name = authStore.user.MEMBER_REALNAME || ''
       form.email = authStore.user.MEMBER_EMAIL || ''
       form.phone = authStore.user.MEMBER_PHONE || ''
@@ -206,7 +207,7 @@ const validateEmergencyPhone = () => {
       <div class="form-group">
         <label class="form-label">姓名 * :</label>
         <div class="input-wrapper">
-          <Input v-model="form.name" placeholder="王曉明" autocomplete="name" @blur="validateName"
+          <Input v-model="form.name" placeholder="請輸入姓名" autocomplete="name" @blur="validateName"
             @keyup.enter="validateName" />
           <p v-if="errors.name" class="error-message">
             <span class="material-symbols-outlined icon-alert">error</span>

@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { MENU_ITEMS } from '@/config/menu.js'
 import { useAuthStore } from '@/stores/auth.js'
@@ -24,8 +24,10 @@ const toggleMenu = () => {
 const authStore = useAuthStore()
 const isUserMenuOpen = ref(false)
 
-// 從 authStore 取得使用者名稱
-const userName = ref('Demo User')
+// 從 authStore 取得使用者名稱（使用 computed 自動更新）
+const userName = computed(() => {
+  return authStore.user?.MEMBER_REALNAME || '會員'
+})
 
 const toggleUserMenu = () => {
   // 如果未登入，開啟登入燈箱並設定登入後導向會員中心
@@ -36,11 +38,6 @@ const toggleUserMenu = () => {
   }
   // 已登入則切換選單顯示
   isUserMenuOpen.value = !isUserMenuOpen.value
-
-  // 更新使用者名稱
-  if (authStore.user?.name) {
-    userName.value = authStore.user.name
-  }
 }
 
 const goToMemberCenter = () => {
@@ -101,7 +98,7 @@ const logout = async () => {
         <div class="hamburger" :class="{ isActive: isMenuOpen }" @click="toggleMenu">
           <span class="material-symbols-outlined icon-white">{{
             isMenuOpen ? 'close' : 'menu'
-            }}</span>
+          }}</span>
         </div>
       </div>
     </div>

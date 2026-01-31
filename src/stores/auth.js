@@ -39,9 +39,11 @@ export const useAuthStore = defineStore('auth', () => {
       // 使用真實登入 API
       const data = await apiLogin(account, password)
 
-      // 儲存 token 和用戶資料
+      // 儲存 token
       setToken(data.token)
-      user.value = data.user
+
+      // 登入成功後，從後端獲取完整的會員資料
+      await fetchMe()
 
       // 登入成功後關閉燈箱
       closeLoginModal()

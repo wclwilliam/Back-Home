@@ -166,12 +166,21 @@ onBeforeUnmount(() => {
 .game-page {
   position: relative;
   width: 100%;
-  height: calc(100dvh - clamp(84px, 8vw, 100px)) !important;
+  height: calc(100dvh - clamp(84px, 8vw, 100px));
   overflow: hidden;
 
   /* 手機橫向：填滿整個視窗 */
-  @media (max-width: 820px) or (orientation: landscape) {
-    height: 100dvh;
+  @media (pointer: coarse) and (max-width: 820px) and (orientation: landscape) {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+    min-height: 100dvh !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    z-index: 1000;
   }
 }
 
@@ -179,6 +188,7 @@ onBeforeUnmount(() => {
   position: relative;
   z-index: 1;
   height: 100%;
+  width: 100%;
 }
 
 /* 手機橫向：縮小字體 */

@@ -27,8 +27,8 @@
   }
 
   const updateBodyScroll = () => {
-    // 小螢幕直向時隱藏滾動條，其他情況允許滾動
-    const shouldHideScroll = smallScreen.value && portrait.value
+    // 只在手機直向或桌機小螢幕時隱藏滾動條，手機橫向允許滾動
+    const shouldHideScroll = (mobile.value && portrait.value) || (!mobile.value && smallScreen.value)
     document.documentElement.style.overflow = shouldHideScroll ? 'hidden' : 'auto'
     document.body.style.overflow = shouldHideScroll ? 'hidden' : 'auto'
   }
@@ -55,11 +55,11 @@
     document.body.style.overflow = ''
   })
 
-  /* 寬度 <= 820px + 直向 → 顯示遮罩（手機） */
-  /* 寬度 <= 820px + 桌機 → 顯示遮罩（桌機） */
+  /* 手機直向 或 桌機小螢幕（不論橫直向）→ 顯示遮罩 */
+  /* 手機橫向 → 不顯示遮罩，可以遊玩 */
   const showGate = computed(() => {
-    if (smallScreen.value && portrait.value) return true // 小螢幕直向
-    if (smallScreen.value && !mobile.value) return true // 桌機小螢幕
+    if (mobile.value && portrait.value) return true // 手機直向
+    if (!mobile.value && smallScreen.value) return true // 桌機小螢幕
     return false
   })
 
@@ -102,12 +102,21 @@
 <style lang="scss" scoped>
 .orientation-guard {
   position: relative;
-  height: calc(100dvh - clamp(84px, 8vw, 100px)) !important;
+  height: calc(100dvh - clamp(84px, 8vw, 100px));
   overflow-y: auto;
 
-  /* 手機橫向：填滿整個視窗 */
-  @media (max-width: 820px) or (orientation: landscape) {
-    height: 100dvh;
+  /* 手機橫向：填滿整個視窗，移除 Header */
+  @media (pointer: coarse) and (max-width: 820px) and (orientation: landscape) {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    height: 100dvh !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    z-index: 1000;
   }
 }
 
@@ -119,6 +128,10 @@
   display: grid;
   place-items: center;
   overflow: hidden;
+  height: 100vh;
+  height: 100dvh;
+  margin: 0;
+  padding: 0;
 }
 
 /* 海底背景（可換成圖片） */
