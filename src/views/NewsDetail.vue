@@ -168,7 +168,7 @@ const goToArticle = (id) => {
 
     .newDetailBanner {
         width: 80%;
-        height: 400px;
+        height: 250px;
         border-bottom: 1px solid $primary-color;
         margin: auto;
         display: flex;
