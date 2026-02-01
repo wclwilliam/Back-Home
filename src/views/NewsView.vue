@@ -21,6 +21,7 @@ let timer = null;
 
 
 const newslist = ref([])
+const isLoading = ref(true);
 const pageSize = 9;
 
 //監聽網址變化 
@@ -49,16 +50,17 @@ watch(currentNewsTab, () => {
 
 // 連資料庫 ，將資料存入 newslist
 onMounted(async () => {
+  isLoading.value = true; // 2. 開始請求前確保是 loading
   try {
-    await backHomeApi.get('./news/news_get.php').then((response) => {
-      newslist.value = response.data
-      // 進頁面給值 
-    })
+    const response = await backHomeApi.get('./news/news_get.php');
+    newslist.value = response.data;
   } catch (error) {
     console.error('資料庫連線失敗:', error);
+  } finally {
+    // 3. 不管成功或失敗，請求結束就關閉 loading
+    isLoading.value = false; 
   }
-})
-
+});
 /* 原本的 publicApi */
 // onMounted(() => {
 //   publicApi.get('data/NewsList.json')
@@ -155,13 +157,17 @@ watch(searchKeyword, (newVal) => {
     <clickBar v-model="currentNewsTab" :tabs="newsTabs" />
     <searchBox v-model="searchKeyword" />
 
-    <div class="row" v-if="filteredNews.length > 0">
+    <div v-if="isLoading" class="loadingText">
+      消息載入中，請稍候...
+    </div>
+
+    <div class="row" v-else-if="filteredNews.length > 0">
       <NewsCard v-for="item in displayNews" :key="item.id" :id="item.id" :title="item.title"
         :date="formatDate(item.published_at)" :typeBadge="item.category" :image="item.image_path"
         @click="goToDetail(item.id)" style="cursor: pointer;" />
     </div>
 
-    <div v-else class="noData">
+    <div v-else class="loadingText">
       目前尚無此分類的消息
     </div>
 
@@ -179,7 +185,7 @@ h1 {
   margin-bottom: 20px;
 }
 
-.noData {
+.loadingText {
   @include font-body-l;
   text-align: center;
   padding: 50px;
