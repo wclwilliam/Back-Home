@@ -33,7 +33,7 @@ const loadData = async () => {
     try {
         // A. 抓取全部資料來做前後篇排序
         const response = await backHomeApi.get('./news/news_get.php');
-        
+
         // B. 排序與篩選邏輯 (保留你原本的邏輯)
         // 註：PHP 的 SQL 已經寫了 ORDER BY，但這裡再排一次更保險
         let sortedData = response.data.sort((a, b) => {
@@ -42,15 +42,15 @@ const loadData = async () => {
 
         const fromCategory = route.query.fromCategory;
         const fromSearch = route.query.fromSearch;
-      
+
         if (fromCategory && fromCategory !== '全部') {
             sortedData = sortedData.filter(item => item.category === fromCategory);
         }
 
         if (fromSearch) {
             const keyword = fromSearch.toLowerCase();
-            sortedData = sortedData.filter(item => 
-                item.title.toLowerCase().includes(keyword) || 
+            sortedData = sortedData.filter(item =>
+                item.title.toLowerCase().includes(keyword) ||
                 item.content.toLowerCase().includes(keyword)
             );
         }
@@ -86,21 +86,21 @@ onMounted(() => {
 });
 
 const goBackToList = () => {
-  router.push({
-    path: '/news', 
-    query: {
-      category: route.query.fromCategory,
-      page: route.query.fromPage,
-      search: route.query.fromSearch
-    }
-  });
+    router.push({
+        path: '/news',
+        query: {
+            category: route.query.fromCategory,
+            page: route.query.fromPage,
+            search: route.query.fromSearch
+        }
+    });
 };
 
 const goToArticle = (id) => {
-    router.push({ 
-        name: 'NewsDetail', 
+    router.push({
+        name: 'NewsDetail',
         params: { id },
-        query: route.query 
+        query: route.query
     });
 };
 </script>
@@ -124,7 +124,7 @@ const goToArticle = (id) => {
                 <h2 class="title">{{ article.title }}</h2>
             </div>
 
-              <div class="articleImage" v-if="article.image_path">
+            <div class="articleImage" v-if="article.image_path">
                 <img :src="fileUrl + article.image_path" :alt="article.title">
             </div>
 
@@ -159,8 +159,30 @@ const goToArticle = (id) => {
 </template>
 
 <style lang="scss" scoped>
+// .image-style-align-left {
+//     float: left;
+//     margin-right: 1.5em;
+// }
+
+// .image-style-align-right {
+//     float: right;
+//     margin-left: 1.5em;
+// }
+
+// .image-style-side {
+//     float: right;
+//     margin-left: 1.5em;
+//     max-width: 50%;
+// }
+
+// /* 記得清除浮動，避免後面的文字或容器塌陷 */
+// .image::after {
+//     content: "";
+//     display: table;
+//     clear: both;
+// }
 .newsDetail {
-    background-image:url('/img/News/news-bg.png');
+    background-image: url('/img/News/news-bg.png');
     background-size: cover;
     width: 100%;
     height: auto;
@@ -241,7 +263,7 @@ const goToArticle = (id) => {
     line-height: 1.8;
     color: #333;
     margin-bottom: 60px;
-    
+
     :deep(h2) {
         display: block;
         font-size: 2rem;
@@ -273,11 +295,13 @@ const goToArticle = (id) => {
     }
 
 
-    :deep(strong), :deep(b) {
+    :deep(strong),
+    :deep(b) {
         font-weight: bold;
     }
 
-    :deep(i), :deep(em) {
+    :deep(i),
+    :deep(em) {
         font-style: italic;
     }
 
@@ -286,20 +310,27 @@ const goToArticle = (id) => {
         list-style-type: disc;
         padding-left: 2rem;
         margin-bottom: 1.2rem;
-        li { margin-bottom: 0.5rem; }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
     }
 
     :deep(ol) {
         list-style-type: decimal;
         padding-left: 2rem;
         margin-bottom: 1.2rem;
-        li { margin-bottom: 0.5rem; }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
     }
 
 
     :deep(a) {
         color: $primary-color;
         text-decoration: underline;
+
         &:hover {
             opacity: 0.8;
         }
@@ -320,9 +351,34 @@ const goToArticle = (id) => {
         display: block;
         margin: 2rem auto;
         border-radius: 8px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
 }
+
+ /* 針對 Vue 3 的樣式穿透 */
+    :deep(.articleBody) .image-style-align-left {
+        float: left;
+        margin-right: 1.5em;
+    }
+
+    :deep(.articleBody) .image-style-align-right {
+        float: right;
+        margin-left: 1.5em;
+    }
+
+    :deep(.articleBody) .image_resized {
+        /* 確保縮放後的圖片在文繞圖時正常顯示 */
+        display: block;
+        box-sizing: border-box;
+    }
+
+    /* 清除浮動防止排版崩壞 */
+    :deep(.articleBody)::after {
+        content: "";
+        display: table;
+        clear: both;
+    }
+
 .signature {
     margin-top: 40px;
     margin-bottom: 60px;
