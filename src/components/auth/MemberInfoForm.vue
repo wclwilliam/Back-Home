@@ -1,7 +1,7 @@
 <script setup>
 import { ref, reactive, watch, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
-import { updateMemberInfo } from '@/api/memberApi'
+import { updateMemberInfo, updatePassword } from '@/api/memberApi'
 import Input from '@/components/auth/Input.vue'
 import Button from '@/components/auth/Button.vue'
 import MemberLightbox from '@/components/auth/MemberLightbox.vue'
@@ -65,26 +65,99 @@ const handleUpdate = async () => {
       return
     }
 
-    // 準備要更新的資料（只傳送有值的欄位）
+    // 如果有填寫新密碼，進行密碼驗證
+    if (form.newPassword || form.confirmPassword) {
+      // 檢查是否兩個欄位都有填寫
+      if (!form.newPassword) {
+        errors.newPassword = '請輸入新密碼'
+        isLoading.value = false
+        return
+      }
+      if (!form.confirmPassword) {
+        errors.confirmPassword = '請再次輸入新密碼'
+        isLoading.value = false
+        return
+      }
+
+      // 檢查密碼長度
+      if (form.newPassword.length < 8) {
+        errors.newPassword = '密碼需至少 8 個字元'
+        isLoading.value = false
+        return
+      }
+
+      // 檢查是否包含大寫字母
+      if (!/[A-Z]/.test(form.newPassword)) {
+        errors.newPassword = '密碼需包含至少一個大寫字母'
+        isLoading.value = false
+        return
+      }
+
+      // 檢查是否包含小寫字母
+      if (!/[a-z]/.test(form.newPassword)) {
+        errors.newPassword = '密碼需包含至少一個小寫字母'
+        isLoading.value = false
+        return
+      }
+
+      // 檢查是否包含數字
+      if (!/\d/.test(form.newPassword)) {
+        errors.newPassword = '密碼需包含至少一個數字'
+        isLoading.value = false
+        return
+      }
+
+      // 檢查兩次密碼是否一致
+      if (form.newPassword !== form.confirmPassword) {
+        errors.confirmPassword = '兩次輸入的密碼不一致'
+        isLoading.value = false
+        return
+      }
+    }
+
+    // 準備要更新的資料（不包含密碼）
     const updateData = {}
 
     if (form.name) updateData.MEMBER_REALNAME = form.name
     if (form.phone) updateData.MEMBER_PHONE = form.phone
-    if (form.idNumber) updateData.MEMBER_IDNUMBER = form.idNumber
-    if (form.birthday) updateData.MEMBER_BIRTHDAY = form.birthday
-    if (form.emergencyContact) updateData.MEMBER_EMERGENCY_NAME = form.emergencyContact
-    if (form.emergencyPhone) updateData.MEMBER_EMERGENCY_PHONE = form.emergencyPhone
+    if (form.idNumber) updateData.ID_NUMBER = form.idNumber
+    if (form.birthday) updateData.BIRTHDAY = form.birthday
+    if (form.emergencyContact) updateData.EMERGENCY = form.emergencyContact
+    if (form.emergencyPhone) updateData.EMERGENCY_TEL = form.emergencyPhone
 
-    const response = await updateMemberInfo(updateData)
+    // 分開處理：先更新一般資料，再更新密碼
 
-    if (response.status === 'success') {
-      // 更新 store 中的用戶資料
-      authStore.user = response.member
-
-      // 觸發成功燈箱
-      isLightboxOpen.value = true
-      lightboxType.value = 'updateSuccess'
+    // 1. 更新一般資料
+    if (Object.keys(updateData).length > 0) {
+      const response = await updateMemberInfo(updateData)
+      if (response.status !== 'success') {
+        throw new Error('資料更新失敗')
+      }
     }
+
+    // 2. 如果有填密碼，單獨調用密碼 API
+    if (form.newPassword) {
+      const passwordResponse = await updatePassword(form.newPassword)
+      if (passwordResponse.status !== 'success') {
+        throw new Error('密碼更新失敗')
+      }
+    }
+
+    // 更新成功
+    // 更新成功
+    // 重新從後端獲取完整的會員資料
+    await authStore.fetchMe()
+
+    // 如果有更新密碼，清空密碼欄位並關閉密碼修改區域
+    if (form.newPassword) {
+      form.newPassword = ''
+      form.confirmPassword = ''
+      isChangingPassword.value = false
+    }
+
+    // 觸發成功燈箱
+    isLightboxOpen.value = true
+    lightboxType.value = 'updateSuccess'
   } catch (error) {
     // 如果是後端返回的特定欄位錯誤，可以在這裡處理
     const errorMsg = error.error || error.message || '更新失敗，請稍後再試'
@@ -127,11 +200,16 @@ const form = reactive({
 })
 
 const isChangingPassword = ref(false)
+const isNewPasswordVisible = ref(false)
+const isConfirmPasswordVisible = ref(false)
 
 // 載入會員資料
 onMounted(async () => {
   try {
-    await authStore.fetchMe()
+    // 如果還沒有用戶資料，才從 API 獲取
+    if (!authStore.user) {
+      await authStore.fetchMe()
+    }
 
     if (authStore.user) {
       // 基本資料
@@ -290,18 +368,31 @@ const validateEmergencyPhone = () => {
           </button>
 
           <div v-else class="password-fields">
-            <Input v-model="form.newPassword" type="password" placeholder="請輸入新密碼" autocomplete="new-password"
-              @keyup.enter="handleUpdate" />
+            <Input v-model="form.newPassword" :type="isNewPasswordVisible ? 'text' : 'password'" placeholder="請輸入新密碼"
+              autocomplete="new-password" @keyup.enter="handleUpdate">
+              <template #append>
+                <span class="material-symbols-outlined password-toggle"
+                  @click.stop="isNewPasswordVisible = !isNewPasswordVisible">
+                  {{ isNewPasswordVisible ? 'visibility' : 'visibility_off' }}
+                </span>
+              </template>
+            </Input>
             <p v-if="errors.newPassword" class="error-message">
               <span class="material-symbols-outlined icon-alert">error</span>
               {{ errors.newPassword }}
             </p>
             <p class="hint">
-              <span class="material-symbols-outlined">info</span>
               密碼需 8 個字元以上，且包含英文字母大小寫、數字
             </p>
-            <Input v-model="form.confirmPassword" type="password" placeholder="請再次輸入新密碼" autocomplete="new-password"
-              @keyup.enter="handleUpdate" />
+            <Input v-model="form.confirmPassword" :type="isConfirmPasswordVisible ? 'text' : 'password'"
+              placeholder="請再次輸入新密碼" autocomplete="new-password" @keyup.enter="handleUpdate">
+              <template #append>
+                <span class="material-symbols-outlined password-toggle"
+                  @click.stop="isConfirmPasswordVisible = !isConfirmPasswordVisible">
+                  {{ isConfirmPasswordVisible ? 'visibility' : 'visibility_off' }}
+                </span>
+              </template>
+            </Input>
             <p v-if="errors.confirmPassword" class="error-message">
               <span class="material-symbols-outlined icon-alert">error</span>
               {{ errors.confirmPassword }}
@@ -360,10 +451,14 @@ const validateEmergencyPhone = () => {
       flex-direction: column;
       gap: rem(12px);
 
+      .error-message {
+        margin-top: rem(-6px);
+      }
+
       .hint {
-        font-size: $size-body;
+        font-size: rem(14px);
         color: #999;
-        margin: rem(-4px) 0 0 0;
+        margin: rem(-6px) 0 0 0;
         display: flex;
         align-items: center;
         gap: rem(4px);
@@ -417,6 +512,12 @@ const validateEmergencyPhone = () => {
     font-variation-settings: 'FILL' 1;
     font-size: rem(16px);
   }
+}
+
+.password-toggle {
+  cursor: pointer;
+  color: $page-number-color;
+  font-variation-settings: 'FILL' 1;
 }
 
 // 響應式手機版

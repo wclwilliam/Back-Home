@@ -25,3 +25,18 @@ export const updateMemberInfo = async (data) => {
     throw error
   }
 }
+
+// 更新密碼 API
+export const updatePassword = async (newPassword) => {
+  try {
+    const response = await http.patch('/member/auth_update_password.php', {
+      new_password: newPassword,
+    })
+    return response.data
+  } catch (error) {
+    if (error.response?.data) {
+      throw error.response.data
+    }
+    throw error
+  }
+}
