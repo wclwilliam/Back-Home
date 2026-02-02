@@ -3,8 +3,10 @@ import { ref, computed, onMounted, nextTick, watch, toRaw } from 'vue'
 import { allTurtles } from './turtleData.js'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
-import "@bepo65/leaflet.fullscreen/Control.FullScreen";
-import "@bepo65/leaflet.fullscreen/Control.FullScreen.css";
+// import "@bepo65/leaflet.fullscreen/Control.FullScreen";
+// import "@bepo65/leaflet.fullscreen/Control.FullScreen.css";
+import { FullScreen } from 'leaflet.fullscreen';
+import 'leaflet.fullscreen/dist/Control.FullScreen.css';
 
 const base = import.meta.env.BASE_URL
 const parsePublicFile = (imgURL) => {
@@ -45,7 +47,7 @@ const drawTurtleLayer = (turtle) => {
 }
 
 
-onMounted(() => {
+onMounted(async () => {
     await nextTick();
     //建立地圖框
     map = L.map('map', {
@@ -54,15 +56,21 @@ onMounted(() => {
         maxBoundsViscosity: 1.0,
 
         // 直接在這裡加入全螢幕控制
-        fullscreenControl: true,
-        fullscreenControlOptions: {
-            position: "topright", 
-            title: "進入全螢幕",
-            titleCancel: "離開全螢幕",
-            forceSeparateButton: true,
-            forcePseudoFullscreen: false,
-        }
+        // fullscreenControl: true,
+        // fullscreenControlOptions: {
+        //     position: "topright",
+        //     title: "進入全螢幕",
+        //     titleCancel: "離開全螢幕",
+        //     forceSeparateButton: true,
+        //     forcePseudoFullscreen: false,
+        // }
     }).setView([20, 0], 2);
+
+    map.addControl(
+        new FullScreen({
+            position: 'topleft'
+        })
+    );
 
     // 使用更穩定的 tile provider (修正 400 錯誤)
     L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png', {
@@ -182,7 +190,7 @@ h1 {
         display: grid;
         grid-template-columns: 1fr;
         grid-template-rows: 400px auto;
-         height: auto;
+        height: auto;
     }
 }
 
@@ -192,7 +200,7 @@ h1 {
 
     @media (max-width: 992px) {
         width: 100%;
-        height: 400px; 
+        height: 400px;
     }
 }
 
