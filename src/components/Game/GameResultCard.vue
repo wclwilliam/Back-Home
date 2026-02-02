@@ -92,15 +92,15 @@ const next = () => emit('next', props.node?.nextId)
     .game-result-card__content {
         padding: 32px 16px 16px;
         gap: 12px;
-        font-size: 0.9rem;
+        font-size: 14px;
     }
 
     .game-result-card__title {
-        font-size: 0.95rem;
+        font-size: 15px;
     }
 
     .game-result-card__rate {
-        font-size: 0.85rem;
+        font-size: 14px;
     }
 
     .icon-arrow {

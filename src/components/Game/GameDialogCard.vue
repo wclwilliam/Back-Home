@@ -61,11 +61,11 @@ const emit = defineEmits(['next'])
 /* 手機橫向：縮小文字大小 */
 @media (pointer: coarse) and (orientation: landscape) {
   .dialog-text {
-    font-size: 0.9rem;
+    font-size: 14px;
   }
 
   .warning-text {
-    font-size: 0.9rem;
+    font-size: 14px;
   }
 
   .icon-arrow {
