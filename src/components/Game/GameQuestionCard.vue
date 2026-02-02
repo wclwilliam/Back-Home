@@ -26,7 +26,7 @@ const emit = defineEmits(['choose'])
 <style lang="scss" scoped>
 .game-question-card {
   width: 100%;
-  background: linear-gradient(0deg, rgba(227, 213, 202, 1) 0%, rgba(227, 213, 202, 0.9) 20%, rgba(227, 213, 202, 0.8) 40%, rgba(227, 213, 202, 0.7) 60%, rgba(227, 213, 202, 0.6) 70%, rgba(227, 213, 202, 0.5) 80%, rgba(227, 213, 202, 0) 100%);
+  background: linear-gradient(0deg, rgba(227, 213, 202, 1) 0%, rgba(227, 213, 202, 0.9) 20%, rgba(227, 213, 202, 0.8) 40%, rgba(227, 213, 202, 0.7) 60%, rgba(227, 213, 202, 0.6) 70%, rgba(227, 213, 202, 0.5) 80%, rgba(227, 213, 202, 0.02) 100%);
 }
 
 .question-container {
@@ -34,7 +34,7 @@ const emit = defineEmits(['choose'])
   align-items: center;
   justify-content: center;
   gap: 24px;
-  padding: 40px 24px;
+  padding: 24px 24px;
   max-width: 952px;
   margin: 0 auto;
   z-index: 100;
