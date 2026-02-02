@@ -3,9 +3,16 @@ import Button from '../../auth/Button.vue'
 import LightboxReportCheck from './LightboxReportCheck.vue'
 import LightboxReportSuccess from './LightboxReportSuccess.vue'
 import { ref, computed, watch } from 'vue'
+import { backHomeApi } from '@/utils/publicApi'
+import { useAuthStore } from '@/stores/auth'
+
+const authStore = useAuthStore()
 
 const props = defineProps({
   modelValue: Boolean, // 控制顯示隱藏
+  reviewId: {
+    type: [Number, String],
+  },
 })
 
 const emit = defineEmits(['update:modelValue'])
@@ -21,17 +28,14 @@ const showSuccessLightbox = ref(false)
 // 監聆燈箱關閉，清空資料
 watch(
   () => props.modelValue,
-  (newVal) => {
-    if (!newVal) {
+  (isOpen) => {
+    if (isOpen) {
       // 燈箱關閉時清空所有資料
-      selectedReason.value = ''
+      selectedReason.value = '商業廣告或垃圾訊息'
       otherReason.value = ''
       showError.value = false
-    } else {
-      // 燈箱開啟時預設選擇第一個選項
-      selectedReason.value = '商業廣告或垃圾訊息'
-    }
-  },
+    } 
+  }
 )
 
 // 監聆選擇的理由，如果不是「其他」，隱藏錯誤提示
@@ -49,18 +53,43 @@ const handleConfirm = () => {
   }
   // 驗證通過，關閉當前燈箱，顯示確認檢舉框
   showError.value = false
+  // 關閉當前燈箱
   emit('update:modelValue', false)
+  // 顯示確認框
   showCheckLightbox.value = true
 }
 
-const handleCheckConfirm = () => {
+const handleCheckConfirm =  async () => {
   // 關閉確認框，顯示成功框
-  showCheckLightbox.value = false
-  showSuccessLightbox.value = true
+  if (!authStore.user?.id || !props.reviewId) {
+    alert('身分驗證失效，請重新登入')
+    showCheckLightbox.value = false
+    return
+  }
+  const finalReason = selectedReason.value === '其他' ? otherReason.value : selectedReason.value
+  // 傳送檢舉資料到後端
+  const reportUrl = 'activity/activity_report_review.php'
+  try {
+    const payload = {
+      user_id: authStore.user.id,
+      review_id: props.reviewId,
+      reason: finalReason
+    }
+    const response = await backHomeApi.post(reportUrl, payload)
+    if (response.data.status === 'success') {
+      showCheckLightbox.value = false 
+      showSuccessLightbox.value = true
+    } else {
+      alert(response.data.message)
+      showCheckLightbox.value = false
+    }
+  } catch (error) {
+    console.error('檢舉失敗:', error)
+    showCheckLightbox.value = false
+  }
 }
 
 const handleSuccessClose = () => {
-  // 關閉成功框和主框
   showSuccessLightbox.value = false
   emit('update:modelValue', false)
 }
