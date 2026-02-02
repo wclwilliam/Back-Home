@@ -285,7 +285,7 @@ const validateEmergencyPhone = () => {
       <div class="form-group">
         <label class="form-label">姓名 * :</label>
         <div class="input-wrapper">
-          <Input v-model="form.name" placeholder="請輸入姓名" autocomplete="name" @blur="validateName"
+          <Input v-model="form.name" type="text" placeholder="請輸入姓名" autocomplete="name" @blur="validateName"
             @keyup.enter="validateName" />
           <p v-if="errors.name" class="error-message">
             <span class="material-symbols-outlined icon-alert">error</span>

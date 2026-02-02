@@ -140,7 +140,9 @@ p {
   align-items: center;
   justify-content: center;
   gap: 40px;
-  padding: 40px 60px;
+  padding: 10px 60px;
+
+  border: 2px solid orange;
 
   background: linear-gradient(0deg,
       rgba(227, 213, 202, 1) 0%,
@@ -184,7 +186,7 @@ p {
   }
 
   p {
-    font-size: 0.9rem;
+    font-size: 14px;
     margin: 0;
   }
 
@@ -193,14 +195,14 @@ p {
   }
 
   .question-title {
-    font-size: 0.9rem;
+    font-size: 14px;
   }
 
   .options-group {
     gap: 16px;
 
     .btn {
-      font-size: 0.75rem;
+      font-size: 12px;
       padding: 6px 12px;
     }
   }

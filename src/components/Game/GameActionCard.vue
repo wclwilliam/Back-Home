@@ -94,7 +94,7 @@ p {
 /* 手機橫向：縮小文字大小 */
 @media (pointer: coarse) and (orientation: landscape) {
   .game-action-card__description {
-    font-size: 0.9rem;
+    font-size: 14px;
   }
 
   .game-action-card__actions {
@@ -102,13 +102,13 @@ p {
     flex-wrap: wrap;
 
     .btn {
-      font-size: 0.75rem;
+      font-size: 12px;
       padding: 8px 16px;
     }
   }
 
   p {
-    font-size: 0.9rem;
+    font-size: 14px;
     margin: 0;
   }
 

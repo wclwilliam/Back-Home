@@ -30,8 +30,22 @@ const donationTabs = [
 // --- 取得並轉換資料 ---
 const fetchData = async () => {
   try {
+    // 從 localStorage 取得 token (使用正確的鍵名)
+    const token = localStorage.getItem('bh_front_token');
+    
+    if (!token) {
+      console.error('未登入，請先登入');
+      // 可以選擇重定向到首頁或顯示登入提示
+      router.push('/');
+      return;
+    }
+
     // 1. 抓取所有捐款歷史 (auth_donation_list.php)
-    const historyRes = await fetch('http://localhost:8888/api/member/auth_donation_list.php');
+    const historyRes = await fetch('http://localhost:8888/api/member/auth_donation_list.php', {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
     const historyData = await historyRes.json();
     
     const formatRecord = (item) => {
@@ -59,7 +73,11 @@ const fetchData = async () => {
       .map(formatRecord);
 
     // 2. 抓取進行中的定期計畫 (auth_subscription_list.php)
-    const activeRes = await fetch('http://localhost:8888/api/member/auth_subscription_list.php');
+    const activeRes = await fetch('http://localhost:8888/api/member/auth_subscription_list.php', {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
     const activeData = await activeRes.json();
     // 取得第一筆狀態為 1 的計畫
     activeSubscription.value = activeData.length > 0 ? activeData[0] : null;
@@ -82,12 +100,22 @@ const openLightbox = (type, data = null) => {
 const handleLightboxConfirm = async (updatedData) => {
   // 取得當前計畫的 ID
   const subId = activeSubscription.value?.SUBSCRIPTION_ID;
+  const token = localStorage.getItem('bh_front_token');
+
+  if (!token) {
+    console.error('未登入，請先登入');
+    router.push('/');
+    return;
+  }
 
   if (activeType.value === 'terminate') {
     try {
       const res = await fetch('http://localhost:8888/api/member/auth_donation_update.php', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify({
           subscriptionId: subId,
           action: 'cancel'
@@ -108,7 +136,10 @@ const handleLightboxConfirm = async (updatedData) => {
     try {
       const res = await fetch('http://localhost:8888/api/member/auth_donation_update.php', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify({
           subscriptionId: subId,
           action: 'updateAmount',
