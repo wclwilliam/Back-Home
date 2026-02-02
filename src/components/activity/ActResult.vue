@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, watch } from 'vue'
-import { publicApi, base } from '@/utils/publicApi'
+import { backHomeApi, APIBase } from '@/utils/publicApi'
 
 const props = defineProps({
   activityInfo: {
@@ -10,54 +10,29 @@ const props = defineProps({
   },
 })
 
-// 1. 定義數據對應表 (METRIC_ID -> 中文標籤)
-const resultsMap = {
-  0: '參與人數 (人)',
-  1: '垃圾重量 (kg)',
-  2: '垃圾袋數 (袋)',
-  3: '廢棄物件數 (件)',
-  4: '塑膠瓶蓋 (個)',
-  5: '海龜爬痕 (道)',
-  6: '確認卵窩 (窩)',
-  7: '目擊母龜 (隻)',
-  8: '海龜品種',
-  9: '照護海龜 (隻)',
-  10: '備餐重量 (kg)',
-  11: '清洗水池 (池)',
-  12: '整理時數 (hr)',
-}
-
 // 讀取外部 JSON 資料
-const allResults = ref([])
-const url = `${base}data/activityResultData.json`.replace('//', '/')
-publicApi
-  .get(url)
-  .then((res) => {
-    allResults.value = res.data
-  })
-  .catch((err) => console.error('無法讀取成果數據', err))
-
-//根據 activityId 篩選出當前活動的數據
-const currentActivityResults = computed(() => {
-  if (!props.activityInfo.id || allResults.value.length === 0) return []
-
-  //篩選出符合 ACTIVITY_ID 的資料
-  return allResults.value.filter((item) => item.ACTIVITY_ID === props.activityInfo.id)
-})
-
-//顯示邏輯 (根據活動類型只顯示特定數據)
-const displayItems = computed(() => {
-  if (currentActivityResults.value.length === 0) return []
-
-  return currentActivityResults.value.map((item) => {
-    return {
-      id: item.METRIC_ID,
-      label: resultsMap[item.METRIC_ID] || '未知數據',
-      value: item.VALUE,
-      icon: getIcon(item.METRIC_ID), // 取得對應 icon
+const currentMetrics = ref([])
+const currentPhotos = ref([])
+watch(
+  () => props.activityInfo.id,
+  async (newId) => {
+    if (!newId) return
+    const metricsUrl = `activity/activity_results_get.php`
+    try {
+      // 呼叫剛剛寫好的 PHP
+      const response = await backHomeApi.get(`${metricsUrl}?activity_id=${newId}`)
+      
+      if (response.data.status === 'success') {
+        const { metrics, photos } = response.data.data
+        currentMetrics.value = metrics || []
+        currentPhotos.value = photos || []
+      }
+    } catch (err) {
+      console.error('無法讀取成果數據', err)
     }
-  })
-})
+  },
+  { immediate: true } // 確保元件一載入若有 ID 就會執行
+)
 
 // 根據 Metric ID 給予 icon 圖片名稱或 class
 const getIcon = (id) => {
@@ -79,6 +54,31 @@ const getIcon = (id) => {
   }
   return iconMap[id] || 'bar_chart'
 }
+
+//顯示邏輯 (根據活動類型只顯示特定數據)
+const displayItems = computed(() => {
+  if (currentMetrics.value.length === 0) return []
+
+  return currentMetrics.value.map((item) => {
+    return {
+      id: item.METRIC_ID,
+    label: item.METRIC_NAME,
+    unit: item.METRIC_UNIT,
+    value: item.VALUE,
+    icon: getIcon(item.METRIC_ID),
+    }
+  })
+})
+
+// 處理照片路徑
+const displayPhotos = computed(() => {
+  if (currentPhotos.value.length === 0) return []
+  return currentPhotos.value.map(photo => ({
+    id: photo.PHOTO_ID,
+    src: `${APIBase}uploads/actResult/${photo.PHOTO_URL}`, 
+    alt: photo.DESCRIPTION || '成果照片'
+  }))
+})
 </script>
 
 <template>
@@ -96,7 +96,15 @@ const getIcon = (id) => {
     </div>
 
     <div v-else class="no-data">
-      <p>數據統計中...</p>
+      <p>目前尚無成果數據</p>
+    </div>
+
+    <div v-if="displayPhotos.length > 0" class="photo-section">
+      <div class="photo-grid">
+        <div v-for="photo in displayPhotos" :key="photo.id" class="photo-item">
+          <img :src="photo.src" :alt="photo.alt" loading="lazy" />
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -120,6 +128,7 @@ const getIcon = (id) => {
     grid-template-columns: repeat(5, 1fr); // 平板以上 4 欄
   }
 }
+
 
 .result-card {
   background-color: $card-color;
@@ -160,6 +169,28 @@ const getIcon = (id) => {
     }
   }
 }
+.photo-section {
+  margin-top: 24px;
+}
+.photo-grid {
+  display: grid;
+  // justify-content: space-around;
+  grid-template-columns: repeat(2, 1fr); // 手機版 2 欄
+  gap: 16px;
+
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(3, 1fr); // 平板 3欄
+  }
+}
+.photo-item {
+  img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    object-fit: cover;
+  }
+}
+
 
 .no-data {
   text-align: center;

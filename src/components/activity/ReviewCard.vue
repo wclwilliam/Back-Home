@@ -1,6 +1,7 @@
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useAuthStore } from '@/stores/auth'
+import { backHomeApi } from '@/utils/publicApi'
 
 const authStore = useAuthStore()
 
@@ -13,7 +14,7 @@ const props = defineProps({
 
 // --- 資料處理 ---
 const userName = computed(() => props.review.name || props.review.user || '熱心志工')
-const rating = computed(() => props.review.stars || props.review.rating || 5)
+const rating = computed(() => props.review.stars || props.review.rating|| props.review.RATING || 5)
 const comment = computed(() => props.review.text || props.review.content || '沒有留言內容')
 
 const avatar = computed(() => {
@@ -24,21 +25,53 @@ const avatar = computed(() => {
 const emit = defineEmits(['report'])
 
 // --- 互動邏輯 ---
-const isLiked = ref(false)
-const likeCount = ref(props.review.likes || 10)
-const isReported = ref(false)
-const isMenuOpen = ref(false) // [新增] 控制選單開關
+const isLiked = ref(props.review.isLiked ||false)
+const likeCount = ref(Number(props.review.likes) || 0)
 
-const toggleLike = () => {
+watch(() => props.review.isLiked, (newVal) => {
+  isLiked.value = newVal
+})
+watch(() => props.review.likes, (newVal) => {
+  likeCount.value = newVal
+})
+const toggleLike = async () => {
   if (!authStore.isLogin) {
     authStore.openLoginModal()
+    alert('請先登入才能按讚喔！')
     return
   }
-  isLiked.value = !isLiked.value
-  if (isLiked.value) likeCount.value++
-  else likeCount.value--
+
+  const currentUserId = authStore.user ?.id
+  if (!currentUserId) return
+
+  const reviewURL = `activity/activity_toggle_like.php`;
+
+  try {
+    // console.log('正在送出按讚請求...', { user_id: currentUserId, review_id: props.review.id })
+    const response = await backHomeApi.post(`${reviewURL}`,{
+      user_id: currentUserId,
+      review_id: props.review.id,
+    });
+    console.log('後端回傳結果:', response.data)
+
+    if (response.data.status === 'success') {
+      // 後端回傳了 new_count (最新數字) 和 action ('liked' 或 'unliked')
+      likeCount.value = response.data.new_count;
+
+      if(response.data.action === 'liked') {
+        isLiked.value = true;
+      } else {
+        isLiked.value = false;
+
+      }
+    }
+  } catch (err) {
+    console.error('無法更新按讚狀態', err);
+  }
 }
 
+const isReported = ref(false)
+const isMenuOpen = ref(false) // [新增] 控制選單開關
 // [新增] 切換選單顯示
 const toggleMenu = () => {
   isMenuOpen.value = !isMenuOpen.value
@@ -67,12 +100,12 @@ const handleReport = () => {
             </div>
             <h4 class="user-name">{{ userName }}</h4>
           </div>
-
+  
           <div class="more-menu-container">
             <button class="icon-btn more-btn" @click="toggleMenu">
               <span class="material-symbols-outlined">more_vert</span>
             </button>
-
+  
             <div v-if="isMenuOpen" class="dropdown-menu">
               <button class="menu-item" :class="{ 'is-active': isReported }" @click="handleReport">
                 <span class="material-symbols-outlined icon">flag</span>
@@ -81,31 +114,21 @@ const handleReport = () => {
             </div>
           </div>
         </div>
-
+  
         <div class="rating-stars">
-          <span
-            v-for="n in 5"
-            :key="n"
-            class="material-symbols-outlined star-icon"
-            :class="{ filled: n <= rating }"
-          >
+          <span v-for="n in 5" :key="n" class="material-symbols-outlined star-icon" :class="{ filled: n <= rating }">
             kid_star
           </span>
         </div>
-
+  
         <div class="card-body">
           <p class="content-label">心得內容 :</p>
           <p class="content-text">{{ comment }}</p>
         </div>
-
+  
         <div class="card-footer">
           <div class="action-group">
-            <button
-              class="icon-btn action-btn like-btn"
-              :class="{ active: isLiked }"
-              @click="toggleLike"
-              title="覺得實用"
-            >
+            <button class="icon-btn action-btn like-btn" :class="{ active: isLiked }" @click="toggleLike" title="覺得實用">
               <span class="material-symbols-outlined">
                 {{ isLiked ? 'thumb_up' : 'thumb_up_off_alt' }}
               </span>

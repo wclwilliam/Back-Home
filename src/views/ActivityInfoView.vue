@@ -41,10 +41,49 @@ const authStore = useAuthStore()
 const activityInfo = ref({})
 //輪播卡片
 const activityList = ref([])
-//活動照片，先以相同類型的照片代替
-const relatedImages = ref([])
+
 // 預設未參加，留言時需檢查此狀態
 const isParticipant = ref(false)
+
+//檢查是否參加過此活動
+const checkUserAttended = async () => {
+  if(!authStore.token) {
+    isParticipant.value = false
+    return
+  }
+
+  let currentUserId = authStore.user?.id
+
+  if (!currentUserId || !activityInfo.value.id) {
+    const decoded = parseToken(authStore.token)
+    // 注意：auth_login.php 寫入的 key 是 'member_id'
+    if (decoded && decoded.member_id) {
+      currentUserId = decoded.member_id
+      // 順手把解出來的 ID 補回 Store，這樣其他功能也可能恢復正常
+      if (authStore.user) {
+        authStore.user.id = currentUserId
+      } else {
+        // 如果 user 根本是 null，就幫它初始化一個簡易版
+        authStore.user = { id: currentUserId }
+      }
+    }
+    return
+  }
+
+  const attendanceUrl = 'activity/activity_check_attend.php'
+  
+  try {
+    const response = await backHomeApi.get(`${attendanceUrl}?user_id=${currentUserId}&activity_id=${activityInfo.value.id}`)
+
+    if (response.data.status === 'success') {
+      isParticipant.value = response.data.isParticipant
+    } else {
+      isParticipant.value = false
+    }
+  } catch (err) {
+    console.error('無法檢查參加狀態', err)
+  }
+}
 
 // 使用計算屬性取得登入狀態
 const isLoggedIn = computed(() => authStore.isLogin)
@@ -57,6 +96,8 @@ const handleLoginPrompt = () => {
 }
 const url = 'activity/activity_get.php'
 const listUrl = 'activity/activity_list.php'
+
+// 抓取單一活動資料
 const fetchActivityData = async (id) => {
   const currentId = Number(id)
   try {
@@ -129,23 +170,8 @@ const fetchActivityData = async (id) => {
     const allList = listResponse.data.data
 
     if (Array.isArray(allList)) {
-      // 1. 處理花絮照片 (找同類型的)
-      const sameType = allList.filter(
-        (item) =>
-          item.CATEGORY_VALUE === act.CATEGORY_VALUE && item.ACTIVITY_ID !== act.ACTIVITY_ID,
-      )
-
-      // 轉換圖片路徑給花絮用
-      relatedImages.value = sameType
-        .slice(0, 3)
-        .map((item) =>
-          item.ACTIVITY_COVER_IMAGE
-            ? `${APIBase}uploads/actCover/${item.ACTIVITY_COVER_IMAGE}`
-            : '',
-        )
-
-      // 2. 處理下方推薦 Swiper (排除自己 + 排除已結束)
-      // 這裡需要做簡單的資料轉換給 ActivityCard 吃
+      
+      // 處理下方推薦 Swiper (排除自己 + 排除已結束)
 
       activityList.value = allList
         .filter((item) => item.ACTIVITY_ID !== act.ACTIVITY_ID) // 排除目前這一個
@@ -167,14 +193,32 @@ const fetchActivityData = async (id) => {
   } catch (err) {
     console.error('連線發生錯誤:', err)
   }
+  // 檢查是否參加過此活動
+  checkUserAttended()
 }
 // 抓取活動留言
 const reviewUrl = 'activity/activity_reviews_get.php'
 const fetchReviews = async (activityId) => {
   try {
-    // 假設你有一支 activity_get_reviews.php
-    const response = await backHomeApi.get(`${reviewUrl}?activity_id=${activityId}`)
+    //取得user id 
+    let currentUserId = authStore.user?.id
 
+    if(!currentUserId) {
+      const decoded = parseToken(authStore.token)
+      // 注意：auth_login.php 寫入的 key 是 'member_id'
+      if (decoded ) {
+        currentUserId = decoded.member_id || decoded.id
+        // 順手把解出來的 ID 補回 Store，這樣其他功能也可能恢復正常
+        if (authStore.user) {
+          authStore.user.id = currentUserId
+        } else {
+          // 如果 user 根本是 null，就幫它初始化一個簡易版
+          authStore.user = { id: currentUserId }
+        }
+      }
+    }
+    const response = await backHomeApi.get(`${reviewUrl}?activity_id=${activityId}&user_id=${currentUserId || 0}`)
+    // console.log('留言列表原始資料:', response.data.data)
     if (response.data.status === 'success') {
       // 轉換資料格式以符合 ReviewSwiper 需求
       const reviewsList = Array.isArray(response.data.data) ? response.data.data : []
@@ -183,9 +227,10 @@ const fetchReviews = async (activityId) => {
         name: item.USER_NAME || '熱心志工',
         stars: item.RATING,
         content: item.CONTENT,
-        likes: item.LIKE_COUNT,
+        likes: item.LIKE_COUNT || item.like_count || 0,
         date: formatDate(new Date(item.CREATED_AT), 'YYYY-MM-DD'),
-        image: '' // 後端若無頭貼欄位，留空讓前端自動生成
+        image: '', // 後端若無頭貼欄位，留空讓前端自動生成
+        isLiked: Number(item.IS_LIKED) > 0
       }))
 
       // 寫入 activityInfo
@@ -225,8 +270,8 @@ watch(
 )
 
 const formData = reactive({
-  name: '王曉明',
-  email: '123go@gmail.com', // 模擬已登入帶入的資料
+  name: '',
+  email: '', 
   phone: '',
   idNumber: '',
   birthday: '',
@@ -249,6 +294,99 @@ const errors = reactive({
   stars: '',
   comment: '',
 })
+
+// 1. ★ 新增：JWT Token 解碼小工具
+// 這是純前端的解碼，不需要後端參與
+const parseToken = (token) => {
+  try {
+    const base64Url = token.split('.')[1]
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
+    const jsonPayload = decodeURIComponent(
+      window
+        .atob(base64)
+        .split('')
+        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
+    )
+    return JSON.parse(jsonPayload)
+  } catch (e) {
+    return null
+  }
+}
+
+// 取得會員詳細資料並填入表單
+const getMemberInfo = async () => {
+  
+  if (!authStore.token) return
+  // 嘗試取得 ID：
+  // 優先從 Store 拿，如果 Store 壞掉 (undefined)，就嘗試從 Token 解碼拿
+  let currentUserId = authStore.user?.id
+  
+  if (!currentUserId) {
+    const decoded = parseToken(authStore.token)
+    // 注意：auth_login.php 寫入的 key 是 'member_id'
+    if (decoded && decoded.member_id) {
+      currentUserId = decoded.member_id
+      // 順手把解出來的 ID 補回 Store，這樣其他功能也可能恢復正常
+      if (authStore.user) {
+        authStore.user.id = currentUserId
+      } else {
+        // 如果 user 根本是 null，就幫它初始化一個簡易版
+        authStore.user = { id: currentUserId }
+      }
+    }
+  }
+
+  // 如果還是拿不到 ID，就沒辦法了
+  if (!currentUserId) {
+    console.warn('無法取得會員 ID')
+    return
+  }
+
+  try {
+    // 使用抓到的 ID 發送請求
+    // 注意：這裡假設你已經建立了 api/member/auth_get_info.php
+    const res = await backHomeApi.get(`member/auth_get_info.php?id=${currentUserId}`)
+    
+    if (res.data.status === 'success') {
+      const user = res.data.data
+      
+      formData.name = user.name || ''
+      formData.email = user.email || ''
+      formData.phone = user.phone || ''
+      formData.idNumber = user.idNumber || ''
+      formData.birthday = user.birthday || ''
+      formData.emergencyName = user.emergencyName || ''
+      formData.emergencyPhone = user.emergencyPhone || ''
+    }
+  } catch (error) {
+    console.error('無法取得會員資料:', error)
+  }
+}
+
+// 監聽登入狀態與生命週期
+onMounted(() => {
+  if (route.params.id) {
+    fetchActivityData(route.params.id)
+  }
+  // 進頁面時若已登入，就抓會員資料
+  if (authStore.isLogin) {
+    getMemberInfo()
+  }
+})
+
+// 如果使用者在這一頁才登入 (例如點了「登入後報名」)，要監聽變化並補抓資料
+watch(
+  () => authStore.isLogin,
+  (val) => {
+    if (val) {
+      checkUserAttended()
+      if(activityInfo.value.id) {
+        fetchReviews(activityInfo.value.id)
+      }
+    }
+  }
+)
 
 //身份證字號的檢查
 const handleIdNumCheck = () => {
@@ -358,6 +496,7 @@ const showCheckLightbox = ref(false)
 const showSuccessLightbox = ref(false)
 const showReviewCheckLightbox = ref(false)
 const showReportLightbox = ref(false)
+const currentReportReview = ref(null) // 暫存被檢舉的留言物件
 
 // 準備傳給燈箱的資料
 const registrationData = computed(() => ({
@@ -381,13 +520,42 @@ const isSignupSuccess = ref(false)
 // 確認報名處理
 const handleConfirmRegistration = async () => {
   try {
-    // 這裡可以加入 API 請求
-    // await api.registerActivity(registrationData.value)
+    // 檢查是否登入 (防呆)
+    if (!authStore.isLogin || !authStore.user) {
+      alert('請先登入會員');
+      return
+    }
 
+    const payload = {
+      user_id: authStore.user.id,        // 從 Pinia 取會員 ID
+      activity_id: activityInfo.value.id,// 從頁面資料取活動 ID
+      // 讀取使用者填寫(或自動帶入)的 formData
+      name: formData.name,
+      idNumber: formData.idNumber,
+      phone: formData.phone,
+      email: formData.email,
+      birthday: formData.birthday,
+      emergencyName: formData.emergencyName,
+      emergencyPhone: formData.emergencyPhone
+    };
+
+    const response = await backHomeApi.post('activity/activity_signup.php', payload);
+
+    if (response.data.status === 'success') {
     // 關閉確認燈箱，打開成功燈箱
-    showCheckLightbox.value = false
-    showSuccessLightbox.value = true
-    isSignupSuccess.value = true
+    showCheckLightbox.value = false;
+    showSuccessLightbox.value = true;
+    isSignupSuccess.value = true;
+    
+    if(activityInfo.value) {
+          activityInfo.value.currentPeople = (Number(activityInfo.value.currentPeople) || 0) + 1;
+      }
+      
+    } else {
+      // 失敗 (如：已額滿、重複報名)
+      alert(response.data.message);
+      showCheckLightbox.value = false; // 失敗通常會關閉燈箱讓使用者重試或離開
+    }
   } catch (error) {
     console.error('報名失敗:', error)
     alert('報名失敗，請稍後再試')
@@ -403,23 +571,49 @@ const submitReview = () => {
 const isReviewSubmit = ref(false)
 
 // 確認送出留言
-const handleConfirmReview = () => {
-  // 這裡可以加入 API 請求
-  // await api.submitReview(reviewData)
+const handleConfirmReview = async () => {
+  try {
+    if(!authStore.isLogin) return
+    const payload = {
+      user_id: authStore.user.id,
+      activity_id: activityInfo.value.id,
+      rating: reviewData.stars,
+      content: reviewData.comment,
+    }
+    const response = await backHomeApi.post('activity/activity_add_review.php', payload)
 
-  // 關閉燈箱後可以顯示成功訊息或重新整理評論列表
-  showReviewCheckLightbox.value = false
+    if(response.data.status === 'success') {
 
-  // 清空表單
-  reviewData.rating = 0
-  reviewData.comment = ''
-  //已送出留言
-  isReviewSubmit.value = true
+    showReviewCheckLightbox.value = false
+    isReviewSubmit.value = true
+
+    // 清空表單
+    reviewData.stars = 0
+    reviewData.comment = ''
+
+    fetchReviews(activityInfo.value.id)
+
+    } else {
+      alert(response.data.message)
+      showReviewCheckLightbox.value = false
+    }
+  }
+  
+  catch (error) {
+    console.error('留言送出失敗:', error)
+    alert('留言送出失敗，請稍後再試')
+  }
 }
 
 // 處理檢舉留言
 const handleReport = (review) => {
-  console.log('檢舉留言:', review)
+  if(!authStore.isLogin) {
+    alert('請先登入會員')
+    return
+  }
+  // console.log('點擊檢舉，留言ID:', review.id)
+  // 打開檢舉燈箱，並傳入被檢舉的留言物件
+  currentReportReview.value = review
   showReportLightbox.value = true
 }
 
@@ -448,11 +642,7 @@ const goBackToList = () => {
         <div class="secondary-title col-sm-4">成果數據區</div>
 
         <ActResult :activityInfo="activityInfo" />
-        <div class="picArea col-sm-4">
-          <div class="pic" v-for="(img, index) in relatedImages" :key="index">
-            <img :src="img" :alt="activityInfo.title + ' 成果花絮'" />
-          </div>
-        </div>
+        
       </div>
       <div class="row review">
         <div class="secondary-title col-sm-4">志工回饋牆</div>
@@ -503,10 +693,10 @@ const goBackToList = () => {
             </div>
           </div>
           <div class="rightContent col-sm-4 col-md-7 col-lg-7">
-            <FormInput label="滿意度 : " required :error="errors.stars">
+            <FormInput label="滿意度 : " required :error="errors.stars" >
               <div class="star-rating">
                 <span v-for="star in 5" :key="star" class="material-symbols-outlined star"
-                  :class="{ 'is-active': star <= reviewData.stars }" @click="setRating(star)">
+                  :class="{ 'is-active': star <= reviewData.stars }" @click="setRating(star)" >
                   kid_star
                 </span>
               </div>
@@ -671,7 +861,9 @@ const goBackToList = () => {
       <LightboxReviewCheck v-model="showReviewCheckLightbox" @confirm="handleConfirmReview" />
 
       <!-- 檢舉留言燈箱 -->
-      <LightboxReport v-model="showReportLightbox" />
+      <LightboxReport 
+      v-model="showReportLightbox" 
+      :review-id="currentReportReview?.id"/>
 
       <!-- 報名成功燈箱 -->
       <LightboxRegisterSuccess v-model="showSuccessLightbox" />
@@ -789,9 +981,7 @@ const goBackToList = () => {
   color: $page-number-color;
 }
 
-.row {
-  padding: 24px;
-}
+
 
 .commentSection {
   display: flex;
@@ -899,41 +1089,6 @@ textarea.customInput {
 
   li {
     margin-bottom: 8px;
-  }
-}
-
-.picArea {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 24px;
-  margin-top: 16px;
-  width: 100%;
-
-  .pic {
-    width: 100%;
-    aspect-ratio: 4 / 3;
-    overflow: hidden;
-
-    img {
-      width: 100%;
-      height: 100%;
-    }
-
-    // 平板版
-    @media (min-width: 768px) {
-      width: calc((100% - 24px) / 2);
-    }
-
-    // 桌機版
-    @media (min-width: 1024px) {
-      width: calc((100% - 48px) / 3);
-    }
-
-    img {
-      width: 100%;
-      height: auto;
-      object-fit: cover;
-    }
   }
 }
 
