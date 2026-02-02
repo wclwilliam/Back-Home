@@ -7,7 +7,9 @@ import Input from '@/components/auth/Input.vue';
 const props = defineProps({
   modelValue: Boolean,
   type: String,
-  initialData: Object
+  initialData: Object,
+  amount:Number,
+  freq:Number
 });
 
 const emit = defineEmits(['update:modelValue', 'confirm']);
@@ -55,20 +57,24 @@ const close = () => {
       
       <div v-if="type === 'editAmount'" class="amount-container">
         <div class="grey-box">
-          <p>目前捐款金額：新台幣 $ {{ initialData?.amount || '1,000' }}</p>
-          <p>目前扣款週期：每月固定 10 號</p>
+          <p>目前捐款金額：新台幣 $ {{ amount || 1000 }}</p>
+          <p v-if="freq != 31">目前扣款週期：每月固定 {{ freq }} 號</p>
+          <p v-else>目前扣款週期：每月固定最後一號</p>
         </div>
         <div class="amount-input">
           <label>您想變更的金額為？</label>
           <div class="input-flex">
             <span>新台幣</span>
-            <Input v-model="formData.newAmount" placeholder="請輸入金額" />
+            <Input type="number" v-model="formData.newAmount" placeholder="請輸入金額" />
           </div>
           <p class="min-t">● 最低金額新台幣 $100</p>
         </div>
         <div class="red-alert-card">
           <p class="bold"><span class="material-symbols-outlined">warning</span> 異動生效提醒</p>
-          <p>銀行端異動處理約需 3 至 5 個工作天。若您的下次扣款日在作業期間內，將於「下下次」扣款日生效。</p>
+          <p>1.確認後將前往綠界進行新金額授權，原合約將自動終止。</p>
+          <p>2.新週期由今日開始計算；若每月扣款日遇到該月無對應日期時，將以「當月最後一天」為準執行扣款。</p>
+
+
         </div>
       </div>
 

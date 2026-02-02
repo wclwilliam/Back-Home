@@ -77,4 +77,9 @@ const buttonStyle = computed(() => ({
         color: #E04925;
     }
 }
+.dis {
+  background-color: $backstage-bar-line-color;
+  border: $backstage-bar-line-color 2px solid;
+  cursor: no-drop;
+}
 </style>

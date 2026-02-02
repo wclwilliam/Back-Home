@@ -9,19 +9,21 @@ import { publicApi, APIBase,backHomeApi } from '@/utils/publicApi'
 import linepay from '@/utils/linepay'
 import { useRoute} from 'vue-router';
 
+const APIFileBase = import.meta.env.VITE_FILE_URL
+
 const route = useRoute();
+const auth = useAuthStore()
+
+
 
 //判斷最近有沒有捐款有就呈現捐款成功組件
 onMounted(() => { //傳會員id
   if (!route.query.transactionId) {//用這個query參數判斷是不是綠界
-    backHomeApi.get(`donation/donateTime.php?memberId=${1}`).then((response) => {
-      // console.log(response.data);
-      // console.log(route.query.transactionId);
+    backHomeApi.get(`donation/donateTime.php?memberId=${auth.user?.MEMBER_ID}`).then((response) => {
       if (response.data.recent_donate) {
         currentStep.value = 3
       }
     })
-    
   }
 })
 
@@ -35,7 +37,7 @@ onMounted(async () => {
   
   if (tid) {
     try {
-      const response = await backHomeApi.get(`donation/linepayback.php?transactionId=${tid}&orderId=${oid}&memberId=${1}&amount=${amount}`);
+      const response = await backHomeApi.get(`donation/linepayback.php?transactionId=${tid}&orderId=${oid}&memberId=${auth.user?.MEMBER_ID}&amount=${amount}`);
       if (response.data.status === 'success') {
         // 後端確定成功後邏輯
         currentStep.value = 3
@@ -55,78 +57,19 @@ onMounted(() => {
     //取一隻救援海龜數據
     const randomIndex = Math.floor(Math.random() * response.data.length);
     rescueCase.value = response.data[randomIndex]
-
   })
 })
 // 處理圖片路徑 - 使用 Vite 動態 import 處理 assets 圖片
 const imageUrl = computed(() => {
-  if (!rescueCase.value.image) return 'https://picsum.photos/300/200'
-
-  // 如果路徑以 /src/ 開頭，轉換為相對路徑
-  let imagePath = rescueCase.value.image
-  if (imagePath.startsWith('/src/')) {
-    imagePath = imagePath.replace('/src/', '@/')
-  }
-
-  try {
-    // 使用 Vite 的 glob import
-    const imageModules = import.meta.glob('@/assets/image/**/*.{png,jpg,jpeg,gif,svg}', {
-      eager: true,
-    })
-    const fullPath = imagePath.replace('@/', '/src/')
-    const matchedModule = imageModules[fullPath]
-
-    if (matchedModule && matchedModule.default) {
-      return matchedModule.default
-    }
-
-    // 如果找不到，回傳預設圖片
+  if (!rescueCase.value.imageSrc) {
     return 'https://picsum.photos/300/200'
-  } catch (error) {
-    console.error('圖片載入失敗:', error)
-    return 'https://picsum.photos/300/200'
+  } else {
+    return APIFileBase + rescueCase.value.imageSrc ;
   }
 })
-// //取json
-// onMounted(() => {
-//   publicApi.get('data/rescueCases.json').then((response) => {
-//     //取一隻救援海龜數據
-//     const randomIndex = Math.floor(Math.random() * response.data.length);
-//     rescueCase.value = response.data[randomIndex]
 
-//   })
-// })
-// // 處理圖片路徑 - 使用 Vite 動態 import 處理 assets 圖片
-// const imageUrl = computed(() => {
-//   if (!rescueCase.value.image) return 'https://picsum.photos/300/200'
 
-//   // 如果路徑以 /src/ 開頭，轉換為相對路徑
-//   let imagePath = rescueCase.value.image
-//   if (imagePath.startsWith('/src/')) {
-//     imagePath = imagePath.replace('/src/', '@/')
-//   }
 
-//   try {
-//     // 使用 Vite 的 glob import
-//     const imageModules = import.meta.glob('@/assets/image/**/*.{png,jpg,jpeg,gif,svg}', {
-//       eager: true,
-//     })
-//     const fullPath = imagePath.replace('@/', '/src/')
-//     const matchedModule = imageModules[fullPath]
-
-//     if (matchedModule && matchedModule.default) {
-//       return matchedModule.default
-//     }
-
-//     // 如果找不到，回傳預設圖片
-//     return 'https://picsum.photos/300/200'
-//   } catch (error) {
-//     console.error('圖片載入失敗:', error)
-//     return 'https://picsum.photos/300/200'
-//   }
-// })
-
-const auth = useAuthStore()
 
 function formatNow() {
   const now = new Date();
@@ -145,21 +88,34 @@ function formatNow() {
 
 let nowTime = formatNow()
 
-const currentStep = ref(1)
-const donationType = ref('monthly')
-const selectedAmount = ref(1000)
-const customAmount = ref('')
-const payment = ref('ecpay')
-const anonymous = ref(false)
-const payLoading = ref(false);
-const ecpayForm = ref(null);
+const currentStep = ref(1)           //當前step
+const donationType = ref('once')     //捐款類型
+const selectedAmount = ref(5000)     //選擇金額
+const customAmount = ref('')         //自訂金額
+const payment = ref('ecpay')         //付款類型
+const anonymous = ref(false)         //是否匿名
+const loading = ref(false);          //等待狀態
+const ecpayForm = ref(null);         //綠界表單
+const isSubscription = ref(false)    //是否訂閱
+const userBirthYear = computed(() => {  //會員出生年份
+  if (!auth.user?.BIRTHDAY) return ''
+  return new Date(auth.user.BIRTHDAY).getFullYear()
+})
+const monthlyDisable = computed(() => {  //定期定額是否禁用
+  if (isSubscription.value && donationType.value ==="monthly") {
+        return true
+      } else {
+        return false
+      }
+})
+
 const form = reactive({
-  userName: '',
-  email: '',
-  phone: '',
-  birthYear: '',
-  identity: '',
-  agree: '',
+  userName: auth.user?.MEMBER_REALNAME || '',
+  email: auth.user?.MEMBER_EMAIL ||'',
+  phone: auth.user?.MEMBER_PHONE || '',
+  birthYear: userBirthYear.value || '',
+  identity: auth.user?.ID_NUMBER || '',
+  agree: false,
 })
 const isBlank = reactive({
   userName: false,
@@ -232,22 +188,41 @@ const donationState = useLocalStorage('donationState', {
   rawFinalAmount:0
 
 })
-//如果localstorage當前狀態是3
-if (donationState.value.currentStep == 3) {
-  // currentStep.value = 3
-}
 
-const goStepTwo = () => {
 
-  if (!errors.customAmount) { //判斷金額是否正確
-    if (auth.isLogin) { //判斷是否登入
-      // 前往第二步
-      currentStep.value = 2
-    } else {
-      // 清除重定向，讓用戶登入後停留在當前頁面
-      auth.redirectAfterLogin = null
-      auth.isModalOpen = true
+
+onMounted( async () => { //進頁面時調api判斷該會員有沒有定期定額，如果有就不能訂閱
+  try {
+      const res = await backHomeApi.get(`donation/subscription_get.php?member_id=${auth.user?.MEMBER_ID}`)
+      // console.log(res.data.data);
+      if (res.data.data.length >0) {
+        isSubscription.value = true
+      }
+      
+  }catch (error) {
+    console.error('API 請求出錯:', error);
+    ElMessage.error('無法取得資料，請檢查網路或伺服器狀態');
+  }
+})
+
+const goStepTwo = async () => {
+  loading.value = true;
+  try {
+    if (!errors.customAmount) { //判斷金額是否正確
+      if (auth.isLogin) { //判斷是否登入
+          // 前往第二步
+          currentStep.value = 2
+      } else {
+        // 清除重定向，讓用戶登入後停留在當前頁面
+        auth.redirectAfterLogin = null
+        auth.isModalOpen = true
+      }
     }
+  }catch (error) {
+    console.error('API 請求出錯:', error);
+    ElMessage.error('無法取得資料，請檢查網路或伺服器狀態');
+  } finally {
+    loading.value = false;
   }
 
 }
@@ -346,7 +321,7 @@ const goDonate = () => {
       donationState.value.rawFinalAmount = rawFinalAmount
 
       if (payment.value == "ecpay") { //判斷金流
-        ecpayForm.value.submit() //測試改成php傳
+        ecpayForm.value.submit()
       } else {
         goLinepay()
       }
@@ -383,12 +358,11 @@ const goDonate = () => {
 
 
 const goLinepay = async () => {
-  payLoading.value = true;
+  loading.value = true;
   try {
     const orderData = {
       amount: rawFinalAmount.value,
       productName: '單次捐款',
-      // 其他你需要傳給 PHP 的自訂資訊
     };
 
     const response = await linepay.createOrder(orderData);
@@ -406,7 +380,7 @@ const goLinepay = async () => {
     console.error('結帳發生錯誤:', error);
     alert('伺服器連線失敗');
   } finally {
-    payLoading.value = false;
+    loading.value = false;
   }
 };
 
@@ -430,10 +404,10 @@ const goLinepay = async () => {
     <Transition name="fade">
       <div v-if="currentStep === 1" class="step-content">
         <div class="tab-group">
-          <button @click="donationType = 'monthly'" class="tabBtn"
-            :class="{ 'tabBtn-outline': donationType !== 'monthly' }" style="border-left: none;">每月捐款</button>
           <button @click="donationType = 'once'" class="tabBtn" :class="{ 'tabBtn-outline': donationType !== 'once' }"
-            style="border-right: none;">單次捐款</button>
+            style="border-left: none;">單次捐款</button>
+          <button @click="donationType = 'monthly'" class="tabBtn"
+            :class="{ 'tabBtn-outline': donationType !== 'monthly' }" style="border-right: none;" >每月捐款</button>
         </div>
 
         <p class="intro-text">
@@ -473,7 +447,8 @@ const goLinepay = async () => {
             </label>
           </Transition>
         </div>
-        <MyButton @click="goStepTwo" class=" btn-xxl" width="50%">我要捐款</MyButton>
+        <MyButton v-if="monthlyDisable" class=" btn-xxl dis" width="50%" :disabled="true">已訂閱</MyButton>
+        <MyButton v-else @click="goStepTwo" class=" btn-xxl" width="50%" :disabled="loading">我要捐款</MyButton>
       </div>
 
     </Transition>
@@ -508,12 +483,12 @@ const goLinepay = async () => {
             <p class="error-msg" v-if="isBlank[field.id]">
               <span class="material-symbols-outlined">
                 error
-              </span>請填入以上資料
+              </span>請填入{{ field.label }}
             </p>
             <p class="error-msg" v-if="errors[field.id]">
               <span class="material-symbols-outlined">
                 error
-              </span>格式有誤
+              </span>{{ field.label }}格式有誤
             </p>
           </div>
           <div class="form-group" v-if="anonymous === true">
@@ -527,12 +502,12 @@ const goLinepay = async () => {
             <p class="error-msg" v-if="isBlank.email">
               <span class="material-symbols-outlined">
                 error
-              </span>請填入以上資料
+              </span>請填入電子郵件
             </p>
             <p class="error-msg" v-if="errors.email">
               <span class="material-symbols-outlined">
                 error
-              </span>格式有誤
+              </span>電子郵件格式有誤
             </p>
           </div>
           <div class="policy-group">
@@ -573,7 +548,7 @@ const goLinepay = async () => {
           </form> -->
         <form v-if="payment== 'ecpay'" id="ecpayForm" class="payForm" ref="ecpayForm" method="post" :action="APIBase +'donation/epay.php'">
               <input type="hidden" name="UseEcpay" value="ecpay">
-              <input type="hidden" name="CustomField1" value="1"><!-- 會員id 之後要改 -->
+              <input type="hidden" name="CustomField1" :value="auth.user?.MEMBER_ID">
               <input type="hidden" name="CustomField2" :value="donationType">
               <input type="hidden" name="TotalAmount" :value="rawFinalAmount">
               <input type="hidden" name="TradeDesc" :value="donationType">
@@ -581,7 +556,7 @@ const goLinepay = async () => {
               <MyButton @click.prevent="goDonate"  class=" btn-xxl" width="50%" >立即捐款</MyButton>
           </form>
         <form v-else id="linepayForm" class="payForm" method="post" action="">
-              <MyButton @click.prevent="goDonate" :disabled="payLoading" class=" btn-xxl" width="50%" >立即捐款</MyButton>
+              <MyButton @click.prevent="goDonate" :disabled="loading" class=" btn-xxl" width="50%" >立即捐款</MyButton>
           </form>
       </div>
 
