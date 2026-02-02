@@ -191,9 +191,9 @@ h1 {
     height: 80%;
 
     @media (max-width: 992px) {
-        display: grid;
         width: 100%;
-        height: 100%;
+        min-height: 350px;
+        height: 350px;
     }
 }
 
