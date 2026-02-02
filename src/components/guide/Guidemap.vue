@@ -3,6 +3,8 @@ import { ref, computed, onMounted, watch, toRaw } from 'vue'
 import { allTurtles } from './turtleData.js'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
+import "@bepo65/leaflet.fullscreen/Control.FullScreen";
+import "@bepo65/leaflet.fullscreen/Control.FullScreen.css";
 
 const base = import.meta.env.BASE_URL
 const parsePublicFile = (imgURL) => {
@@ -48,7 +50,17 @@ onMounted(() => {
     map = L.map('map', {
         minZoom: 2,
         maxBounds: [[-90, -180], [90, 180]],
-        maxBoundsViscosity: 1.0
+        maxBoundsViscosity: 1.0,
+
+        // 直接在這裡加入全螢幕控制
+        fullscreenControl: true,
+        fullscreenControlOptions: {
+            position: "topright", // 將位置改為右上角
+            title: "進入全螢幕",
+            titleCancel: "離開全螢幕",
+            forceSeparateButton: true,
+            forcePseudoFullscreen: false,
+        }
     }).setView([20, 0], 2);
 
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -64,6 +76,10 @@ onMounted(() => {
             drawTurtleLayer(currentTurtleInfo.value);
         }
     }, 200);
+
+    // new L.Map(mapContent.value, {
+
+    // });
 });
 
 
@@ -177,6 +193,7 @@ h1 {
     @media (max-width: 992px) {
         display: grid;
         width: 100%;
+        height: 100%;
     }
 }
 
@@ -212,5 +229,19 @@ h1 {
     display: flex;
     flex-direction: column;
     //gap: 30px;
+}
+
+:deep(.leaflet-control-zoom-fullscreen),
+:deep(.leaflet-control-zoom-fullscreen:focus) {
+    background-color: $highlight-color1;
+    width: 50px !important;
+    height: 50px !important;
+    background-size: 40px 40px !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3) !important;
+    border: none;
+}
+
+:deep(.leaflet-control-zoom-fullscreen:hover) {
+    background-color: $highlight-color2;
 }
 </style>
