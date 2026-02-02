@@ -194,7 +194,7 @@ h1 {
     @media (max-width: 992px) {
         width: 100%;
         //min-height: 350px;
-        height: 100%;
+        height: 40vh; 
     }
 }
 
