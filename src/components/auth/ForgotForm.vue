@@ -104,7 +104,7 @@ async function handleResetPassword() {
       <h2 class="form-title">忘記密碼？</h2>
       <p class="subtitle">請輸入您的電子郵件，我們將寄送重設密碼連結給您</p>
       <form @submit.prevent="handleForgotPassword">
-        <Input v-model="email" placeholder="請輸入電子郵件" autocomplete="email">
+        <Input v-model="email" type="email" placeholder="請輸入電子郵件" autocomplete="email">
           <template #icon><span class="material-symbols-outlined">mail</span></template>
         </Input>
         <p v-if="errorMessage" class="error-text">{{ errorMessage }}</p>

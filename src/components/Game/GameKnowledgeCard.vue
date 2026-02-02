@@ -77,21 +77,21 @@ p {
 @media (pointer: coarse) and (orientation: landscape) {
   .dialog-card__content {
     padding: 24px 20px 16px;
-    font-size: 0.9rem;
+    font-size: 14px;
   }
 
   button {
-    font-size: 0.75rem;
+    font-size: 12px;
     padding-top: 12px;
   }
 
   p {
-    font-size: 0.8rem;
+    font-size: 13px;
     padding: 2px 6px;
   }
 
   .knowledge-text {
-    font-size: 0.9rem;
+    font-size: 14px;
   }
 }
 </style>
