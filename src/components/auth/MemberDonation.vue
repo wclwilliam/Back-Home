@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { backHomeApi } from '@/utils/publicApi'
 import TabSwitcher from '@/components/TabSwitcher.vue'
 import Button from '@/components/auth/Button.vue'
 import Pagination from '@/components/Pagination.vue'
@@ -41,12 +42,12 @@ const fetchData = async () => {
     }
 
     // 1. 抓取所有捐款歷史 (auth_donation_list.php)
-    const historyRes = await fetch('http://localhost:8888/api/member/auth_donation_list.php', {
+    const historyRes = await backHomeApi.get('/member/auth_donation_list.php', {
       headers: {
         'Authorization': `Bearer ${token}`
       }
     });
-    const historyData = await historyRes.json();
+    const historyData = historyRes.data;
     
     const formatRecord = (item) => {
       const dateObj = new Date(item.DONATION_DATE);
@@ -73,12 +74,12 @@ const fetchData = async () => {
       .map(formatRecord);
 
     // 2. 抓取進行中的定期計畫 (auth_subscription_list.php)
-    const activeRes = await fetch('http://localhost:8888/api/member/auth_subscription_list.php', {
+    const activeRes = await backHomeApi.get('/member/auth_subscription_list.php', {
       headers: {
         'Authorization': `Bearer ${token}`
       }
     });
-    const activeData = await activeRes.json();
+    const activeData = activeRes.data;
     // 取得第一筆狀態為 1 的計畫
     activeSubscription.value = activeData.length > 0 ? activeData[0] : null;
 
@@ -110,18 +111,18 @@ const handleLightboxConfirm = async (updatedData) => {
 
   if (activeType.value === 'terminate') {
     try {
-      const res = await fetch('http://localhost:8888/api/member/auth_donation_update.php', {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
+      const res = await backHomeApi.post('/member/auth_donation_update.php', 
+        {
           subscriptionId: subId,
           action: 'cancel'
-        })
-      });
-      const result = await res.json();
+        },
+        {
+          headers: { 
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      );
+      const result = res.data;
       if (result.status === 'success') {
         isLightboxOpen.value = false;
         await fetchData(); // 立即重新抓取資料，卡片會消失
@@ -134,19 +135,19 @@ const handleLightboxConfirm = async (updatedData) => {
 
   } else if (activeType.value === 'editAmount') {
     try {
-      const res = await fetch('http://localhost:8888/api/member/auth_donation_update.php', {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
+      const res = await backHomeApi.post('/member/auth_donation_update.php',
+        {
           subscriptionId: subId,
           action: 'updateAmount',
           amount: updatedData.newAmount // 💡 改成 newAmount，才會對應到燈箱的輸入框
-        })
-      });
-      const result = await res.json();
+        },
+        {
+          headers: { 
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      );
+      const result = res.data;
       if (result.status === 'success') {
         isLightboxOpen.value = false;
         await fetchData(); // 💡 重新抓取資料，卡片金額會立刻更新

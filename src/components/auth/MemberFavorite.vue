@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { backHomeApi, APIBase } from '@/utils/publicApi'
 import TabSwitcher from '@/components/TabSwitcher.vue'
 import ActivityCard from '@/components/cards/ActivityCard.vue'
 import Pagination from '@/components/Pagination.vue'
@@ -36,20 +37,20 @@ const fetchFavorites = async () => {
       return;
     }
 
-    const response = await fetch('http://localhost:8888/api/member/auth_favorite_list.php', {
+    const response = await backHomeApi.get('/member/auth_favorite_list.php', {
       headers: {
         'Authorization': `Bearer ${token}`
       }
     });
-    const data = await response.json();
+    const data = response.data;
     
     favoriteList.value = data.map(item => {
       // 關鍵！因為 PHP 回傳的是 "image": "care_01.png"
       const fileName = item.image; 
       
-      // 這裡組合出絕對路徑，請確保路徑層級跟你的 MAMP 檔案夾對齊
+      // 使用環境變數自动切换基础路径
       const finalImage = fileName 
-        ? `http://localhost:8888/api/uploads/actCover/${fileName}` 
+        ? `${APIBase}/uploads/actCover/${fileName}` 
         : '';
 
       return {
@@ -57,7 +58,7 @@ const fetchFavorites = async () => {
         title: item.title,
         date: item.startDate,
         location: item.location,
-        image: finalImage,    // 這會變成 http://localhost:8888/api/uploads/actCover/care_01.png
+        image: finalImage,    // 自動使用環境對應的 API 路徑
         isFavorite: true,
         currentPeople: 0,
         maxPeople: 100,
@@ -73,7 +74,7 @@ const fetchFavorites = async () => {
 const handleLightboxConfirm = async () => {
   if (activeType.value === 'removeFavorite') {
     try {
-      const token = localStorage.getItem('jwtToken');
+      const token = localStorage.getItem('bh_front_token');
       
       if (!token) {
         console.error('未登入，請先登入');
@@ -81,16 +82,16 @@ const handleLightboxConfirm = async () => {
         return;
       }
 
-      const response = await fetch('http://localhost:8888/api/member/auth_favorite_delete.php', {
-        method: 'POST', // 配合你目前的 PHP 接收邏輯
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ activityId: selectedActivity.value.id })
-      });
+      const response = await backHomeApi.post('/member/auth_favorite_delete.php',
+        { activityId: selectedActivity.value.id },
+        {
+          headers: { 
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      );
 
-      const result = await response.json();
+      const result = response.data;
       
       if (result.status === 'success') {
         // 從前端陣列中移除，達成即時更新
