@@ -28,7 +28,19 @@ const selectedActivity = ref(null)
 // --- API 串接：讀取收藏清單 ---
 const fetchFavorites = async () => {
   try {
-    const response = await fetch('http://localhost:8888/api/member/auth_favorite_list.php');
+    const token = localStorage.getItem('bh_front_token');
+    
+    if (!token) {
+      console.error('未登入，請先登入');
+      router.push('/');
+      return;
+    }
+
+    const response = await fetch('http://localhost:8888/api/member/auth_favorite_list.php', {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
     const data = await response.json();
     
     favoriteList.value = data.map(item => {
@@ -61,9 +73,20 @@ const fetchFavorites = async () => {
 const handleLightboxConfirm = async () => {
   if (activeType.value === 'removeFavorite') {
     try {
+      const token = localStorage.getItem('jwtToken');
+      
+      if (!token) {
+        console.error('未登入，請先登入');
+        router.push('/');
+        return;
+      }
+
       const response = await fetch('http://localhost:8888/api/member/auth_favorite_delete.php', {
         method: 'POST', // 配合你目前的 PHP 接收邏輯
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify({ activityId: selectedActivity.value.id })
       });
 
