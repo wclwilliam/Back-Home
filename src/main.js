@@ -8,6 +8,7 @@ import { useAuthStore } from '@/stores/auth'
 import '@/assets/scss/style.scss'
 import '@fortawesome/fontawesome-free/css/all.css'
 import vue3GoogleLogin from 'vue3-google-login'
+//import 'leaflet/dist/leaflet.css';
 
 const app = createApp(App)
 
