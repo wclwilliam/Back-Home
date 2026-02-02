@@ -16,16 +16,16 @@
       </p>
 
       <form @submit.prevent="handleRegister">
-        <Input v-model="form.name" placeholder="請輸入姓名" autocomplete="name">
+        <Input v-model="form.name" type="text" placeholder="請輸入姓名" autocomplete="name">
           <template #icon><span class="material-symbols-outlined">person</span></template>
         </Input>
 
-        <Input v-model="account" placeholder="請輸入電子郵件" autocomplete="email">
+        <Input v-model="account" type="email" placeholder="請輸入電子郵件" autocomplete="email">
           <template #icon><span class="material-symbols-outlined">mail</span></template>
         </Input>
 
         <div class="verify-group">
-          <Input v-model="form.code" placeholder="請輸入驗證碼" class="flex-1" autocomplete="off">
+          <Input v-model="form.code" inputmode="numeric" placeholder="請輸入驗證碼" class="flex-1" autocomplete="off">
             <template #icon><span class="material-symbols-outlined">key</span></template>
           </Input>
           <button type="button" class="btn btn-outline btn-xs" @click="handleSendCode" :disabled="isCodeButtonDisabled">

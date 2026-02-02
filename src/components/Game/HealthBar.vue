@@ -104,7 +104,7 @@ onUnmounted(() => {
     gap: 6px;
 
     &__percentage {
-      font-size: 0.85rem;
+      font-size: 14px;
     }
 
     &__hearts {
@@ -121,7 +121,7 @@ onUnmounted(() => {
     }
 
     &__label {
-      font-size: 0.65rem;
+      font-size: 10px;
       padding: 2px 6px;
     }
   }
