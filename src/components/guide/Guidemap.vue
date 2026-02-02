@@ -182,7 +182,7 @@ h1 {
     @media (max-width: 992px) {
         display: grid;
         grid-template-columns: 1fr;
-        grid-template-rows: 400px;
+        grid-template-rows: 400px auto;
          height: auto;
     }
 }
@@ -194,7 +194,7 @@ h1 {
     @media (max-width: 992px) {
         width: 100%;
         //min-height: 350px;
-        height: 40vh; 
+        height: 400px; 
     }
 }
 
