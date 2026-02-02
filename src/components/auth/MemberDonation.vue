@@ -5,13 +5,21 @@ import TabSwitcher from '@/components/TabSwitcher.vue'
 import Button from '@/components/auth/Button.vue'
 import Pagination from '@/components/Pagination.vue'
 import MemberLightbox from '@/components/auth/MemberLightbox.vue';
+import { backHomeApi ,APIBase } from '@/utils/publicApi'
+import { useAuthStore } from '@/stores/auth'
 
 const router = useRouter()
 const route = useRoute()
+const auth = useAuthStore()
+
+
 
 const isLightboxOpen = ref(false);
 const activeType = ref('');
 const selectedDonation = ref(null);
+const ecpayForm = ref(null);
+const amount = ref("");
+const newestDate = ref("")
 
 // --- API 資料儲存 ---
 const subscriptionRecords = ref([]); // 歷史紀錄：定期定額
@@ -31,8 +39,9 @@ const donationTabs = [
 const fetchData = async () => {
   try {
     // 1. 抓取所有捐款歷史 (auth_donation_list.php)
-    const historyRes = await fetch('http://localhost:8888/api/member/auth_donation_list.php');
-    const historyData = await historyRes.json();
+    const historyRes = await backHomeApi.get(`member/auth_donation_list.php?member_id=${auth.user?.MEMBER_ID}`);
+    
+    const historyData = historyRes.data;
     
     const formatRecord = (item) => {
       const dateObj = new Date(item.DONATION_DATE);
@@ -45,7 +54,7 @@ const fetchData = async () => {
         fullDate: item.DONATION_DATE.split(' ')[0].replace(/-/g, '.'),
         payType: item.PAYMENT_METHOD,
         orderId: item.TRANSACTION_ID,
-        donor: '會員', 
+        donor: auth.user.name, 
         payMonth: `${dateObj.getMonth() + 1}月`
       };
     };
@@ -59,8 +68,8 @@ const fetchData = async () => {
       .map(formatRecord);
 
     // 2. 抓取進行中的定期計畫 (auth_subscription_list.php)
-    const activeRes = await fetch('http://localhost:8888/api/member/auth_subscription_list.php');
-    const activeData = await activeRes.json();
+    const activeRes = await backHomeApi.get(`member/auth_subscription_list.php?member_id=${auth.user?.MEMBER_ID}`);
+    const activeData = activeRes.data;
     // 取得第一筆狀態為 1 的計畫
     activeSubscription.value = activeData.length > 0 ? activeData[0] : null;
 
@@ -70,6 +79,16 @@ const fetchData = async () => {
 };
 
 onMounted(fetchData);
+
+onMounted( async () => {
+  try {
+    const response = await backHomeApi.get(`donation/newestSubscription_get.php?member_id=${auth.user?.MEMBER_ID}`);
+      newestDate.value = response.data.data.DONATION_DATE.split(' ')[0];
+      // console.log(newestDate);
+  } catch (e){
+    console.error(e);
+  }
+})
 
 // 開啟燈箱
 const openLightbox = (type, data = null) => {
@@ -82,19 +101,14 @@ const openLightbox = (type, data = null) => {
 const handleLightboxConfirm = async (updatedData) => {
   // 取得當前計畫的 ID
   const subId = activeSubscription.value?.SUBSCRIPTION_ID;
+  amount.value = updatedData.newAmount;
 
   if (activeType.value === 'terminate') {
     try {
-      const res = await fetch('http://localhost:8888/api/member/auth_donation_update.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          subscriptionId: subId,
-          action: 'cancel'
-        })
-      });
-      const result = await res.json();
-      if (result.status === 'success') {
+      const response = await backHomeApi.post('/donation/stop_subscription.php', {
+      member_id : auth.user?.MEMBER_ID
+    });
+      if (response.data.status === 'success') {
         isLightboxOpen.value = false;
         await fetchData(); // 立即重新抓取資料，卡片會消失
         setTimeout(() => {
@@ -104,29 +118,79 @@ const handleLightboxConfirm = async (updatedData) => {
       }
     } catch (err) { console.error("終止失敗", err); }
 
-  } else if (activeType.value === 'editAmount') {
+  } else if (activeType.value === 'editAmount') {//先終止原本的定期定額再重新送一份
     try {
-      const res = await fetch('http://localhost:8888/api/member/auth_donation_update.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          subscriptionId: subId,
-          action: 'updateAmount',
-          amount: updatedData.newAmount // 💡 改成 newAmount，才會對應到燈箱的輸入框
-        })
-      });
-      const result = await res.json();
-      if (result.status === 'success') {
-        isLightboxOpen.value = false;
-        await fetchData(); // 💡 重新抓取資料，卡片金額會立刻更新
+      const response = await backHomeApi.post('/donation/stop_subscription.php', {
+      member_id : auth.user?.MEMBER_ID
+    });
+    if (response.data.status === 'success') {
+      ecpayForm.value.submit();
+      isLightboxOpen.value = false;
+      await fetchData(); // 💡 重新抓取資料，卡片金額會立刻更新
         setTimeout(() => {
           activeType.value = 'editAmountSuccess';
           isLightboxOpen.value = true;
         }, 300);
-      }
+    }
+    //   const res = await fetch('http://localhost:8888/api/member/auth_donation_update.php', {
+    //     method: 'POST',
+    //     headers: { 'Content-Type': 'application/json' },
+    //     body: JSON.stringify({
+    //       subscriptionId: subId,
+    //       action: 'updateAmount',
+    //       amount: updatedData.newAmount // 💡 改成 newAmount，才會對應到燈箱的輸入框
+    //     })
+    //   });
+    //   const result = await res.json();
+    //   if (result.status === 'success') {
+    //     isLightboxOpen.value = false;
+    //     await fetchData(); // 💡 重新抓取資料，卡片金額會立刻更新
+    //     setTimeout(() => {
+    //       activeType.value = 'editAmountSuccess';
+    //       isLightboxOpen.value = true;
+    //     }, 300);
+    //   }
     } catch (err) { console.error("修改金額失敗", err); }
   }
 };
+
+const nextDonate = computed(() =>{  //先有最近扣款日
+    const lastDate = new Date(newestDate.value);
+    
+    // 取得原本設定的「扣款日」（例如 31 號）
+    const dayOfSubscription = lastDate.getDate();
+    
+    // 取得下一個月的年份與月份
+    let nextYear = lastDate.getFullYear();
+    let nextMonth = lastDate.getMonth() + 1; // getMonth() 是 0-11，所以 +1 代表下個月
+
+    // 如果超過 12 月，年份加 1，月份重設為 0 (1月)
+    if (nextMonth > 11) {
+        nextYear++;
+        nextMonth = 0;
+    }
+
+    // 關鍵邏輯：
+    // new Date(year, month + 1, 0) 會回傳該月的最後一天
+    const lastDayOfNextMonth = new Date(nextYear, nextMonth + 1, 0).getDate();
+
+    // 依照規則：若下個月天數不足，則採最後一天；否則採原定扣款日
+    const nextChargeDay = Math.min(dayOfSubscription, lastDayOfNextMonth);
+
+    const nextDate = new Date(nextYear, nextMonth, nextChargeDay);
+
+    // 格式化輸出為 YYYY-MM-DD
+    const y = nextDate.getFullYear();
+    const m = String(nextDate.getMonth() + 1).padStart(2, '0');
+    const d = String(nextDate.getDate()).padStart(2, '0');
+
+    return `${y}-${m}-${d}`;
+})
+
+const freq = computed(()=> {
+  return new Date(newestDate.value).getDate();
+})
+
 
 // 分頁與導航邏輯
 const totalPages = computed(() => {
@@ -161,6 +225,14 @@ watch(() => route.query, () => {
 
 <template>
   <div class="container">
+    <form :action="APIBase +'donation/epay.php'" ref="ecpayForm" v-show="false" method="post">
+      <input type="hidden" name="UseEcpay" value="ecpay">
+      <input type="hidden" name="CustomField1" :value="auth.user?.MEMBER_ID">
+      <input type="hidden" name="CustomField2" value="monthly">
+      <input type="hidden" name="TotalAmount" :value="amount">
+      <input type="hidden" name="TradeDesc" value="monthly">
+      <input type="hidden" name="ItemName" value="捐款金額">
+    </form>
     <TabSwitcher v-model="currentTab" :tabs="donationTabs">
         
         <template v-if="currentTab === 'subscription'">
@@ -182,8 +254,8 @@ watch(() => route.query, () => {
                 <p>每期金額：${{ activeSubscription.AMOUNT }}</p>
               </div>
               <div class="grid-item info-column">
-                <p>最近扣款日：已成功</p>
-                <p>下次扣款日：待更新</p>
+                <p>最近扣款日：{{newestDate}}</p>
+                <p>下次扣款日：{{nextDonate}}</p>
               </div>
             </div>
           </div>
@@ -246,6 +318,8 @@ watch(() => route.query, () => {
       v-model="isLightboxOpen" 
       :type="activeType" 
       :initialData="selectedDonation"
+      :amount="activeSubscription?.AMOUNT"
+      :freq="freq"
       @confirm="handleLightboxConfirm"
     />
   </div>

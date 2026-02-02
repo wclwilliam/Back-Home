@@ -189,47 +189,6 @@ const donationState = useLocalStorage('donationState', {
 
 })
 
-const upadateSubscription = () => {
-  ecpayForm.value.submit()
-}
-
-
-/**
- * 終止舊捐款並導向新金額設定
- */
-const handleCancelSubscription = async () => {
-  // 1. 二次確認
-  const confirmAction = confirm("更改金額需要終止目前的定期定額，並重新進行一次 800 元的授權，是否確定？");
-  if (!confirmAction) return;
-
-  loading.value = true;
-  
-
-  try {
-    // 2. 呼叫 PHP API (對應您 MAMP 環境下的路徑)
-    const response = await backHomeApi.post('/donation/stop_subscription.php', {
-      member_id : auth.user?.MEMBER_ID
-    });
-
-    if (response.data.status === 'success') {
-      alert("舊扣款已終止成功！");
-
-      // 3. 跳轉至重新授權頁面，並帶入新金額參數
-      // 這裡您可以根據專案需求決定是跳轉路由或是直接變換網址
-      // window.location.href = `/donate_setup.php?new_amount=800`;
-      
-    } else {
-      alert(`發生錯誤：${response.data.msg}`);
-    }
-  } catch (error) {
-    console.error("API Error:", error);
-    alert("系統連線失敗，請檢查網路或後端服務");
-  } finally {
-    loading.value = false;
-  }
-};
-// =======================================================
-
 
 
 onMounted( async () => { //進頁面時調api判斷該會員有沒有定期定額，如果有就不能訂閱
@@ -432,7 +391,6 @@ const goLinepay = async () => {
 
 <template>
   <div class="donation-card">
-    <button @click="upadateSubscription">測試按鈕</button>
     <downloadReceipt ref="modalRef" />
     <div class="stepper">
       <div class="progress-line">
