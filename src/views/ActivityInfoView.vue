@@ -54,21 +54,6 @@ const checkUserAttended = async () => {
 
   let currentUserId = authStore.user?.id
 
-  if (!currentUserId || !activityInfo.value.id) {
-    const decoded = parseToken(authStore.token)
-    // 注意：auth_login.php 寫入的 key 是 'member_id'
-    if (decoded && decoded.member_id) {
-      currentUserId = decoded.member_id
-      // 順手把解出來的 ID 補回 Store，這樣其他功能也可能恢復正常
-      if (authStore.user) {
-        authStore.user.id = currentUserId
-      } else {
-        // 如果 user 根本是 null，就幫它初始化一個簡易版
-        authStore.user = { id: currentUserId }
-      }
-    }
-    return
-  }
 
   const attendanceUrl = 'activity/activity_check_attend.php'
   
@@ -201,22 +186,8 @@ const reviewUrl = 'activity/activity_reviews_get.php'
 const fetchReviews = async (activityId) => {
   try {
     //取得user id 
-    let currentUserId = authStore.user?.id
+    const currentUserId = authStore.user?.id || 0
 
-    if(!currentUserId) {
-      const decoded = parseToken(authStore.token)
-      // 注意：auth_login.php 寫入的 key 是 'member_id'
-      if (decoded ) {
-        currentUserId = decoded.member_id || decoded.id
-        // 順手把解出來的 ID 補回 Store，這樣其他功能也可能恢復正常
-        if (authStore.user) {
-          authStore.user.id = currentUserId
-        } else {
-          // 如果 user 根本是 null，就幫它初始化一個簡易版
-          authStore.user = { id: currentUserId }
-        }
-      }
-    }
     const response = await backHomeApi.get(`${reviewUrl}?activity_id=${activityId}&user_id=${currentUserId || 0}`)
     // console.log('留言列表原始資料:', response.data.data)
     if (response.data.status === 'success') {
@@ -316,54 +287,38 @@ const parseToken = (token) => {
 
 // 取得會員詳細資料並填入表單
 const getMemberInfo = async () => {
-  
-  if (!authStore.token) return
-  // 嘗試取得 ID：
-  // 優先從 Store 拿，如果 Store 壞掉 (undefined)，就嘗試從 Token 解碼拿
-  let currentUserId = authStore.user?.id
-  
-  if (!currentUserId) {
-    const decoded = parseToken(authStore.token)
-    // 注意：auth_login.php 寫入的 key 是 'member_id'
-    if (decoded && decoded.member_id) {
-      currentUserId = decoded.member_id
-      // 順手把解出來的 ID 補回 Store，這樣其他功能也可能恢復正常
-      if (authStore.user) {
-        authStore.user.id = currentUserId
-      } else {
-        // 如果 user 根本是 null，就幫它初始化一個簡易版
-        authStore.user = { id: currentUserId }
-      }
-    }
-  }
-
-  // 如果還是拿不到 ID，就沒辦法了
-  if (!currentUserId) {
-    console.warn('無法取得會員 ID')
-    return
-  }
+  // 1. 檢查是否登入，若沒登入直接結束
+  if (!authStore.isLogin || !authStore.token) return 
 
   try {
-    // 使用抓到的 ID 發送請求
-    // 注意：這裡假設你已經建立了 api/member/auth_get_info.php
-    const res = await backHomeApi.get(`member/auth_get_info.php?id=${currentUserId}`)
+    
+    const res = await backHomeApi.get('member/auth_me.php', {
+      headers: {
+        Authorization: `Bearer ${authStore.token}`
+      }
+    })
     
     if (res.data.status === 'success') {
-      const user = res.data.data
+      const user = res.data.member
       
-      formData.name = user.name || ''
-      formData.email = user.email || ''
-      formData.phone = user.phone || ''
-      formData.idNumber = user.idNumber || ''
-      formData.birthday = user.birthday || ''
-      formData.emergencyName = user.emergencyName || ''
-      formData.emergencyPhone = user.emergencyPhone || ''
+      formData.name = user.MEMBER_REALNAME || ''
+      formData.email = user.MEMBER_EMAIL || ''
+      formData.phone = user.MEMBER_PHONE || ''
+      formData.idNumber = user.ID_NUMBER || ''
+      formData.birthday = user.BIRTHDAY || ''
+      formData.emergencyName = user.EMERGENCY || ''
+      formData.emergencyPhone = user.EMERGENCY_TEL || ''
+      
+      // console.log('會員資料自動帶入成功')
     }
   } catch (error) {
+    
     console.error('無法取得會員資料:', error)
+    if (error.response && error.response.status === 401) {
+      
+    }
   }
 }
-
 // 監聽登入狀態與生命週期
 onMounted(() => {
   if (route.params.id) {
