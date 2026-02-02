@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted, watch, toRaw } from 'vue'
+import { ref, computed, onMounted, nextTick, watch, toRaw } from 'vue'
 import { allTurtles } from './turtleData.js'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
@@ -46,6 +46,7 @@ const drawTurtleLayer = (turtle) => {
 
 
 onMounted(() => {
+    await nextTick();
     //建立地圖框
     map = L.map('map', {
         minZoom: 2,
@@ -55,7 +56,7 @@ onMounted(() => {
         // 直接在這裡加入全螢幕控制
         fullscreenControl: true,
         fullscreenControlOptions: {
-            position: "topright", // 將位置改為右上角
+            position: "topright", 
             title: "進入全螢幕",
             titleCancel: "離開全螢幕",
             forceSeparateButton: true,
@@ -63,9 +64,10 @@ onMounted(() => {
         }
     }).setView([20, 0], 2);
 
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        noWrap: true,
-        attribution: '&copy; OpenStreetMap contributors',
+    // 使用更穩定的 tile provider (修正 400 錯誤)
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CartoDB</a>',
+        subdomains: 'abcd',
         maxZoom: 19
     }).addTo(map);
 
@@ -75,11 +77,8 @@ onMounted(() => {
         if (currentTurtleInfo.value) {
             drawTurtleLayer(currentTurtleInfo.value);
         }
-    }, 200);
+    }, 300);
 
-    // new L.Map(mapContent.value, {
-
-    // });
 });
 
 
@@ -193,7 +192,6 @@ h1 {
 
     @media (max-width: 992px) {
         width: 100%;
-        //min-height: 350px;
         height: 400px; 
     }
 }
