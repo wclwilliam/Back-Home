@@ -188,7 +188,7 @@ const downloadImage = async (imgName) => {
     <MyButton class="btn-xxl mbOnlyBtn" width="100%" ref="bottomBtn" @click="scrollToTarget">立即捐款</MyButton>
     <div class="container">
         <div class="row">
-            <div class="col-12 col-md-6 col-lg-6">
+            <div class="col-12 col-md-6 col-lg-6 left">
                 <section class="otherCom">
                         <div class="rescueChart container">
                             <h2>我們的影響力數據</h2>
@@ -256,7 +256,7 @@ const downloadImage = async (imgName) => {
                         </div>
                 </section>
             </div>
-            <div class="col-12 col-md-6 col-lg-6">
+            <div class="col-12 col-md-6 col-lg-6 right">
                 <section class="mainCom">
                         <donationCom ref="targetComponent"/>
                 </section>
@@ -297,6 +297,12 @@ const downloadImage = async (imgName) => {
                 gap: 32px;
                 margin-top: 32px;
                 overflow-x: hidden;
+            }
+            .left {
+                z-index: 1;
+            }
+            .right {
+                z-index: 1;
             }
         }
         .otherCom {
