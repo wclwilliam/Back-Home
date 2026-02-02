@@ -153,7 +153,7 @@ h1 {
     margin: 67px 0;
 
     @media(max-width: 992px) {
-        margin: 200px 0 67px 0;
+        margin: 50px 0 67px 0;
     }
 }
 

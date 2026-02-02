@@ -266,9 +266,9 @@ onUnmounted(() => {
 .status-panel {
   grid-column: 1 / 2;
   grid-row: 1 / 2;
-  justify-self: center;
-  align-self: center;
-  padding-left: 4px;
+  justify-self: start;
+  align-self: start;
+  padding: 4px;
 }
 
 .health-bar-container {

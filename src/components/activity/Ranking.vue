@@ -1,20 +1,11 @@
 <script setup>
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
+import { backHomeApi } from '@/utils/publicApi'
+//志工資料
+const topVolunteers = ref([])
 
-// 模擬的前 10 名志工資料
-const topVolunteers = ref([
-  { id: 1, name: '周*輪', hours: 156 },
-  { id: 2, name: 'Julie', hours: 150 },
-  { id: 3, name: '林*豪', hours: 142 },
-  { id: 4, name: '陳*美', hours: 138 },
-  { id: 5, name: 'Alex', hours: 125 },
-  { id: 6, name: '王*明', hours: 110 },
-  { id: 7, name: 'Sophie', hours: 98 },
-  { id: 8, name: '張*山', hours: 95 },
-  { id: 9, name: '李*華', hours: 88 },
-  { id: 10, name: 'Kevin', hours: 82 },
-])
-
+// 讀取志工排名資料
+const url = `activity/leaderboard.php`
 // 取得排名圖片
 const getRankIcon = (index) => {
   const rank = index + 1
@@ -23,6 +14,26 @@ const getRankIcon = (index) => {
   }
   return null
 }
+const fetchRankingData = async () => {
+  try {
+    const response = await backHomeApi.get(url)
+    if (response.data.status === 'success') {
+      topVolunteers.value = response.data.data.map(item => ({
+        id: item.MEMBER_ID,
+        name: item.DISPLAY_NAME,
+        hours: Number(item.TOTAL_HOURS),
+      }))
+    }
+  } catch (err) {
+    console.error('無法讀取志工排名資料', err)
+  }
+}
+
+// 元件載入時取得資料
+onMounted(() => {
+  fetchRankingData()
+})
+
 </script>
 
 <template>
@@ -47,6 +58,10 @@ const getRankIcon = (index) => {
         </div>
 
         <div class="table-body">
+          <div v-if="topVolunteers.length === 0" class="table-row" style="justify-content: center;">
+            載入中或尚無資料...
+          </div>
+
           <div 
             v-for="(user, index) in topVolunteers" 
             :key="user.id" 
@@ -60,6 +75,7 @@ const getRankIcon = (index) => {
                   :alt="`第${index + 1}名`"
                   class="rank-icon"
                 >
+                <span v-else>{{ index + 1 }}</span>
               </div>
             </div>
 

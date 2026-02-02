@@ -101,7 +101,7 @@ const callback = async (response) => {
                 <span class="material-symbols-outlined">error</span>{{ errorMessage }}
             </div>
 
-            <Input v-model="account" placeholder="請輸入電子郵件" autocomplete="email">
+            <Input v-model="account" type="email" placeholder="請輸入電子郵件" autocomplete="email">
                 <template #icon><span class="material-symbols-outlined">person</span></template>
             </Input>
             <Input v-model="password" :type="isPasswordVisible ? 'text' : 'password'" placeholder="請輸入密碼"

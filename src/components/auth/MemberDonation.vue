@@ -1,11 +1,11 @@
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { backHomeApi,APIBase } from '@/utils/publicApi'
 import TabSwitcher from '@/components/TabSwitcher.vue'
 import Button from '@/components/auth/Button.vue'
 import Pagination from '@/components/Pagination.vue'
 import MemberLightbox from '@/components/auth/MemberLightbox.vue';
-import { backHomeApi ,APIBase } from '@/utils/publicApi'
 import { useAuthStore } from '@/stores/auth'
 
 const router = useRouter()
@@ -38,8 +38,22 @@ const donationTabs = [
 // --- 取得並轉換資料 ---
 const fetchData = async () => {
   try {
+    // 從 localStorage 取得 token (使用正確的鍵名)
+    const token = localStorage.getItem('bh_front_token');
+    
+    if (!token) {
+      console.error('未登入，請先登入');
+      // 可以選擇重定向到首頁或顯示登入提示
+      router.push('/');
+      return;
+    }
+
     // 1. 抓取所有捐款歷史 (auth_donation_list.php)
-    const historyRes = await backHomeApi.get(`member/auth_donation_list.php?member_id=${auth.user?.MEMBER_ID}`);
+    const historyRes = await backHomeApi.get(`member/auth_donation_list.php?member_id=${auth.user?.MEMBER_ID}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
     
     const historyData = historyRes.data;
     
@@ -68,7 +82,11 @@ const fetchData = async () => {
       .map(formatRecord);
 
     // 2. 抓取進行中的定期計畫 (auth_subscription_list.php)
-    const activeRes = await backHomeApi.get(`member/auth_subscription_list.php?member_id=${auth.user?.MEMBER_ID}`);
+    const activeRes = await backHomeApi.get(`member/auth_subscription_list.php?member_id=${auth.user?.MEMBER_ID}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
     const activeData = activeRes.data;
     // 取得第一筆狀態為 1 的計畫
     activeSubscription.value = activeData.length > 0 ? activeData[0] : null;
@@ -103,10 +121,23 @@ const handleLightboxConfirm = async (updatedData) => {
   const subId = activeSubscription.value?.SUBSCRIPTION_ID;
   amount.value = updatedData.newAmount;
 
+  const token = localStorage.getItem('bh_front_token');
+
+  if (!token) {
+    console.error('未登入，請先登入');
+    router.push('/');
+    return;
+  }
+
   if (activeType.value === 'terminate') {
     try {
       const response = await backHomeApi.post('/donation/stop_subscription.php', {
       member_id : auth.user?.MEMBER_ID
+    },
+    {
+      headers: { 
+        'Authorization': `Bearer ${token}`
+      }
     });
       if (response.data.status === 'success') {
         isLightboxOpen.value = false;
@@ -122,6 +153,11 @@ const handleLightboxConfirm = async (updatedData) => {
     try {
       const response = await backHomeApi.post('/donation/stop_subscription.php', {
       member_id : auth.user?.MEMBER_ID
+    },
+    {
+      headers: { 
+        'Authorization': `Bearer ${token}`
+      }
     });
     if (response.data.status === 'success') {
       ecpayForm.value.submit();

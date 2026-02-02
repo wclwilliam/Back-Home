@@ -103,10 +103,15 @@
 .orientation-guard {
   position: relative;
   height: calc(100dvh - clamp(84px, 8vw, 100px));
-  overflow-y: auto;
+  // height: 100dvh;
+  border: 3px solid blue;
+  // overflow-y: auto;
+  overflow: hidden;
+
 
   /* 手機橫向：填滿整個視窗，移除 Header */
-  @media (pointer: coarse) and (max-width: 820px) and (orientation: landscape) {
+
+  @media (pointer: coarse) and (max-width: 820px) {
     position: fixed !important;
     top: 0 !important;
     left: 0 !important;
