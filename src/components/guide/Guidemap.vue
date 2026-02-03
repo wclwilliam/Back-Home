@@ -3,8 +3,6 @@ import { ref, computed, onMounted, nextTick, watch, toRaw } from 'vue'
 import { allTurtles } from './turtleData.js'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
-// import "@bepo65/leaflet.fullscreen/Control.FullScreen";
-// import "@bepo65/leaflet.fullscreen/Control.FullScreen.css";
 import { FullScreen } from 'leaflet.fullscreen';
 import 'leaflet.fullscreen/dist/Control.FullScreen.css';
 
@@ -68,7 +66,10 @@ onMounted(async () => {
 
     map.addControl(
         new FullScreen({
-            position: 'topleft'
+            position: 'bottomleft',
+            title: "進入全螢幕",
+            titleCancel: "離開全螢幕",
+
         })
     );
 
@@ -145,7 +146,7 @@ h1 {
 .profileList {
     display: flex;
     gap: 15px;
-    padding: 20px 0;
+    padding: 20px 0 50px 0;
     flex-wrap: wrap;
 }
 
@@ -241,8 +242,8 @@ h1 {
 :deep(.leaflet-control-zoom-fullscreen),
 :deep(.leaflet-control-zoom-fullscreen:focus) {
     background-color: $highlight-color1;
-    width: 50px !important;
-    height: 50px !important;
+    width: 40px !important;
+    height: 40px !important;
     background-size: 40px 40px !important;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3) !important;
     border: none;
@@ -250,5 +251,20 @@ h1 {
 
 :deep(.leaflet-control-zoom-fullscreen:hover) {
     background-color: $highlight-color2;
+}
+
+:deep(.leaflet-control-zoom-in),
+:deep(.leaflet-control-zoom-out) {
+    width: 40px !important;
+    height: 40px !important;
+    line-height: 40px !important;
+    font-size: 30px !important;
+}
+
+
+:deep(.leaflet-touch .leaflet-bar a) {
+    width: 50px;
+    height: 50px;
+    line-height: 50px;
 }
 </style>
