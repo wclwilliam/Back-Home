@@ -66,7 +66,7 @@ onMounted(async () => {
 
     map.addControl(
         new FullScreen({
-            position: 'topleft',
+            position: 'bottomleft',
             title: "進入全螢幕",
             titleCancel: "離開全螢幕",
 
@@ -242,8 +242,8 @@ h1 {
 :deep(.leaflet-control-zoom-fullscreen),
 :deep(.leaflet-control-zoom-fullscreen:focus) {
     background-color: $highlight-color1;
-    width: 50px !important;
-    height: 50px !important;
+    width: 40px !important;
+    height: 40px !important;
     background-size: 40px 40px !important;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3) !important;
     border: none;
@@ -255,9 +255,9 @@ h1 {
 
 :deep(.leaflet-control-zoom-in),
 :deep(.leaflet-control-zoom-out) {
-    width: 50px !important;
-    height: 50px !important;
-    line-height: 50px !important;
+    width: 40px !important;
+    height: 40px !important;
+    line-height: 40px !important;
     font-size: 30px !important;
 }
 
