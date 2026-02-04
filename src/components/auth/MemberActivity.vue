@@ -1,6 +1,7 @@
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router' // 引入路由
+import { backHomeApi } from '@/utils/publicApi'
 import TabSwitcher from '@/components/TabSwitcher.vue'
 import Button from '@/components/auth/Button.vue'
 import Pagination from '@/components/Pagination.vue'
@@ -20,34 +21,93 @@ const activityTabs = [
   { label: '已取消', value: 'canceled' }
 ]
 
-// 2. 模擬資料
+// 2. 活動資料
 const allActivities = ref({
-  future: Array.from({ length: 8 }, (_, i) => ({
-    id: i + 1,  // 改成真實的活動 ID（1-23）
-    month: 'DEC', 
-    day: '29', 
-    title: '萬里翡翠灣淨灘活動', 
-    time: '2025.12.29 10:00-16:00', 
-    location: '萬里翡翠灣'
-  })),
-  past: Array.from({ length: 8 }, (_, i) => ({
-    id: i + 9, // 改成真實的活動 ID（9-16） 
-    month: 'NOV', 
-    day: '15', 
-    title: '海洋講座', 
-    time: '2025.11.15 14:00-17:00', 
-    location: '桃園圖書館', 
-    hours: 3
-  })),
-  canceled: Array.from({ length: 8 }, (_, i) => ({
-    id: i + 17, // 改成真實的活動 ID（17-24）
-    month: 'OCT', 
-    day: '10', 
-    title: '山林生態講座', 
-    time: '2025.10.10 09:00-12:00', 
-    location: '陽明山'
-  }))
+  future: [],
+  past: [],
+  canceled: []
 })
+
+// 累積志工時數
+const totalVolunteerHours = ref(0)
+
+// API 串接：讀取我的活動清單
+const fetchData = async () => {
+  try {
+    const token = localStorage.getItem('bh_front_token');
+    
+    if (!token) {
+      console.error('未登入，請先登入');
+      router.push('/');
+      return;
+    }
+
+    const response = await backHomeApi.get('/member/auth_activity_list.php', {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    
+    // 處理後端返回的資料
+    let responseData = response.data;
+    
+    // 處理 {status: 'success', data: {...}} 格式
+    if (responseData.status === 'success' && responseData.data) {
+      const apiData = responseData.data;
+      
+      // 儲存累積志工時數
+      if (apiData.total_accumulated_hours !== undefined) {
+        totalVolunteerHours.value = apiData.total_accumulated_hours;
+      }
+      
+      // 處理活動資料：後端使用 upcoming_events, past_events, cancelled_events
+      const upcomingEvents = apiData.upcoming_events || [];
+      const pastEvents = apiData.past_events || [];
+      const cancelledEvents = apiData.cancelled_events || [];
+    
+      // 轉換格式
+      const formatActivity = (item) => {
+        const dateObj = new Date(item.START_DATE);
+        const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+        return {
+          id: item.ACTIVITY_ID,
+          month: months[dateObj.getMonth()],
+          day: String(dateObj.getDate()).padStart(2, '0'),
+          title: item.TITLE,
+          time: `${item.START_DATE} ${item.START_TIME || ''}-${item.END_TIME || ''}`,
+          location: item.LOCATION,
+          hours: item.VOLUNTEER_HOURS || 0
+        };
+      };
+
+      // 直接使用後端已分類好的資料
+      allActivities.value.future = upcomingEvents.map(formatActivity);
+      allActivities.value.past = pastEvents.map(formatActivity);
+      allActivities.value.canceled = cancelledEvents.map(formatActivity);
+    } else {
+      console.error('API 返回的資料格式錯誤:', responseData);
+      allActivities.value = { future: [], past: [], canceled: [] };
+      totalVolunteerHours.value = 0;
+    }
+
+  } catch (error) {
+    console.error('抓取活動資料失敗:', error);
+  }
+};
+
+onMounted(() => {
+  // 檢查並修正 URL，確保有 section 參數
+  if (!route.query.section || route.query.section !== 'activity') {
+    router.replace({
+      query: {
+        section: 'activity',
+        tab: route.query.tab || 'future',
+        page: route.query.page
+      }
+    });
+  }
+  fetchData();
+});
 
 // 3. 頁面跳轉邏輯
 const goToDetail = (activityId) => {
@@ -75,19 +135,67 @@ const confirmCancel = (type, activity) => {
   isLightboxOpen.value = true
 }
 
-const handleLightboxConfirm = () => {
+const handleLightboxConfirm = async (updatedData) => {
+  const token = localStorage.getItem('bh_front_token');
+
+  if (!token) {
+    console.error('未登入，請先登入');
+    router.push('/');
+    return;
+  }
+
   if (activeType.value === 'cancelConfirm') {
-    isLightboxOpen.value = false;
-    setTimeout(() => {
-      activeType.value = 'cancelSuccess';
-      isLightboxOpen.value = true;
-    }, 300);
+    try {
+      const res = await backHomeApi.post('/member/auth_activity_cancel.php',
+        {
+          activityId: selectedActivity.value.id
+        },
+        {
+          headers: { 
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      );
+      const result = res.data;
+      
+      if (result.status === 'success') {
+        isLightboxOpen.value = false;
+        await fetchData(); // 重新抽取資料
+        setTimeout(() => {
+          activeType.value = 'cancelSuccess';
+          isLightboxOpen.value = true;
+        }, 300);
+      }
+    } catch (err) { 
+      console.error("取消報名失敗", err); 
+    }
+
   } else if (activeType.value === 'editActivity') {
-    isLightboxOpen.value = false;
-    setTimeout(() => {
-      activeType.value = 'editActivitySuccess';
-      isLightboxOpen.value = true;
-    }, 300);
+    try {
+      const res = await backHomeApi.post('/member/auth_activity_update.php',
+        {
+          activityId: selectedActivity.value.id,
+          ...updatedData // 更新的報名資料
+        },
+        {
+          headers: { 
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      );
+      const result = res.data;
+      
+      if (result.status === 'success') {
+        isLightboxOpen.value = false;
+        await fetchData(); // 重新抽取資料
+        setTimeout(() => {
+          activeType.value = 'editActivitySuccess';
+          isLightboxOpen.value = true;
+        }, 300);
+      }
+    } catch (err) { 
+      console.error("修改報名資料失敗", err); 
+    }
   }
 };
 
@@ -107,6 +215,7 @@ const goToPage = (page) => {
   currentPage.value = page
   router.push({
     query: {
+      section: route.query.section || 'activity',
       tab: currentActivityTab.value,
       page: page === 1 ? undefined : page
     }
@@ -116,18 +225,30 @@ const goToPage = (page) => {
 
 watch(currentActivityTab, () => {
   currentPage.value = 1
-  router.push({
-    query: {
-      tab: currentActivityTab.value,
-      page: undefined
-    }
-  })
+  // 只在當前 section 是 activity 時才更新 URL
+  if (route.query.section === 'activity') {
+    router.push({
+      query: {
+        section: 'activity',
+        tab: currentActivityTab.value,
+        page: undefined
+      }
+    })
+  }
 })
 
-// 加上這段：初始化時從 URL 讀取
-watch(() => route.query, () => {
-  if (route.query.tab) currentActivityTab.value = route.query.tab
-  if (route.query.page) currentPage.value = parseInt(route.query.page)
+// 初始化時從 URL 讀取，但不修改 URL
+watch(() => route.query, (newQuery) => {
+  if (newQuery.tab && newQuery.tab !== currentActivityTab.value) {
+    currentActivityTab.value = newQuery.tab
+  }
+  if (newQuery.page) {
+    currentPage.value = parseInt(newQuery.page)
+  } else if (!newQuery.tab) {
+    // 如果沒有 tab 參數，表示切換到其他主分頁，重置狀態
+    currentActivityTab.value = 'future'
+    currentPage.value = 1
+  }
 }, { immediate: true })
 </script>
 
@@ -138,7 +259,7 @@ watch(() => route.query, () => {
         <div v-if="currentActivityTab === 'past'" class="hours-summary">
           <span class="material-symbols-outlined">schedule</span>
           <span class="label">志工時數已累積：</span>
-          <span class="hours-count">36小時</span>
+          <span class="hours-count">{{ totalVolunteerHours }}小時</span>
         </div>
 
         <div class="history-list">

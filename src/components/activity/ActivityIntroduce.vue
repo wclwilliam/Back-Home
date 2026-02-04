@@ -1,6 +1,7 @@
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref , watch} from 'vue'
 import { useAuthStore } from '@/stores/auth'
+import { backHomeApi } from '@/utils/publicApi'
 
 const authStore = useAuthStore()
 
@@ -10,27 +11,25 @@ const props = defineProps({
     required: true,
   },
 })
-
-// --- 1. 地區判斷邏輯 (與 ActivityView 一致) ---
-const regionMap = {
-  北部: ['台北', '新北', '基隆', '桃園', '新竹', '宜蘭'],
-  中部: ['苗栗', '台中', '彰化', '南投', '雲林'],
-  南部: ['嘉義', '台南', '高雄', '屏東'],
-  東部: ['花蓮', '台東'],
-  離島: ['澎湖', '金門', '馬祖', '連江', '綠島', '蘭嶼', '小琉球'],
+//活動時間顯示邏輯
+const formatDate = (dateStr) => {
+  const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' , hour12: false }
+  const date = new Date(dateStr)
+  return date.toLocaleDateString('zh-TW', options).replace(/\//g, '-')
 }
-
-const regionTag = computed(() => {
-  const loc = props.activity.location || ''
-  for (const [region, cities] of Object.entries(regionMap)) {
-    if (cities.some((city) => loc.includes(city))) {
-      return region
-    }
-  }
-  return '全台'
+//活動開始及結束時間 
+const startDate = computed(() => {
+  return formatDate(props.activity.date)
+})
+const endDate = computed(() => {
+  return formatDate(props.activity.endDate)
+})
+//活動結束時間
+const endTime = computed(() => {
+  return endDate.value.split(' ')[1]
 })
 
-// --- 2. 進度條樣式計算 ---
+// --- 進度條樣式計算 ---
 const progressStyle = computed(() => {
   const { currentPeople, maxPeople } = props.activity
   if (!maxPeople || maxPeople === 0) return { width: '0%' }
@@ -39,30 +38,96 @@ const progressStyle = computed(() => {
 })
 
 // 收藏功能邏輯
-const isBookmarked = ref(false) // 是否已收藏
+const isFavorited = ref(false) // 是否已收藏
 const isHovering = ref(false) // 是否正在 hover
+const isLoading = ref(false) // 防止重複點擊
 
 // 根據狀態決定要顯示哪個 Icon 名稱
 const bookmarkIcon = computed(() => {
-  if (isBookmarked.value) {
+  if (isFavorited.value) {
     return isHovering.value ? 'bookmark' : 'bookmark'
   } else {
     return isHovering.value ? 'bookmark_add' : 'bookmark'
   }
 })
+//載入api 確認收藏狀態
+
+const fetchLikedStatus = async () => {
+  if(!authStore.isLogin || !authStore.token || !props.activity?.id) return 
+
+  try {
+    const activityId = props.activity.id
+
+    const likedUrl = `member/auth_favorite_check.php`
+    const response = await backHomeApi.get(`${likedUrl}?activity_id=${activityId}`, {
+      headers: {
+        Authorization: `Bearer ${authStore.token}`,
+      },
+    })
+    if(response.data.status === 'success'){
+      isFavorited.value = response.data.isFavorite
+  }
+  } catch (err) {
+    console.error('無法讀取收藏狀態', err)
+  }
+}
+
 const handleLoginPrompt = () => {
   // 不設定 redirectAfterLogin，讓用戶登入後停留在當前頁面
   authStore.openLoginModal()
 }
-const toggleBookmark = (e) => {
+const toggleBookmark = async (e) => {
   //防止點愛心時觸發卡片跳轉
   e.stopPropagation()
   if (!authStore.isLogin) {
     handleLoginPrompt()
     return
   }
-  isBookmarked.value = !isBookmarked.value
+  if(isLoading.value) return // 防止重複點擊
+  isLoading.value = true
+
+  const activityId = props.activity.id
+
+  const url = isFavorited.value
+    ? `member/auth_favorite_delete.php`
+    : `member/auth_favorite_add.php`
+
+  try {
+    const res = await backHomeApi.post( url,
+      { activityId: activityId },
+      {
+        headers: {
+          Authorization: `Bearer ${authStore.token}`,
+        },
+      }
+    )
+    if(res.data.status === 'success') {
+      isFavorited.value = !isFavorited.value
+    }
+  }catch (error) {
+    console.error('收藏操作失敗', error)
+    if (error.response && error.response.status === 401) {
+      alert('登入已過期，請重新登入')
+      authStore.logout()
+      authStore.openLoginModal()
+    } else {
+      alert('連線錯誤，請稍後再試')
+    }
+  } finally {
+    isLoading.value = false
+  }
 }
+watch(
+  [() => props.activity.id, () => authStore.isLogin], 
+  ([newId, isLogin]) => {
+    if (newId && isLogin) {
+      fetchLikedStatus()
+    } else {
+      isFavorited.value = false // 登出變回未收藏
+    }
+  },
+  { immediate: true }
+)
 </script>
 
 <template>
@@ -80,7 +145,7 @@ const toggleBookmark = (e) => {
             <h1 class="title">{{ activity.title }}</h1>
             <span
               class="material-symbols-outlined bookmark"
-              :class="{ 'is-active': isBookmarked }"
+              :class="{ 'is-active': isFavorited }"
               @click="toggleBookmark"
               @mouseenter="isHovering = true"
               @mouseleave="isHovering = false"
@@ -92,7 +157,7 @@ const toggleBookmark = (e) => {
           <div class="meta-list">
             <div class="meta-item">
               <span class="material-symbols-outlined icon">calendar_today</span>
-              <span class="text">{{ activity.date }}</span>
+              <span class="text" >{{ startDate }} ~ {{ endTime }}</span>
             </div>
             <div class="meta-item">
               <span class="material-symbols-outlined icon">location_on</span>
@@ -204,7 +269,7 @@ const toggleBookmark = (e) => {
       color: $text-color;
       cursor: pointer;
       transition: all 0.3s ease;
-      margin: auto 0;
+      margin:4px  0;
 
       &:hover {
         color: $highlight-color2;

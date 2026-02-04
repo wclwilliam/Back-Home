@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { MENU_ITEMS } from '@/config/menu.js'
 import { useAuthStore } from '@/stores/auth.js'
@@ -53,10 +53,48 @@ const logout = async () => {
   router.push({ name: 'home' })
 }
 // ========== 2026/1/16 Pinia 使用者選單功能結束 ==========
+
+// ========== 2026/2/4 滾動隱藏 Header 功能 ==========
+const isHeaderVisible = ref(true)
+let lastScrollY = 0
+const scrollThreshold = 10 // 滾動閾值，避免太敏感
+
+const handleScroll = () => {
+  const currentScrollY = window.scrollY
+
+  // 如果在頁面最頂部，永遠顯示 header
+  if (currentScrollY < 100) {
+    isHeaderVisible.value = true
+    return
+  }
+
+  // 判斷滾動方向
+  if (Math.abs(currentScrollY - lastScrollY) > scrollThreshold) {
+    if (currentScrollY > lastScrollY) {
+      // 向下滾動，隱藏 header
+      isHeaderVisible.value = false
+    } else {
+      // 向上滾動，顯示 header
+      isHeaderVisible.value = true
+    }
+    lastScrollY = currentScrollY
+  }
+}
+
+// 組件掛載時添加滾動監聽
+onMounted(() => {
+  window.addEventListener('scroll', handleScroll, { passive: true })
+})
+
+// 組件卸載時移除滾動監聽
+onBeforeUnmount(() => {
+  window.removeEventListener('scroll', handleScroll)
+})
+// ========== 2026/2/4 滾動隱藏 Header 功能結束 ==========
 </script>
 
 <template>
-  <header>
+  <header :class="{ 'hide-header': !isHeaderVisible }">
     <div class="container">
       <div class="headerLogo" @click="goHome">
         <img src="/BackHomeLogo.png" alt="Back Home Logo" />

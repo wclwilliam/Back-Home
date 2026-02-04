@@ -101,8 +101,9 @@ onMounted(fetchData);
 onMounted( async () => {
   try {
     const response = await backHomeApi.get(`donation/newestSubscription_get.php?member_id=${auth.user?.MEMBER_ID}`);
+    if (response.data?.data?.DONATION_DATE) {
       newestDate.value = response.data.data.DONATION_DATE.split(' ')[0];
-      // console.log(newestDate);
+    }
   } catch (e){
     console.error(e);
   }
@@ -243,18 +244,29 @@ const pagedRecords = computed(() => {
 
 const goToPage = (page) => {
   currentPage.value = page
-  router.push({ query: { tab: currentTab.value, page: page === 1 ? undefined : page } })
+  router.push({ query: { section: route.query.section || 'donation', tab: currentTab.value, page: page === 1 ? undefined : page } })
   window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
 watch(currentTab, () => {
   currentPage.value = 1
-  router.push({ query: { tab: currentTab.value, page: undefined } })
+  // 只在當前 section 是 donation 時才更新 URL
+  if (route.query.section === 'donation') {
+    router.push({ query: { section: 'donation', tab: currentTab.value, page: undefined } })
+  }
 })
 
-watch(() => route.query, () => {
-  if (route.query.tab) currentTab.value = route.query.tab
-  if (route.query.page) currentPage.value = parseInt(route.query.page)
+watch(() => route.query, (newQuery) => {
+  if (newQuery.tab && newQuery.tab !== currentTab.value) {
+    currentTab.value = newQuery.tab
+  }
+  if (newQuery.page) {
+    currentPage.value = parseInt(newQuery.page)
+  } else if (!newQuery.tab) {
+    // 如果沒有 tab 參數，表示切換到其他主分頁，重置狀態
+    currentTab.value = 'single'
+    currentPage.value = 1
+  }
 }, { immediate: true })
 
 </script>

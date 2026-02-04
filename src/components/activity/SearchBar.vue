@@ -128,7 +128,7 @@ onUnmounted(() => {
 
 <template>
   <div class="searchBar col-sm-4 col-md-12 col-lg-12">
-    <div class="search-section col-md-6">
+    <div class="search-section col-md-4">
       <div class="search-input">
         <input
           type="text"
@@ -229,18 +229,19 @@ onUnmounted(() => {
   gap: 16px;
   position: relative;
   justify-content: space-between;
-  margin-bottom: 40px;
+  margin-bottom: 24px;
 
   .search-section {
     order: 1;
     gap: 8px;
     display: flex;
     width: 100%;
+    height: 48px;
 
     .search-input {
       position: relative;
       flex-grow: 1;
-      border: 2px solid $secondary-color;
+      border: 1px solid $secondary-color;
       display: flex;
       align-items: center;
 
@@ -255,6 +256,11 @@ onUnmounted(() => {
       @include font-body;
       padding: 8px 12px;
       width: 100%;
+
+      &::placeholder {
+            color: $secondary-color;
+            opacity: 0.6;
+        }
     }
 
     .mobile-search-btn {
@@ -266,6 +272,32 @@ onUnmounted(() => {
   .filter-section {
     order: 2;
     position: relative;
+    .filter-btn {
+      border: 1px solid $secondary-color;
+      transition: all 0.4s;
+      .filter-icon{
+      color: inherit !important;
+    }
+      //hover變色
+      &:hover {
+        background-color: $highlight-color2;
+        border-color: $highlight-color2;
+        color: $text-white;
+    .filter-icon{
+      color: inherit !important;
+    }
+      }
+      //點選後變色
+      &.active {
+        background-color: $secondary-color;
+        color: $text-white;
+        border-color: $secondary-color;
+        }
+        .filter-icon{
+      color: inherit !important;
+    }
+    }
+    
 
     .filterList {
       position: absolute;
@@ -323,11 +355,6 @@ onUnmounted(() => {
               display: inline-block;
               height: max-content;
             }
-
-            // :deep(.dp__pointer) {
-            //   border: none;
-            //   padding: 0;
-            // }
           }
         }
 
