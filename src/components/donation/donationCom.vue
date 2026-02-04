@@ -20,7 +20,7 @@ const auth = useAuthStore()
 onMounted( () => { //傳會員id
   if (!route.query.transactionId) {//用這個query參數判斷是不是綠界
     backHomeApi.get(`donation/donateTime.php?memberId=${auth.user?.MEMBER_ID}`).then((response) => {
-      console.log(response.data);
+      // console.log(response.data);
       if (response.data) {
         currentStep.value = 3
         // donationType.value = response.data.DONATION_TYPE
