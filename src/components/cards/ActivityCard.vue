@@ -1,9 +1,9 @@
 <script setup>
 //列表
-import { computed, ref } from 'vue'
+import { computed, ref, onMounted, watch} from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import { APIBase } from '@/utils/publicApi'
+import { APIBase, backHomeApi } from '@/utils/publicApi'
 
 //頁面跳轉
 const router = useRouter()
@@ -69,6 +69,26 @@ const status = computed(() => {
   }
   return 'upcoming'
 })
+
+//活動時間顯示邏輯(24小時制)
+const formatDate = (dateStr) => {
+  const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false }
+  const date = new Date(dateStr)
+  return date.toLocaleDateString('zh-TW', options).replace(/\//g, '-')
+  
+}
+//活動開始及結束時間 
+const startDate = computed(() => {
+  return formatDate(props.event.date)
+})
+const endDate = computed(() => {
+  return formatDate(props.event.endDate)
+})
+//活動結束時間
+const endTime = computed(() => {
+  return endDate.value.split(' ')[1]
+})
+
 //邏輯處理
 const isEnded = computed(() => status.value === 'ended')
 const isOpening = computed(() => status.value === 'opening')
@@ -94,19 +114,38 @@ const progressStyle = computed(() => {
 })
 
 // 收藏功能邏輯
-const isBookmarked = ref(false) // 是否已收藏
+const isFavorited = ref(false) // 是否已收藏
 const isHovering = ref(false) // 是否正在 hover
+const isLoading = ref(false) // 是否正在載入
 
 // 根據狀態決定要顯示哪個 Icon 名稱
 const bookmarkIcon = computed(() => {
-  if (isBookmarked.value) {
+  if (isFavorited.value) {
     return isHovering.value ? 'bookmark' : 'bookmark'
   } else {
     return isHovering.value ? 'bookmark_add' : 'bookmark'
   }
 })
+const fetchFavoriteStatus = async () => {
+  if (!authStore.isLogin || !authStore.token || !props.event?.id) return
+  try {
+    const activityId = props.event.id
 
-const toggleBookmark = (e) => {
+    const likedUrl = `member/auth_favorite_check.php`
+    const response = await backHomeApi.get(`${likedUrl}?activity_id=${activityId}`, {
+      headers: {
+        Authorization: `Bearer ${authStore.token}`,
+      },
+    })
+    if (response.data.status === 'success') {
+      isFavorited.value = response.data.isFavorite
+    }
+  } catch (error) {
+    // console.error('Error fetching favorite status:', error)
+  }
+}
+
+const toggleBookmark = async (e) => {
   //防止點愛心時觸發卡片跳轉
   e.stopPropagation()
 
@@ -114,9 +153,46 @@ const toggleBookmark = (e) => {
     authStore.openLoginModal()
     return
   }
-
-  isBookmarked.value = !isBookmarked.value
+  if (isLoading.value) return // 如果正在載入，則不執行任何操作
+  isLoading.value = true
+  
+  const activityId = props.event.id
+  const apiPath = isFavorited.value
+    ? 'member/auth_favorite_delete.php'
+    : 'member/auth_favorite_add.php'
+  try {
+    const response = await backHomeApi.post(apiPath, {
+      activityId: props.event.id,
+    }, {
+      headers: {
+        Authorization: `Bearer ${authStore.token}`,
+      },
+    })
+    if (response.data.status === 'success') {
+      isFavorited.value = !isFavorited.value  
+    } else {
+      console.error('Failed to toggle favorite status:', response.data.message)
+    }
+  } catch (error) {
+    console.error('Error toggling favorite status:', error)
+  } finally {
+    isLoading.value = false
+  }
 }
+
+onMounted(() => {
+  if(authStore.isLogin) {
+  fetchFavoriteStatus()
+  }
+})
+watch(() => authStore.isLogin, () => {
+  if(authStore.isLogin) {
+    fetchFavoriteStatus()
+  } else {
+    isFavorited.value = false
+  }
+})
+
 </script>
 <template>
   <a class="cardContainer activityCard" @click="goToDetail">
@@ -134,7 +210,7 @@ const toggleBookmark = (e) => {
         <p>{{ event.title }}</p>
         <span
           class="material-symbols-outlined bookmark"
-          :class="{ 'is-active': isBookmarked }"
+          :class="{ 'is-active': isFavorited }"
           @click="toggleBookmark"
           @mouseenter="isHovering = true"
           @mouseleave="isHovering = false"
@@ -145,7 +221,7 @@ const toggleBookmark = (e) => {
       <div class="divider"></div>
       <div class="rowInfo dateTime">
         <span class="material-symbols-outlined calendar">calendar_today</span>
-        <h3>{{ event.date }}</h3>
+        <h3>{{ startDate }} ~ {{ endTime }}</h3>
       </div>
       <div class="rowInfo location">
         <span class="material-symbols-outlined location">location_on</span>
