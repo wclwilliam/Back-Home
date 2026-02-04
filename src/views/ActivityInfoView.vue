@@ -47,18 +47,19 @@ const isParticipant = ref(false)
 
 //檢查是否參加過此活動
 const checkUserAttended = async () => {
-  if(!authStore.token) {
+  if (!authStore.token) {
     isParticipant.value = false
     return
   }
 
   let currentUserId = authStore.user?.id
 
-
   const attendanceUrl = 'activity/activity_check_attend.php'
-  
+
   try {
-    const response = await backHomeApi.get(`${attendanceUrl}?user_id=${currentUserId}&activity_id=${activityInfo.value.id}`)
+    const response = await backHomeApi.get(
+      `${attendanceUrl}?user_id=${currentUserId}&activity_id=${activityInfo.value.id}`,
+    )
 
     if (response.data.status === 'success') {
       isParticipant.value = response.data.isParticipant
@@ -147,7 +148,7 @@ const fetchActivityData = async (id) => {
       messages: [], // 預設空陣列，等待 fetchReviews 填入
     }
 
-    // 抓取留言 
+    // 抓取留言
     await fetchReviews(currentId)
 
     // --- 抓取推薦活動
@@ -155,17 +156,34 @@ const fetchActivityData = async (id) => {
     const allList = listResponse.data.data
 
     if (Array.isArray(allList)) {
-      
-      // 處理下方推薦 Swiper (排除自己 + 排除已結束)
+      const now = new Date().getTime()
+
+      // 處理下方推薦 Swiper (可以報名的活動)
 
       activityList.value = allList
-        .filter((item) => item.ACTIVITY_ID !== act.ACTIVITY_ID) // 排除目前這一個
+
+        .filter((item) => {
+          if (item.ACTIVITY_ID === act.ACTIVITY_ID) return false // 排除目前這一個
+          if (String(item.ACTIVITY_STATUS) !== '1') return false // 只要發布中的活動
+
+          const signupEnd = new Date(item.ACTIVITY_SIGNUP_END_DATETIME).getTime()
+          if (now > signupEnd) return false // 排除報名截止的活動
+
+          const max = Number(item.ACTIVITY_MAX_PEOPLE)
+          const current = Number(item.ACTIVITY_SIGNUP_PEOPLE)
+
+          if (max && current >= max) return false // 排除已額滿的活動
+          return true
+        })
+
         .map((item) => {
           return {
             id: item.ACTIVITY_ID,
             title: item.ACTIVITY_TITLE,
             image: item.ACTIVITY_COVER_IMAGE,
             date: item.ACTIVITY_START_DATETIME,
+            endDate: item.ACTIVITY_END_DATETIME,
+            signupEndDate: act.ACTIVITY_SIGNUP_END_DATETIME,
             location: item.ACTIVITY_LOCATION,
             type: item.CATEGORY_VALUE,
             maxPeople: item.ACTIVITY_MAX_PEOPLE,
@@ -185,15 +203,17 @@ const fetchActivityData = async (id) => {
 const reviewUrl = 'activity/activity_reviews_get.php'
 const fetchReviews = async (activityId) => {
   try {
-    //取得user id 
+    //取得user id
     const currentUserId = authStore.user?.id || 0
 
-    const response = await backHomeApi.get(`${reviewUrl}?activity_id=${activityId}&user_id=${currentUserId || 0}`)
+    const response = await backHomeApi.get(
+      `${reviewUrl}?activity_id=${activityId}&user_id=${currentUserId || 0}`,
+    )
     // console.log('留言列表原始資料:', response.data.data)
     if (response.data.status === 'success') {
       // 轉換資料格式以符合 ReviewSwiper 需求
       const reviewsList = Array.isArray(response.data.data) ? response.data.data : []
-      const formattedMessages = reviewsList.map(item => ({
+      const formattedMessages = reviewsList.map((item) => ({
         id: item.REVIEW_ID,
         name: item.USER_NAME || '熱心志工',
         stars: item.RATING,
@@ -201,7 +221,7 @@ const fetchReviews = async (activityId) => {
         likes: item.LIKE_COUNT || item.like_count || 0,
         date: formatDate(new Date(item.CREATED_AT), 'YYYY-MM-DD'),
         image: '', // 後端若無頭貼欄位，留空讓前端自動生成
-        isLiked: Number(item.IS_LIKED) > 0
+        isLiked: Number(item.IS_LIKED) > 0,
       }))
 
       // 寫入 activityInfo
@@ -242,7 +262,7 @@ watch(
 
 const formData = reactive({
   name: '',
-  email: '', 
+  email: '',
   phone: '',
   idNumber: '',
   birthday: '',
@@ -266,41 +286,21 @@ const errors = reactive({
   comment: '',
 })
 
-// 1. ★ 新增：JWT Token 解碼小工具
-// 這是純前端的解碼，不需要後端參與
-const parseToken = (token) => {
-  try {
-    const base64Url = token.split('.')[1]
-    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
-    const jsonPayload = decodeURIComponent(
-      window
-        .atob(base64)
-        .split('')
-        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-        .join('')
-    )
-    return JSON.parse(jsonPayload)
-  } catch (e) {
-    return null
-  }
-}
-
 // 取得會員詳細資料並填入表單
 const getMemberInfo = async () => {
   // 1. 檢查是否登入，若沒登入直接結束
-  if (!authStore.isLogin || !authStore.token) return 
+  if (!authStore.isLogin || !authStore.token) return
 
   try {
-    
     const res = await backHomeApi.get('member/auth_me.php', {
       headers: {
-        Authorization: `Bearer ${authStore.token}`
-      }
+        Authorization: `Bearer ${authStore.token}`,
+      },
     })
-    
+
     if (res.data.status === 'success') {
       const user = res.data.member
-      
+
       formData.name = user.MEMBER_REALNAME || ''
       formData.email = user.MEMBER_EMAIL || ''
       formData.phone = user.MEMBER_PHONE || ''
@@ -308,14 +308,12 @@ const getMemberInfo = async () => {
       formData.birthday = user.BIRTHDAY || ''
       formData.emergencyName = user.EMERGENCY || ''
       formData.emergencyPhone = user.EMERGENCY_TEL || ''
-      
+
       // console.log('會員資料自動帶入成功')
     }
   } catch (error) {
-    
     console.error('無法取得會員資料:', error)
     if (error.response && error.response.status === 401) {
-      
     }
   }
 }
@@ -335,12 +333,13 @@ watch(
   () => authStore.isLogin,
   (val) => {
     if (val) {
+      getMemberInfo()
       checkUserAttended()
-      if(activityInfo.value.id) {
+      if (activityInfo.value.id) {
         fetchReviews(activityInfo.value.id)
       }
     }
-  }
+  },
 )
 
 //身份證字號的檢查
@@ -477,13 +476,13 @@ const handleConfirmRegistration = async () => {
   try {
     // 檢查是否登入 (防呆)
     if (!authStore.isLogin || !authStore.user) {
-      alert('請先登入會員');
+      alert('請先登入會員')
       return
     }
 
     const payload = {
-      user_id: authStore.user.id,        // 從 Pinia 取會員 ID
-      activity_id: activityInfo.value.id,// 從頁面資料取活動 ID
+      user_id: authStore.user.id, // 從 Pinia 取會員 ID
+      activity_id: activityInfo.value.id, // 從頁面資料取活動 ID
       // 讀取使用者填寫(或自動帶入)的 formData
       name: formData.name,
       idNumber: formData.idNumber,
@@ -491,25 +490,25 @@ const handleConfirmRegistration = async () => {
       email: formData.email,
       birthday: formData.birthday,
       emergencyName: formData.emergencyName,
-      emergencyPhone: formData.emergencyPhone
-    };
+      emergencyPhone: formData.emergencyPhone,
+      sync: formData.syncData,
+    }
 
-    const response = await backHomeApi.post('activity/activity_signup.php', payload);
+    const response = await backHomeApi.post('activity/activity_signup.php', payload)
 
     if (response.data.status === 'success') {
-    // 關閉確認燈箱，打開成功燈箱
-    showCheckLightbox.value = false;
-    showSuccessLightbox.value = true;
-    isSignupSuccess.value = true;
-    
-    if(activityInfo.value) {
-          activityInfo.value.currentPeople = (Number(activityInfo.value.currentPeople) || 0) + 1;
+      // 關閉確認燈箱，打開成功燈箱
+      showCheckLightbox.value = false
+      showSuccessLightbox.value = true
+      isSignupSuccess.value = true
+
+      if (activityInfo.value) {
+        activityInfo.value.currentPeople = (Number(activityInfo.value.currentPeople) || 0) + 1
       }
-      
     } else {
       // 失敗 (如：已額滿、重複報名)
-      alert(response.data.message);
-      showCheckLightbox.value = false; // 失敗通常會關閉燈箱讓使用者重試或離開
+      alert(response.data.message)
+      showCheckLightbox.value = false // 失敗通常會關閉燈箱讓使用者重試或離開
     }
   } catch (error) {
     console.error('報名失敗:', error)
@@ -528,7 +527,7 @@ const isReviewSubmit = ref(false)
 // 確認送出留言
 const handleConfirmReview = async () => {
   try {
-    if(!authStore.isLogin) return
+    if (!authStore.isLogin) return
     const payload = {
       user_id: authStore.user.id,
       activity_id: activityInfo.value.id,
@@ -537,24 +536,20 @@ const handleConfirmReview = async () => {
     }
     const response = await backHomeApi.post('activity/activity_add_review.php', payload)
 
-    if(response.data.status === 'success') {
+    if (response.data.status === 'success') {
+      showReviewCheckLightbox.value = false
+      isReviewSubmit.value = true
 
-    showReviewCheckLightbox.value = false
-    isReviewSubmit.value = true
+      // 清空表單
+      reviewData.stars = 0
+      reviewData.comment = ''
 
-    // 清空表單
-    reviewData.stars = 0
-    reviewData.comment = ''
-
-    fetchReviews(activityInfo.value.id)
-
+      fetchReviews(activityInfo.value.id)
     } else {
       alert(response.data.message)
       showReviewCheckLightbox.value = false
     }
-  }
-  
-  catch (error) {
+  } catch (error) {
     console.error('留言送出失敗:', error)
     alert('留言送出失敗，請稍後再試')
   }
@@ -562,7 +557,7 @@ const handleConfirmReview = async () => {
 
 // 處理檢舉留言
 const handleReport = (review) => {
-  if(!authStore.isLogin) {
+  if (!authStore.isLogin) {
     alert('請先登入會員')
     return
   }
@@ -595,9 +590,8 @@ const goBackToList = () => {
     <template v-if="isEnded">
       <div class="row result">
         <div class="secondary-title col-sm-4">成果數據區</div>
-
+  
         <ActResult :activityInfo="activityInfo" />
-        
       </div>
       <div class="row review">
         <div class="secondary-title col-sm-4">志工回饋牆</div>
@@ -605,7 +599,7 @@ const goBackToList = () => {
           @report="handleReport" />
         <div v-else class="no-review">目前尚無回饋</div>
       </div>
-
+  
       <div v-if="!isLoggedIn" class="row login-cta-section">
         <div class="cta-content col-sm-4 col-md-4">
           <h3>想分享您的心得嗎？</h3>
@@ -613,7 +607,7 @@ const goBackToList = () => {
           <button class="btn-solid btn-large" @click="handleLoginPrompt">登入後立即留言</button>
         </div>
       </div>
-
+  
       <div v-else-if="isLoggedIn && !isParticipant" class="row login-cta-section">
         <div class="cta-content col-sm-4 col-md-4">
           <span class="material-symbols-outlined icon-disabled">block</span>
@@ -628,14 +622,14 @@ const goBackToList = () => {
           <p>感謝您的回饋，期待下次再見！</p>
         </div>
       </div>
-
+  
       <form v-else class="row commentSection" @submit.prevent="handleReviewSubmit">
         <div class="commentForm col-sm-4 col-md-10 col-lg-10">
           <div class="leftContent col-sm-4 col-md-5 col-lg-5">
             <div class="secondary-title">分享你的感動</div>
             <p class="content">
               你的每一份回饋都是我們前進的動力。告訴大家你在{{
-                activityInfo.title
+              activityInfo.title
               }}中的收穫與發現吧！
             </p>
             <div class="activityInfo-row">
@@ -648,15 +642,15 @@ const goBackToList = () => {
             </div>
           </div>
           <div class="rightContent col-sm-4 col-md-7 col-lg-7">
-            <FormInput label="滿意度 : " required :error="errors.stars" >
+            <FormInput label="滿意度 : " required :error="errors.stars">
               <div class="star-rating">
                 <span v-for="star in 5" :key="star" class="material-symbols-outlined star"
-                  :class="{ 'is-active': star <= reviewData.stars }" @click="setRating(star)" >
+                  :class="{ 'is-active': star <= reviewData.stars }" @click="setRating(star)">
                   kid_star
                 </span>
               </div>
             </FormInput>
-
+  
             <FormInput label="心得內容" required htmlFor="comment" :error="errors.comment">
               <div class="input-wrapper">
                 <textarea id="comment" type="text" v-model="reviewData.comment" class="customInput"
@@ -664,7 +658,7 @@ const goBackToList = () => {
                 <span class="word-count">{{ reviewData.comment.length }} / 100</span>
               </div>
             </FormInput>
-
+  
             <div class="submit-btm col-sm-4">
               <button class="btn-solid">確認送出</button>
             </div>
@@ -732,38 +726,38 @@ const goBackToList = () => {
         <FormInput label="手機號碼" required htmlFor="phone" :error="errors.phone">
           <input id="phone" type="tel" v-model="formData.phone" class="customInput" placeholder="請輸入手機號碼" />
         </FormInput>
-
+  
         <FormInput label="身分證字號" required htmlFor="idNumber" :error="errors.idNumber">
           <input id="idNumber" type="text" v-model="formData.idNumber" @input="handleIdNumCheck" class="customInput"
             placeholder="請輸入身分證字號" maxlength="10" />
         </FormInput>
-
+  
         <FormInput label="出生年月日" required htmlFor="birthday" :error="errors.birthday">
           <input id="birthday" type="date" v-model="formData.birthday" class="customInput" placeholder="請選擇日期" />
         </FormInput>
-
+  
         <FormInput label="緊急聯絡人姓名" required htmlFor="emergencyName" :error="errors.emergencyName">
           <input id="emergencyName" type="text" v-model="formData.emergencyName" class="customInput" />
         </FormInput>
-
+  
         <FormInput label="緊急聯絡人手機號碼" required htmlFor="emergencyPhone" :error="errors.emergencyPhone">
           <input id="emergencyPhone" type="tel" v-model="formData.emergencyPhone" class="customInput"
             placeholder="請輸入緊急聯絡人手機號碼" />
         </FormInput>
-
+  
         <div class="checkbox-row col-sm-3 col-md-8">
           <label class="check-label">
             <input type="checkbox" v-model="formData.syncData" hidden />
             <span class="material-symbols-outlined checkIcon" :class="{ isChecked: formData.syncData }">{{
               formData.syncData ?
-                'check_box' : 'check_box_outline_blank' }}</span>
+              'check_box' : 'check_box_outline_blank' }}</span>
             <span>同步更新會員資料：將本次填寫之資訊儲存至我的會員中心，下次報名更快速！</span>
           </label>
         </div>
-
+  
         <div class="checkbox-group col-sm-3 col-md-8">
           <div class="checkbox-title">免責與授權</div>
-
+  
           <div class="checkbox-row">
             <label class="check-label">
               <input type="checkbox" v-model="formData.agreeHealth" hidden />
@@ -776,7 +770,7 @@ const goBackToList = () => {
               {{ errors.agreeHealth }}
             </p>
           </div>
-
+  
           <div class="checkbox-row">
             <label class="check-label">
               <input type="checkbox" v-model="formData.agreePhoto" hidden />
@@ -800,26 +794,24 @@ const goBackToList = () => {
       <div class="secondary-title col-sm-4">你可能會喜歡這些活動</div>
       <swiper :modules="[Autoplay, Pagination]" :slides-per-view="1" :space-between="24" :autoplay="{ delay: 3000 }"
         :pagination="{ clickable: true }" :breakpoints="{
-          '768': { slidesPerView: 2.3 },
-          '1024': { slidesPerView: 3.3 },
-        }" class="recommend-swiper">
+            '768': { slidesPerView: 2.3 },
+            '1024': { slidesPerView: 3.3 },
+          }" class="recommend-swiper">
         <swiper-slide v-for="activity in activityList" :key="activity.id">
           <ActivityCard :event="activity" />
         </swiper-slide>
       </swiper>
-
+  
       <!-- 報名確認燈箱 -->
       <LightboxRegisterCheck v-model="showCheckLightbox" :form-data="registrationData"
         @confirm="handleConfirmRegistration" />
-
+  
       <!-- 留言確認燈箱 -->
       <LightboxReviewCheck v-model="showReviewCheckLightbox" @confirm="handleConfirmReview" />
-
+  
       <!-- 檢舉留言燈箱 -->
-      <LightboxReport 
-      v-model="showReportLightbox" 
-      :review-id="currentReportReview?.id"/>
-
+      <LightboxReport v-model="showReportLightbox" :review-id="currentReportReview?.id" />
+  
       <!-- 報名成功燈箱 -->
       <LightboxRegisterSuccess v-model="showSuccessLightbox" />
     </div>
@@ -827,7 +819,7 @@ const goBackToList = () => {
 </template>
 <style lang="scss" scoped>
 .btn {
-  margin-bottom: 20px;
+  margin: 16px 0;
 
   @media (max-width: 1600px) {
     //height: 40px;
@@ -935,8 +927,6 @@ const goBackToList = () => {
   font-size: 12px;
   color: $page-number-color;
 }
-
-
 
 .commentSection {
   display: flex;
@@ -1126,5 +1116,9 @@ textarea.customInput {
     opacity: 1;
     border-radius: 5px;
   }
+}
+// 調整活動卡片內進度條位置
+:deep(.progress-track-container .track-fill) {
+    top: 1px !important;
 }
 </style>

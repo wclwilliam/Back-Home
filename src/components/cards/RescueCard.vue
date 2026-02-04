@@ -203,4 +203,7 @@ const progressText = computed(() => {
     }
   }
 }
+.cardContainer .progress-track-container .track-fill {
+  top: 1px !important;
+}
 </style>
