@@ -2,6 +2,8 @@
 import { onMounted, onUnmounted, ref } from 'vue'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import * as THREE from 'three'
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 
 // 註冊 ScrollTrigger 插件
 gsap.registerPlugin(ScrollTrigger)
@@ -19,8 +21,8 @@ const brick = new URL(
   '@/assets/image/home/banner/ChatGPT Image Jan 20, 2026, 08_25_38 PM.png',
   import.meta.url,
 ).href
-const turtle = new URL(
-  '@/assets/image/home/banner/u9296394725_A_detailed_photograph_of_a_green_sea_turtle_swimm_154b75b3-b51a-441a-bc29-812c6c3e99fc_1-removebg-preview.png',
+const turtleModelPath = new URL(
+  '@/assets/image/home/banner/model_72b_-_juvenile_green_sea_turtle.glb',
   import.meta.url,
 ).href
 const oceanBg = new URL(
@@ -31,8 +33,16 @@ const oceanBg = new URL(
 const containerRef = ref(null)
 const bgImageElRef = ref(null)
 const isLoading = ref(true)
+const turtleCanvasRef = ref(null)
+
+// Three.js 相關變數
+let scene, camera, renderer, turtleModel, pivotGroup, mixer, clock
+let animationFrameId = null
 
 onMounted(() => {
+  // 初始化 Three.js 場景
+  initThreeJS()
+
   // 等待背景圖片加載完成後設置容器高度
   const bgImg = bgImageElRef.value
   if (bgImg) {
@@ -46,6 +56,160 @@ onMounted(() => {
   }
 })
 
+// 計算響應式尺寸的輔助函數
+const getResponsiveTurtleSize = () => {
+  const screenWidth = window.innerWidth
+  // 400px (≤400px) → 600px (≥1280px) 線性插值
+  if (screenWidth <= 400) return 400
+  if (screenWidth >= 1280) return 600
+  // 線性插值：400 + (screenWidth - 400) / (1280 - 400) * (600 - 400)
+  return 400 + ((screenWidth - 400) / 880) * 200
+}
+
+const initThreeJS = () => {
+  if (!turtleCanvasRef.value) return
+
+  // 創建場景
+  scene = new THREE.Scene()
+
+  // 計算響應式尺寸
+  const turtleSize = getResponsiveTurtleSize()
+
+  // 創建相機 (使用正交相機以獲得更好的 2D 效果)
+  const aspect = 1
+  // 根據尺寸調整視野：小螢幕稍微放大視野
+  const frustumSize = turtleSize < 500 ? 4.0 : 3.5
+  camera = new THREE.OrthographicCamera(
+    (frustumSize * aspect) / -2,
+    (frustumSize * aspect) / 2,
+    frustumSize / 2,
+    frustumSize / -2,
+    0.1,
+    1000,
+  )
+  camera.position.z = 5
+
+  // 創建渲染器 - 使用響應式尺寸
+  renderer = new THREE.WebGLRenderer({
+    canvas: turtleCanvasRef.value,
+    alpha: true, // 透明背景
+    antialias: true, // 抗鋸齒
+  })
+  renderer.setSize(turtleSize, turtleSize) // 響應式渲染尺寸
+  // 小螢幕降低 pixelRatio 提升性能
+  const adaptivePixelRatio =
+    turtleSize < 500 ? Math.min(window.devicePixelRatio, 1.5) : window.devicePixelRatio
+  renderer.setPixelRatio(adaptivePixelRatio)
+
+  // 添加燈光
+  const ambientLight = new THREE.AmbientLight(0xffffff, 1)
+  scene.add(ambientLight)
+
+  const directionalLight = new THREE.DirectionalLight(0xffffff, 1)
+  directionalLight.position.set(5, 5, 5)
+  scene.add(directionalLight)
+
+  const directionalLight2 = new THREE.DirectionalLight(0x4fb3d4, 0.2)
+  directionalLight2.position.set(-5, -5, 5)
+  scene.add(directionalLight2)
+
+  // 載入 GLB 模型
+  const loader = new GLTFLoader()
+  clock = new THREE.Clock()
+
+  loader.load(
+    turtleModelPath,
+    (gltf) => {
+      turtleModel = gltf.scene
+
+      // 調整模型大小和位置
+      const box = new THREE.Box3().setFromObject(turtleModel)
+      const size = box.getSize(new THREE.Vector3())
+      const maxDim = Math.max(size.x, size.y, size.z)
+      const scale = 2.5 / maxDim
+      turtleModel.scale.setScalar(scale)
+
+      // 創建 Pivot Group (旋轉軸心組)
+      pivotGroup = new THREE.Group()
+      scene.add(pivotGroup)
+
+      // 將模型置中
+      box.setFromObject(turtleModel)
+      const center = box.getCenter(new THREE.Vector3())
+      turtleModel.position.sub(center)
+
+      // 🎯 (暫時不加偏移，只用 Group 包果)
+      // turtleModel.position.x += 1.0
+
+      // 稍微旋轉讓海龜看起來更立體 (這是模型的初始姿態，不動)
+      turtleModel.rotation.y = Math.PI * 0.5
+      turtleModel.rotation.z = Math.PI * 0.1 // 修正：改回 0.1，配合動態動畫的初始狀態 (Y=0, Z=+0.1)
+
+      // 將海龜加入 Pivot Group，而不是直接加入 Scene
+      pivotGroup.add(turtleModel)
+
+      // 遍歷所有材質並調整顏色
+      turtleModel.traverse((child) => {
+        if (child.isMesh) {
+          // 方法 1: 整體調色
+          //child.material.color.setHex(0x4fb3d4) // 藍綠色
+
+          // 方法 2: 保留原色但調整亮度
+          child.material.emissive.setHex(0x003030) // 微微發光
+          child.material.emissiveIntensity = 0.5
+
+          // 方法 3: 調整透明度
+          //child.material.opacity = 0.9
+          //child.material.transparent = true
+        }
+      })
+
+      // 檢查是否有內建動畫
+      if (gltf.animations && gltf.animations.length > 0) {
+        console.log(
+          '✅ 模型包含 ' + gltf.animations.length + ' 個動畫:',
+          gltf.animations.map((a) => a.name),
+        )
+        mixer = new THREE.AnimationMixer(turtleModel)
+
+        // 播放所有動畫
+        gltf.animations.forEach((clip) => {
+          const action = mixer.clipAction(clip)
+          action.play()
+        })
+      } else {
+        console.log('ℹ️ 模型沒有內建動畫')
+      }
+
+      // 模型載入完成，開始渲染
+      animate()
+
+      console.log('🐢 海龜 GLB 模型載入成功！')
+    },
+    (progress) => {
+      console.log('載入進度:', ((progress.loaded / progress.total) * 100).toFixed(2) + '%')
+    },
+    (error) => {
+      console.error('載入 GLB 模型時出錯:', error)
+    },
+  )
+}
+
+const animate = () => {
+  animationFrameId = requestAnimationFrame(animate)
+
+  // 如果有動畫混合器，更新它
+  if (mixer) {
+    const delta = clock.getDelta()
+    mixer.update(delta)
+  }
+
+  // 渲染場景
+  if (renderer && scene && camera) {
+    renderer.render(scene, camera)
+  }
+}
+
 const onImageLoaded = () => {
   isLoading.value = false
   // 稍微延遲以確保 DOM 更新
@@ -55,17 +219,8 @@ const onImageLoaded = () => {
 }
 
 const initAnimation = () => {
+  console.log('🚀 initAnimation 啟動！正在初始化動畫...')
   // ==================== 1. 設定初始狀態 (重點修改) ====================
-
-  // 海龜初始位置
-  gsap.set('.turtle-wrapper', {
-    y: '10vh',
-    x: '-60vw', // 讓海龜離邊緣近一點，這樣一開始游動就會馬上出現
-    scale: 0.7,
-    scaleX: 0.7,
-    opacity: 1,
-    rotationY: 0, // 確保一開始是正面
-  })
 
   // 垃圾預設隱藏
   gsap.set('.trash-item', { opacity: 0 })
@@ -78,33 +233,245 @@ const initAnimation = () => {
   gsap.set('.text-stage-2, .text-stage-3', { opacity: 0, y: 50 })
 
   // ==================== 2. 獨立的海龜游動動畫 (大幅修改) ====================
-  // 縮小游動範圍 (70vw) 並加快速度 (9s)，減少畫面外的等待時間
+  // 根據螢幕寬度線性調整游泳速度，螢幕越寬游得越慢
+  const screenWidth = window.innerWidth
+  const minWidth = 400 // 最小螢幕寬度（手機）
+  const maxWidth = 2560 // 最大螢幕寬度（大螢幕）
+
+  // 計算縮放比例（0-1 之間）
+  const widthRatio = Math.min(Math.max((screenWidth - minWidth) / (maxWidth - minWidth), 0), 1)
+
+  // 根據比例線性計算時間（大幅增加大螢幕時間，讓速度變慢）
+  const swimRightDuration = 12 + widthRatio * 18 // 12秒（400px）→ 30秒（2560px）
+  const swimLeftDuration = 12 + widthRatio * 18 // 12秒（400px）→ 30秒（2560px）
+  const floatDuration = 4 + widthRatio * 4 // 4秒（400px）→ 8秒（2560px）
+  const depthDuration = 5 + widthRatio * 5 // 5秒（400px）→ 10秒（2560px）
+
+  // 計算海龜容器的實際寬度（使用響應式尺寸函數）
+  let turtleWidthPx = getResponsiveTurtleSize()
+
+  // 再乘以 GSAP scale (0.7)
+  turtleWidthPx *= 0.7
+
+  // 轉換成 vw 單位（海龜寬度 / 視窗寬度 × 100）
+  const turtleWidthVw = (turtleWidthPx / screenWidth) * 100
+
+  // 🎯 確保整個海龜都在畫面外
+  // 海龜中心點 x = 0 (畫面中心)
+  // 畫面右邊緣 x = 50vw
+  // 海龜完全離開右邊緣條件: x - (海龜寬度/2) > 50vw
+  // 所以 x > 50 + (海龜寬度/2)
+  // 🎯 確保整個海龜都在畫面外
+  // 加大 buffer (5vw) 避免轉身時因為長度問題閃現到畫面內
+  const swimRangeX = 50 + turtleWidthVw / 2 + 5
+
+  // 🔍 調試：顯示海龜尺寸
+  console.log('🐢 海龟尺寸:', {
+    螢幕: screenWidth + 'px',
+    海龜px: turtleWidthPx.toFixed(1) + 'px',
+    海龜vw: turtleWidthVw.toFixed(1) + 'vw',
+    游動範圍: swimRangeX.toFixed(1) + 'vw',
+    中心位置: swimRangeX.toFixed(1) + 'vw',
+    海龜左邊緣: (swimRangeX - turtleWidthVw / 2).toFixed(1) + 'vw',
+  })
+
+  // 海龜初始位置（使用動態計算的值）
+  gsap.set('.turtle-wrapper', {
+    xPercent: -50, // 水平居中（替代 CSS transform: translateX(-50%)）
+    yPercent: -50, // 垂直居中（替代 CSS transform: translateY(-50%)）
+    y: '15vh', // 往下移 15vh，避免擋住文字
+    x: `-${swimRangeX}vw`, // 從畫面外開始，配合游動範圍
+    scale: 0.7, // 整體縮放
+    opacity: 1,
+    // rotationY: 0, // ❌ 改用 Internal Rotation，不設定 CSS rotation
+  })
+
+  // 代理對象控制：val=Y軸旋轉, tilt=Z軸傾斜
+  // 初始向右游(Y=0)，需要正傾斜(+0.1)才能露背
+  const rotProxy = { val: 0, tilt: Math.PI * 0.1 }
+
+  if (pivotGroup) {
+    pivotGroup.rotation.y = 0
+    if (turtleModel) turtleModel.rotation.z = rotProxy.tilt
+  }
+
   const turtleSwim = gsap.timeline({ repeat: -1 })
+
+  // 確保每次循環開始時，回復到初始狀態 (Y=0, Z=+0.1)
+  turtleSwim.set(rotProxy, {
+    val: 0,
+    tilt: Math.PI * 0.1,
+    onUpdate: () => {
+      if (pivotGroup) pivotGroup.rotation.y = rotProxy.val
+      if (turtleModel) turtleModel.rotation.z = rotProxy.tilt
+    },
+  })
 
   turtleSwim
     // --- 往右游 ---
     .to('.turtle-wrapper', {
-      x: '60vw', // 剛好游出畫面右側即可，不用游太遠
-      rotation: 5, // 身體微傾
-      duration: 11, // 加快速度 (原本12s)
-      ease: 'sine.inOut',
+      x: `${swimRangeX}vw`,
+      rotation: 5,
+      rotationX: 3,
+      rotationZ: 2,
+      duration: swimRightDuration,
+      ease: 'linear',
     })
-    // --- 瞬間轉身 (鏡像翻轉) ---
-    // 使用 rotationY: 180 來翻轉，才不會跟 ScrollTrigger 的 scale 衝突
-    .set('.turtle-wrapper', { rotationY: 180 })
-    // --- 往左游 (游回來) ---
+    // 添加微幅的Y軸擺動（與往右游同步）
+    .to(
+      '.turtle-wrapper',
+      {
+        y: '+=3vh', // 輕微向上擺動
+        duration: swimRightDuration / 2,
+        ease: 'sine.inOut',
+        yoyo: true,
+        repeat: 1, // 一個來回
+      },
+      '<', // 與上一個動畫同時開始
+    )
+    // 添加輕微的身體翻滾（模擬划水）
+    .to(
+      '.turtle-wrapper',
+      {
+        rotation: '+=3', // 微幅旋轉擺動
+        duration: swimRightDuration / 3,
+        ease: 'sine.inOut',
+        yoyo: true,
+        repeat: 2, // 兩個來回
+      },
+      '<',
+    )
+    // 添加側身翻滾（3D 感）
+    .to(
+      '.turtle-wrapper',
+      {
+        rotationX: '+=8', // 側向翻滾增加 3D 感
+        duration: swimRightDuration / 2.5,
+        ease: 'sine.inOut',
+        yoyo: true,
+        repeat: 1,
+      },
+      '<',
+    )
+    // --- 瞬間翻轉（Animating Proxy Object -> Apply to Group）---
     .to('.turtle-wrapper', {
-      x: '-60vw', // 游回左側起始點
-      rotation: -5,
-      duration: 9, // 速度一致
-      ease: 'sine.inOut',
+      rotation: 0, // 修正：翻轉時把身體擺正 (Z軸旋轉)
+      rotationX: 0, // 修正：翻轉時把身體擺平 (X軸旋轉)
+      duration: 0.1,
     })
-    // --- 瞬間轉身 (轉回正面) ---
-    .set('.turtle-wrapper', { rotationY: 0 })
+    .to(
+      rotProxy,
+      {
+        val: Math.PI, // Y軸：轉 180 度向左
+        tilt: Math.PI * -0.1, // Z軸：轉為負值，因為 Y 轉了 180，Z 也要反向才能維持露背
+        duration: 0.1,
+        onUpdate: () => {
+          if (pivotGroup) pivotGroup.rotation.y = rotProxy.val
+          if (turtleModel) turtleModel.rotation.z = rotProxy.tilt
+        },
+        onStart: () => {
+          const x = gsap.getProperty('.turtle-wrapper', 'x')
+          console.log(`🔄 右側翻轉 (3D Proxy)！Y:0->PI, Z: + -> -`)
+        },
+      },
+      '<',
+    )
+    // --- 往左游 (翻轉後) ---
+    .to('.turtle-wrapper', {
+      x: `-${swimRangeX}vw`,
+      rotation: 5,
+      rotationX: 3,
+      rotationZ: 2,
+      duration: swimLeftDuration,
+      ease: 'linear',
+    })
+    // 添加微幅的Y軸擺動（與往左游同步）
+    .to(
+      '.turtle-wrapper',
+      {
+        y: '-=3vh', // 輕微向下擺動
+        duration: swimLeftDuration / 2,
+        ease: 'sine.inOut',
+        yoyo: true,
+        repeat: 1,
+      },
+      '<',
+    )
+    // 添加輕微的身體翻滾（模擬划水）
+    .to(
+      '.turtle-wrapper',
+      {
+        rotation: '+=3',
+        duration: swimLeftDuration / 3,
+        ease: 'sine.inOut',
+        yoyo: true,
+        repeat: 2,
+      },
+      '<',
+    )
+    // 添加側身翻滾（3D 感）
+    .to(
+      '.turtle-wrapper',
+      {
+        rotationX: '-=8', // 側向翻滾增加 3D 感（反向）
+        duration: swimLeftDuration / 2.5,
+        ease: 'sine.inOut',
+        yoyo: true,
+        repeat: 1,
+      },
+      '<',
+    )
+    // --- 瞬間翻回正面（Continous Rotation: PI -> 2PI）---
+    .to('.turtle-wrapper', {
+      rotation: 0,
+      rotationX: 0,
+      duration: 0.1,
+    })
+    .to(
+      rotProxy,
+      {
+        val: Math.PI * 2, // 繼續轉一圈回到正面 (360度)
+        tilt: Math.PI * 0.1, // Z軸：轉回正值，準備下一輪右游
+        duration: 0.1,
+        onUpdate: () => {
+          if (pivotGroup) pivotGroup.rotation.y = rotProxy.val
+          if (turtleModel) turtleModel.rotation.z = rotProxy.tilt
+        },
+        onStart: () => {
+          const x = gsap.getProperty('.turtle-wrapper', 'x')
+          console.log(`🔄 左側翻轉 (3D Proxy)！Y:PI->2PI, Z: - -> +`)
+        },
+        // 移除 onComplete 重置，改用 timeline 開頭的 set
+      },
+      '<',
+    )
 
+  // 🔍 動態位置監控（每秒回報位置，確保動畫活著）
+  setInterval(() => {
+    const el = document.querySelector('.turtle-wrapper')
+    if (el) {
+      const x = gsap.getProperty('.turtle-wrapper', 'x')
+      const rotY = pivotGroup ? ((pivotGroup.rotation.y * 180) / Math.PI).toFixed(0) : 0
+      // 為了不洗版，只在接近邊緣時印出，或每 2 秒印一次
+      console.log(
+        `📍 海龜存活確認 | x: ${typeof x === 'number' ? x.toFixed(1) : x}, rotY(3D): ${rotY}`,
+      )
+    }
+  }, 1000)
+
+  // 上下浮動動畫（模擬海龜在水中起伏）- 降低幅度避免與游動擺動衝突
   gsap.to('.turtle-wrapper', {
-    y: '+=15vh',
-    duration: 4,
+    y: '+=8vh', // 降低幅度：15vh -> 8vh
+    duration: floatDuration, // 根據螢幕大小調整速度
+    repeat: -1,
+    yoyo: true,
+    ease: 'sine.inOut',
+  })
+
+  // 新增：微小的前後深度變化（增加 3D 感）- 增強幅度
+  gsap.to('.turtle-wrapper', {
+    z: 80, // 增加深度變化：30 -> 80
+    duration: depthDuration, // 根據螢幕大小調整速度
     repeat: -1,
     yoyo: true,
     ease: 'sine.inOut',
@@ -245,18 +612,65 @@ const initAnimation = () => {
 
   // 額外效果：海龜隨深度壓迫感 (ScrollTrigger 單獨控制)
   // 只保留縮放效果，filter 交給主時間軸控制，避免動畫衝突
-  gsap.to('.turtle-wrapper', {
-    scale: '-=0.1', // 縮小幅度稍微加大，更有深淵感
-    scrollTrigger: {
-      trigger: '.ocean-container',
-      start: '60% top',
-      end: 'bottom bottom',
-      scrub: 2,
-    },
-  })
+  // 已移除縮放效果，讓海龜保持原始大小
+  // gsap.to('.turtle-wrapper', {
+  //   scale: '-=0.1', // 縮小幅度稍微加大，更有深淵感
+  //   scrollTrigger: {
+  //     trigger: '.ocean-container',
+  //     start: '60% top',
+  //     end: 'bottom bottom',
+  //     scrub: 2,
+  //   },
+  // })
 }
 
+// 處理視窗大小變化
+const handleResize = () => {
+  if (!renderer || !camera) return
+
+  const newSize = getResponsiveTurtleSize()
+
+  // 更新渲染器尺寸
+  renderer.setSize(newSize, newSize)
+
+  // 更新 pixelRatio（小螢幕降低以提升性能）
+  const adaptivePixelRatio =
+    newSize < 500 ? Math.min(window.devicePixelRatio, 1.5) : window.devicePixelRatio
+  renderer.setPixelRatio(adaptivePixelRatio)
+
+  // 更新相機視野
+  const frustumSize = newSize < 500 ? 4.0 : 3.5
+  camera.left = (frustumSize * 1) / -2
+  camera.right = (frustumSize * 1) / 2
+  camera.top = frustumSize / 2
+  camera.bottom = frustumSize / -2
+  camera.updateProjectionMatrix()
+
+  console.log(`🔄 視窗調整: ${newSize}px, frustum: ${frustumSize}`)
+}
+
+// 組件掛載時添加 resize 監聽
+onMounted(() => {
+  window.addEventListener('resize', handleResize)
+})
+
 onUnmounted(() => {
+  // 移除 resize 監聽
+  window.removeEventListener('resize', handleResize)
+
+  // 清理 Three.js 資源
+  if (animationFrameId) {
+    cancelAnimationFrame(animationFrameId)
+  }
+
+  if (renderer) {
+    renderer.dispose()
+  }
+
+  if (turtleModel) {
+    scene.remove(turtleModel)
+  }
+
   // 清理 ScrollTrigger 實例
   ScrollTrigger.getAll().forEach((trigger) => trigger.kill())
 })
@@ -268,7 +682,7 @@ onUnmounted(() => {
     <div class="loading-screen" :class="{ 'fade-out': !isLoading }">
       <div class="loading-content">
         <div class="loading-turtle">
-          <img :src="turtle" alt="載入中" />
+          <div class="loading-spinner"></div>
         </div>
         <div class="loading-waves">
           <div class="wave wave1"></div>
@@ -290,9 +704,9 @@ onUnmounted(() => {
 
     <!-- Sticky 視窗層 - 在 banner 區域內固定，離開時跟隨滾動 -->
     <div class="sticky-viewport">
-      <!-- 海龜主體層 -->
+      <!-- 海龜主體層 (3D Canvas) -->
       <div class="turtle-wrapper">
-        <img :src="turtle" alt="海龜" class="turtle" />
+        <canvas ref="turtleCanvasRef" class="turtle-canvas"></canvas>
       </div>
 
       <!-- 垃圾層 -->
@@ -345,7 +759,7 @@ onUnmounted(() => {
   width: 100%;
   height: 600vh; // 增加高度讓滾動節奏更優雅，使用者有更多時間體驗動畫
   min-height: 100vh; // 確保至少有一個視窗高度
-  overflow: visible;
+  overflow-x: clip; // 使用 clip 代替 hidden，防止雙重垂直卷軸
   isolation: isolate; // 創建新的層疊上下文，不影響外部
 }
 
@@ -383,26 +797,26 @@ onUnmounted(() => {
   width: 120px;
   height: 120px;
   margin: 0 auto 2rem;
-  animation: turtle-swim 2s ease-in-out infinite;
-
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    filter: drop-shadow(0 4px 20px rgba(0, 0, 0, 0.3));
-  }
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-@keyframes turtle-swim {
-  0%,
+.loading-spinner {
+  width: 80px;
+  height: 80px;
+  border: 8px solid rgba(255, 255, 255, 0.2);
+  border-top: 8px solid rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
   100% {
-    transform: translateY(0) rotate(0deg);
-  }
-  25% {
-    transform: translateY(-15px) rotate(-3deg);
-  }
-  75% {
-    transform: translateY(-10px) rotate(3deg);
+    transform: rotate(360deg);
   }
 }
 
@@ -475,7 +889,7 @@ onUnmounted(() => {
   height: 100vh;
   z-index: 10;
   pointer-events: none;
-  overflow: hidden; // 隱藏超出範圍的元素，防止橫向捲動條
+  overflow: hidden; // 隱藏所有溢出，防止出現卷軸
 }
 
 // 背景圖片層（主要底圖）
@@ -533,25 +947,28 @@ onUnmounted(() => {
   pointer-events: none;
 }
 
-// 海龜主體
+// 海龜主體 (3D Canvas) - 響應式設計
 .turtle-wrapper {
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%);
+  // transform: translate(-50%, -50%); // ❌ 移除 CSS transform，改由 GSAP xPercent/yPercent 控制
   z-index: 10;
-  width: clamp(200px, 25vw, 400px);
-  height: auto;
+  // 響應式尺寸：400px (≤400px) → 600px (≥1280px)
+  // 公式：400px + ((100vw - 400px) / (1280px - 400px)) * (600px - 400px)
+  // 簡化：400px + ((100vw - 400px) / 880px) * 200px
+  // 使用 clamp 實現：clamp(400px, calc(400px + (100vw - 400px) * 0.227), 600px)
+  width: clamp(400px, calc(400px + (100vw - 400px) * 0.227), 600px);
+  height: clamp(400px, calc(400px + (100vw - 400px) * 0.227), 600px);
   will-change: transform, filter;
   pointer-events: auto;
   transition: filter 0.3s ease;
+  overflow: visible; // 確保內容不會被裁切
 
-  .turtle {
+  .turtle-canvas {
     width: 100%;
-    height: auto;
+    height: 100%;
     display: block;
-    filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.3));
-    transition: filter 0.3s ease;
   }
 }
 
@@ -769,10 +1186,11 @@ onUnmounted(() => {
     height: 400vh; // 移動端有足夠的滾動路徑體驗動畫
   }
 
-  .turtle-wrapper {
-    width: 60vw;
-    max-width: 400px;
-  }
+  // turtle-wrapper 現在固定為 600x600，不需要手機版覆寫
+  // .turtle-wrapper {
+  //   width: clamp(200px, 35vw, 300px);
+  //   height: clamp(200px, 35vw, 300px);
+  // }
 
   .trash-layer .trash-item {
     width: clamp(60px, 20vw, 150px);

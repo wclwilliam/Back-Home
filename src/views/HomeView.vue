@@ -1,5 +1,8 @@
 <script setup>
 import { onMounted, ref, onUnmounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
+import { lineLoginVerify } from '@/utils/publicApi.js'
 import IndexBanner from '@/components/home/Banner.vue'
 import IndexHazardous from '@/components/home/Hazardous.vue'
 import IndexSavedChart from '@/components/home/SavedChart.vue'
@@ -7,11 +10,64 @@ import IndexSavedCases from '@/components/home/SavedCases.vue'
 import IndexVolunteer from '@/components/home/BecomeVolunteer.vue'
 import IndexNews from '@/components/home/News.vue'
 
+const route = useRoute()
+const router = useRouter()
+const authStore = useAuthStore()
+
 const hazardousRef = ref(null)
 let observer = null
 
+// 處理 LINE 登入回調
+const handleLineCallback = async () => {
+  const { code, state } = route.query
+
+  if (code && state) {
+    try {
+      // 從 sessionStorage 取得之前儲存的 state 進行驗證
+      const savedState = sessionStorage.getItem('line_state')
+
+      if (state !== savedState) {
+        console.error('State 驗證失敗')
+        alert('登入驗證失敗，請重試')
+        return
+      }
+
+      // 調用後端 LINE 登入驗證 API
+      const result = await lineLoginVerify(code, state)
+
+      if (result.status === 'success' && result.token) {
+        // 儲存 token
+        authStore.setToken(result.token)
+
+        // 獲取會員資料
+        await authStore.fetchMe()
+
+        // 清除 sessionStorage
+        sessionStorage.removeItem('line_state')
+        sessionStorage.removeItem('line_nonce')
+
+        // 移除 URL 中的查詢參數
+        router.replace({ name: 'home' })
+      }
+    } catch (error) {
+      console.error('LINE 登入處理失敗:', error)
+      alert('登入失敗，請重試')
+
+      // 清除 sessionStorage
+      sessionStorage.removeItem('line_state')
+      sessionStorage.removeItem('line_nonce')
+
+      // 移除 URL 中的查詢參數
+      router.replace({ name: 'home' })
+    }
+  }
+}
+
 onMounted(() => {
   window.scrollTo(0, 0)
+
+  // 處理 LINE 登入回調
+  handleLineCallback()
 
   // 建立 IntersectionObserver
   observer = new IntersectionObserver(
@@ -83,12 +139,15 @@ onUnmounted(() => {
     transform: translateY(0);
   }
 }
+
 .savedChart {
   margin-top: 8rem;
 }
+
 .savedCases {
   margin-top: 8rem;
 }
+
 .volunteer {
   margin-top: 8rem;
 }
