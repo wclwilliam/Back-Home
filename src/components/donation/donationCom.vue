@@ -4,7 +4,7 @@ import MyButton from './MyButton.vue'
 import { useAuthStore } from '@/stores/auth'
 import downloadReceipt from './downloadReceipt.vue'
 // import ecpayCrypto from '@/utils/ecpayCrypto.js'
-import { useLocalStorage } from '@vueuse/core'
+// import { useLocalStorage } from '@vueuse/core'
 import { publicApi, APIBase,backHomeApi } from '@/utils/publicApi'
 import linepay from '@/utils/linepay'
 import { useRoute} from 'vue-router';
@@ -17,11 +17,18 @@ const auth = useAuthStore()
 
 
 //判斷最近有沒有捐款有就呈現捐款成功組件
-onMounted(() => { //傳會員id
+onMounted( () => { //傳會員id
   if (!route.query.transactionId) {//用這個query參數判斷是不是綠界
     backHomeApi.get(`donation/donateTime.php?memberId=${auth.user?.MEMBER_ID}`).then((response) => {
-      if (response.data.recent_donate) {
+      // console.log(response.data);
+      if (response.data) {
         currentStep.value = 3
+        // donationType.value = response.data.DONATION_TYPE
+        response.data.DONATION_TYPE =="單次捐款" ? donationType.value ="once" : donationType.value ="monthly";
+        setTimeout(() =>{
+          selectedAmount.value = response.data.AMOUNT
+        })
+        donationId.value = response.data.DONATION_ID
       }
     })
   }
@@ -40,7 +47,13 @@ onMounted(async () => {
       const response = await backHomeApi.get(`donation/linepayback.php?transactionId=${tid}&orderId=${oid}&memberId=${auth.user?.MEMBER_ID}&amount=${amount}`);
       if (response.data.status === 'success') {
         // 後端確定成功後邏輯
+        // console.log(response.data.data);
         currentStep.value = 3
+        response.data.data.DONATION_TYPE =="單次捐款" ? donationType.value ="once" : donationType.value ="monthly";
+        setTimeout(() =>{
+          selectedAmount.value = response.data.data.AMOUNT
+        })
+        donationId.value = response.data.data.DONATION_ID
       }
     } catch (err) {
       alert('付款確認失敗');
@@ -97,6 +110,7 @@ const anonymous = ref(false)         //是否匿名
 const loading = ref(false);          //等待狀態
 const ecpayForm = ref(null);         //綠界表單
 const isSubscription = ref(false)    //是否訂閱
+const donationId = ref(0);          //訂單編號
 const userBirthYear = computed(() => {  //會員出生年份
   if (!auth.user?.BIRTHDAY) return ''
   return new Date(auth.user.BIRTHDAY).getFullYear()
@@ -180,14 +194,14 @@ watch(donationType, (newValue) => {
   payment.value = 'ecpay';
 })
 
-//localstorage
-const donationState = useLocalStorage('donationState', {
-  currentStep: 1,
-  donationType: 'monthly',
-  finalAmount: 0,
-  rawFinalAmount:0
+// //localstorage
+// const donationState = useLocalStorage('donationState', {
+//   currentStep: 1,
+//   donationType: 'monthly',
+//   finalAmount: 0,
+//   rawFinalAmount:0
 
-})
+// })
 
 
 
@@ -314,11 +328,11 @@ const goDonate = () => {
     validateField('email')
 
     if (!errors.email && !isBlank.email && !errors.agree) {
-      //先寫入localstorage示意
-      donationState.value.currentStep = 3
-      donationState.value.donationType = donationType.value
-      donationState.value.finalAmount = finalAmount
-      donationState.value.rawFinalAmount = rawFinalAmount
+      // //先寫入localstorage示意
+      // donationState.value.currentStep = 3
+      // donationState.value.donationType = donationType.value
+      // donationState.value.finalAmount = finalAmount
+      // donationState.value.rawFinalAmount = rawFinalAmount
 
       if (payment.value == "ecpay") { //判斷金流
         ecpayForm.value.submit()
@@ -335,11 +349,11 @@ const goDonate = () => {
     let hasError = Object.values(errors).some(v => v)
     let hasBlank = Object.values(isBlank).some(v => v)
     if (!hasError && !hasBlank && !errors.agree) {
-      //先寫入localstorage示意
-      donationState.value.currentStep = 3
-      donationState.value.donationType = donationType.value
-      donationState.value.finalAmount = finalAmount
-      donationState.value.rawFinalAmount = rawFinalAmount
+      // //先寫入localstorage示意
+      // donationState.value.currentStep = 3
+      // donationState.value.donationType = donationType.value
+      // donationState.value.finalAmount = finalAmount
+      // donationState.value.rawFinalAmount = rawFinalAmount
       if (payment.value == "ecpay") { //判斷金流
         // ecpayCrypto() //在前端寫加密檢查碼
         ecpayForm.value.submit()
@@ -391,7 +405,7 @@ const goLinepay = async () => {
 
 <template>
   <div class="donation-card">
-    <downloadReceipt ref="modalRef" />
+    <downloadReceipt ref="modalRef" :donationId="donationId" :finalAmount="finalAmount"/>
     <div class="stepper">
       <div class="progress-line">
         <div class="progress-fill" :style="{ width: ((currentStep - 1) / 2) * 100 + '%' }"></div>
@@ -566,15 +580,15 @@ const goLinepay = async () => {
         <div class="success-page">
           <h2 class="success-title">捐款成功</h2>
           <p class="success-desc">
-            感謝您捐款 [{{ donationState.finalAmount }}] 支持海龜保育計畫。您的這筆款項將直接用於海龜的醫療救援與棲地維護。
+            感謝您捐款 [{{ finalAmount }}] 支持海龜保育計畫。您的這筆款項將直接用於海龜的醫療救援與棲地維護。
             我們承諾將每一分錢透明、高效地運用。正式的電子收據請您留意查收。
             再次感謝您的信任與行動！
           </p>
 
           <div class="info-card">
             <p class="card-title">捐款摘要</p>
-            <p><strong>捐款金額：</strong>新台幣 <span>{{ donationState.finalAmount }}</span></p>
-            <p><strong>捐款類型：</strong>{{ donationState.donationType === 'monthly' ? '每月捐款' : '單次捐款' }}</p>
+            <p><strong>捐款金額：</strong>新台幣 <span>{{ finalAmount }}</span></p>
+            <p><strong>捐款類型：</strong>{{ donationType === 'monthly' ? '每月捐款' : '單次捐款' }}</p>
             <p><strong>捐款時間：</strong>{{ nowTime }}</p>
           </div>
 

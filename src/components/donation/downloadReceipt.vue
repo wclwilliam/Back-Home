@@ -3,12 +3,26 @@ import html2canvas from 'html2canvas'
 import jsPDF from 'jspdf'
 import { ref,computed } from 'vue'
 import MyButton from './MyButton.vue';
-import { useLocalStorage } from '@vueuse/core';
+// import { useLocalStorage } from '@vueuse/core';
+import { useAuthStore } from '@/stores/auth'
+
+const auth = useAuthStore()
 
 const receipt = ref(null);
 const showModal = ref(false);
 
-const donationState = useLocalStorage('donationState',{})
+// const donationState = useLocalStorage('donationState',{})
+
+const props = defineProps({
+  donationId: {
+    type: Number,
+    default: 0
+  },
+  finalAmount: {
+    // type: Number,
+    // default: 0
+  }
+})
 
 
 const closeModal = () =>{
@@ -16,7 +30,7 @@ const closeModal = () =>{
 }
 const openModal = () =>{
   showModal.value = true
-  donationState.value.currentStep=1 //開啟收據時把捐款步驟設為1
+  // donationState.value.currentStep=1 //開啟收據時把捐款步驟設為1
 }
 // 必須暴露出來，父組件才抓得到
 defineExpose({ openModal });
@@ -50,8 +64,8 @@ const now = new Date();
 
 const flowNum = computed(() =>{
   let time = String(now.getFullYear()) + String(now.getMonth()+1) + String(now.getDate())
-  let random = String(Math.floor(Math.random() * 1000)).padStart(3, '0')
-  return time + '-' + random
+  // let random = String(Math.floor(Math.random() * 1000)).padStart(3, '0')
+  return time + '-' + props.donationId
 })
 
 </script>
@@ -67,8 +81,8 @@ const flowNum = computed(() =>{
                   <h2 class="org-name">龜途海龜保育協會</h2>
                   <div class="details">
                     <p><span>捐款編號：</span>{{ flowNum }}</p>
-                    <p><span>捐款姓名：</span>王小明</p>
-                    <p><span>捐款金額：</span>新台幣 {{ donationState.finalAmount }} 元</p>
+                    <p><span>捐款姓名：</span>{{ auth.user.name }}</p>
+                    <p><span>捐款金額：</span>新台幣 {{ finalAmount }} 元</p>
                     <p><span>捐款日期：</span>{{`${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日`}}</p>
                     <p><span>捐款用途：</span>海龜醫療救援與棲地巡邏</p>
                   </div>

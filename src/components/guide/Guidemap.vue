@@ -1,10 +1,10 @@
 <script setup>
-import { ref, computed, onMounted, watch, toRaw } from 'vue'
+import { ref, computed, onMounted, nextTick, watch, toRaw } from 'vue'
 import { allTurtles } from './turtleData.js'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
-import "@bepo65/leaflet.fullscreen/Control.FullScreen";
-import "@bepo65/leaflet.fullscreen/Control.FullScreen.css";
+import { FullScreen } from 'leaflet.fullscreen';
+import 'leaflet.fullscreen/dist/Control.FullScreen.css';
 
 const base = import.meta.env.BASE_URL
 const parsePublicFile = (imgURL) => {
@@ -45,7 +45,8 @@ const drawTurtleLayer = (turtle) => {
 }
 
 
-onMounted(() => {
+onMounted(async () => {
+    await nextTick();
     //建立地圖框
     map = L.map('map', {
         minZoom: 2,
@@ -53,19 +54,29 @@ onMounted(() => {
         maxBoundsViscosity: 1.0,
 
         // 直接在這裡加入全螢幕控制
-        fullscreenControl: true,
-        fullscreenControlOptions: {
-            position: "topright", // 將位置改為右上角
-            title: "進入全螢幕",
-            titleCancel: "離開全螢幕",
-            forceSeparateButton: true,
-            forcePseudoFullscreen: false,
-        }
+        // fullscreenControl: true,
+        // fullscreenControlOptions: {
+        //     position: "topright",
+        //     title: "進入全螢幕",
+        //     titleCancel: "離開全螢幕",
+        //     forceSeparateButton: true,
+        //     forcePseudoFullscreen: false,
+        // }
     }).setView([20, 0], 2);
 
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        noWrap: true,
-        attribution: '&copy; OpenStreetMap contributors',
+    map.addControl(
+        new FullScreen({
+            position: 'bottomleft',
+            title: "進入全螢幕",
+            titleCancel: "離開全螢幕",
+
+        })
+    );
+
+    // 使用更穩定的 tile provider (修正 400 錯誤)
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CartoDB</a>',
+        subdomains: 'abcd',
         maxZoom: 19
     }).addTo(map);
 
@@ -75,11 +86,8 @@ onMounted(() => {
         if (currentTurtleInfo.value) {
             drawTurtleLayer(currentTurtleInfo.value);
         }
-    }, 200);
+    }, 300);
 
-    // new L.Map(mapContent.value, {
-
-    // });
 });
 
 
@@ -138,7 +146,7 @@ h1 {
 .profileList {
     display: flex;
     gap: 15px;
-    padding: 20px 0;
+    padding: 20px 0 50px 0;
     flex-wrap: wrap;
 }
 
@@ -183,7 +191,7 @@ h1 {
         display: grid;
         grid-template-columns: 1fr;
         grid-template-rows: 400px auto;
-         height: auto;
+        height: auto;
     }
 }
 
@@ -193,8 +201,7 @@ h1 {
 
     @media (max-width: 992px) {
         width: 100%;
-        //min-height: 350px;
-        height: 400px; 
+        height: 400px;
     }
 }
 
@@ -235,8 +242,8 @@ h1 {
 :deep(.leaflet-control-zoom-fullscreen),
 :deep(.leaflet-control-zoom-fullscreen:focus) {
     background-color: $highlight-color1;
-    width: 50px !important;
-    height: 50px !important;
+    width: 40px !important;
+    height: 40px !important;
     background-size: 40px 40px !important;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3) !important;
     border: none;
@@ -244,5 +251,20 @@ h1 {
 
 :deep(.leaflet-control-zoom-fullscreen:hover) {
     background-color: $highlight-color2;
+}
+
+:deep(.leaflet-control-zoom-in),
+:deep(.leaflet-control-zoom-out) {
+    width: 40px !important;
+    height: 40px !important;
+    line-height: 40px !important;
+    font-size: 30px !important;
+}
+
+
+:deep(.leaflet-touch .leaflet-bar a) {
+    width: 50px;
+    height: 50px;
+    line-height: 50px;
 }
 </style>
