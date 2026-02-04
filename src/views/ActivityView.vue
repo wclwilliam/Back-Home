@@ -12,6 +12,7 @@ import Pagination from '@/components/Pagination.vue'
 const bgUrl = `${base}image/activity/activity_bg.jpg`
 const router = useRouter()
 const route = useRoute() //當前網址
+
 const createDefaultFilters = () => ({
   topics: [],
   locations: [],
@@ -22,27 +23,52 @@ const createDefaultFilters = () => ({
 const activeFilters = ref(createDefaultFilters())
 const allActivities = ref([]) //所有活動資料
 const url = 'activity/activity_list.php';
+
+const currentQueryParams = computed(() => {
+  return {
+    formCategory: currentActivityTab.value,
+    formPage: currentPage.value,
+    formSearch: searchQuery.value || undefined,
+    formFilter: JSON.stringify(activeFilters.value) // 確保這裡傳送的是最新的 activeFilters
+  }
+})
+
+//更改網址
+const updateUrl = (shouldScroll = false) => {
+  const filterString = JSON.stringify(activeFilters.value) //把篩選器轉成字串
+
+  router.replace({
+    name: 'activity',
+    query: {
+      category: currentActivityTab.value, // 紀錄目前的 Tab
+      search: searchQuery.value || undefined, // 紀錄目前的搜尋關鍵字
+      page: currentPage.value, // 紀錄目前的頁數
+      filter: filterString, //紀錄篩選器
+    },
+  })
+
+  // 只有在需要的時候 (例如換頁) 才手動滾動到頂部
+  if (shouldScroll) {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+}
+
+const activityList = ref([])
+const currentPage = ref(1)
+const itemsPerPage = ref(9)
+
 const fetchAct = async () => {
   try {
-    // 1. 發送請求
+    // 發送請求
     const response = await backHomeApi.get(url);
-
-    // 2.【關鍵修正】取得資料的位置
-    // 因為你的 PHP 回傳 { status: 'success', data: [...] }
-    // 所以正確的資料在 response.data.data 裡面
     const dbData = response.data.data;
 
-    // 防呆：如果沒資料，就給空陣列
     if (!Array.isArray(dbData)) {
-      console.warn('API 回傳資料格式錯誤或無資料', dbData);
       allActivities.value = [];
       return;
     }
 
     const todayTime = new Date().setHours(0, 0, 0, 0);
-
-    // 3.【關鍵修正】欄位名稱對應 (Mapping)
-    // 左邊是 Vue 要用的(小寫) : 右邊是 PHP 給你的(大寫)
     activityList.value = dbData.map((act) => {
       
       const actDate = new Date(act.ACTIVITY_START_DATETIME);
@@ -67,7 +93,6 @@ const fetchAct = async () => {
       }
 
       return {
-        // ⚠️ 這裡一定要對應資料庫的大寫欄位
         id: act.ACTIVITY_ID,                    
         title: act.ACTIVITY_TITLE,              
         description: act.ACTIVITY_DESCRIPTION,  
@@ -89,78 +114,50 @@ const fetchAct = async () => {
   }
 };
 
-//更改網址
-const updateUrl = () => {
-  const filterString = JSON.stringify(activeFilters.value) //把篩選器轉成字串
-
-  router.replace({
-    name: 'activity',
-    query: {
-      category: currentActivityTab.value, // 紀錄目前的 Tab
-      search: searchQuery.value || undefined, // 紀錄目前的搜尋關鍵字
-      page: currentPage.value, // 紀錄目前的頁數
-      filter: filterString, //紀錄篩選器
-    },
-  })
-}
-
-// // 獲取活動資料
-onMounted(() => {
-  fetchAct()
-  updateItemsPerPage()
-  window.addEventListener('resize', updateItemsPerPage) //重新計算頁面放置卡片數量
-
-  // console.log(route.query)
-  if (route.query.category) {
-    currentActivityTab.value = route.query.category
-  }
-  if (route.query.search) {
-    searchQuery.value = route.query.search
-    activeSearchKeyword.value = route.query.search
-  }
-  if (route.query.filter) {
-    try {
-      const parsedFilters = JSON.parse(route.query.filter)
-      // 確保篩選器結構正確
-      activeFilters.value = {
-        ...createDefaultFilters(),
-        ...parsedFilters,
-        // 如果需要確保 dateRange 是陣列
-        dateRange: parsedFilters.dateRange || null,
-      }
-    } catch (error) {
-      console.log(error)
-    }
-  }
-  if (route.query.page) {
-    currentPage.value = Number(route.query.page)
-  }
-})
-onUnmounted(() => {
-  window.removeEventListener('resize', updateItemsPerPage)
-})
 
 const activityTabs = ['目前活動', '活動回顧']
 const currentActivityTab = ref('目前活動')
-
 const searchQuery = ref('')
 const activeSearchKeyword = ref('')
 let timer = null
 
-const activityList = ref(null)
-const currentPage = ref(1)
-const itemsPerPage = ref(9)
 
 // 關鍵字搜索
 const handleSearchInput = (query) => {
   searchQuery.value = query
-  // currentPage.value = 1
+
+  if (timer) clearTimeout(timer)
+  timer = setTimeout(() => {
+    activeSearchKeyword.value = query
+    currentPage.value = 1
+    // 搜尋時不滾動 (false)
+    updateUrl(false) 
+  }, 800)
 }
 //篩選器
 const handleFilterApply = (filters) => {
   activeFilters.value = { ...createDefaultFilters(), ...filters }
   currentPage.value = 1
+  updateUrl(false) // 篩選時不滾動 (false)
 }
+
+const goToPage = (page) => {
+  if (page >= 1 && page <= totalPages.value) {
+    currentPage.value = page
+    updateUrl(true) // 換頁時滾動 (true)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+}
+
+//  Tab 切換時，清空搜尋條件
+watch(currentActivityTab, (newVal) => {
+  currentPage.value = 1
+  searchQuery.value = ''
+  activeSearchKeyword.value = ''
+  activeFilters.value = { ...createDefaultFilters() }
+  updateUrl(false) // 切換 Tab 時不滾動 (false)
+})
+
 
 // 地區對照表
 const regionMap = {
@@ -263,6 +260,7 @@ const filteredActivities = computed(() => {
   return results
 })
 
+
 // RWD 與 分頁邏輯
 const updateItemsPerPage = () => {
   const width = window.innerWidth
@@ -278,31 +276,45 @@ const paginatedActivities = computed(() => {
   return filteredActivities.value.slice(start, end)
 })
 
-const goToPage = (page) => {
-  if (page >= 1 && page <= totalPages.value) {
-    currentPage.value = page
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }
-}
 
-//  Tab 切換時，清空搜尋條件
-watch(currentActivityTab, (newVal) => {
-  currentPage.value = 1
-  searchQuery.value = ''
-  activeSearchKeyword.value = ''
-  activeFilters.value = { ...createDefaultFilters() }
-  updateUrl()
-})
-watch(searchQuery, (newVal) => {
-  if (timer) {
-    clearTimeout(timer)
+
+// // 獲取活動資料
+onMounted(() => {
+  fetchAct()
+  updateItemsPerPage()
+  window.addEventListener('resize', updateItemsPerPage) //重新計算頁面放置卡片數量
+
+  // console.log(route.query)
+  if (route.query.category) {
+    currentActivityTab.value = route.query.category
   }
-  timer = setTimeout(() => {
-    activeSearchKeyword.value = newVal
-    currentPage.value = 1
-    updateUrl()
-  }, 800)
+  if (route.query.search) {
+    searchQuery.value = route.query.search
+    activeSearchKeyword.value = route.query.search
+  }
+  if (route.query.filter) {
+    try {
+      const parsedFilters = JSON.parse(route.query.filter)
+      // 確保篩選器結構正確
+      activeFilters.value = {
+        ...createDefaultFilters(),
+        ...parsedFilters,
+        // 如果需要確保 dateRange 是陣列
+        dateRange: parsedFilters.dateRange || null,
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
+  if (route.query.page) {
+    currentPage.value = Number(route.query.page)
+  }
 })
+
+onUnmounted(() => {
+  window.removeEventListener('resize', updateItemsPerPage)
+})
+
 watch(
   activeFilters,
   () => {
@@ -334,7 +346,8 @@ watch(currentPage, () => {
           v-for="activity in paginatedActivities"
           :key="activity.id"
         >
-          <ActivityCard :event="activity" />
+          <ActivityCard :event="activity" 
+            :query-params="currentQueryParams"/>
         </div>
 
         <div v-if="paginatedActivities.length === 0" class="no-data col-sm-4">
