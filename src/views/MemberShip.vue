@@ -51,16 +51,17 @@ onMounted(() => {
   initTabFromUrl();
 });
 
-// 監聆 URL 變化
-watch(() => route.query.section, () => {
+// 監聽整個 query 變化，確保 tab/page 參數消失時也能更新
+watch(() => route.query, () => {
   initTabFromUrl();
-});
+}, { deep: true });
 
 // 接收從 MemberTabs 傳過來的 index
 const handleTabChange = (index) => {
   currentTabIndex.value = index;
-  // 更新 URL，切換主 tab 時清空子 tab 的參數
-  router.push({ 
+  // 使用 replace 而不是 push，並強制更新 URL
+  router.replace({ 
+    path: route.path,
     query: { 
       section: indexToSection[index]
       // 不保留 tab 和 page，讓子組件重新初始化

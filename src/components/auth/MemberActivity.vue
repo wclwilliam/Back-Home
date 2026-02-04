@@ -203,7 +203,7 @@ const goToPage = (page) => {
   currentPage.value = page
   router.push({
     query: {
-      section: route.query.section,
+      section: route.query.section || 'activity',
       tab: currentActivityTab.value,
       page: page === 1 ? undefined : page
     }
@@ -213,19 +213,30 @@ const goToPage = (page) => {
 
 watch(currentActivityTab, () => {
   currentPage.value = 1
-  router.push({
-    query: {
-      section: route.query.section,
-      tab: currentActivityTab.value,
-      page: undefined
-    }
-  })
+  // 只在當前 section 是 activity 時才更新 URL
+  if (route.query.section === 'activity') {
+    router.push({
+      query: {
+        section: 'activity',
+        tab: currentActivityTab.value,
+        page: undefined
+      }
+    })
+  }
 })
 
-// 加上這段：初始化時從 URL 讀取
-watch(() => route.query, () => {
-  if (route.query.tab) currentActivityTab.value = route.query.tab
-  if (route.query.page) currentPage.value = parseInt(route.query.page)
+// 初始化時從 URL 讀取，但不修改 URL
+watch(() => route.query, (newQuery) => {
+  if (newQuery.tab && newQuery.tab !== currentActivityTab.value) {
+    currentActivityTab.value = newQuery.tab
+  }
+  if (newQuery.page) {
+    currentPage.value = parseInt(newQuery.page)
+  } else if (!newQuery.tab) {
+    // 如果沒有 tab 參數，表示切換到其他主分頁，重置狀態
+    currentActivityTab.value = 'future'
+    currentPage.value = 1
+  }
 }, { immediate: true })
 </script>
 

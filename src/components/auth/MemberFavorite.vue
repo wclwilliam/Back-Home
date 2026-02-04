@@ -166,12 +166,23 @@ const goToPage = (page) => {
 
 watch(currentTab, () => {
   currentPage.value = 1
-  router.push({ query: { section: route.query.section, tab: currentTab.value, page: undefined } })
+  // 只在當前 section 是 favorite 時才更新 URL
+  if (route.query.section === 'favorite') {
+    router.push({ query: { section: 'favorite', tab: currentTab.value, page: undefined } })
+  }
 })
 
-watch(() => route.query, () => {
-  if (route.query.tab) currentTab.value = route.query.tab
-  if (route.query.page) currentPage.value = parseInt(route.query.page)
+watch(() => route.query, (newQuery) => {
+  if (newQuery.tab && newQuery.tab !== currentTab.value) {
+    currentTab.value = newQuery.tab
+  }
+  if (newQuery.page) {
+    currentPage.value = parseInt(newQuery.page)
+  } else if (!newQuery.tab) {
+    // 如果沒有 tab 參數，表示切換到其他主分頁，重置狀態
+    currentTab.value = '未來活動'
+    currentPage.value = 1
+  }
 }, { immediate: true })
 </script>
 
