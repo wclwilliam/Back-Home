@@ -95,7 +95,19 @@ const fetchData = async () => {
   }
 };
 
-onMounted(fetchData);
+onMounted(() => {
+  // 檢查並修正 URL，確保有 section 參數
+  if (!route.query.section || route.query.section !== 'activity') {
+    router.replace({
+      query: {
+        section: 'activity',
+        tab: route.query.tab || 'future',
+        page: route.query.page
+      }
+    });
+  }
+  fetchData();
+});
 
 // 3. 頁面跳轉邏輯
 const goToDetail = (activityId) => {
