@@ -39,6 +39,15 @@ export default defineConfig(({ mode }) => {
         },
       },
     },
+    server: {
+      proxy: {
+        '/api': {
+          target: 'http://localhost:8888',
+          changeOrigin: true,
+          secure: false
+        }
+      }
+    },
     base: env.VITE_BASE || '/',
     build: { outDir: env.VITE_OUT_DIR || 'dist' },
   }

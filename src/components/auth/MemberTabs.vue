@@ -13,7 +13,14 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
+
+const props = defineProps({
+  modelValue: {
+    type: Number,
+    default: 0
+  }
+});
 
 const emit = defineEmits(['update-tab']);
 
@@ -24,7 +31,12 @@ const tabs = [
     { name: '收藏夾', icon: 'bookmark' }
 ];
 
-const activeTab = ref(0);
+const activeTab = ref(props.modelValue);
+
+// 監聽外部變化
+watch(() => props.modelValue, (newVal) => {
+  activeTab.value = newVal;
+});
 
 const changeTab = (index) => {
     activeTab.value = index;

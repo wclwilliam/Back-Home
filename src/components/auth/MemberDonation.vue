@@ -243,13 +243,13 @@ const pagedRecords = computed(() => {
 
 const goToPage = (page) => {
   currentPage.value = page
-  router.push({ query: { tab: currentTab.value, page: page === 1 ? undefined : page } })
+  router.push({ query: { section: route.query.section, tab: currentTab.value, page: page === 1 ? undefined : page } })
   window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
 watch(currentTab, () => {
   currentPage.value = 1
-  router.push({ query: { tab: currentTab.value, page: undefined } })
+  router.push({ query: { section: route.query.section, tab: currentTab.value, page: undefined } })
 })
 
 watch(() => route.query, () => {

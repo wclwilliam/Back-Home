@@ -166,7 +166,7 @@ const goToPage = (page) => {
 
 watch(currentTab, () => {
   currentPage.value = 1
-  router.push({ query: { tab: currentTab.value, page: undefined } })
+  router.push({ query: { section: route.query.section, tab: currentTab.value, page: undefined } })
 })
 
 watch(() => route.query, () => {
