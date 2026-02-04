@@ -102,10 +102,7 @@
 <style lang="scss" scoped>
 .orientation-guard {
   position: relative;
-  height: calc(100dvh - clamp(84px, 8vw, 100px));
-  // height: 100dvh;
-  border: 3px solid blue;
-  // overflow-y: auto;
+  height: calc(100dvh - clamp(65px, 6vw, 85px));
   overflow: hidden;
 
 

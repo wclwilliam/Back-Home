@@ -129,6 +129,35 @@ export const googleLogin = async (credential) => {
   }
 }
 
+// LINE 登入 - 獲取授權 URL
+export const getLineAuthUrl = async () => {
+  try {
+    const response = await backHomeApi.get('/member/auth_line_get_url.php')
+    return response.data
+  } catch (error) {
+    if (error.response?.data) {
+      throw error.response.data
+    }
+    throw error.response?.data || error
+  }
+}
+
+// LINE 登入 - 驗證 code 並登入
+export const lineLoginVerify = async (code, state) => {
+  try {
+    const response = await backHomeApi.post('/member/auth_line_verify.php', {
+      code,
+      state,
+    })
+    return response.data
+  } catch (error) {
+    if (error.response?.data) {
+      throw error.response.data
+    }
+    throw error.response?.data || error
+  }
+}
+
 // 發送重設密碼連結 API
 export const forgotPassword = async (email) => {
   try {
