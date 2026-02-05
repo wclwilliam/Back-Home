@@ -29,6 +29,17 @@ const endTime = computed(() => {
   return endDate.value.split(' ')[1]
 })
 
+//活動status判斷邏輯
+const isEnded = computed(() =>  props.activity?.status === 'ended' )
+const isOpening = computed(() => props.activity?.status === 'opening' )
+const isDeadline = computed(() => props.activity?.status === 'deadline' )
+const isFulled = computed(() => { 
+  const currentPeople = Number(props.activity?.currentPeople || 0)
+  const maxPeople = Number(props.activity?.maxPeople || 0)
+  if (!maxPeople) return false
+  return currentPeople >= maxPeople
+})
+
 // --- 進度條樣式計算 ---
 const progressStyle = computed(() => {
   const { currentPeople, maxPeople } = props.activity
@@ -140,6 +151,13 @@ watch(
       </div>
 
       <div class="col-md-6 hero-info-col">
+        <div class="status">
+          <span v-if="isEnded" class="status-label ended">活動已結束</span>
+          <span v-else-if="isOpening" class="status-label opening">活動進行中</span>
+          <span v-else-if="isDeadline" class="status-label deadline">報名截止</span>
+          <span v-else-if="isFulled" class="status-label fulled">報名額滿</span>
+          <span v-else class="status-label signuping">報名中</span>
+        </div>
         <div class="info-content">
           <div class="info-header">
             <h1 class="title">{{ activity.title }}</h1>
@@ -207,8 +225,33 @@ watch(
 .intro-container {
   width: 100%;
   margin-bottom: 24px;
+  position: relative;
 }
+.status {
+  padding: 16px;
+  text-align: center;
 
+  .status-label {
+    @include font-body-l;
+    font-weight: bold;
+    padding: 8px 16px;
+    color: $text-white;
+    position: absolute;
+    top: 16px;
+    left: 16px;
+
+    &.ended {
+      background-color: $highlight-color2;
+    }
+    &.opening, &.fulled,&.deadline {
+      background-color: $highlight-color3;
+    }
+
+    &.signuping {
+      background-color: $primary-color;
+    }
+  }
+}
 // --- 1. Hero 區塊樣式 ---
 .hero-row {
   display: flex;
@@ -243,6 +286,7 @@ watch(
   display: flex;
   flex-direction: column;
   justify-content: center;
+  position: relative;
 }
 
 .info-content {

@@ -13,7 +13,7 @@ const authStore = useAuthStore()
 // 接收外部傳入的資料
 const props = defineProps({
   event: { type: Object, required: true },
-  queryParams: { type: Object, required: () => ({}) },
+  queryParams: { type: Object, default: () => ({}) },
 })
 
 const goToDetail = () => {

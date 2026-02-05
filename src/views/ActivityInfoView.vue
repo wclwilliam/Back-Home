@@ -1,5 +1,5 @@
 ﻿<script setup>
-import { ref, onMounted, reactive, computed, watch } from 'vue'
+import { ref, onMounted, reactive, computed, watch} from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import 'swiper/css'
@@ -184,7 +184,7 @@ const fetchActivityData = async (id) => {
             image: item.ACTIVITY_COVER_IMAGE,
             date: item.ACTIVITY_START_DATETIME,
             endDate: item.ACTIVITY_END_DATETIME,
-            signupEndDate: act.ACTIVITY_SIGNUP_END_DATETIME,
+            signupEndDate: item.ACTIVITY_SIGNUP_END_DATETIME,
             location: item.ACTIVITY_LOCATION,
             type: item.CATEGORY_VALUE,
             maxPeople: item.ACTIVITY_MAX_PEOPLE,
@@ -286,6 +286,8 @@ const errors = reactive({
   stars: '',
   comment: '',
 })
+const isIdFixed = ref(false)
+const isBDFixed = ref(false)
 
 // 取得會員詳細資料並填入表單
 const getMemberInfo = async () => {
@@ -306,7 +308,9 @@ const getMemberInfo = async () => {
       formData.email = user.MEMBER_EMAIL || ''
       formData.phone = user.MEMBER_PHONE || ''
       formData.idNumber = user.ID_NUMBER || ''
+      isIdFixed.value = !!user.ID_NUMBER
       formData.birthday = user.BIRTHDAY || ''
+      isBDFixed.value = !!user.BIRTHDAY
       formData.emergencyName = user.EMERGENCY || ''
       formData.emergencyPhone = user.EMERGENCY_TEL || ''
 
@@ -318,6 +322,7 @@ const getMemberInfo = async () => {
     }
   }
 }
+
 // 監聽登入狀態與生命週期
 onMounted(() => {
   if (route.params.id) {
@@ -331,38 +336,48 @@ onMounted(() => {
 
 // 如果使用者在這一頁才登入 (例如點了「登入後報名」)，要監聽變化並補抓資料
 watch(
-  () => authStore.isLogin,
-  (val) => {
-    if (val) {
+  () => [authStore.isLogin, activityInfo.value.id],
+  ([newLogin, newId]) => {
+    if (newLogin && newId) {
       getMemberInfo()
       checkUserAttended()
-      if (activityInfo.value.id) {
-        fetchReviews(activityInfo.value.id)
-      }
+      fetchReviews(newId)
+      checkSignupStatus()
     }
   },
 )
 
 //身份證字號的檢查
-const handleIdNumCheck = () => {
-  if (!formData.idNumber) return
 
-  //第一碼確認或轉型為大寫
-  formData.idNumber = formData.idNumber.toUpperCase()
-  //僅能輸入10碼
-  if (formData.idNumber.length > 10) {
-    formData.idNumber = formData.idNumber.slice(0, 10)
-  }
-}
-//檢查身分證格式是否符合要求
 const checkIdFormat = (id) => {
-  //第一碼為英文
-  //第二碼為1,2,or 3
-  //僅能10碼
-  //檢查碼不檢查
-  const idFormat = /^[A-Z][1-3]\d{8}/
-  return idFormat.test(id)
+  const regex = /^[A-Z][12]\d{8}$/
+  if (!regex.test(id)) return false
+
+  const city = {
+    A: 10, B: 11, C: 12, D: 13, E: 14, F: 15,
+    G: 16, H: 17, I: 34, J: 18, K: 19,
+    L: 20, M: 21, N: 22, O: 35, P: 23,
+    Q: 24, R: 25, S: 26, T: 27, U: 28,
+    V: 29, W: 32, X: 30, Y: 31, Z: 33
+  }
+
+  // 英文字母轉兩碼
+  const code = city[id[0]].toString().split('').map(Number)
+
+  // 身分證後 9 碼
+  const numbers = id.slice(1).split('').map(Number)
+
+  const idNums = code.concat(numbers)
+
+  // ✅ 正確 11 碼權重
+  const weights = [1, 9, 8, 7, 6, 5, 4, 3, 2, 1, 1]
+
+  const sum = idNums.reduce((acc, n, i) => acc + n * weights[i], 0)
+
+  return sum % 10 === 0
 }
+
+
 const handleSingUpSubmit = () => {
   let isValid = true
   //先檢查所有必填欄位
@@ -395,7 +410,7 @@ const handleSingUpSubmit = () => {
   if (!formData.emergencyPhone) {
     errors.emergencyPhone = '請輸入緊急聯絡人電話'
     isValid = false
-  } else if (!/^09\d{8}$/.test(formData.emergencyPhone)) {
+  } else if  (!/^09\d{8}$/.test(formData.phone)) {
     errors.emergencyPhone = '手機格式錯誤 (09xxxxxxxx)'
     isValid = false
   }
@@ -520,6 +535,26 @@ const handleConfirmRegistration = async () => {
   } catch (error) {
     console.error('報名失敗:', error)
     alert('報名失敗，請稍後再試')
+  }
+}
+// 已完成報名
+const isSignuped = ref(false)
+const checkSignupStatus = async () => {
+  try {
+    if(!authStore.isLogin || !activityInfo.value.id) {
+      isSignuped.value = false
+      return
+    }
+    const userId = authStore.user.id
+    const actId = activityInfo.value.id
+    const checkSignUpURL = 'activity/activity_check_signup.php'
+    const response = await backHomeApi.get(`${checkSignUpURL}?user_id=${userId}&activity_id=${actId}`)
+    if(response.data.status === 'success') {
+      isSignuped.value = response.data.isSignup
+    }
+  } catch (error) {
+    console.error('已完成報名處理失敗:', error)
+    alert('操作失敗，請稍後再試')
   }
 }
 
@@ -760,7 +795,18 @@ const currentQueryParams = computed(() => ({
     </template>
     <!-- 活動報名中 -->
     <template v-else>
-      <div v-if="!isLoggedIn" class="row login-cta-section">
+      <!-- 活動已報名 -->
+      <div  v-if="isSignuped" class="row login-cta-section">
+        <div class="cta-content col-sm-4 col-md-4">
+          <h3>已完成報名</h3>
+          <p>您已完成報名，期待與你相遇</p>
+          <router-link :to="{ name: 'member' }" class="btn-solid btn-large"
+            style="display: inline-block; text-decoration: none">
+            查看已報名的活動
+          </router-link>
+        </div>
+      </div>
+      <div v-else-if="!isLoggedIn" class="row login-cta-section">
         <div class="cta-content col-sm-4 col-md-4">
           <h3>您尚未登入</h3>
           <p>登入會員後，即可快速帶入資料完成報名！</p>
@@ -779,7 +825,7 @@ const currentQueryParams = computed(() => ({
           />
           <template #message>
             <span class="material-symbols-outlined info">info</span>
-            如需修改姓名，請至 <a href="#" class="link">會員中心</a> 更新資料
+            如需修改姓名，請至 <router-link :to="{ name: 'member' }" class="link member-link">會員中心</router-link> 更新資料
           </template>
         </FormInput>
         <FormInput label="電子信箱" required htmlFor="email">
@@ -792,35 +838,15 @@ const currentQueryParams = computed(() => ({
           />
         </FormInput>
         <FormInput label="手機號碼" required htmlFor="phone" :error="errors.phone">
-          <input
-            id="phone"
-            type="tel"
-            v-model="formData.phone"
-            class="customInput"
-            placeholder="請輸入手機號碼"
-          />
+          <input id="phone" type="tel" v-model="formData.phone" class="customInput" placeholder="請輸入手機號碼" maxlength="10" />
         </FormInput>
 
         <FormInput label="身分證字號" required htmlFor="idNumber" :error="errors.idNumber">
-          <input
-            id="idNumber"
-            type="text"
-            v-model="formData.idNumber"
-            @input="handleIdNumCheck"
-            class="customInput"
-            placeholder="請輸入身分證字號"
-            maxlength="10"
-          />
+          <input id="idNumber" type="text" v-model="formData.idNumber" class="customInput" placeholder="請輸入身分證字號" maxlength="10" :disabled="isIdFixed" :class="{'disable' : isIdFixed}"/>
         </FormInput>
 
         <FormInput label="出生年月日" required htmlFor="birthday" :error="errors.birthday">
-          <input
-            id="birthday"
-            type="date"
-            v-model="formData.birthday"
-            class="customInput"
-            placeholder="請選擇日期"
-          />
+          <input id="birthday" type="date" v-model="formData.birthday" class="customInput" placeholder="請選擇日期" :disabled="isBDFixed" :class="{'disable' : isBDFixed }"/>
         </FormInput>
 
         <FormInput
@@ -836,20 +862,10 @@ const currentQueryParams = computed(() => ({
             class="customInput"
           />
         </FormInput>
-
-        <FormInput
-          label="緊急聯絡人手機號碼"
-          required
-          htmlFor="emergencyPhone"
-          :error="errors.emergencyPhone"
-        >
-          <input
-            id="emergencyPhone"
-            type="tel"
-            v-model="formData.emergencyPhone"
-            class="customInput"
-            placeholder="請輸入緊急聯絡人手機號碼"
-          />
+  
+        <FormInput label="緊急聯絡人手機號碼" required htmlFor="emergencyPhone" :error="errors.emergencyPhone">
+          <input id="emergencyPhone" type="tel" v-model="formData.emergencyPhone" class="customInput"
+            placeholder="請輸入緊急聯絡人手機號碼" maxlength="10" />
         </FormInput>
 
         <div class="checkbox-row col-sm-3 col-md-8">
@@ -994,11 +1010,16 @@ const currentQueryParams = computed(() => ({
 }
 
 .disable {
-  background-color: $backstage-bar-line-color;
+  background-color: #D9D9D9;
 }
 
 .info {
   color: $secondary-color;
+}
+
+.member-link {
+  color: $secondary-color;
+  text-decoration: underline;
 }
 
 .checkbox-row {
