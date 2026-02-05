@@ -38,7 +38,6 @@ const userName = computed(() => {
 const toggleUserMenu = () => {
   // 如果未登入，開啟登入燈箱並設定登入後導向會員中心
   if (!authStore.isLogin) {
-    authStore.redirectAfterLogin = '/member'
     authStore.openLoginModal()
     return
   }
