@@ -20,13 +20,14 @@ defineEmits(['update:modelValue'])
           <button class="close-btn" @click="$emit('update:modelValue', false)">✕</button>
 
           <div class="lightbox-main">
-            <h2 class="title">恭喜您報名完成！</h2>
+            <!-- 這裡改成驚嘆號或其他 icon -->
+            <span class="material-symbols-outlined icon-warning">warning</span>
+            <h2 class="title">您已經報名過此活動囉！</h2>
 
             <p class="message">
               您可前往<router-link to="/member?section=activity&tab=future" class="link"
                 >會員中心</router-link
-              >查看報名詳情，或是點選<router-link to="/activity" class="link">此處</router-link
-              >報名更多其他活動
+              >查看您的活動行程。
             </p>
 
             <div class="actions">
@@ -65,11 +66,18 @@ defineEmits(['update:modelValue'])
   text-align: center;
 }
 
+.icon-warning {
+  font-size: rem(48px);
+  color: $highlight-color2; // Warning color (Orange)
+  margin-bottom: rem(20px);
+  display: block;
+}
+
 .title {
   font-size: rem(26px);
   color: $primary-color;
   font-weight: bold;
-  margin-bottom: rem(68px);
+  margin-bottom: rem(40px);
 }
 
 .message {

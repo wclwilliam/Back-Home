@@ -44,7 +44,7 @@ watch(resetToken, (newToken) => {
 })
 
 function closeModal() {
-  isModalOpen.value = false
+  authStore.closeLoginModal()
   setTimeout(() => { mode.value = 'login' }, 300)
 }
 </script>
