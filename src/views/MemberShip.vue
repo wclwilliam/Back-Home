@@ -59,14 +59,23 @@ watch(() => route.query, () => {
 // 接收從 MemberTabs 傳過來的 index
 const handleTabChange = (index) => {
   currentTabIndex.value = index;
-  // 使用 replace 而不是 push，並強制更新 URL
-  router.replace({ 
-    path: route.path,
-    query: { 
-      section: indexToSection[index]
-      // 不保留 tab 和 page，讓子組件重新初始化
-    } 
-  });
+  const section = indexToSection[index];
+  
+  // 根據不同 section 設定預設的第二層 tab
+  const defaultTabs = {
+    'info': null,           // 個人資訊沒有第二層
+    'activity': 'future',   // 我的活動預設為未來活動
+    'donation': 'single',   // 捐款紀錄預設為單筆捐款
+    'favorite': 'upcoming'  // 收藏夾預設為未來活動
+  };
+  
+  // 更新 URL
+  const query = { section };
+  if (defaultTabs[section]) {
+    query.tab = defaultTabs[section];
+  }
+  
+  router.replace({ query });
 };
 </script>
 

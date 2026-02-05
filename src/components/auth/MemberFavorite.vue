@@ -11,10 +11,10 @@ const router = useRouter()
 const route = useRoute()
 
 // --- 基礎狀態 ---
-const currentTab = ref("未來活動")
+const currentTab = ref("upcoming")
 const favoriteTabs = [
-  { label: '未來活動', value: '未來活動' },
-  { label: '過去活動', value: '過去活動' }
+  { label: '未來活動', value: 'upcoming' },
+  { label: '過去活動', value: 'completed' }
 ]
 
 const favoriteList = ref([]) 
@@ -42,26 +42,32 @@ const fetchFavorites = async () => {
         'Authorization': `Bearer ${token}`
       }
     });
+    
     const data = response.data;
     
-    favoriteList.value = data.map(item => {
-      // 關鍵！因為 PHP 回傳的是 "image": "care_01.png"
-      const fileName = item.image; 
-      
-      // 使用環境變數自动切换基础路径
-      const finalImage = fileName 
-        ? `${APIBase}/uploads/actCover/${fileName}` 
+    // 處理不同的回應格式
+    let actualData = data;
+    if (data.status === 'success' && data.data) {
+      actualData = data.data;
+    }
+    
+    favoriteList.value = actualData.map(item => {
+      // 使用 VITE_FILE_URL 來拼接圖片路徑
+      const fileBase = import.meta.env.VITE_FILE_URL || `${APIBase}uploads/`;
+      const finalImage = item.image 
+        ? `${fileBase}actCover/${item.image}` 
         : '';
 
       return {
         id: item.activityId, 
         title: item.title,
         date: item.startDate,
+        endDate: item.endDate || item.startDate,
         location: item.location,
-        image: finalImage,    // 自動使用環境對應的 API 路徑
+        image: finalImage,
         isFavorite: true,
-        currentPeople: 0,
-        maxPeople: 100,
+        currentPeople: item.signupCount || 0,
+        maxPeople: item.maxPeople || item.maxCapacity || 100,
         type: '活動'
       };
     });
@@ -148,7 +154,7 @@ const filteredFavorites = computed(() => {
   const todayTime = new Date().setHours(0, 0, 0, 0)
   return favoriteList.value.filter(act => {
     const actTime = new Date(act.date).getTime()
-    return currentTab.value === '過去活動' ? actTime < todayTime : actTime >= todayTime
+    return currentTab.value === 'completed' ? actTime < todayTime : actTime >= todayTime
   })
 })
 
@@ -173,15 +179,30 @@ watch(currentTab, () => {
 })
 
 watch(() => route.query, (newQuery) => {
-  if (newQuery.tab && newQuery.tab !== currentTab.value) {
-    currentTab.value = newQuery.tab
-  }
-  if (newQuery.page) {
-    currentPage.value = parseInt(newQuery.page)
-  } else if (!newQuery.tab) {
-    // 如果沒有 tab 參數，表示切換到其他主分頁，重置狀態
-    currentTab.value = '未來活動'
-    currentPage.value = 1
+  const validTabs = ['upcoming', 'completed'];
+  
+  if (newQuery.section === 'favorite') {
+    // 如果沒有 tab 或 tab 無效，設定預設值
+    if (!newQuery.tab || !validTabs.includes(newQuery.tab)) {
+      router.replace({
+        query: {
+          section: 'favorite',
+          tab: 'upcoming'
+        }
+      });
+      return;
+    }
+    
+    // tab 有效，同步到內部狀態
+    if (newQuery.tab !== currentTab.value) {
+      currentTab.value = newQuery.tab
+    }
+    
+    if (newQuery.page) {
+      currentPage.value = parseInt(newQuery.page)
+    } else {
+      currentPage.value = 1
+    }
   }
 }, { immediate: true })
 </script>
