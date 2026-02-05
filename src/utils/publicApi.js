@@ -19,22 +19,9 @@ export const sendVerificationCode = async (email) => {
     const response = await backHomeApi.post('/member/auth_register_send_code.php', { email })
     return response.data
   } catch (error) {
-    // 如果是後端返回的錯誤，直接拋出
     if (error.response?.data) {
       throw error.response.data
     }
-
-    // 只有在網路錯誤時才使用mock（例如後端未啟動）
-    if (!error.response) {
-      console.warn('後端API不可用，使用開發測試模式', error)
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          const code = String(Math.floor(100000 + Math.random() * 900000))
-          resolve({ ok: true, code })
-        }, 500)
-      })
-    }
-
     throw error.response?.data || error
   }
 }
@@ -50,25 +37,9 @@ export const register = async (data) => {
     })
     return response.data
   } catch (error) {
-    // 如果是後端返回的錯誤，直接拋出
     if (error.response?.data) {
       throw error.response.data
     }
-
-    // 只有在網路錯誤時才使用mock（例如後端未啟動）
-    if (!error.response) {
-      console.warn('後端API不可用，使用開發測試模式', error)
-      return new Promise((resolve, reject) => {
-        setTimeout(() => {
-          if (!data.email || !data.code || !data.password || !data.name) {
-            reject({ error: 'email, code, password, name are required' })
-            return
-          }
-          resolve({ ok: true })
-        }, 500)
-      })
-    }
-
     throw error.response?.data || error
   }
 }
@@ -82,33 +53,9 @@ export const login = async (email, password) => {
     })
     return response.data
   } catch (error) {
-    // 如果是後端返回的錯誤，直接拋出
     if (error.response?.data) {
       throw error.response.data
     }
-
-    // 只有在網路錯誤時才使用mock（例如後端未啟動）
-    if (!error.response) {
-      console.warn('後端API不可用，使用開發測試模式', error)
-      return new Promise((resolve, reject) => {
-        setTimeout(() => {
-          if (email === 'demo@test.com' && password === 'Demo1234') {
-            resolve({
-              ok: true,
-              token: 'mock_token_' + Date.now(),
-              user: {
-                id: 1,
-                name: 'Demo User',
-                email: 'demo@test.com',
-              },
-            })
-          } else {
-            reject({ error: 'invalid email or password' })
-          }
-        }, 500)
-      })
-    }
-
     throw error.response?.data || error
   }
 }
