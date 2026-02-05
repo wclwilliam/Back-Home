@@ -5,7 +5,7 @@ import { backHomeApi, APIBase } from '@/utils/publicApi'
 import TabSwitcher from '@/components/TabSwitcher.vue'
 import ActivityCard from '@/components/cards/ActivityCard.vue'
 import Pagination from '@/components/Pagination.vue'
-import MemberLightbox from '@/components/auth/MemberLightbox.vue'
+import RemoveFavoriteLightbox from '@/components/auth/RemoveFavoriteLightbox.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -23,7 +23,7 @@ const itemsPerPage = ref(9)
 
 // --- 燈箱控制狀態 ---
 const isLightboxOpen = ref(false)
-const activeType = ref('')
+const isSuccess = ref(false)
 const selectedActivity = ref(null)
 
 // --- API 串接：讀取收藏清單 ---
@@ -78,42 +78,40 @@ const fetchFavorites = async () => {
 
 // --- API 串接：執行移除收藏 ---
 const handleLightboxConfirm = async () => {
-  if (activeType.value === 'removeFavorite') {
-    try {
-      const token = localStorage.getItem('bh_front_token');
-      
-      if (!token) {
-        console.error('未登入，請先登入');
-        router.push('/');
-        return;
-      }
-
-      const response = await backHomeApi.post('/member/auth_favorite_delete.php',
-        { activityId: selectedActivity.value.id },
-        {
-          headers: { 
-            'Authorization': `Bearer ${token}`
-          }
-        }
-      );
-
-      const result = response.data;
-      
-      if (result.status === 'success') {
-        // 從前端陣列中移除，達成即時更新
-        favoriteList.value = favoriteList.value.filter(act => act.id !== selectedActivity.value.id);
-        
-        isLightboxOpen.value = false;
-        // 顯示成功移除的燈箱
-        setTimeout(() => {
-          activeType.value = 'removeFavoriteSuccess';
-          isLightboxOpen.value = true;
-        }, 300);
-      }
-    } catch (error) {
-      console.error('移除失敗:', error);
-      alert('移除收藏時發生錯誤');
+  try {
+    const token = localStorage.getItem('bh_front_token');
+    
+    if (!token) {
+      console.error('未登入，請先登入');
+      router.push('/');
+      return;
     }
+
+    const response = await backHomeApi.post('/member/auth_favorite_delete.php',
+      { activityId: selectedActivity.value.id },
+      {
+        headers: { 
+          'Authorization': `Bearer ${token}`
+        }
+      }
+    );
+
+    const result = response.data;
+    
+    if (result.status === 'success') {
+      // 從前端陣列中移除，達成即時更新
+      favoriteList.value = favoriteList.value.filter(act => act.id !== selectedActivity.value.id);
+      
+      isLightboxOpen.value = false;
+      // 顯示成功移除的燈箱
+      setTimeout(() => {
+        isSuccess.value = true;
+        isLightboxOpen.value = true;
+      }, 300);
+    }
+  } catch (error) {
+    console.error('移除失敗:', error);
+    alert('移除收藏時發生錯誤');
   }
 };
 
@@ -136,7 +134,7 @@ onUnmounted(() => {
 // --- 燈箱邏輯與點擊攔截 ---
 const openRemoveConfirm = (activity) => {
   selectedActivity.value = activity;
-  activeType.value = 'removeFavorite';
+  isSuccess.value = false;
   isLightboxOpen.value = true;
 };
 
@@ -234,17 +232,22 @@ watch(() => route.query, (newQuery) => {
       />
     </div>
 
-    <MemberLightbox 
-  v-model="isLightboxOpen" 
-  :type="activeType" 
-  :initialData="selectedActivity"
-  @confirm="handleLightboxConfirm"
-  />
+    <RemoveFavoriteLightbox 
+      v-model="isLightboxOpen" 
+      :isSuccess="isSuccess"
+      @confirm="handleLightboxConfirm"
+    />
   </div>
 </template>
 
 <style lang="scss" scoped>
 @import "@/assets/scss/base/_var.scss";
+
+.container {
+  max-width: rem(1200px);
+  margin: 0 auto;
+  padding: 0 rem(20px);
+}
 
 // 讓愛心強行變橘色實心 (驗證視覺)
 :deep(.bookmark) {

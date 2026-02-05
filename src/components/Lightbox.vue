@@ -17,7 +17,7 @@ defineEmits(['update:modelValue', 'confirm']);
     <Teleport to="body">
         <Transition name="fade">
         <div v-if="modelValue" class="lightbox-overlay" @click.self="$emit('update:modelValue', false)">
-            <div class="lightbox-content" :style="{ width: `rem(${width})` }">
+            <div class="lightbox-content">
             <button class="close-btn" @click="$emit('update:modelValue', false)">✕</button>
             
             <div class="lightbox-main">

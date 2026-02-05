@@ -2,6 +2,7 @@
 import { ref, computed, watch, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router' // 引入路由
 import { backHomeApi } from '@/utils/publicApi'
+import { useAuthStore } from '@/stores/auth'
 import TabSwitcher from '@/components/TabSwitcher.vue'
 import Button from '@/components/auth/Button.vue'
 import Pagination from '@/components/Pagination.vue'
@@ -9,6 +10,7 @@ import MemberActivityLightbox from '@/components/auth/MemberActivityLightbox.vue
 
 const router = useRouter()
 const route = useRoute()
+const authStore = useAuthStore()
 
 // 1. 分頁與 Tab 狀態
 const currentActivityTab = ref('future')
@@ -76,7 +78,15 @@ const fetchData = async () => {
           title: item.TITLE,
           time: `${item.START_DATE} ${item.START_TIME || ''}-${item.END_TIME || ''}`,
           location: item.LOCATION,
-          hours: item.VOLUNTEER_HOURS || 0
+          hours: item.VOLUNTEER_HOURS || 0,
+          // 报名时填写的个人资料 (映射后端字段名)
+          name: item.REAL_NAME || '',
+          email: item.EMAIL || '',
+          phone: item.PHONE || '',
+          idNumber: item.ID_NUMBER || '',
+          birthday: item.BIRTHDAY || '',
+          emergencyName: item.EMERGENCY || '',
+          emergencyPhone: item.EMERGENCY_TEL || ''
         };
       };
 
@@ -172,10 +182,17 @@ const handleLightboxConfirm = async (updatedData) => {
 
   } else if (activeType.value === 'editActivity') {
     try {
+      // 1. 先更新报名资料
       const res = await backHomeApi.post('/member/auth_activity_update.php',
         {
           activityId: selectedActivity.value.id,
-          ...updatedData // 更新的報名資料
+          name: updatedData.name,
+          email: updatedData.email,
+          phone: updatedData.phone,
+          idNumber: updatedData.idNumber,
+          birthday: updatedData.birthday,
+          emergencyName: updatedData.emergencyName,
+          emergencyPhone: updatedData.emergencyPhone
         },
         {
           headers: { 
@@ -183,11 +200,37 @@ const handleLightboxConfirm = async (updatedData) => {
           }
         }
       );
+      
       const result = res.data;
       
       if (result.status === 'success') {
+        // 2. 如果勾选了同步更新，调用会员资料更新 API
+        if (updatedData.isSync) {
+          try {
+            await backHomeApi.patch('/member/auth_update_me.php',
+              {
+                MEMBER_PHONE: updatedData.phone,
+                ID_NUMBER: updatedData.idNumber,
+                BIRTHDAY: updatedData.birthday,
+                EMERGENCY: updatedData.emergencyName,
+                EMERGENCY_TEL: updatedData.emergencyPhone
+              },
+              {
+                headers: { 
+                  'Authorization': `Bearer ${token}`
+                }
+              }
+            );
+            // 刷新会员资料
+            await authStore.fetchMe();
+          } catch (memberUpdateError) {
+            console.error("会员资料更新失败", memberUpdateError);
+            // 即使会员资料更新失败，报名资料已更新成功
+          }
+        }
+        
         isLightboxOpen.value = false;
-        await fetchData(); // 重新抽取資料
+        await fetchData(); // 重新抽取资料
         setTimeout(() => {
           activeType.value = 'editActivitySuccess';
           isLightboxOpen.value = true;
@@ -334,6 +377,7 @@ watch(() => route.query, (newQuery) => {
   :type="activeType" 
   :initialData="selectedActivity"
   @confirm="handleLightboxConfirm"
+  @update:modelValue="(val) => { isLightboxOpen = val; if (!val) setTimeout(() => activeType = '', 300); }"
         />
     </TabSwitcher>
   </div>
