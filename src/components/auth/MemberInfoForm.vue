@@ -294,7 +294,7 @@ const validateConfirmPassword = () => {
 </script>
 
 <template>
-  <div class="member-info-form">
+  <div class="container">
     <div class="form-container">
 
       <div class="form-group">
@@ -432,7 +432,7 @@ const validateConfirmPassword = () => {
 // 使用你指定的正確路徑
 @import '@/assets/scss/base/_var.scss';
 
-.member-info-form {
+.container {
   width: 100%;
   display: flex;
   justify-content: center;
