@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
 import Lightbox from '@/components/Lightbox.vue';
 import Button from '@/components/auth/Button.vue';
 import Input from '@/components/auth/Input.vue';
@@ -15,10 +15,14 @@ const props = defineProps({
 const emit = defineEmits(['update:modelValue', 'confirm']);
 const formData = ref({});
 
+// 根據內容多寡決定寬度
+const lightboxWidth = computed(() => {
+  return props.type && props.type.toLowerCase().includes('amount') ? '650px' : '420px';
+});
+
 watch(() => props.modelValue, (isOpen) => {
   if (isOpen) {
     formData.value = props.initialData ? JSON.parse(JSON.stringify(props.initialData)) : {};
-    console.log('[Debug] 燈箱開啟，Type為:', props.type);
   }
 });
 
@@ -34,7 +38,7 @@ const close = () => {
 <template>
   <Lightbox 
     :modelValue="modelValue" 
-    :width="type && type.toLowerCase().includes('amount') ? '650px' : '420px'"
+    :width="lightboxWidth"
     @update:modelValue="close"
     @confirm="handleConfirm"
   >

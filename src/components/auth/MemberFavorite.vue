@@ -239,6 +239,7 @@ watch(() => route.query, (newQuery) => {
   :type="activeType" 
   :initialData="selectedActivity"
   @confirm="handleLightboxConfirm"
+  @update:modelValue="(val) => { isLightboxOpen = val; if (!val) setTimeout(() => activeType = '', 300); }"
   />
   </div>
 </template>

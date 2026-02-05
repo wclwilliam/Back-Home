@@ -15,6 +15,13 @@ const formData = ref({});
 
 const isMobile = computed(() => window.innerWidth <= 768);
 
+// 根據內容多寡決定寬度
+const lightboxWidth = computed(() => {
+  if (isMobile.value) return '85vw';
+  // editActivity 表單內容多，用 650px；成功訊息內容少，用 420px
+  return props.type === 'editActivity' ? '650px' : '420px';
+});
+
 // 错误提示
 const errors = reactive({
   phone: false,
@@ -96,7 +103,7 @@ const close = () => {
 <template>
     <Lightbox 
         :modelValue="modelValue" 
-        :width="isMobile ? '85vw' : '650px'"
+        :width="lightboxWidth"
         @update:modelValue="close"
         @confirm="handleConfirm"
     >
@@ -193,12 +200,6 @@ const close = () => {
 
     <style lang="scss" scoped>
     @import '@/assets/scss/base/_var.scss';
-
-    :deep(.lightbox-content) {
-    max-width: 650px;
-    max-height: 70vh;
-    overflow-y: auto;
-    }
 
     .member-lightbox-inner {
     color: $text-color;
