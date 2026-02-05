@@ -82,14 +82,17 @@ const displayPhotos = computed(() => {
 </script>
 
 <template>
-  <div class="act-result-container col-sm-4 col-md-12">
-    <div v-if="displayItems.length > 0" class="result-grid">
-      <div v-for="item in displayItems" :key="item.id" class="result-card">
+  <div class="act-result-container col-sm-4 col-md-12 ">
+    <div v-if="displayItems.length > 0" class="result-flex ">
+      <div v-for="item in displayItems" :key="item.id" class="result-card ">
         <div class="icon-wrapper">
           <span class="material-symbols-outlined icon">{{ item.icon }}</span>
         </div>
         <div class="text-content">
-          <div class="value">{{ item.value }}</div>
+          <div class="topInfo">
+            <div class="value">{{ item.value }}</div>
+            <div class="unit">{{ item.unit }}</div>
+          </div>
           <div class="label">{{ item.label }}</div>
         </div>
       </div>
@@ -115,22 +118,16 @@ const displayPhotos = computed(() => {
   margin-bottom: 24px;
 }
 
-.result-grid {
-  display: grid;
-  // justify-content: space-around;
-  grid-template-columns: repeat(2, 1fr); // 手機版 2 欄
+.result-flex {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  width: 100%;  
   gap: 16px;
-
-  @media (min-width: 768px) {
-    grid-template-columns: repeat(3, 1fr); // 平板 3欄
-  }
-  @media (min-width: 1024px) {
-    grid-template-columns: repeat(5, 1fr); // 平板以上 4 欄
-  }
+  
 }
-
-
 .result-card {
+  width: 45%;
   background-color: $card-color;
   border: 1px solid $game-line-color;
   border-radius: 1px;
@@ -140,30 +137,51 @@ const displayPhotos = computed(() => {
   align-items: center;
   justify-content: space-around;
   text-align: center;
+  @media (min-width: 768px) {
+    width: 23%;
+  }
+  @media (min-width: 1024px) {
+    width: 18%;
+  }
 
   .icon-wrapper {
     background-color: #eaf6f6; // 淺綠底
-    width: 64px;
-    height: 64px;
+    width: 56px;
+    height: 56px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
 
     .icon {
-      font-size: 28px;
-      color: #0e6872; // 主色
+      font-size: 32px;
+      color: $secondary-color; // 主色
     }
   }
 
   .text-content {
+    .topInfo {
+      position: relative;
+      margin: 16px;
+      
     .value {
-      font-size: 24px;
+      font-size: 32px;
       font-weight: bold;
-      color: #0e6872;
+      color: $secondary-color;
       margin-bottom: 16px;
     }
+    .unit {
+      font-size: 16px;
+      width: 40px;
+      position: absolute;
+      left: 90%;
+      top: 90%;
+      color: $secondary-color;
+      margin-bottom: 8px;
+    }
+  }
     .label {
+      padding: 8px 0 0 0 ;
       font-size: 14px;
       color: #666;
     }
@@ -186,7 +204,7 @@ const displayPhotos = computed(() => {
   img {
     width: 100%;
     height: auto;
-    border-radius: 8px;
+    border-radius: 2px;
     object-fit: cover;
   }
 }

@@ -528,6 +528,11 @@ const isReviewSubmit = ref(false)
 const handleConfirmReview = async () => {
   try {
     if (!authStore.isLogin) return
+    // 確認字數
+    if (reviewData.comment.length > 100) {
+      alert('留言內容需為100字之內')
+      return
+    }
     const payload = {
       user_id: authStore.user.id,
       activity_id: activityInfo.value.id,
@@ -566,17 +571,28 @@ const handleReport = (review) => {
   currentReportReview.value = review
   showReportLightbox.value = true
 }
-
+// 返回列表頁，並帶回原本的查詢參數
 const goBackToList = () => {
   router.push({
     path: '/activity',
     query: {
-      category: route.query.fromCategory || '目前活動',
-      page: route.query.fromPage || 1,
-      search: route.query.fromSearch || undefined,
+      category: route.query.formCategory || '目前活動' ,
+      page: route.query.formPage || 1,
+      search: route.query.formSearch || undefined,
+      filter: route.query.formFilter || undefined,
     },
   })
 }
+
+//打包當前網址參數，傳給推薦卡片使用
+const currentQueryParams = computed(() => ({
+  formCategory: route.query.formCategory || '目前活動',
+  formPage: route.query.formPage || 1,
+  formSearch: route.query.formSearch || undefined,
+  formFilter: route.query.formFilter || undefined,
+}))
+
+
 </script>
 <template>
   <div class="container">
@@ -798,7 +814,8 @@ const goBackToList = () => {
             '1024': { slidesPerView: 3.3 },
           }" class="recommend-swiper">
         <swiper-slide v-for="activity in activityList" :key="activity.id">
-          <ActivityCard :event="activity" />
+          <ActivityCard :event="activity" 
+          :query-params="currentQueryParams"/>
         </swiper-slide>
       </swiper>
   
@@ -958,14 +975,14 @@ const goBackToList = () => {
   :deep(.formLabel) {
     @media (min-width: 768px) {
       width: 100%;
-      max-width: 100%;
+      min-width: 100%;
     }
   }
 
   :deep(.formContent) {
     @media (min-width: 768px) {
       flex: 0 0 auto;
-      max-width: 100%;
+      min-width: 100%;
     }
   }
 }
@@ -977,7 +994,7 @@ const goBackToList = () => {
 
 textarea.customInput {
   min-height: 150px;
-  min-width: 200px;
+  min-width: 100%;
   max-width: 100%;
 }
 

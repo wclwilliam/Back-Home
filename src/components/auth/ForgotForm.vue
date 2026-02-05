@@ -15,7 +15,6 @@ const { resetToken: urlResetToken } = storeToRefs(authStore)
 const email = ref('')
 const errorMessage = ref('')
 const isLoading = ref(false)
-const debugResetUrl = ref('')
 
 const newPassword = ref('')
 const confirmPassword = ref('')
@@ -44,24 +43,21 @@ async function handleForgotPassword() {
 
   try {
     const result = await forgotPassword(email.value)
-    // 不論回傳內容都直接切換到 reset 狀態
+
+    // 如果後端回傳 token（用於測試）
     if (result.token) {
       resetToken = result.token
-      emit('change-mode', 'reset')
     } else if (result.debug?.reset_url) {
-      // 開發模式：顯示重設連結
-      debugResetUrl.value = result.debug.reset_url
-      // 提取 URL 中的 token
+      // 開發模式：從 URL 提取 token
       const url = new URL(result.debug.reset_url)
       const token = url.searchParams.get('token')
       if (token) {
         resetToken = token
       }
-      // 不自動切換，讓用戶看到連結
-    } else {
-      // 生產模式：直接切換到 reset
-      emit('change-mode', 'reset')
     }
+
+    // 切換到重設密碼表單
+    emit('change-mode', 'reset')
   } catch (error) {
     errorMessage.value = error.error || error.message || '發送失敗，請稍後再試'
   } finally {
@@ -109,16 +105,7 @@ async function handleResetPassword() {
         </Input>
         <p v-if="errorMessage" class="error-text">{{ errorMessage }}</p>
 
-        <!-- 開發模式：顯示重設連結 -->
-        <div v-if="debugResetUrl" class="debug-link">
-          <p class="success-text">✓ 重設連結已生成（開發模式）</p>
-          <a :href="debugResetUrl" class="reset-link" target="_blank">{{ debugResetUrl }}</a>
-          <Button type="button" variant="primary" @click="emit('change-mode', 'reset')">
-            直接輸入新密碼
-          </Button>
-        </div>
-
-        <Button v-else type="submit" variant="primary" :disabled="isLoading">
+        <Button type="submit" variant="primary" :disabled="isLoading">
           {{ isLoading ? '發送中...' : '發送重設連結' }}
         </Button>
         <div class="register-wrapper">

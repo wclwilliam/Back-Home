@@ -257,15 +257,30 @@ watch(currentTab, () => {
 })
 
 watch(() => route.query, (newQuery) => {
-  if (newQuery.tab && newQuery.tab !== currentTab.value) {
-    currentTab.value = newQuery.tab
-  }
-  if (newQuery.page) {
-    currentPage.value = parseInt(newQuery.page)
-  } else if (!newQuery.tab) {
-    // 如果沒有 tab 參數，表示切換到其他主分頁，重置狀態
-    currentTab.value = 'single'
-    currentPage.value = 1
+  const validTabs = ['single', 'subscription'];
+  
+  if (newQuery.section === 'donation') {
+    // 如果沒有 tab 或 tab 無效，設定預設值
+    if (!newQuery.tab || !validTabs.includes(newQuery.tab)) {
+      router.replace({
+        query: {
+          section: 'donation',
+          tab: 'single'
+        }
+      });
+      return;
+    }
+    
+    // tab 有效，同步到內部狀態
+    if (newQuery.tab !== currentTab.value) {
+      currentTab.value = newQuery.tab
+    }
+    
+    if (newQuery.page) {
+      currentPage.value = parseInt(newQuery.page)
+    } else {
+      currentPage.value = 1
+    }
   }
 }, { immediate: true })
 

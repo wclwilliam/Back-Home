@@ -10,24 +10,20 @@ const router = useRouter()
 const route = useRoute()
 const authStore = useAuthStore()
 
+// 接收外部傳入的資料
+const props = defineProps({
+  event: { type: Object, required: true },
+  queryParams: { type: Object, required: () => ({}) },
+})
+
 const goToDetail = () => {
   // 跳轉到詳情頁，並帶入該活動的 id
   router.push({
     name: 'activityInfo',
     params: { id: props.event.id },
-
-    query: {
-      formCategory: route.query.category || '目前活動',
-      formPage: route.query.page || 1,
-      formSearch: route.query.search || '',
-    },
+    query: props.queryParams
   })
 }
-
-// 接收外部傳入的資料
-const props = defineProps({
-  event: { type: Object, required: true },
-})
 
 const imgSrc = computed(() => {
   const imgName = props.event.image
@@ -246,7 +242,6 @@ watch(() => authStore.isLogin, () => {
 </template>
 
 <style lang="scss" scoped>
-@import '@/assets/scss/component/_card.scss';
 .activityCard {
   cursor: pointer;
   &:hover {
@@ -290,8 +285,25 @@ watch(() => authStore.isLogin, () => {
 
 .cardInfo {
   .cardTitle {
-    min-height: 3rem;
-  }
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+      @include font-tertiary;
+      color: $text-color;
+      margin-bottom: 8px;
+      p {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        
+        @media (min-width: 768px) {
+          min-height: 62px;
+        }
+      }
+    }
   .bookmark {
     font-size: 24px;
     cursor: pointer;
@@ -311,18 +323,26 @@ watch(() => authStore.isLogin, () => {
 
   .rowInfo {
     display: flex;
-    flex-wrap: wrap;
-    @include font-body-l;
-    color: $text-color;
-    margin-bottom: 8px;
-    gap: 8px;
-  }
-  .rowInfo.location {
-    display: flex;
     flex-wrap: nowrap;
-    align-self: start;
+    align-items: flex-start;
+    @include font-body-l;
     margin-bottom: 8px;
     gap: 8px;
+    h3 {
+      display: -webkit-box;
+        -webkit-line-clamp: 1;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .rowInfo.location {
+      display: flex;
+      flex-wrap: nowrap;
+      align-self: start;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
   }
 }
 
