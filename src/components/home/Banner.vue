@@ -43,9 +43,6 @@ onMounted(() => {
   // 初始化 Three.js 場景
   initThreeJS()
 
-  // 初始化 Three.js 場景
-  initThreeJS()
-
   // 等待資源加載 (字體 + 圖片)
   waitResourcesLoaded()
 })
