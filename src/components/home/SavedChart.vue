@@ -12,7 +12,7 @@ import {
   Legend,
 } from 'chart.js'
 // import axios from 'axios'
-import { publicApi } from '@/utils/publicApi'
+import { publicApi, backHomeApi } from '@/utils/publicApi'
 
 // 註冊 Chart.js 組件
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
@@ -55,30 +55,40 @@ watch(isVisible, (val) => {
 
 onMounted(async () => {
   try {
-    // const base = import.meta.env.BASE_URL
-    const response = await publicApi.get('data/impactReports.json')
-    impactReports.value = response.data
+    // 嘗試從資料庫 API 抓取資料
+    try {
+      const dbResponse = await backHomeApi.get('donation/impact_get.php')
+      if (Array.isArray(dbResponse.data) && dbResponse.data.length > 0) {
+        impactReports.value = dbResponse.data
+      } else {
+        throw new Error('Database empty or invalid format')
+      }
+    } catch (apiError) {
+      console.warn('API 抓取失敗，改用靜態 JSON 檔案', apiError)
+      // 失敗時使用靜態 JSON 作為備案 (Fallback)
+      const jsonResponse = await publicApi.get('data/impactReports.json')
+      impactReports.value = jsonResponse.data
+    }
 
-    // 計算所有歷年總和（包含2014年開始的所有數據）並向下取整到10位數
+    // 計算所有歷年總和並向下取整到10位數
     const allYearsTotal = impactReports.value.reduce((sum, item) => {
       return (
         sum +
         (item.core_metrics.total_rescued_turtles || 0) +
-        (item.core_metrics.hatchlings_guided_to_sea || 0)
+        (item.core_metrics.turtles_released || 0)
       )
     }, 0)
     totalRescued.value = Math.floor(allYearsTotal / 10) * 10
 
-    // 圖表只顯示2016年之後的近10年數據
+    // 圖表顯示近10年數據 (不足10筆就全部顯示)
     const chartYears = [...impactReports.value]
-      .filter((item) => item.year >= 2016)
-      .sort((a, b) => b.year - a.year)
-      .slice(0, 10)
-      .reverse()
+      .sort((a, b) => b.year - a.year) // 依照年份降序 (2025, 2024...)
+      .slice(0, 10) // 取前10筆
+      .reverse() // 反轉為升序 (..., 2024, 2025) 以便在圖表X軸由左至右顯示
 
     const labels = chartYears.map((item) => item.year.toString())
     const inTreatment = chartYears.map((item) => item.core_metrics.total_rescued_turtles || 0)
-    const released = chartYears.map((item) => item.core_metrics.hatchlings_guided_to_sea || 0)
+    const released = chartYears.map((item) => item.core_metrics.turtles_released || 0)
 
     // 計算堆疊後的最大值
     const stackedMax = Math.max(...inTreatment.map((val, i) => val + released[i]))
