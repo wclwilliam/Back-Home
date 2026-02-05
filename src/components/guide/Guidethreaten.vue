@@ -29,7 +29,7 @@ const animateValue = (obj, start, end, duration) => {
 const fetchApiData = async () => {
     try {
         isLoading.value = true; // 開始載入
-        const response = await fetch('http://localhost:8888/API/threaten_get.php');
+        const response = await fetch('http://localhost:8888/api/news/threaten_get.php');
 
         if (!response.ok) {
             throw new Error('網路回應不正常');
@@ -68,13 +68,17 @@ onMounted(async () => {
                 const counters = entry.target.querySelectorAll('.count-number');
                 counters.forEach(counter => {
                     const target = +counter.getAttribute('data-target');
-                    const duration = target > 5000000 ? 2000 : 1500;
-                    animateValue(counter, 0, target, duration);
+                    if (target > 0) { // 確保有數字才跑動畫
+                        animateValue(counter, 0, target, 1500);
+                    }
                 });
                 observer.unobserve(entry.target);
             }
         });
-    }, { threshold: 0.2 });
+    }, {
+        threshold: 0.05, // 只要出現 5% 就觸發，對手機更友善
+        rootMargin: '0px 0px -50px 0px' // 提早 50px 觸發
+    });
 
     if (statsGridRef.value) {
         observer.observe(statsGridRef.value);
@@ -142,7 +146,7 @@ onMounted(async () => {
         </div>
 
     </section>
-   
+
 </template>
 <style lang="scss" scoped>
 h1 {

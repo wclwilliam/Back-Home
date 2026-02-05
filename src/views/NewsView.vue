@@ -61,18 +61,7 @@ onMounted(async () => {
     isLoading.value = false; 
   }
 });
-/* 原本的 publicApi */
-// onMounted(() => {
-//   publicApi.get('data/NewsList.json')
-//     .then((response) => {
-//       newslist.value = response.data.sort((a, b) => {
-//         return new Date(b.publish_time) - new Date(a.publish_time);
-//       });
-//     })
-//     .catch((error) => {
-//       console.error('載入新聞列表失敗:', error);
-//     })
-// })
+
 
 const formatDate = (dateString) => {
   if (!dateString) return ''
