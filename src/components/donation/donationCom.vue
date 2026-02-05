@@ -630,7 +630,7 @@ $btn-green: #0E6273;
 
 .donation-card {
   position: sticky;
-  top: clamp(84px, 8vw, 100px); //到時候根據header高度做調整
+  top: clamp(65px, 6vw, 85px); //到時候根據header高度做調整
   width: 100%;
   padding-bottom: 12px;
   border: 2px solid $secondary-color;
