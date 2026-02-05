@@ -14,6 +14,8 @@ const { resetToken: urlResetToken } = storeToRefs(authStore)
 
 const email = ref('')
 const errorMessage = ref('')
+const successMessage = ref('')
+const debugResetUrl = ref('')
 const isLoading = ref(false)
 
 const newPassword = ref('')
@@ -33,6 +35,8 @@ onMounted(() => {
 
 async function handleForgotPassword() {
   errorMessage.value = ''
+  successMessage.value = ''
+  debugResetUrl.value = ''
 
   if (!email.value) {
     errorMessage.value = '請輸入電子郵件'
@@ -44,20 +48,16 @@ async function handleForgotPassword() {
   try {
     const result = await forgotPassword(email.value)
 
-    // 如果後端回傳 token（用於測試）
-    if (result.token) {
-      resetToken = result.token
-    } else if (result.debug?.reset_url) {
-      // 開發模式：從 URL 提取 token
-      const url = new URL(result.debug.reset_url)
-      const token = url.searchParams.get('token')
-      if (token) {
-        resetToken = token
-      }
+    // 顯示成功訊息
+    successMessage.value = result.message || '重設密碼連結已寄送，請檢查您的信箱'
+
+    // 開發模式：顯示 debug 連結供測試
+    if (result.debug?.reset_url) {
+      debugResetUrl.value = result.debug.reset_url
     }
 
-    // 切換到重設密碼表單
-    emit('change-mode', 'reset')
+    // 清空 email 輸入
+    email.value = ''
   } catch (error) {
     errorMessage.value = error.error || error.message || '發送失敗，請稍後再試'
   } finally {
@@ -103,7 +103,15 @@ async function handleResetPassword() {
         <Input v-model="email" type="email" placeholder="請輸入電子郵件" autocomplete="email">
           <template #icon><span class="material-symbols-outlined">mail</span></template>
         </Input>
+
         <p v-if="errorMessage" class="error-text">{{ errorMessage }}</p>
+        <p v-if="successMessage" class="success-text">{{ successMessage }}</p>
+
+        <!-- 開發模式：顯示測試連結 -->
+        <div v-if="debugResetUrl" class="debug-info">
+          <p class="debug-label">開發模式測試連結：</p>
+          <a :href="debugResetUrl" class="debug-link">{{ debugResetUrl }}</a>
+        </div>
 
         <Button type="submit" variant="primary" :disabled="isLoading">
           {{ isLoading ? '發送中...' : '發送重設連結' }}
@@ -284,25 +292,37 @@ form {
 .success-text {
   font-size: rem(14px);
   color: #388e3c;
-  margin-bottom: rem(8px);
+  margin-bottom: rem(12px);
+  text-align: center;
 }
 
-.debug-link {
-  margin: rem(16px) 0;
+.debug-info {
+  margin: rem(12px) 0 rem(16px);
   padding: rem(12px);
   background: #f5f5f5;
   border-radius: 4px;
+  border-left: 3px solid #ff9800;
 
-  .reset-link {
+  .debug-label {
+    font-size: rem(12px);
+    color: #666;
+    margin-bottom: rem(8px);
+    font-weight: 500;
+  }
+
+  .debug-link {
     display: block;
     word-break: break-all;
     color: #1976d2;
     font-size: rem(12px);
-    margin-bottom: rem(12px);
     text-decoration: none;
+    padding: rem(8px);
+    background: white;
+    border-radius: 4px;
 
     &:hover {
       text-decoration: underline;
+      background: #e3f2fd;
     }
   }
 }

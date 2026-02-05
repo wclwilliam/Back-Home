@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
+import { onClickOutside } from '@vueuse/core'
 import { MENU_ITEMS } from '@/config/menu.js'
 import { useAuthStore } from '@/stores/auth.js'
 
@@ -23,6 +24,11 @@ const toggleMenu = () => {
 //使用者選單
 const authStore = useAuthStore()
 const isUserMenuOpen = ref(false)
+const userMenuRef = ref(null)
+
+onClickOutside(userMenuRef, () => {
+  isUserMenuOpen.value = false
+})
 
 // 從 authStore 取得使用者名稱（使用 computed 自動更新）
 const userName = computed(() => {
@@ -70,6 +76,13 @@ const handleScroll = () => {
 
   // 判斷滾動方向
   if (Math.abs(currentScrollY - lastScrollY) > scrollThreshold) {
+    // 如果選單開啟中，不隱藏 Header
+    if (isMenuOpen.value) {
+      isHeaderVisible.value = true
+      lastScrollY = currentScrollY
+      return
+    }
+
     if (currentScrollY > lastScrollY) {
       // 向下滾動，隱藏 header
       isHeaderVisible.value = false
@@ -114,7 +127,7 @@ onBeforeUnmount(() => {
         </RouterLink> -->
 
         <!-- 2026/1/16 新增：使用者下拉選單 -->
-        <div class="userMenuWrapper">
+        <div class="userMenuWrapper" ref="userMenuRef">
           <span class="material-symbols-outlined icon-white userIcon" @click="toggleUserMenu">
             account_circle
           </span>
