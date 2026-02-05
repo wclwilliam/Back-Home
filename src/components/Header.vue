@@ -77,7 +77,7 @@ const handleScroll = () => {
   // 判斷滾動方向
   if (Math.abs(currentScrollY - lastScrollY) > scrollThreshold) {
     // 如果選單開啟中，不隱藏 Header
-    if (isMenuOpen.value) {
+    if (isMenuOpen.value || isUserMenuOpen.value) {
       isHeaderVisible.value = true
       lastScrollY = currentScrollY
       return
