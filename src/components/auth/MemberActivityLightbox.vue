@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch, computed  } from 'vue';
+import { ref, watch, computed, reactive  } from 'vue';
 import Lightbox from '@/components/Lightbox.vue';
 import Button from '@/components/auth/Button.vue';
 import Input from '@/components/auth/Input.vue';
@@ -15,18 +15,81 @@ const formData = ref({});
 
 const isMobile = computed(() => window.innerWidth <= 768);
 
+// 错误提示
+const errors = reactive({
+  phone: false,
+  emergencyPhone: false
+});
+
 watch(() => props.modelValue, (isOpen) => {
     if (isOpen) {
         formData.value = props.initialData ? JSON.parse(JSON.stringify(props.initialData)) : {};
+        // 清空错误
+        errors.phone = false;
+        errors.emergencyPhone = false;
     }
-    });
+});
 
-    const handleConfirm = () => {
-    emit('confirm', formData.value);
-    };
+// 身分证验证（与捐款页面相同）
+function validateTWID(id) {
+  const regex = /^[A-Z][12]\d{8}$/
+  if (!regex.test(id)) return false
 
-    const close = () => {
-    emit('update:modelValue', false);
+  const city = {
+    A: 10, B: 11, C: 12, D: 13, E: 14, F: 15,
+    G: 16, H: 17, I: 34, J: 18, K: 19,
+    L: 20, M: 21, N: 22, O: 35, P: 23,
+    Q: 24, R: 25, S: 26, T: 27, U: 28,
+    V: 29, W: 32, X: 30, Y: 31, Z: 33
+  }
+
+  const code = city[id[0]].toString().split('').map(Number)
+  const numbers = id.slice(1).split('').map(Number)
+  const idNums = code.concat(numbers)
+  const weights = [1, 9, 8, 7, 6, 5, 4, 3, 2, 1, 1]
+  const sum = idNums.reduce((acc, n, i) => acc + n * weights[i], 0)
+
+  return sum % 10 === 0
+}
+
+// 手机验证
+const validatePhone = (value) => {
+  return /^09\d{8}$/.test(value)
+}
+
+// 验证手机号码
+const checkPhone = () => {
+  if (formData.value.phone && !validatePhone(formData.value.phone)) {
+    errors.phone = true
+  } else {
+    errors.phone = false
+  }
+}
+
+// 验证紧急联络人电话
+const checkEmergencyPhone = () => {
+  if (formData.value.emergencyPhone && !validatePhone(formData.value.emergencyPhone)) {
+    errors.emergencyPhone = true
+  } else {
+    errors.emergencyPhone = false
+  }
+}
+
+const handleConfirm = () => {
+  // 验证所有字段
+  checkPhone();
+  checkEmergencyPhone();
+  
+  // 如果有错误，不提交
+  if (errors.phone || errors.emergencyPhone) {
+    return;
+  }
+  
+  emit('confirm', formData.value);
+};
+
+const close = () => {
+  emit('update:modelValue', false);
 };
 </script>
 
@@ -52,16 +115,49 @@ watch(() => props.modelValue, (isOpen) => {
             <div class="f-row">
             <label>姓名* ：</label>
             <div class="f-field">
-                <Input v-model="formData.name" disabled />
+                <Input v-model="formData.name" :readonly="true" />
                 <p class="f-hint">● 如需修改姓名，請至個人資訊更新資料</p>
             </div>
             </div>
-            <div class="f-row"><label>電子郵件* ：</label><div class="f-field"><Input v-model="formData.email" /></div></div>
-            <div class="f-row"><label>手機號碼* ：</label><div class="f-field"><Input v-model="formData.phone" /></div></div>
-            <div class="f-row"><label>身分證* ：</label><div class="f-field"><Input v-model="formData.idNumber" /></div></div>
-            <div class="f-row"><label>出生日期* ：</label><div class="f-field"><Input v-model="formData.birthday" type="date" /></div></div>
+            <div class="f-row">
+              <label>電子郵件* ：</label>
+              <div class="f-field">
+                <Input v-model="formData.email" :readonly="true" />
+              </div>
+            </div>
+            <div class="f-row">
+              <label>手機號碼* ：</label>
+              <div class="f-field">
+                <Input v-model="formData.phone" @blur="checkPhone" />
+                <p v-if="errors.phone" class="error-msg">
+                  <span class="material-symbols-outlined">error</span>
+                  手機格式錯誤 (09xxxxxxxx)
+                </p>
+              </div>
+            </div>
+            <div class="f-row">
+              <label>身分證* ：</label>
+              <div class="f-field">
+                <Input v-model="formData.idNumber" :readonly="true" />
+              </div>
+            </div>
+            <div class="f-row">
+              <label>出生日期* ：</label>
+              <div class="f-field">
+                <Input v-model="formData.birthday" type="date" :readonly="true" />
+              </div>
+            </div>
             <div class="f-row"><label>緊急聯絡* ：</label><div class="f-field"><Input v-model="formData.emergencyName" /></div></div>
-            <div class="f-row"><label>聯絡電話* ：</label><div class="f-field"><Input v-model="formData.emergencyPhone" /></div></div>
+            <div class="f-row">
+              <label>聯絡電話* ：</label>
+              <div class="f-field">
+                <Input v-model="formData.emergencyPhone" @blur="checkEmergencyPhone" />
+                <p v-if="errors.emergencyPhone" class="error-msg">
+                  <span class="material-symbols-outlined">error</span>
+                  手機格式錯誤 (09xxxxxxxx)
+                </p>
+              </div>
+            </div>
             <div class="checkbox-row">
             <label class="custom-checkbox-wrapper">
                 <input type="checkbox" v-model="formData.isSync" class="hidden-checkbox" />
@@ -183,6 +279,21 @@ watch(() => props.modelValue, (isOpen) => {
     :deep(.input-group) {
     margin-bottom: 0;
     width: 100%;
+    }
+
+    .error-msg {
+    @include font-body;
+    color: $highlight-color2;
+    margin-top: rem(4px);
+    display: flex;
+    align-items: center;
+    gap: rem(4px);
+    font-weight: bold;
+
+    .material-symbols-outlined {
+        font-variation-settings: 'FILL' 1;
+        font-size: rem(16px);
+    }
     }
 
     .text-message-wrap {

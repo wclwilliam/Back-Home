@@ -1,5 +1,5 @@
 <script setup>
-import { ref, reactive, watch, onMounted } from 'vue'
+import { ref, reactive, watch, onMounted, computed } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { updateMemberInfo, updatePassword } from '@/api/memberApi'
 import Input from '@/components/auth/Input.vue'
@@ -67,49 +67,13 @@ const handleUpdate = async () => {
 
     // 如果有填寫新密碼，進行密碼驗證
     if (form.newPassword || form.confirmPassword) {
-      // 檢查是否兩個欄位都有填寫
-      if (!form.newPassword) {
-        errors.newPassword = '請輸入新密碼'
-        isLoading.value = false
-        return
-      }
-      if (!form.confirmPassword) {
-        errors.confirmPassword = '請再次輸入新密碼'
-        isLoading.value = false
-        return
-      }
-
-      // 檢查密碼長度
-      if (form.newPassword.length < 8) {
-        errors.newPassword = '密碼需至少 8 個字元'
-        isLoading.value = false
-        return
-      }
-
-      // 檢查是否包含大寫字母
-      if (!/[A-Z]/.test(form.newPassword)) {
-        errors.newPassword = '密碼需包含至少一個大寫字母'
-        isLoading.value = false
-        return
-      }
-
-      // 檢查是否包含小寫字母
-      if (!/[a-z]/.test(form.newPassword)) {
-        errors.newPassword = '密碼需包含至少一個小寫字母'
-        isLoading.value = false
-        return
-      }
-
-      // 檢查是否包含數字
-      if (!/\d/.test(form.newPassword)) {
-        errors.newPassword = '密碼需包含至少一個數字'
-        isLoading.value = false
-        return
-      }
-
-      // 檢查兩次密碼是否一致
-      if (form.newPassword !== form.confirmPassword) {
-        errors.confirmPassword = '兩次輸入的密碼不一致'
+      // 驗證新密碼
+      validateNewPassword()
+      // 驗證確認密碼
+      validateConfirmPassword()
+      
+      // 如果有錯誤，停止提交
+      if (errors.newPassword || errors.confirmPassword) {
         isLoading.value = false
         return
       }
@@ -203,6 +167,13 @@ const isChangingPassword = ref(false)
 const isNewPasswordVisible = ref(false)
 const isConfirmPasswordVisible = ref(false)
 
+// 計算昨天的日期，作為生日選擇的最大值
+const maxBirthday = computed(() => {
+  const today = new Date()
+  today.setDate(today.getDate() - 1) // 設置為昨天
+  return today.toISOString().split('T')[0] // 格式化為 YYYY-MM-DD
+})
+
 // 載入會員資料
 onMounted(async () => {
   try {
@@ -276,6 +247,50 @@ const validateEmergencyPhone = () => {
     errors.emergencyPhone = ''
   }
 }
+
+// 欄位失去焦點時驗證 - 新密碼
+const validateNewPassword = () => {
+  if (!form.newPassword) {
+    errors.newPassword = ''
+    return
+  }
+  
+  if (form.newPassword.length < 8) {
+    errors.newPassword = '密碼需至少 8 個字元'
+    return
+  }
+  
+  if (!/[A-Z]/.test(form.newPassword)) {
+    errors.newPassword = '密碼需包含至少一個大寫字母'
+    return
+  }
+  
+  if (!/[a-z]/.test(form.newPassword)) {
+    errors.newPassword = '密碼需包含至少一個小寫字母'
+    return
+  }
+  
+  if (!/\d/.test(form.newPassword)) {
+    errors.newPassword = '密碼需包含至少一個數字'
+    return
+  }
+  
+  errors.newPassword = ''
+}
+
+// 欄位失去焦點時驗證 - 確認密碼
+const validateConfirmPassword = () => {
+  if (!form.confirmPassword) {
+    errors.confirmPassword = ''
+    return
+  }
+  
+  if (form.newPassword !== form.confirmPassword) {
+    errors.confirmPassword = '兩次輸入的密碼不一致'
+  } else {
+    errors.confirmPassword = ''
+  }
+}
 </script>
 
 <template>
@@ -328,7 +343,7 @@ const validateEmergencyPhone = () => {
       <div class="form-group">
         <label class="form-label">出生年月日 :</label>
         <div class="input-wrapper">
-          <Input v-model="form.birthday" type="date" autocomplete="bday" @keyup.enter="handleUpdate" />
+          <Input v-model="form.birthday" type="date" autocomplete="bday" :max="maxBirthday" @keyup.enter="handleUpdate" />
           <p v-if="errors.birthday" class="error-message">
             <span class="material-symbols-outlined icon-alert">error</span>
             {{ errors.birthday }}
@@ -369,7 +384,7 @@ const validateEmergencyPhone = () => {
 
           <div v-else class="password-fields">
             <Input v-model="form.newPassword" :type="isNewPasswordVisible ? 'text' : 'password'" placeholder="請輸入新密碼"
-              autocomplete="new-password" @keyup.enter="handleUpdate">
+              autocomplete="new-password" @blur="validateNewPassword" @keyup.enter="handleUpdate">
               <template #append>
                 <span class="material-symbols-outlined password-toggle"
                   @click.stop="isNewPasswordVisible = !isNewPasswordVisible">
@@ -385,7 +400,7 @@ const validateEmergencyPhone = () => {
               密碼需 8 個字元以上，且包含英文字母大小寫、數字
             </p>
             <Input v-model="form.confirmPassword" :type="isConfirmPasswordVisible ? 'text' : 'password'"
-              placeholder="請再次輸入新密碼" autocomplete="new-password" @keyup.enter="handleUpdate">
+              placeholder="請再次輸入新密碼" autocomplete="new-password" @blur="validateConfirmPassword" @keyup.enter="handleUpdate">
               <template #append>
                 <span class="material-symbols-outlined password-toggle"
                   @click.stop="isConfirmPasswordVisible = !isConfirmPasswordVisible">
