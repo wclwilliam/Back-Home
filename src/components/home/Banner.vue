@@ -43,18 +43,33 @@ onMounted(() => {
   // 初始化 Three.js 場景
   initThreeJS()
 
-  // 等待背景圖片加載完成後設置容器高度
-  const bgImg = bgImageElRef.value
-  if (bgImg) {
-    if (bgImg.complete) {
-      onImageLoaded()
-    } else {
-      bgImg.addEventListener('load', onImageLoaded)
-    }
-  } else {
-    onImageLoaded()
-  }
+  // 初始化 Three.js 場景
+  initThreeJS()
+
+  // 等待資源加載 (字體 + 圖片)
+  waitResourcesLoaded()
 })
+
+const waitResourcesLoaded = async () => {
+  // 1. 等待字體載入 (包含 Google Icons)
+  try {
+    await document.fonts.ready
+  } catch (e) {
+    console.warn('字體載入等待失敗', e)
+  }
+
+  // 2. 等待背景圖片
+  const bgImg = bgImageElRef.value
+  if (bgImg && !bgImg.complete) {
+    await new Promise((resolve) => {
+      bgImg.addEventListener('load', () => resolve())
+      bgImg.addEventListener('error', () => resolve()) // 失敗也視為完成，避免卡住
+    })
+  }
+
+  // 全部完成
+  onImageLoaded()
+}
 
 // 計算響應式尺寸的輔助函數
 const getResponsiveTurtleSize = () => {
@@ -679,19 +694,21 @@ onUnmounted(() => {
 <template>
   <div class="ocean-container" ref="containerRef">
     <!-- 載入中的 Loading 動畫 -->
-    <div class="loading-screen" :class="{ 'fade-out': !isLoading }">
-      <div class="loading-content">
-        <div class="loading-turtle">
-          <div class="loading-spinner"></div>
+    <Teleport to="body">
+      <div class="loading-screen" :class="{ 'fade-out': !isLoading }">
+        <div class="loading-content">
+          <div class="loading-turtle">
+            <div class="loading-spinner"></div>
+          </div>
+          <!-- <div class="loading-waves">
+            <div class="wave wave1"></div>
+            <div class="wave wave2"></div>
+            <div class="wave wave3"></div>
+          </div> -->
+          <p class="loading-text">海洋正在等待你...</p>
         </div>
-        <div class="loading-waves">
-          <div class="wave wave1"></div>
-          <div class="wave wave2"></div>
-          <div class="wave wave3"></div>
-        </div>
-        <p class="loading-text">海洋正在等待你...</p>
       </div>
-    </div>
+    </Teleport>
 
     <!-- 背景漸變層 -->
     <div class="bg-gradient"></div>
@@ -776,7 +793,7 @@ onUnmounted(() => {
     rgba(42, 122, 158, 0.95) 50%,
     rgba(26, 77, 92, 0.95) 100%
   );
-  z-index: 1000;
+  z-index: 9999;
   display: flex;
   align-items: center;
   justify-content: center;
