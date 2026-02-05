@@ -74,6 +74,7 @@
     onMounted(async () => {
         await backHomeApi.get('donation/impact_get.php').then((response) => {
             impactReports.value = response.data
+            // console.log(impactReports.value);
             
             //進頁面給值
             impactSelectedYear.value = impactReports.value[0].year
@@ -94,7 +95,7 @@
     // 連資料庫徵信資料
     onMounted(async () => {
         await backHomeApi.get('donation/report_get.php').then((response) => {
-            console.log(response.data);
+            // console.log(response.data);
             creditReports.value = response.data
 
             //進頁面給值
@@ -211,7 +212,7 @@ const downloadImage = async (imgName) => {
                                         healing
                                         </span>
                                     <span class="label">救援海龜總數</span>
-                                    <AnimationNumber :value="impactCurrentData.core_metrics?.total_rescued_turtles || 0" class="value">隻</AnimationNumber>
+                                    <AnimationNumber :value="impactCurrentData.core_metrics?.total_rescued_turtles + impactCurrentData.core_metrics?.turtles_released || 0" class="value">隻</AnimationNumber>
                                     </div>
                                     <div class="stat-item">
                                         <span class="material-symbols-outlined">
