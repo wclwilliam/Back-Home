@@ -4,11 +4,11 @@
   /**
    * 判斷是否為手機裝置
    * - pointer: coarse：觸控裝置
-   * - max-width: 820：你專案的手機/小平板門檻
+   * - max-width: 767：你專案的手機/小平板門檻
    */
   const isMobileDevice = () => {
     const coarse = window.matchMedia?.('(pointer: coarse)').matches ?? false
-    const smallWidth = window.matchMedia?.('(max-width: 820px)').matches ?? window.innerWidth <= 820
+    const smallWidth = window.matchMedia?.('(max-width: 767px)').matches ?? window.innerWidth <= 767
     return coarse && smallWidth
   }
 
@@ -21,7 +21,7 @@
 
   const update = () => {
     mobile.value = isMobileDevice()
-    smallScreen.value = mqlMobile ? mqlMobile.matches : window.innerWidth <= 820
+    smallScreen.value = mqlMobile ? mqlMobile.matches : window.innerWidth <= 767
     portrait.value = mqlPortrait ? mqlPortrait.matches : window.innerHeight >= window.innerWidth
     updateBodyScroll()
   }
@@ -35,7 +35,7 @@
 
   onMounted(() => {
     mqlPortrait = window.matchMedia('(orientation: portrait)')
-    mqlMobile = window.matchMedia('(max-width: 820px)')
+    mqlMobile = window.matchMedia('(max-width: 767px)')
 
     update()
 
@@ -92,7 +92,7 @@
               <span class="screen">🖥️</span>
             </div>
             <h2>螢幕寬度不足</h2>
-            <p>請將瀏覽器視窗寬度調整為 820px 以上，或使用更大的螢幕來遊玩。</p>
+            <p>請將瀏覽器視窗寬度調整為 768px 以上，或使用更大的螢幕來遊玩。</p>
           </template>
         </div>
       </div>
@@ -108,7 +108,7 @@
 
   /* 手機橫向：填滿整個視窗，移除 Header */
 
-  @media (pointer: coarse) and (max-width: 820px) {
+  @media (pointer: coarse) and (max-width: 767px) {
     position: fixed !important;
     top: 0 !important;
     left: 0 !important;
