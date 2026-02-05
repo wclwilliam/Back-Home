@@ -328,7 +328,7 @@ const handleReport = () => {
       display: flex;
       align-items: center;
       gap: 6px;
-      color: $text-color;
+      color: $secondary-color;
       font-weight: bold;
       font-size: 16px;
       transition: all 0.2s;
@@ -336,6 +336,7 @@ const handleReport = () => {
 
       .material-symbols-outlined {
         font-size: 24px;
+        color: $secondary-color;
       }
 
       &:hover {

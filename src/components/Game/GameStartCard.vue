@@ -142,8 +142,6 @@ p {
   gap: 40px;
   padding: 10px 60px;
 
-  border: 2px solid orange;
-
   background: linear-gradient(0deg,
       rgba(227, 213, 202, 1) 0%,
       rgba(227, 213, 202, 0.9) 20%,
