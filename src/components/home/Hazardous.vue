@@ -73,7 +73,8 @@ const hazardousList = ref([
       </div>
       <div class="bottom-action">
         <router-link to="/game" class="btn btn-outline btn-xxl">
-          當你是一隻海龜，能躲開這些威脅嗎？
+          當你是一隻海龜<span class="desktop-comma">，</span
+          ><br class="mobile-br" />能躲開這些威脅嗎？
         </router-link>
       </div>
     </div>
@@ -136,9 +137,30 @@ const hazardousList = ref([
   margin-top: 40px;
 }
 
-@media (max-width: 480px) {
-  .btn {
-    font-size: $size-quaternary;
+.mobile-br {
+  display: none;
+}
+
+.desktop-comma {
+  display: inline;
+}
+
+// 底部按鈕文字置中
+.bottom-action .btn {
+  text-align: center;
+}
+
+@media (max-width: 550px) {
+  // .btn {
+  //   font-size: $size-quaternary;
+  // }
+
+  .mobile-br {
+    display: block !important;
+  }
+
+  .desktop-comma {
+    display: none;
   }
 }
 </style>
