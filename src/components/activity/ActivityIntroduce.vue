@@ -193,7 +193,7 @@ watch(
         <div class="content-box notice-box">
           <h3 class="section-title">注意事項：</h3>
           <ul class="notice-list" v-if="activity.notices && activity.notices.length > 0">
-            <li v-for="(notice, index) in activity.notices" :key="index">
+            <li v-for="(notice, index) in activity.notices" :key="index" class="list-item">
               {{ notice }}
             </li>
           </ul>
@@ -266,7 +266,7 @@ watch(
 
     .bookmark {
       font-size: 24px;
-      color: $text-color;
+      color: $secondary-color;
       cursor: pointer;
       transition: all 0.3s ease;
       margin:4px  0;
@@ -390,7 +390,7 @@ watch(
       @include font-body;
       line-height: 1.6;
       color: $text-color;
-      list-style-type: disc; // 圓點
+      list-style-type: none; 
     }
   }
 }

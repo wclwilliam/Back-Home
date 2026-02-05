@@ -123,10 +123,13 @@ const router = createRouter({
     if (savedPosition) {
       // 如果是按「上一頁」或 router.back()，會回到原本滾動的位置
       return savedPosition
-    } else {
-      // 如果是前往新頁面，就回到最頂端
-      return { top: 0 }
+
+    } 
+    if (to.name === from.name && to.path === from.path) {
+      return false  // false 代表保持在原地，不發生滾動
     }
+    // 如果是前往新頁面，就回到最頂端
+    return { top: 0 }
   },
 })
 

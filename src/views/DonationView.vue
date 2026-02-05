@@ -6,7 +6,7 @@
     import SwiperRescueCards from "@/components/donation/SwiperRescueCards.vue";
     import AnimationNumber from "@/components/donation/AnimationNumber.vue";
     import CleanChart from "@/components/donation/CleanChart.vue";
-    import {  ref, onMounted, computed, onUnmounted } from 'vue';
+    import {  ref, onMounted, computed, onUnmounted,watch } from 'vue';
     import { publicApi , backHomeApi, APIBase } from "@/utils/publicApi";
     import { gsap } from 'gsap';
     import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -66,6 +66,7 @@
     const impactReports =ref([])
     const reportSelectYear = ref('');
     const creditReports = ref([]);
+    const reportSelectPath = ref('');
     
 
 
@@ -109,6 +110,10 @@
     return creditReports.value.find(item => item.DATA_YEAR === reportSelectYear.value) || {};
     });
     
+    watch(reportCurrentData,() =>{
+        reportSelectPath.value = reportCurrentData.value.FILE_PATH.replace("reports/","")
+        
+    })
 
 
     /**
@@ -118,19 +123,15 @@
 const downloadImage = async (imgName) => {
   try {
     // 使用 axios 發送請求
-    const response = await axios({
-      // 組裝後端 API URL，並帶入 query string 參數
-      url: `${APIBase}donation/report_download.php?file=financial_report_${imgName}.png`,
-      
-      method: 'GET',
-      
-      /**
-       * 關鍵設定：responseType
-       * 告訴 axios 將伺服器回傳的數據處理成 'blob' (Binary Large Object)
-       * 這對於圖片、PDF、Excel 等非文字檔案是必須的，否則數據會被當作字串解析導致損壞
-       */
-      responseType: 'blob', 
-    });
+    const response = await backHomeApi.get(`donation/report_download.php?file=${reportSelectPath.value}`,{
+        /**
+         * 關鍵設定：responseType
+         * 告訴 axios 將伺服器回傳的數據處理成 'blob' (Binary Large Object)
+         * 這對於圖片、PDF、Excel 等非文字檔案是必須的，否則數據會被當作字串解析導致損壞
+         */
+        responseType: 'blob'
+    }
+    );
 
     /**
      * 1. 建立一個指向該 Blob 數據的臨時 URL
