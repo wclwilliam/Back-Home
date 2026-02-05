@@ -178,10 +178,10 @@ const initThreeJS = () => {
 
       // 檢查是否有內建動畫
       if (gltf.animations && gltf.animations.length > 0) {
-        console.log(
-          '✅ 模型包含 ' + gltf.animations.length + ' 個動畫:',
-          gltf.animations.map((a) => a.name),
-        )
+        // console.log(
+        //   '✅ 模型包含 ' + gltf.animations.length + ' 個動畫:',
+        //   gltf.animations.map((a) => a.name),
+        // )
         mixer = new THREE.AnimationMixer(turtleModel)
 
         // 播放所有動畫
@@ -189,17 +189,18 @@ const initThreeJS = () => {
           const action = mixer.clipAction(clip)
           action.play()
         })
-      } else {
-        console.log('ℹ️ 模型沒有內建動畫')
       }
+      // else {
+      //   console.log('ℹ️ 模型沒有內建動畫')
+      // }
 
       // 模型載入完成，開始渲染
       animate()
 
-      console.log('🐢 海龜 GLB 模型載入成功！')
+      // console.log('🐢 海龜 GLB 模型載入成功！')
     },
     (progress) => {
-      console.log('載入進度:', ((progress.loaded / progress.total) * 100).toFixed(2) + '%')
+      // console.log('載入進度:', ((progress.loaded / progress.total) * 100).toFixed(2) + '%')
     },
     (error) => {
       console.error('載入 GLB 模型時出錯:', error)
@@ -231,7 +232,7 @@ const onImageLoaded = () => {
 }
 
 const initAnimation = () => {
-  console.log('🚀 initAnimation 啟動！正在初始化動畫...')
+  // console.log('🚀 initAnimation 啟動！正在初始化動畫...')
   // ==================== 1. 設定初始狀態 (重點修改) ====================
 
   // 垃圾預設隱藏
@@ -278,14 +279,14 @@ const initAnimation = () => {
   const swimRangeX = 50 + turtleWidthVw / 2 + 5
 
   // 🔍 調試：顯示海龜尺寸
-  console.log('🐢 海龟尺寸:', {
-    螢幕: screenWidth + 'px',
-    海龜px: turtleWidthPx.toFixed(1) + 'px',
-    海龜vw: turtleWidthVw.toFixed(1) + 'vw',
-    游動範圍: swimRangeX.toFixed(1) + 'vw',
-    中心位置: swimRangeX.toFixed(1) + 'vw',
-    海龜左邊緣: (swimRangeX - turtleWidthVw / 2).toFixed(1) + 'vw',
-  })
+  // console.log('🐢 海龟尺寸:', {
+  //   螢幕: screenWidth + 'px',
+  //   海龜px: turtleWidthPx.toFixed(1) + 'px',
+  //   海龜vw: turtleWidthVw.toFixed(1) + 'vw',
+  //   游動範圍: swimRangeX.toFixed(1) + 'vw',
+  //   中心位置: swimRangeX.toFixed(1) + 'vw',
+  //   海龜左邊緣: (swimRangeX - turtleWidthVw / 2).toFixed(1) + 'vw',
+  // })
 
   // 海龜初始位置（使用動態計算的值）
   gsap.set('.turtle-wrapper', {
@@ -383,7 +384,7 @@ const initAnimation = () => {
         },
         onStart: () => {
           const x = gsap.getProperty('.turtle-wrapper', 'x')
-          console.log(`🔄 右側翻轉 (3D Proxy)！Y:0->PI, Z: + -> -`)
+          // console.log(`🔄 右側翻轉 (3D Proxy)！Y:0->PI, Z: + -> -`)
         },
       },
       '<',
@@ -451,7 +452,7 @@ const initAnimation = () => {
         },
         onStart: () => {
           const x = gsap.getProperty('.turtle-wrapper', 'x')
-          console.log(`🔄 左側翻轉 (3D Proxy)！Y:PI->2PI, Z: - -> +`)
+          // console.log(`🔄 左側翻轉 (3D Proxy)！Y:PI->2PI, Z: - -> +`)
         },
         // 移除 onComplete 重置，改用 timeline 開頭的 set
       },
@@ -465,9 +466,9 @@ const initAnimation = () => {
       const x = gsap.getProperty('.turtle-wrapper', 'x')
       const rotY = pivotGroup ? ((pivotGroup.rotation.y * 180) / Math.PI).toFixed(0) : 0
       // 為了不洗版，只在接近邊緣時印出，或每 2 秒印一次
-      console.log(
-        `📍 海龜存活確認 | x: ${typeof x === 'number' ? x.toFixed(1) : x}, rotY(3D): ${rotY}`,
-      )
+      // console.log(
+      //   `📍 海龜存活確認 | x: ${typeof x === 'number' ? x.toFixed(1) : x}, rotY(3D): ${rotY}`,
+      // )
     }
   }, 1000)
 
@@ -658,7 +659,7 @@ const handleResize = () => {
   camera.bottom = frustumSize / -2
   camera.updateProjectionMatrix()
 
-  console.log(`🔄 視窗調整: ${newSize}px, frustum: ${frustumSize}`)
+  // console.log(`🔄 視窗調整: ${newSize}px, frustum: ${frustumSize}`)
 }
 
 // 組件掛載時添加 resize 監聽
