@@ -177,8 +177,8 @@ p {
   @include icon-style($size: 40px);
 }
 
-/* 手機橫向：顯示返回首頁按鈕並縮小文字大小 */
-@media (pointer: coarse) and (orientation: landscape) {
+/* 手機橫向：顯示返回首頁按鈕並縮小文字大小 (僅 767px 以下) */
+@media (pointer: coarse) and (orientation: landscape) and (max-width: 767px) {
   .home-btn {
     display: block;
   }
