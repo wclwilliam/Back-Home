@@ -15,6 +15,9 @@ const formData = ref({});
 
 const isMobile = computed(() => window.innerWidth <= 768);
 
+// 鎖定的寬度值，避免關閉時寬度變化
+const lockedWidth = ref('420px');
+
 // 根據內容多寡決定寬度
 const lightboxWidth = computed(() => {
   if (isMobile.value) return '85vw';
@@ -30,6 +33,8 @@ const errors = reactive({
 
 watch(() => props.modelValue, (isOpen) => {
     if (isOpen) {
+        // 打開時鎖定當前計算的寬度
+        lockedWidth.value = lightboxWidth.value;
         formData.value = props.initialData ? JSON.parse(JSON.stringify(props.initialData)) : {};
         // 清空错误
         errors.phone = false;
@@ -103,7 +108,7 @@ const close = () => {
 <template>
     <Lightbox 
         :modelValue="modelValue" 
-        :width="lightboxWidth"
+        :width="lockedWidth"
         @update:modelValue="close"
         @confirm="handleConfirm"
     >
