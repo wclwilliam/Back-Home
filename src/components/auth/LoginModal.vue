@@ -138,10 +138,19 @@ function closeModal() {
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.3s;
+
+  .modal-container {
+    transition: transform 0.3s, opacity 0.3s;
+  }
 }
 
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+
+  .modal-container {
+    transform: scale(0.95);
+    opacity: 0;
+  }
 }
 </style>
