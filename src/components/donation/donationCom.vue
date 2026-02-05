@@ -113,7 +113,7 @@ const isSubscription = ref(false)    //是否訂閱
 const donationId = ref(0);          //訂單編號
 const userBirthYear = computed(() => {  //會員出生年份
   if (!auth.user?.BIRTHDAY) return ''
-  return new Date(auth.user.BIRTHDAY).getFullYear()
+  return  String(new Date(auth.user.BIRTHDAY).getFullYear())
 })
 const monthlyDisable = computed(() => {  //定期定額是否禁用
   if (isSubscription.value && donationType.value ==="monthly") {
@@ -124,7 +124,7 @@ const monthlyDisable = computed(() => {  //定期定額是否禁用
 })
 
 const form = reactive({
-  userName: auth.user?.MEMBER_REALNAME || '',
+  userName: auth.user?.MEMBER_REALNAME.split(/[（(]/)[0] || '',  //避免google登入有括號
   email: auth.user?.MEMBER_EMAIL ||'',
   phone: auth.user?.MEMBER_PHONE || '',
   birthYear: userBirthYear.value || '',
