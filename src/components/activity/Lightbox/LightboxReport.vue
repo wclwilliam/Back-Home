@@ -9,9 +9,14 @@ import { useAuthStore } from '@/stores/auth'
 const authStore = useAuthStore()
 
 const props = defineProps({
-  modelValue: Boolean, // 控制顯示隱藏
-  reviewId: {
-    type: [Number, String],
+  modelValue:{
+    type: Boolean, // 控制顯示隱藏
+    required: true,
+  },
+  //接收的review 物件
+  review: {
+    type: Object,
+    default: () => null,
   },
 })
 
@@ -61,7 +66,7 @@ const handleConfirm = () => {
 
 const handleCheckConfirm =  async () => {
   // 關閉確認框，顯示成功框
-  if (!authStore.user?.id || !props.reviewId) {
+  if (!authStore.user?.id || !props.review) {
     alert('身分驗證失效，請重新登入')
     showCheckLightbox.value = false
     return
@@ -72,7 +77,7 @@ const handleCheckConfirm =  async () => {
   try {
     const payload = {
       user_id: authStore.user.id,
-      review_id: props.reviewId,
+      review_id: props.review,
       reason: finalReason
     }
     const response = await backHomeApi.post(reportUrl, payload)

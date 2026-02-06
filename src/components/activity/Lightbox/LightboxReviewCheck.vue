@@ -2,8 +2,17 @@
 import Button from '../../auth/Button.vue'
 
 defineProps({
-  modelValue: Boolean, // 控制顯示隱藏
+  modelValue: {
+    type: Boolean, // 控制顯示隱藏
+    required: true,
+  },
+  // 其他 props 可以在這裡定義，例如留言內容等
+  data: {
+    type: Object,
+    default: () => ({star: 0, comment: '' }),
+  }
 })
+
 
 defineEmits(['update:modelValue', 'confirm'])
 </script>

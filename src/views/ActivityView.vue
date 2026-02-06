@@ -369,6 +369,9 @@ watch(currentPage, () => {
 </template>
 
 <style lang="scss" scoped>
+.bar {
+  margin: 50px 10px 48px;
+}  
 .activity-bg-wrapper {
   background-repeat: no-repeat;
   background-position: bottom center;
