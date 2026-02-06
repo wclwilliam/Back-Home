@@ -252,11 +252,11 @@ h2 {
     background-size: cover;
     grid-column: 3/ 4;
     grid-row: 1 / 3;
+    background-position: center 100%;
 
     @media (max-width: 768px) {
         grid-column: 1 / 4;
         grid-row: 5;
-        background-position: center 90%;
     }
 }
 </style>
