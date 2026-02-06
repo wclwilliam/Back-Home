@@ -975,6 +975,9 @@ const currentQueryParams = computed(() => ({
   </div>
 </template>
 <style lang="scss" scoped>
+.introduce{
+  padding: 0 10px;
+}
 .btn {
   margin: 16px 0;
 
@@ -1217,7 +1220,7 @@ textarea.customInput {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-top: 24px;
+  margin: 24px 0 0;
 
   .cta-content {
     text-align: center;
@@ -1264,8 +1267,7 @@ textarea.customInput {
 
   .recommend-swiper {
     width: 100%;
-    padding-bottom: 50px;
-    padding-top: 10px;
+    padding: 10px 10px 50px;
   }
 
   :deep(.swiper-pagination-bullet) {

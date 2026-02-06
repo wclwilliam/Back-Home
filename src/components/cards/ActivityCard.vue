@@ -338,7 +338,7 @@ watch(() => authStore.isLogin, () => {
   .rowInfo {
     display: flex;
     flex-wrap: nowrap;
-    align-items: flex-start;
+    align-items: center;
     @include font-body-l;
     margin-bottom: 8px;
     gap: 8px;

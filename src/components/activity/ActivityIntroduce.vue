@@ -257,8 +257,8 @@ watch(
   display: flex;
   flex-wrap: wrap;
   // 手機版可能會堆疊，這裡確保 margin 正常
-  margin-right: 10px;
-  margin-left: 10px;
+  margin-right: 0px;
+  margin-left: 0px;
 }
 
 .hero-image-col {
