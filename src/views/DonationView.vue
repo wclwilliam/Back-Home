@@ -107,6 +107,18 @@
     return impactReports.value.find(item => item.year === impactSelectedYear.value) || {};
     });
 
+    const impactPreviousYearData = computed(() => {
+    const currentYear = Number(impactSelectedYear.value);
+    const previousYear = currentYear - 1;
+    return impactReports.value.find(item => item.year === previousYear) || {};
+    });
+
+    const calculateGrowthRate = (currentValue, previousValue) => {
+    if (!previousValue || previousValue === 0) return null;
+    const rate = ((currentValue - previousValue) / previousValue) * 100;
+    return Math.round(rate * 10) / 10; // 保留一位小数
+    };
+
     const reportCurrentData = computed(() => {
     return creditReports.value.find(item => item.DATA_YEAR === reportSelectYear.value) || {};
     });
@@ -208,32 +220,81 @@ const downloadImage = async (imgName) => {
             
                                 <div class="stats-grid">
                                     <div class="stat-item">
+                                        <span class="label">
                                         <span class="material-symbols-outlined">
                                         healing
                                         </span>
-                                    <span class="label">救援海龜總數</span>
-                                    <AnimationNumber :value="impactCurrentData.core_metrics?.total_rescued_turtles + impactCurrentData.core_metrics?.turtles_released || 0" class="value">隻</AnimationNumber>
+                                        救援海龜總數
+                                    </span>
+                                    <div class="value-wrapper">
+                                        <AnimationNumber :value="impactCurrentData.core_metrics?.total_rescued_turtles + impactCurrentData.core_metrics?.turtles_released || 0" class="value">隻</AnimationNumber>
+                                        <span v-if="calculateGrowthRate(impactCurrentData.core_metrics?.total_rescued_turtles + impactCurrentData.core_metrics?.turtles_released || 0, impactPreviousYearData.core_metrics?.total_rescued_turtles + impactCurrentData.core_metrics?.turtles_released || 0) !== null" >
+                                            <AnimationNumber 
+                                            :value="calculateGrowthRate(impactCurrentData.core_metrics?.total_rescued_turtles + impactCurrentData.core_metrics?.turtles_released || 0, impactPreviousYearData.core_metrics?.total_rescued_turtles + impactCurrentData.core_metrics?.turtles_released || 0)" 
+                                            class="growth-rate" 
+                                            :class="calculateGrowthRate(impactCurrentData.core_metrics?.total_rescued_turtles + impactCurrentData.core_metrics?.turtles_released || 0, impactPreviousYearData.core_metrics?.total_rescued_turtles + impactCurrentData.core_metrics?.turtles_released || 0) >= 0 ? 'up' : 'down'">
+                                            %</AnimationNumber>
+                                            
+                                        </span>
+                                    </div>
                                     </div>
                                     <div class="stat-item">
+                                        <span class="label">
                                         <span class="material-symbols-outlined">
                                         egg
                                         </span>
-                                    <span class="label">引導入海幼龜</span>
-                                    <AnimationNumber :value="impactCurrentData.core_metrics?.hatchlings_guided_to_sea || 0" class="value">隻</AnimationNumber>
+                                        引導入海幼龜
+                                    </span>
+                                    <div class="value-wrapper">
+                                        <AnimationNumber :value="impactCurrentData.core_metrics?.hatchlings_guided_to_sea || 0" class="value">隻</AnimationNumber>
+                                        <span v-if="calculateGrowthRate(impactCurrentData.core_metrics?.hatchlings_guided_to_sea || 0, impactPreviousYearData.core_metrics?.hatchlings_guided_to_sea || 0) !== null" >
+                                            <AnimationNumber 
+                                            :value="calculateGrowthRate(impactCurrentData.core_metrics?.hatchlings_guided_to_sea || 0, impactPreviousYearData.core_metrics?.hatchlings_guided_to_sea || 0)" 
+                                            class="growth-rate" 
+                                            :class="calculateGrowthRate(impactCurrentData.core_metrics?.hatchlings_guided_to_sea || 0, impactPreviousYearData.core_metrics?.hatchlings_guided_to_sea || 0) >= 0 ? 'up' : 'down'">
+                                            %</AnimationNumber>
+                                            
+                                        </span>
+                                    </div>
                                     </div>
                                     <div class="stat-item">
+                                        <span class="label">
                                         <span class="material-symbols-outlined">
                                         anchor
                                         </span>
-                                    <span class="label">巡邏海岸線</span>
-                                    <AnimationNumber :value="impactCurrentData.core_metrics?.patrolled_coastline_km || 0" class="value">公里</AnimationNumber>
+                                        巡邏海岸線
+                                    </span>
+                                    <div class="value-wrapper">
+                                        <AnimationNumber :value="impactCurrentData.core_metrics?.patrolled_coastline_km || 0" class="value">公里</AnimationNumber>
+                                        <span v-if="calculateGrowthRate(impactCurrentData.core_metrics?.patrolled_coastline_km || 0, impactPreviousYearData.core_metrics?.patrolled_coastline_km || 0) !== null" >
+                                            <AnimationNumber 
+                                            :value="calculateGrowthRate(impactCurrentData.core_metrics?.patrolled_coastline_km || 0, impactPreviousYearData.core_metrics?.patrolled_coastline_km || 0)" 
+                                            class="growth-rate" 
+                                            :class="calculateGrowthRate(impactCurrentData.core_metrics?.patrolled_coastline_km || 0, impactPreviousYearData.core_metrics?.patrolled_coastline_km || 0) >= 0 ? 'up' : 'down'">
+                                            %</AnimationNumber>
+                                            
+                                        </span>
+                                    </div>
                                     </div>
                                     <div class="stat-item">
+                                        <span class="label">
                                         <span class="material-symbols-outlined">
                                         health_cross
                                         </span>
-                                    <span class="label">專業醫療手術</span>
-                                    <AnimationNumber :value="impactCurrentData.core_metrics?.professional_medical_surgeries || 0" class="value">場</AnimationNumber>
+                                        專業醫療手術
+                                    </span>
+                                    <div class="value-wrapper">
+                                        <AnimationNumber :value="impactCurrentData.core_metrics?.professional_medical_surgeries || 0" class="value">場</AnimationNumber>
+                                        
+                                        <span v-if="calculateGrowthRate(impactCurrentData.core_metrics?.professional_medical_surgeries || 0, impactPreviousYearData.core_metrics?.professional_medical_surgeries || 0) !== null" >
+                                            <AnimationNumber 
+                                            :value="calculateGrowthRate(impactCurrentData.core_metrics?.professional_medical_surgeries || 0, impactPreviousYearData.core_metrics?.professional_medical_surgeries || 0)" 
+                                            class="growth-rate" 
+                                            :class="calculateGrowthRate(impactCurrentData.core_metrics?.professional_medical_surgeries || 0, impactPreviousYearData.core_metrics?.professional_medical_surgeries || 0) >= 0 ? 'up' : 'down'">
+                                            %</AnimationNumber>
+                                            
+                                        </span>
+                                    </div>
                                     </div>
                                 </div>
                             </section>
@@ -363,7 +424,7 @@ const downloadImage = async (imgName) => {
                         flex-wrap: wrap;
                         justify-content: space-between;
                         width: 100%;
-                        gap: 52px 16px;
+                        gap: 52px 8px;
                         margin-bottom: 80px;
                         .material-symbols-outlined {
                         font-variation-settings:
@@ -379,21 +440,89 @@ const downloadImage = async (imgName) => {
                             display: flex;
                             align-items: baseline;
                             gap: 4px;
+                            padding: 16px 8px;
+                            
                             .label {
                                 @include font-body-l;
                                 flex-shrink: 0;
-                                color: #fff
+                                color: #fff;
+                                margin-bottom: 8px;
+                                display: flex;
+                                align-items: center;
+                                gap: 2px;
                             }
+                            
+                            .value-wrapper {
+                                position: relative;
+                                display: flex;
+                                align-items: baseline;
+                                gap: 2px;
+                                flex: 1;
+                                width: 100%;
+                            }
+                            
                             .value {
                                 @include font-tertiary;
                                 flex-shrink: 0;
+                            }
+                            
+                            .growth-rate {
+                                @include font-body;
+                                position: absolute;
+                                top: 100%;
+                                right: 0;
+                                padding: 2px 6px;
+                                border-radius: 4px;
+                                font-weight: 600;
+                                font-size: 12px;
+                                flex-shrink: 0;
+                                display: flex;
+                                flex-wrap: nowrap;
+                                :deep(small){
+                                    
+                                    font-size: 12px;
+                                }
+                                
+                                &.up {
+                                    background-color: rgba(76, 175, 80, 0.7);
+                                    color: #52ee58;
+                                    :deep(.number){
+                                        color: #52ee58;
+                                    }
+                                    :deep(small){
+                                        color: #52ee58;
+                                    }
+                                    
+                                    &::before {
+                                        content: "↑ ";
+                                    }
+                                }
+                                
+                                &.down {
+                                    background-color: rgba(244, 67, 54, 0.7);
+                                    color: #ff1504;
+                                    :deep(.number){
+                                        color: #ff1504;
+                                    }
+                                    :deep(small){
+                                        color: #ff1504;
+                                    }
+                                    
+                                    &::before {
+                                        content: "↓ ";
+                                    }
+                                }
+                            }
                                 color: #fff
                             }
                         }
                     }
-                }
+                    
                 .clean-section {
                     width: 100%;
+                    padding-top: 60px;
+                    border-top: 1px solid rgba(255, 255, 255, 0.2);
+                    
                     h3 {
                         color: #fff;
                         text-align: center;

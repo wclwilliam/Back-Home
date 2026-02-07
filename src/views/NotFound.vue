@@ -14,7 +14,7 @@
     .outer {
         width: 100%;
         height: 100vw;
-        background: url(@/assets/image/404/404bg.png) center / cover;
+        background: url(@/assets/image/404/404bg.jpg) center / cover;
         display: flex;
         justify-content: center;
         h1 {

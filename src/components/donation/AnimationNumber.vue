@@ -37,13 +37,19 @@ watch(() => props.value, playAnimation);
 
 <template>
   <span>
-    {{ formattedNumber }}
+    <span class="number">
+      {{ formattedNumber }}
+
+    </span>
     <small><slot></slot></small>
 </span>
 </template>
 
 <style scoped lang="scss">
     span {
+      .number {
+        color: #fff;
+      }
         small {
             @include font-body-l;
             flex-shrink: 0;

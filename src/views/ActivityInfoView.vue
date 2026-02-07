@@ -234,6 +234,22 @@ const fetchReviews = async (activityId) => {
     console.error('留言讀取失敗:', err)
   }
 }
+
+//格式化活動時間顯示
+const actDate = computed(() => {
+  if (!activityInfo.value.date) return ''
+  return formatDate(new Date(activityInfo.value.date), 'YYYY-MM-DD')
+})
+const actTime = computed(() => {
+  if (!activityInfo.value.date) return ''
+  return formatDate(new Date(activityInfo.value.date), 'HH:mm')
+})
+const endTime = computed(() => {
+  if (!activityInfo.value.endDate) return ''
+  return formatDate(new Date(activityInfo.value.endDate), 'HH:mm')
+})
+
+
 // 判斷活動是否結束
 const isEnded = computed(() => activityInfo.value?.status === 'ended')
 const isOpening = computed(() => activityInfo.value?.status === 'opening')
@@ -646,12 +662,7 @@ const currentQueryParams = computed(() => ({
       <ActivityIntroduce v-if="activityInfo.id" :activity="activityInfo" />
     </div>
 
-    <!-- 燈箱區 -->
-    <LightboxRegisterCheck
-      v-model="showCheckLightbox"
-      :data="registrationData"
-      @confirm="handleConfirmRegistration"
-    />
+    
     <LightboxRegisterSuccess v-model="showSuccessLightbox" />
     <LightboxRegisterRepeat v-model="showRepeatLightbox" />
     <LightboxReviewCheck
@@ -674,12 +685,13 @@ const currentQueryParams = computed(() => ({
           v-if="activityInfo.messages && activityInfo.messages.length > 0"
           :messages="activityInfo.messages"
           @report="handleReport"
+          
         />
         <div v-else class="no-review">目前尚無回饋</div>
       </div>
 
       <div v-if="!isLoggedIn" class="row login-cta-section">
-        <div class="cta-content col-sm-4 col-md-4">
+        <div class="cta-content col-sm-4 col-md-8 col-lg-6">
           <h3>想分享您的心得嗎？</h3>
           <p>登入會員並驗證參加紀錄後，即可發表留言。</p>
           <button class="btn-solid btn-large" @click="handleLoginPrompt">登入後立即留言</button>
@@ -687,14 +699,14 @@ const currentQueryParams = computed(() => ({
       </div>
 
       <div v-else-if="isLoggedIn && !isParticipant" class="row login-cta-section">
-        <div class="cta-content col-sm-4 col-md-4">
+        <div class="cta-content col-sm-4 col-md-8 col-lg-6">
           <span class="material-symbols-outlined icon-disabled">block</span>
           <h3>無法發表留言</h3>
           <p>系統查無您的參加紀錄，只有實際參與本活動的志工可以填寫心得喔！</p>
         </div>
       </div>
       <div v-else-if="isReviewSubmit" class="row login-cta-section">
-        <div class="cta-content col-sm-4 col-md-4">
+        <div class="cta-content col-sm-4 col-md-8 col-lg-6">
           <span class="material-symbols-outlined icon-success">check_circle</span>
           <h3>已收到您的回饋</h3>
           <p>感謝您的回饋，期待下次再見！</p>
@@ -712,7 +724,7 @@ const currentQueryParams = computed(() => ({
             </p>
             <div class="activityInfo-row">
               <span class="material-symbols-outlined calendar_today">calendar_today</span>
-              <div class="activityInfo-text">{{ activityInfo.date }}</div>
+              <div class="activityInfo-text">{{ actDate }} {{ actTime }} ~ {{ endTime }}</div>
             </div>
             <div class="activityInfo-row">
               <span class="material-symbols-outlined">location_on</span>
@@ -757,7 +769,7 @@ const currentQueryParams = computed(() => ({
     <!-- 活動進行中、報名截止 -->
     <template v-else-if="isOpening || isDeadline">
       <div class="row login-cta-section">
-        <div class="cta-content col-sm-4 col-md-4">
+        <div class="cta-content col-sm-4 col-md-8 col-lg-6">
           <h3>{{ isOpening ? '活動進行中' : '報名截止' }}</h3>
           <p>{{ isOpening ? '活動正在進行，無法受理報名。' : '報名已截止，請探索其他活動。' }}</p>
           <router-link
@@ -773,7 +785,7 @@ const currentQueryParams = computed(() => ({
     <!-- 活動名額已滿 -->
     <template v-else-if="isFulled">
       <div class="row login-cta-section">
-        <div class="cta-content col-sm-4 col-md-4">
+        <div class="cta-content col-sm-4 col-md-8 col-lg-6">
           <h3>名額已滿</h3>
           <p>名額已滿，請探索其他活動</p>
           <router-link
@@ -789,10 +801,14 @@ const currentQueryParams = computed(() => ({
     <!-- 報名成功 -->
     <template v-else-if="isSignupSuccess">
       <div class="row login-cta-section">
-        <div class="cta-content col-sm-4 col-md-4">
+        <div class="cta-content col-sm-4 col-md-8 col-lg-6">
           <span class="material-symbols-outlined icon-success">check_circle</span>
           <h3>已收到您的報名</h3>
           <p>感謝您的報名，我們活動見！</p>
+          <router-link :to="{ name: 'member' ,query: {section: 'activity', tab: 'future'} }" class="btn-solid btn-large"
+            style="display: inline-block; text-decoration: none">
+            查看已報名的活動
+          </router-link>
         </div>
       </div>
     </template>
@@ -800,17 +816,17 @@ const currentQueryParams = computed(() => ({
     <template v-else>
       <!-- 活動已報名 -->
       <div  v-if="isSignuped" class="row login-cta-section">
-        <div class="cta-content col-sm-4 col-md-4">
+        <div class="cta-content col-sm-4 col-md-8 col-lg-6">
           <h3>已完成報名</h3>
           <p>您已完成報名，期待與你相遇</p>
-          <router-link :to="{ name: 'member' }" class="btn-solid btn-large"
+          <router-link :to="{ name: 'member', query: { section: 'activity', tab: 'future' } }" class="btn-solid btn-large"
             style="display: inline-block; text-decoration: none">
             查看已報名的活動
           </router-link>
         </div>
       </div>
       <div v-else-if="!isLoggedIn" class="row login-cta-section">
-        <div class="cta-content col-sm-4 col-md-4">
+        <div class="cta-content col-sm-4 col-md-8 col-lg-6">
           <h3>您尚未登入</h3>
           <p>登入會員後，即可快速帶入資料完成報名！</p>
           <button class="btn-solid btn-large" @click="handleLoginPrompt">登入後立即報名</button>
@@ -952,11 +968,9 @@ const currentQueryParams = computed(() => ({
         @confirm="handleConfirmRegistration"
       />
 
-      <!-- 留言確認燈箱 -->
-      <LightboxReviewCheck v-model="showReviewCheckLightbox" @confirm="handleConfirmReview" />
 
       <!-- 檢舉留言燈箱 -->
-      <LightboxReport v-model="showReportLightbox" :review-id="currentReportReview?.id" />
+      <LightboxReport v-model="showReportLightbox" :review="currentReportReview" />
 
       <!-- 報名成功燈箱 -->
       <LightboxRegisterSuccess v-model="showSuccessLightbox" />
@@ -964,6 +978,9 @@ const currentQueryParams = computed(() => ({
   </div>
 </template>
 <style lang="scss" scoped>
+.introduce{
+  padding: 0 10px;
+}
 .btn {
   margin: 16px 0;
 
@@ -987,6 +1004,7 @@ const currentQueryParams = computed(() => ({
 
 .customInput {
   width: 100%;
+  min-height: 50px;
   padding: 12px 16px;
   border: 1px solid $backstage-bar-line-color;
   background-color: $backstage-swipe-color;
@@ -1023,6 +1041,9 @@ const currentQueryParams = computed(() => ({
 .member-link {
   color: $secondary-color;
   text-decoration: underline;
+  &:hover {
+    color: $highlight-color2;
+  }
 }
 
 .checkbox-row {
@@ -1202,7 +1223,7 @@ textarea.customInput {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-top: 24px;
+  margin: 24px 0 0;
 
   .cta-content {
     text-align: center;
@@ -1249,8 +1270,7 @@ textarea.customInput {
 
   .recommend-swiper {
     width: 100%;
-    padding-bottom: 50px;
-    padding-top: 10px;
+    padding: 10px 10px 50px;
   }
 
   :deep(.swiper-pagination-bullet) {
@@ -1270,6 +1290,6 @@ textarea.customInput {
 }
 // 調整活動卡片內進度條位置
 :deep(.progress-track-container .track-fill) {
-  top: 1px !important;
+  top: 1px ;
 }
 </style>

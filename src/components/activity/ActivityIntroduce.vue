@@ -145,12 +145,6 @@ watch(
   <div class="intro-container">
     <div class="hero-row g-0">
       <div class="col-md-6 hero-image-col">
-        <div class="pic">
-          <img :src="activity.image" :alt="activity.title" />
-        </div>
-      </div>
-
-      <div class="col-md-6 hero-info-col">
         <div class="status">
           <span v-if="isEnded" class="status-label ended">活動已結束</span>
           <span v-else-if="isOpening" class="status-label opening">活動進行中</span>
@@ -158,6 +152,12 @@ watch(
           <span v-else-if="isFulled" class="status-label fulled">報名額滿</span>
           <span v-else class="status-label signuping">報名中</span>
         </div>
+        <div class="pic">
+          <img :src="activity.image" :alt="activity.title" />
+        </div>
+      </div>
+
+      <div class="col-md-6 hero-info-col">
         <div class="info-content">
           <div class="info-header">
             <h1 class="title">{{ activity.title }}</h1>
@@ -228,23 +228,23 @@ watch(
   position: relative;
 }
 .status {
-  padding: 16px;
+  // padding: 24px;
   text-align: center;
+  position: absolute;
+    top: 24px;
+    left: 0px;
 
   .status-label {
     @include font-body-l;
-    font-weight: bold;
     padding: 8px 16px;
     color: $text-white;
-    position: absolute;
-    top: 16px;
-    left: 16px;
+    border-radius: 0 5px 5px 0;
 
     &.ended {
       background-color: $highlight-color2;
     }
     &.opening, &.fulled,&.deadline {
-      background-color: $highlight-color3;
+      background-color: $highlight-color1;
     }
 
     &.signuping {
@@ -257,8 +257,8 @@ watch(
   display: flex;
   flex-wrap: wrap;
   // 手機版可能會堆疊，這裡確保 margin 正常
-  margin-right: 0;
-  margin-left: 0;
+  margin-right: 0px;
+  margin-left: 0px;
 }
 
 .hero-image-col {
@@ -309,7 +309,7 @@ watch(
     }
 
     .bookmark {
-      font-size: 24px;
+      font-size: 40px;
       color: $secondary-color;
       cursor: pointer;
       transition: all 0.3s ease;

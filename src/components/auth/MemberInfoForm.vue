@@ -51,9 +51,9 @@ const handleUpdate = async () => {
       return
     }
 
-    // 身分證格式驗證
-    if (form.idNumber && !/^[A-Z][12]\d{8}$/.test(form.idNumber)) {
-      errors.idNumber = '身分證格式錯誤'
+    // 身分證完整驗證（含檢查碼）
+    if (form.idNumber && !validateTWID(form.idNumber)) {
+      errors.idNumber = '身分證字號無效'
       isLoading.value = false
       return
     }
@@ -71,7 +71,7 @@ const handleUpdate = async () => {
       validateNewPassword()
       // 驗證確認密碼
       validateConfirmPassword()
-      
+
       // 如果有錯誤，停止提交
       if (errors.newPassword || errors.confirmPassword) {
         isLoading.value = false
@@ -174,6 +174,45 @@ const maxBirthday = computed(() => {
   return today.toISOString().split('T')[0] // 格式化為 YYYY-MM-DD
 })
 
+// 判斷身分證字號是否已有資料（禁用修改）
+const isIdNumberDisabled = computed(() => {
+  return !!(authStore.user?.ID_NUMBER)
+})
+
+// 判斷生日是否已有資料（禁用修改）
+const isBirthdayDisabled = computed(() => {
+  return !!(authStore.user?.BIRTHDAY)
+})
+
+// 台灣身分證字號完整驗證（含檢查碼）
+const validateTWID = (id) => {
+  const regex = /^[A-Z][12]\d{8}$/
+  if (!regex.test(id)) return false
+
+  const city = {
+    A: 10, B: 11, C: 12, D: 13, E: 14, F: 15,
+    G: 16, H: 17, I: 34, J: 18, K: 19,
+    L: 20, M: 21, N: 22, O: 35, P: 23,
+    Q: 24, R: 25, S: 26, T: 27, U: 28,
+    V: 29, W: 32, X: 30, Y: 31, Z: 33
+  }
+
+  // 英文字母轉兩碼
+  const code = city[id[0]].toString().split('').map(Number)
+
+  // 身分證後 9 碼
+  const numbers = id.slice(1).split('').map(Number)
+
+  const idNums = code.concat(numbers)
+
+  // 正確 11 碼權重
+  const weights = [1, 9, 8, 7, 6, 5, 4, 3, 2, 1, 1]
+
+  const sum = idNums.reduce((acc, n, i) => acc + n * weights[i], 0)
+
+  return sum % 10 === 0
+}
+
 // 載入會員資料
 onMounted(async () => {
   try {
@@ -226,9 +265,10 @@ const validateIdNumber = () => {
     errors.idNumber = ''
     return
   }
-  const idRegex = /^[A-Z][12]\d{8}$/
-  if (!idRegex.test(form.idNumber)) {
-    errors.idNumber = '身分證格式錯誤'
+
+  // 使用完整的身分證驗證（含檢查碼）
+  if (!validateTWID(form.idNumber)) {
+    errors.idNumber = '身分證字號無效'
   } else {
     errors.idNumber = ''
   }
@@ -254,27 +294,27 @@ const validateNewPassword = () => {
     errors.newPassword = ''
     return
   }
-  
+
   if (form.newPassword.length < 8) {
     errors.newPassword = '密碼需至少 8 個字元'
     return
   }
-  
+
   if (!/[A-Z]/.test(form.newPassword)) {
     errors.newPassword = '密碼需包含至少一個大寫字母'
     return
   }
-  
+
   if (!/[a-z]/.test(form.newPassword)) {
     errors.newPassword = '密碼需包含至少一個小寫字母'
     return
   }
-  
+
   if (!/\d/.test(form.newPassword)) {
     errors.newPassword = '密碼需包含至少一個數字'
     return
   }
-  
+
   errors.newPassword = ''
 }
 
@@ -284,7 +324,7 @@ const validateConfirmPassword = () => {
     errors.confirmPassword = ''
     return
   }
-  
+
   if (form.newPassword !== form.confirmPassword) {
     errors.confirmPassword = '兩次輸入的密碼不一致'
   } else {
@@ -331,8 +371,8 @@ const validateConfirmPassword = () => {
       <div class="form-group">
         <label class="form-label">身分證字號 :</label>
         <div class="input-wrapper">
-          <Input v-model="form.idNumber" placeholder="請輸入身分證字號" autocomplete="off" @blur="validateIdNumber"
-            @keyup.enter="validateIdNumber" />
+          <Input v-model="form.idNumber" placeholder="請輸入身分證字號" autocomplete="off" :readonly="isIdNumberDisabled"
+            @blur="validateIdNumber" @keyup.enter="validateIdNumber" />
           <p v-if="errors.idNumber" class="error-message">
             <span class="material-symbols-outlined icon-alert">error</span>
             {{ errors.idNumber }}
@@ -343,7 +383,8 @@ const validateConfirmPassword = () => {
       <div class="form-group">
         <label class="form-label">出生年月日 :</label>
         <div class="input-wrapper">
-          <Input v-model="form.birthday" type="date" autocomplete="bday" :max="maxBirthday" @keyup.enter="handleUpdate" />
+          <Input v-model="form.birthday" type="date" autocomplete="bday" :max="maxBirthday"
+            :readonly="isBirthdayDisabled" @keyup.enter="handleUpdate" />
           <p v-if="errors.birthday" class="error-message">
             <span class="material-symbols-outlined icon-alert">error</span>
             {{ errors.birthday }}
@@ -400,7 +441,8 @@ const validateConfirmPassword = () => {
               密碼需 8 個字元以上，且包含英文字母大小寫、數字
             </p>
             <Input v-model="form.confirmPassword" :type="isConfirmPasswordVisible ? 'text' : 'password'"
-              placeholder="請再次輸入新密碼" autocomplete="new-password" @blur="validateConfirmPassword" @keyup.enter="handleUpdate">
+              placeholder="請再次輸入新密碼" autocomplete="new-password" @blur="validateConfirmPassword"
+              @keyup.enter="handleUpdate">
               <template #append>
                 <span class="material-symbols-outlined password-toggle"
                   @click.stop="isConfirmPasswordVisible = !isConfirmPasswordVisible">
