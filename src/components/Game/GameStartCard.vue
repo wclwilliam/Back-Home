@@ -103,6 +103,19 @@ const goHome = () => {
   width: 100%;
   height: auto;
   display: block;
+  animation: breathing 3s ease-in-out infinite;
+}
+
+@keyframes breathing {
+
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.05);
+  }
 }
 
 :deep(.photoSwiper) {
