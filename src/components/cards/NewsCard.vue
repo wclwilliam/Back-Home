@@ -50,7 +50,11 @@ const fileUrl = import.meta.env.VITE_FILE_URL
   background-color: $text-white;
   transition: all 0.3s ease;
   z-index: 1;
-  //height: 505px;
+  //height: 500px;
+
+  @media(max-width:992px){
+    height: auto;
+  }
 
   &:before {
     content: "";

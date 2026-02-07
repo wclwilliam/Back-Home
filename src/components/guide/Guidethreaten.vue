@@ -2,7 +2,8 @@
 import { onMounted, ref, nextTick } from 'vue';
 
 const statsGridRef = ref(null);
-const isLoading = ref(true); // 新增載入狀態
+const isLoading = ref(true);
+const apiError = ref(null); 
 
 const stats = ref({
     plastic_sea: 0,
@@ -10,6 +11,13 @@ const stats = ref({
     bycatch: 0,
     lives_lost: 0
 });
+
+
+const getApiUrl = () => {
+    if (import.meta.env.VITE_API_BASE_URL) {
+        return import.meta.env.VITE_API_BASE_URL;
+    }
+};
 
 const animateValue = (obj, start, end, duration) => {
     let startTimestamp = null;
@@ -28,24 +36,55 @@ const animateValue = (obj, start, end, duration) => {
 
 const fetchApiData = async () => {
     try {
-        isLoading.value = true; // 開始載入
-        const response = await fetch('http://localhost:8888/api/news/threaten_get.php');
+        isLoading.value = true;
+        apiError.value = null;
+        
+        const apiBaseUrl = getApiUrl();
+        const apiPath = 'news/threaten_get.php';
+        const fullUrl = `${apiBaseUrl}${apiPath}`;
+        
+        console.log('🔍 正在呼叫 API:', fullUrl);
+
+        const response = await fetch(fullUrl, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            cache: 'no-cache', // 🔥 關閉快取
+        });
+
+        //console.log('📡 Response Status:', response.status);
 
         if (!response.ok) {
-            throw new Error('網路回應不正常');
+            throw new Error(`HTTP 錯誤! 狀態碼: ${response.status}`);
         }
 
         const result = await response.json();
-        console.log("抓到資料了:", result);
+        //console.log("✅ 抓到資料了:", result);
+
+        // 檢查是否使用預設值
+        // if (result.using_fallback) {
+        //     //console.warn('⚠️ API 回傳預設值，外部資料可能抓取失敗');
+        //     apiError.value = 'API 資料抓取失敗，使用預設值';
+        // }
+
+        // 顯示 API 統計
+        // if (result.api_stats) {
+        //     console.log('📊 API 統計:', result.api_stats);
+        // }
 
         if (result.status === 'success') {
             stats.value.plastic_sea = result.data.plastic_sea.value;
             stats.value.ghost_gear = result.data.ghost_gear.value;
             stats.value.bycatch = result.data.bycatch.value;
             stats.value.lives_lost = result.data.lives_lost.value;
+        } else {
+            throw new Error('API 回傳狀態異常');
         }
     } catch (error) {
-        console.error("fetch 發生錯誤:", error);
+        console.error("❌ Fetch 發生錯誤:", error);
+        apiError.value = error.message;
+        
         // 使用預設值
         stats.value = {
             plastic_sea: 8000000,
@@ -54,7 +93,7 @@ const fetchApiData = async () => {
             lives_lost: 1000000
         };
     } finally {
-        isLoading.value = false; // 載入完成
+        isLoading.value = false;
     }
 };
 
@@ -68,7 +107,7 @@ onMounted(async () => {
                 const counters = entry.target.querySelectorAll('.count-number');
                 counters.forEach(counter => {
                     const target = +counter.getAttribute('data-target');
-                    if (target > 0) { // 確保有數字才跑動畫
+                    if (target > 0) {
                         animateValue(counter, 0, target, 1500);
                     }
                 });
@@ -76,8 +115,8 @@ onMounted(async () => {
             }
         });
     }, {
-        threshold: 0.05, // 只要出現 5% 就觸發，對手機更友善
-        rootMargin: '0px 0px -50px 0px' // 提早 50px 觸發
+        threshold: 0.05,
+        rootMargin: '0px 0px -50px 0px'
     });
 
     if (statsGridRef.value) {
@@ -88,10 +127,7 @@ onMounted(async () => {
 
 <template>
     <h1>海龜生態威脅</h1>
-    <!-- <div v-if="isLoading" class="loading-overlay">
-        <div class="spinner"></div>
-        <p>正在載入資料...</p>
-    </div> -->
+    
     <section class="threatenBox-grid container" ref="statsGridRef">
 
         <div class="card card-1">
@@ -148,6 +184,7 @@ onMounted(async () => {
     </section>
 
 </template>
+
 <style lang="scss" scoped>
 h1 {
     @include font-secondary-md;
@@ -200,7 +237,6 @@ h2 {
         font-size: $d-size-primary;
     }
 }
-
 
 .card-1 {
     grid-column: 1 / 2;
