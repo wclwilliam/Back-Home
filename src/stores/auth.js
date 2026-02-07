@@ -72,7 +72,7 @@ export const useAuthStore = defineStore('auth', () => {
       // 儲存 token
       setToken(data.token)
 
-      // 登入成功後，從後端獲取完整的會員資料
+      // 登入成功後,從後端獲取完整的會員資料
       await fetchMe()
 
       // 登入成功後關閉燈箱
@@ -80,7 +80,8 @@ export const useAuthStore = defineStore('auth', () => {
 
       return data
     } catch (error) {
-      throw new Error(error.message || '登入失敗')
+      // 保留原始錯誤對象，而不是重新包裝
+      throw error
     }
   }
 

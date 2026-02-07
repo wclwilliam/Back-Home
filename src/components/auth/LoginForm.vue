@@ -45,7 +45,12 @@ async function handleLogin() {
             redirectAfterLogin.value = null
         }
     } catch (error) {
-        errorMessage.value = error.message || '登入失敗，請檢查帳號密碼'
+        // 處理帳號停用錯誤
+        if (error.error === 'account is inactive') {
+            errorMessage.value = '此帳號已被停用'
+        } else {
+            errorMessage.value = error.message || error.error || '登入失敗，請檢查帳號密碼'
+        }
     } finally {
         isLoading.value = false
     }
