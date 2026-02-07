@@ -19,6 +19,7 @@ const emit = defineEmits(['next'])
           {{ warningText }}
         </p>
         <button class="next-btn" type="button" @click="emit('next')">
+          <span class="next-text">下一步</span>
           <span class="material-symbols-outlined icon-arrow">
             arrow_drop_down
           </span>
@@ -52,10 +53,20 @@ const emit = defineEmits(['next'])
   position: absolute;
   right: 16px;
   bottom: 12px;
+  @include font-body-bold;
+  color: $secondary-color;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.next-text {
+  color: $secondary-color;
 }
 
 .icon-arrow {
   @include icon-style($size: 40px);
+  color: $secondary-color;
 }
 
 /* 手機橫向：縮小文字大小 */
@@ -66,6 +77,11 @@ const emit = defineEmits(['next'])
 
   .warning-text {
     font-size: 14px;
+  }
+
+  .next-btn {
+    font-size: 12px;
+    gap: 2px;
   }
 
   .icon-arrow {
