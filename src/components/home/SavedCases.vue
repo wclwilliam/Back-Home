@@ -14,7 +14,6 @@ const modules = [Pagination]
 onMounted(async () => {
   try {
     const response = await backHomeApi.get('./savedcases/rescue_get.php')
-    console.log('API Response (./savedcases/rescue_get.php):', response.data)
     rescueCases.value = response.data
   } catch (error) {
     console.error('API Error (./savedcases/rescue_get.php):', error)

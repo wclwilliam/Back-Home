@@ -59,11 +59,9 @@
   margin-left: -3rem;
   padding-left: 3rem;
   width: fit-content;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 
   a {
     color: $text-white;
-    text-decoration: none;
     display: block;
   }
 
@@ -75,9 +73,7 @@
 }
 
 .report-cnn-desc {
-  @include font-body;
-  line-height: 1.8;
-  opacity: 0.9;
+  @include font-body-bold;
 }
 
 .report-cnn-img {

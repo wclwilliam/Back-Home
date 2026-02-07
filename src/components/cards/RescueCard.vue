@@ -80,6 +80,14 @@ const pointStyle = computed(() => {
 const progressText = computed(() => {
   return props.status
 })
+
+// 狀態標籤樣式：當進度為 100% 時，向左位移以避免超出右邊界
+const tagStyle = computed(() => {
+  if (progressPercent.value >= 100) {
+    return { transform: 'translateX(-40%)' }
+  }
+  return {}
+})
 </script>
 <template>
   <div class="col-sm-4 col-md-6 col-lg-4">
@@ -109,7 +117,7 @@ const progressText = computed(() => {
             <div class="current-point" :style="pointStyle">
               <div class="dot"></div>
               <div class="line"></div>
-              <div class="status-tag">{{ progressText }}</div>
+              <div class="status-tag" :style="tagStyle">{{ progressText }}</div>
             </div>
           </div>
         </div>

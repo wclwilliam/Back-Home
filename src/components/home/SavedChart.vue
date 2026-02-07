@@ -34,7 +34,9 @@ const formattedTotal = computed(() => {
 })
 
 // 圖表數據
+// 圖表數據（初始為 0，等到 isVisible 才填入真實數據）
 const chartData = ref({ labels: [], datasets: [] })
+const realChartData = ref(null) // 暫存真實數據
 
 // 滾動觸發動畫相關
 const isVisible = ref(false)
@@ -50,6 +52,14 @@ watch(isVisible, (val) => {
       value: totalRescued.value,
       ease: 'expo.out', // Exaggerated slow-down at the end
     })
+
+    // 觸發圖表長出來的動畫：填入真實數據
+    if (realChartData.value) {
+      // 延遲 0.5 秒再長高
+      setTimeout(() => {
+        chartData.value = realChartData.value
+      }, 500)
+    }
   }
 })
 
@@ -107,7 +117,8 @@ onMounted(async () => {
     chartOptions.value.scales.y.max = maxTick.value
 
     // 以全新物件指派，確保 vue-chartjs 深度偵測到變更
-    chartData.value = {
+    // 準備真實數據
+    realChartData.value = {
       labels,
       datasets: [
         {
@@ -123,6 +134,33 @@ onMounted(async () => {
         {
           label: '協會治療中',
           data: inTreatment,
+          backgroundColor: getCSSVariable('--backstage-bar-color'),
+          borderColor: getCSSVariable('--backstage-bar-color'),
+          hoverBackgroundColor: getCSSVariable('--backstage-bar-color'),
+          hoverBorderColor: getCSSVariable('--backstage-bar-color'),
+          borderWidth: 0,
+          stack: 'total',
+        },
+      ],
+    }
+
+    // 初始化圖表數據：使用 0 值，讓圖表先渲染座標軸
+    chartData.value = {
+      labels,
+      datasets: [
+        {
+          label: '協會治療完成已釋放',
+          data: released.map(() => 0), // 全部設為 0
+          backgroundColor: getCSSVariable('--secondary-color'),
+          borderColor: getCSSVariable('--secondary-color'),
+          hoverBackgroundColor: getCSSVariable('--secondary-color'),
+          hoverBorderColor: getCSSVariable('--secondary-color'),
+          borderWidth: 0,
+          stack: 'total',
+        },
+        {
+          label: '協會治療中',
+          data: inTreatment.map(() => 0), // 全部設為 0
           backgroundColor: getCSSVariable('--backstage-bar-color'),
           borderColor: getCSSVariable('--backstage-bar-color'),
           hoverBackgroundColor: getCSSVariable('--backstage-bar-color'),
@@ -319,6 +357,11 @@ const chartOptions = ref({
   // maxBarThickness: 限制bar的最大寬度，例如 50
   barPercentage: 0.8,
   categoryPercentage: 0.9,
+  // 調整動畫速度：持續 2.5 秒，讓長高過程更慢更清楚
+  animation: {
+    duration: 2500,
+    easing: 'easeOutQuart', // 使用更平滑的緩動函數
+  },
 })
 </script>
 
@@ -328,7 +371,7 @@ const chartOptions = ref({
       <div class="savedChart col-lg-7 col-md-12 col-sm-4">
         <div class="chartContainer" ref="chartContainerRef">
           <Bar
-            v-if="isVisible"
+            v-if="chartData.datasets.length > 0"
             :data="chartData"
             :options="chartOptions"
             :plugins="[axisLabelPlugin]"

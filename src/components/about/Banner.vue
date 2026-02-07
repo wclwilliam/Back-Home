@@ -55,7 +55,7 @@ const parseAssets = (fileName) => {
 // 3. 浮動文字框樣式
 .textCard {
   @include font-tertiary;
-  background-color: $secondary-color;
+  background-color: $primary-color;
   color: $text-white;
   position: absolute;
   z-index: 10;
