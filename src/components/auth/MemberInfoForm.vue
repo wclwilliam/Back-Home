@@ -599,7 +599,6 @@ const validateConfirmPassword = () => {
     margin-left: 0; // 手機版移除左邊距
   }
 
-
   .form-container {
     width: 100%;
     max-width: 100%;

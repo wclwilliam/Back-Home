@@ -70,6 +70,11 @@ const changeTab = (index) => {
     border-bottom: 4px solid transparent;
     transition: all 0.2s ease;
 
+    @media (max-width: 768px) {
+        flex-direction: column;
+        gap: rem(4px);
+    }
+
     &:hover, &.is-active {
         color: $secondary-color;
         border-bottom: 4px solid $secondary-color;
