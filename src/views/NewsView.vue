@@ -22,7 +22,7 @@ let timer = null;
 
 const newslist = ref([])
 const isLoading = ref(true);
-const pageSize = 9;
+const pageSize = 6;
 
 //監聽網址變化 
 watch(() => route.query, (newQuery) => {

@@ -128,22 +128,7 @@ onUnmounted(() => {
 
 <template>
   <div class="searchBar col-sm-4 col-md-12 col-lg-12">
-    <div class="search-section col-md-4">
-      <div class="search-input">
-        <input
-          type="text"
-          v-model="searchQuery"
-          class="keywordSearch"
-          placeholder="搜尋活動關鍵字..."
-          @input="$emit('search', $event.target.value)"
-          @keyup.enter="handleSearch"
-        />
-        <span class="material-symbols-outlined search-icon-desktop" @click="handleSearch"
-          >search</span
-        >
-      </div>
-      <button class="mobile-search-btn btn-outline btn" @click="handleSearch">搜尋</button>
-    </div>
+    
     <div class="filter-section" ref="filterContainerRef">
       <button
         class="filter-btn btn btn-outline"
@@ -220,34 +205,54 @@ onUnmounted(() => {
         </div>
       </div>
     </div>
+    <div class="search-section">
+      <div class="search-input">
+        <input
+          type="text"
+          v-model="searchQuery"
+          class="keywordSearch"
+          placeholder="請輸入關鍵字..."
+          @input="$emit('search', $event.target.value)"
+          @keyup.enter="handleSearch"
+        />
+        <span class="material-symbols-outlined search-icon" @click="handleSearch"
+          >search</span
+        >
+      </div>
+    </div>
   </div>
 </template>
 <style lang="scss" scoped>
 .searchBar {
   display: flex;
-  flex-direction: column;
   gap: 16px;
   position: relative;
   justify-content: space-between;
   margin-bottom: 24px;
 
   .search-section {
-    order: 1;
     gap: 8px;
     display: flex;
-    width: 100%;
+    width: 55%;
     height: 48px;
+    padding: 0 10px;
 
     .search-input {
       position: relative;
-      flex-grow: 1;
       border: 1px solid $secondary-color;
       display: flex;
       align-items: center;
+      flex: auto;
 
-      .search-icon-desktop {
-        display: none;
-      }
+      .search-icon {
+          display: block;
+          position: absolute;
+          right: 8px;
+          top: 50%;
+          transform: translateY(-50%);
+          cursor: pointer;
+          color: $secondary-color;
+        }
     }
 
     .keywordSearch {
@@ -263,15 +268,11 @@ onUnmounted(() => {
         }
     }
 
-    .mobile-search-btn {
-      white-space: nowrap;
-      /* 防止文字換行 */
-    }
   }
 
   .filter-section {
-    order: 2;
     position: relative;
+    padding: 0 10px;
     .filter-btn {
       border: 1px solid $secondary-color;
       transition: all 0.4s;
@@ -302,9 +303,9 @@ onUnmounted(() => {
     .filterList {
       position: absolute;
       top: 100%;
-      left: 0;
+      left: 10px;
       z-index: 10;
-      width: 100%;
+      width: 350px;
       max-width: 400px;
       padding: 16px;
       background-color: $text-white;
@@ -394,12 +395,9 @@ onUnmounted(() => {
     align-items: center;
     justify-content: space-between;
 
-    .filter-section {
-      order: 1;
-    }
 
     .search-section {
-      order: 2;
+      
       width: auto;
 
       .search-input {
@@ -407,20 +405,9 @@ onUnmounted(() => {
         height: fit-content;
         padding: 0 32px 0 8px;
 
-        .search-icon-desktop {
-          display: block;
-          position: absolute;
-          right: 8px;
-          top: 50%;
-          transform: translateY(-50%);
-          cursor: pointer;
-          color: $secondary-color;
-        }
+        
       }
 
-      .mobile-search-btn {
-        display: none;
-      }
     }
 
     .filterList {

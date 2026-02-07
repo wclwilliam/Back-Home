@@ -194,7 +194,12 @@ watch(() => authStore.isLogin, () => {
   <a class="cardContainer activityCard" @click="goToDetail">
     <div class="cardPic">
       <img :src="imgSrc" :alt="event.title" />
-      <div v-if="isEnded" class="statusBadge">已結束</div>
+      <div v-if="isEnded" class="statusBadge isEnded">已結束</div>
+      <div v-else-if="isOpening" class="statusBadge cannotSignUp">進行中</div>
+      <div v-else-if="isDeadline" class="statusBadge cannotSignUp">報名截止</div>
+      <div v-else-if="isFulled" class="statusBadge cannotSignUp">已額滿</div>
+      <div v-else class="statusBadge canSignUp">報名中</div>
+
       <div class="typeBadge">
         <span class="material-symbols-outlined">sell</span>
         {{ event.type }}
@@ -264,10 +269,19 @@ watch(() => authStore.isLogin, () => {
     position: absolute;
     top: 16px;
     left: 0;
-    padding: 8px;
-    background-color: $highlight-color2;
+    padding: 4px;
+    border-radius: 0 5px 5px 0;
     color: $activity-card-color !important;
     @include font-body-bold;
+    &.isEnded {
+      background-color: $highlight-color2;
+    }
+    &.cannotSignUp {
+      background-color: $highlight-color1;
+    }
+    &.canSignUp {
+      background-color: $primary-color;
+    }
   }
 
   .typeBadge {
@@ -305,7 +319,7 @@ watch(() => authStore.isLogin, () => {
       }
     }
   .bookmark {
-    font-size: 24px;
+    font-size: 36px;
     cursor: pointer;
     transition: all 0.2s ease;
     color: $secondary-color;
@@ -324,7 +338,7 @@ watch(() => authStore.isLogin, () => {
   .rowInfo {
     display: flex;
     flex-wrap: nowrap;
-    align-items: flex-start;
+    align-items: center;
     @include font-body-l;
     margin-bottom: 8px;
     gap: 8px;

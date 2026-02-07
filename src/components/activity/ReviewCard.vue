@@ -19,7 +19,8 @@ const comment = computed(() => props.review.text || props.review.content || '沒
 
 const avatar = computed(() => {
   if (props.review.image) return props.review.image
-  return `https://ui-avatars.com/api/?name=${encodeURIComponent(userName.value)}&background=random&color=fff&size=128`
+  const surname = userName.value ? userName.value.charAt(0): '志'
+  return `https://ui-avatars.com/api/?name=${encodeURIComponent(surname)}&background=random&color=fff&size=128`
 })
 
 const emit = defineEmits(['report'])
@@ -87,6 +88,14 @@ const handleReport = () => {
   // 發送檢舉事件，將當前評論物件傳出去
   emit('report', props.review)
 }
+//名稱去識別化
+const obfuscateName = (name) => {
+  if (!name) return '熱心志工'
+  if (name.length <= 1) return name + '*'
+  if (name.length === 2) return name[0] + '*'
+  return name[0] + '*'.repeat(name.length - 2) + name[name.length - 1]
+}
+
 </script>
 
 <template>
@@ -98,7 +107,7 @@ const handleReport = () => {
             <div class="avatar">
               <img :src="avatar" :alt="userName" />
             </div>
-            <h4 class="user-name">{{ userName }}</h4>
+            <h4 class="user-name" >{{ obfuscateName(userName) }}</h4>
           </div>
   
           <div class="more-menu-container">
@@ -109,14 +118,16 @@ const handleReport = () => {
             <div v-if="isMenuOpen" class="dropdown-menu">
               <button class="menu-item" :class="{ 'is-active': isReported }" @click="handleReport">
                 <span class="material-symbols-outlined icon">flag</span>
-                {{ isReported ? '取消檢舉' : '檢舉留言' }}
+                {{ '檢舉留言' }}
               </button>
             </div>
           </div>
         </div>
   
         <div class="rating-stars">
-          <span v-for="n in 5" :key="n" class="material-symbols-outlined star-icon" :class="{ filled: n <= rating }">
+          <span v-for="n in 5" :key="n" 
+          class="material-symbols-outlined star-icon" 
+          :class="{ filled: n <= rating }">
             kid_star
           </span>
         </div>

@@ -323,13 +323,6 @@ const chartOptions = ref({
 </script>
 
 <template>
-  <!-- 0124串php資料 -->
-
-  <!-- {{ phpData }} -->
-  {{ phpData2 }}
-
-  <!-- 0124串php資料 -->
-
   <div class="container">
     <div class="row">
       <div class="savedChart col-lg-7 col-md-12 col-sm-4">
