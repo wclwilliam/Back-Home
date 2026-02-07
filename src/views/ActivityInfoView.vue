@@ -519,6 +519,9 @@ const handleConfirmRegistration = async () => {
       showSuccessLightbox.value = true
       isSignupSuccess.value = true
 
+      // 重新獲取會員資料，更新報名資訊
+      await authStore.fetchMe()
+
       if (activityInfo.value) {
         activityInfo.value.currentPeople = (Number(activityInfo.value.currentPeople) || 0) + 1
       }

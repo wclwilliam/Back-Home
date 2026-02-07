@@ -75,10 +75,11 @@ function closeModal() {
   position: relative;
   border-radius: 4px;
   overflow: hidden;
+  will-change: opacity;
 
   @media (max-width: 768px) {
     flex-direction: column;
-    min-height: auto;
+    min-height: rem(400px);
     max-height: 90vh;
     overflow-y: auto;
   }
