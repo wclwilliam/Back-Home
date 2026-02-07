@@ -459,10 +459,10 @@ const validateConfirmPassword = () => {
       </div>
 
       <div class="form-actions">
+        <Button variant="outline" @click="handleCancel">取消</Button>
         <Button variant="primary" @click="handleUpdate" :disabled="isLoading">
           {{ isLoading ? '更新中...' : '變更資訊' }}
         </Button>
-        <Button variant="outline" @click="handleCancel">取消</Button>
       </div>
     </div>
     <MemberLightbox v-model="isLightboxOpen" :type="lightboxType" @confirm="closeLightbox" />
