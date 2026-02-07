@@ -8,8 +8,8 @@ const props = defineProps({
   modelValue: Boolean,
   type: String,
   initialData: Object,
-  amount:Number,
-  freq:Number
+  amount: Number,
+  freq: Number
 });
 
 const emit = defineEmits(['update:modelValue', 'confirm']);
@@ -41,12 +41,7 @@ const close = () => {
 </script>
 
 <template>
-  <Lightbox 
-    :modelValue="modelValue" 
-    :width="lockedWidth"
-    @update:modelValue="close"
-    @confirm="handleConfirm"
-  >
+  <Lightbox :modelValue="modelValue" :width="lockedWidth" @update:modelValue="close" @confirm="handleConfirm">
     <template #title>
       <span v-if="type === 'updateSuccess'">資訊修改成功</span>
       <span v-else-if="type === 'editAmount'">修改定期定額金額</span>
@@ -63,7 +58,7 @@ const close = () => {
     </template>
 
     <div class="member-lightbox-inner">
-      
+
       <div v-if="type === 'editAmount'" class="amount-container">
         <div class="grey-box">
           <p>目前捐款金額：新台幣 $ {{ amount || 1000 }}</p>
@@ -96,7 +91,8 @@ const close = () => {
           <p v-else-if="type.toLowerCase().includes('terminate')">終止成功。</p>
           <p v-else>設定已生效。</p>
 
-          <div v-if="type.toLowerCase().includes('amount') || type.toLowerCase().includes('terminate')" class="service-note">
+          <div v-if="type.toLowerCase().includes('amount') || type.toLowerCase().includes('terminate')"
+            class="service-note">
             <p>若有疑問，請聯繫客服中心辦理退款事宜。</p>
             <p>● 客服專線：03-425-1108</p>
           </div>
@@ -140,37 +136,45 @@ const close = () => {
   border-radius: rem(4px);
   margin-bottom: rem(20px);
   text-align: left;
-  p { margin: rem(4px) 0; font-weight: 500; }
+
+  p {
+    margin: rem(4px) 0;
+    font-weight: 500;
+  }
 }
 
 .amount-input {
   text-align: left;
   margin-bottom: rem(20px);
-  label { 
-    display: block; 
-    font-weight: bold; 
-    margin-bottom: rem(10px); 
+
+  label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: rem(10px);
   }
+
   .input-flex {
     display: flex;
     align-items: center;
     gap: rem(10px);
     flex-wrap: nowrap;
 
-    span { 
-      font-weight: bold; 
+    span {
+      font-weight: bold;
       white-space: nowrap;
       flex-shrink: 0;
     }
+
     :deep(.input-group) {
       flex: 1;
       min-width: 0;
     }
   }
-  .min-t { 
-    font-size: 12px; 
-    color: #666; 
-    margin-top: rem(5px); 
+
+  .min-t {
+    font-size: 12px;
+    color: #666;
+    margin-top: rem(5px);
   }
 }
 
@@ -182,6 +186,7 @@ const close = () => {
   color: $highlight-color2;
   font-size: 13px;
   text-align: left;
+
   .bold {
     display: flex;
     align-items: center;
@@ -194,12 +199,12 @@ const close = () => {
 .text-message-wrap {
   text-align: center;
   font-size: rem(18px);
-  padding: rem(10px) 0;
-  
+  padding: 0;
+
   p {
-    margin: rem(10px) 0;
+    margin: rem(8px) 0;
   }
-  
+
   .service-note {
     margin-top: rem(20px);
     padding-top: rem(15px);
@@ -214,14 +219,14 @@ const close = () => {
   display: flex;
   justify-content: center;
   gap: rem(16px);
-  margin-top: rem(32px);
+  margin-top: rem(10px);
 }
 
 @media (max-width: 768px) {
   .amount-input {
     .input-flex {
       flex-wrap: nowrap;
-      
+
       span {
         white-space: nowrap;
         flex-shrink: 0;
