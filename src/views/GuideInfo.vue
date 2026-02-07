@@ -74,7 +74,7 @@ onUnmounted(() => {
                         :camera-orbit="turtleInfo.initialOrbit || '0deg 75deg 105%'" alt="海龜 3D 模型" auto-rotate
                         camera-controls shadow-intensity="0" @load="handleModelLoad"
                         :class="{ loaded: !modelLoading }"
-                        style="width: 80%; height: 500px; outline: none;">
+                        style="width: 100%; height: 500px; outline: none;">
                     </model-viewer>
                 </div>
 
@@ -197,7 +197,7 @@ onUnmounted(() => {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 70%;
+    width: 100%;
     height: 500px;
 
     &.mobile {
