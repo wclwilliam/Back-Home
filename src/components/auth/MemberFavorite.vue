@@ -5,7 +5,7 @@ import { backHomeApi, APIBase } from '@/utils/publicApi'
 import TabSwitcher from '@/components/TabSwitcher.vue'
 import ActivityCard from '@/components/cards/ActivityCard.vue'
 import Pagination from '@/components/Pagination.vue'
-import RemoveFavoriteLightbox from '@/components/auth/RemoveFavoriteLightbox.vue'
+import MemberLightbox from '@/components/auth/MemberLightbox.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -23,7 +23,8 @@ const itemsPerPage = ref(9)
 
 // --- 燈箱控制狀態 ---
 const isLightboxOpen = ref(false)
-const isSuccess = ref(false)
+const lightboxType = ref('')
+const isLoading = ref(false)
 const selectedActivity = ref(null)
 
 // --- API 串接：讀取收藏清單 ---
@@ -79,6 +80,13 @@ const fetchFavorites = async () => {
 // --- API 串接：執行移除收藏 ---
 const handleLightboxConfirm = async () => {
   try {
+    // 先關閉燈箱，再顯示 loading
+    isLightboxOpen.value = false;
+    
+    // 延遲一點再開始 loading，讓燈箱有時間關閉
+    await new Promise(resolve => setTimeout(resolve, 100));
+    isLoading.value = true;
+    
     const token = localStorage.getItem('bh_front_token');
     
     if (!token) {
@@ -102,17 +110,26 @@ const handleLightboxConfirm = async () => {
       // 從前端陣列中移除，達成即時更新
       favoriteList.value = favoriteList.value.filter(act => act.id !== selectedActivity.value.id);
       
-      isLightboxOpen.value = false;
+      // 確保 loading 至少顯示 500ms
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      isLoading.value = false;
+      
       // 顯示成功移除的燈箱
       setTimeout(() => {
-        isSuccess.value = true;
+        lightboxType.value = 'updateSuccess';
         isLightboxOpen.value = true;
-      }, 300);
+      }, 200);
     }
   } catch (error) {
     console.error('移除失敗:', error);
+    isLoading.value = false;
     alert('移除收藏時發生錯誤');
   }
+};
+
+const closeLightbox = () => {
+  isLightboxOpen.value = false;
 };
 
 // --- RWD 與 生命週期 ---
@@ -134,7 +151,7 @@ onUnmounted(() => {
 // --- 燈箱邏輯與點擊攔截 ---
 const openRemoveConfirm = (activity) => {
   selectedActivity.value = activity;
-  isSuccess.value = false;
+  lightboxType.value = 'removeFavorite';
   isLightboxOpen.value = true;
 };
 
@@ -232,10 +249,19 @@ watch(() => route.query, (newQuery) => {
       />
     </div>
 
-    <RemoveFavoriteLightbox 
+    <!-- Loading 遮罩 -->
+    <div v-if="isLoading" class="loading-overlay">
+      <div class="loading-content">
+        <div class="spinner"></div>
+        <p>處理中...</p>
+      </div>
+    </div>
+
+    <!-- 使用 MemberLightbox -->
+    <MemberLightbox 
       v-model="isLightboxOpen" 
-      :isSuccess="isSuccess"
-      @confirm="handleLightboxConfirm"
+      :type="lightboxType"
+      @confirm="lightboxType === 'removeFavorite' ? handleLightboxConfirm() : closeLightbox()"
     />
   </div>
 </template>
@@ -256,10 +282,55 @@ watch(() => route.query, (newQuery) => {
 }
 
 .no-data {
-  text-align: center; padding: 40px;
-  color: #666; font-size: 18px; flex: 0 0 100%;
+  text-align: center;
+  padding: 40px;
+  color: #666;
+  font-size: 18px;
+  flex: 0 0 100%;
 }
-.cardList { margin-top: rem(20px); }
+
+.cardList {
+  margin-top: rem(20px);
+}
+
+// Loading 遮罩
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 3000;
+}
+
+.loading-content {
+  text-align: center;
+  color: white;
+
+  .spinner {
+    width: rem(50px);
+    height: rem(50px);
+    border: 5px solid rgba(255, 255, 255, 0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto rem(20px);
+  }
+
+  p {
+    font-size: rem(18px);
+    font-weight: 500;
+  }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
 // 手機板 RWD
 @media (max-width: 768px) {
   :deep(.bookmark) {
