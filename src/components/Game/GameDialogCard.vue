@@ -19,10 +19,7 @@ const emit = defineEmits(['next'])
           {{ warningText }}
         </p>
         <button class="next-btn" type="button" @click="emit('next')">
-          <span class="next-text">下一步</span>
-          <span class="material-symbols-outlined icon-arrow">
-            arrow_drop_down
-          </span>
+          下一步
         </button>
       </div>
     </div>
@@ -52,21 +49,12 @@ const emit = defineEmits(['next'])
 .next-btn {
   position: absolute;
   right: 16px;
-  bottom: 12px;
+  bottom: 18px;
   @include font-body-bold;
   color: $secondary-color;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.next-text {
-  color: $secondary-color;
-}
-
-.icon-arrow {
-  @include icon-style($size: 40px);
-  color: $secondary-color;
+  text-decoration: underline;
+  text-underline-offset: 6px;
+  text-decoration-thickness: 2px;
 }
 
 /* 手機橫向：縮小文字大小 */
@@ -81,11 +69,6 @@ const emit = defineEmits(['next'])
 
   .next-btn {
     font-size: 12px;
-    gap: 2px;
-  }
-
-  .icon-arrow {
-    @include icon-style($size: 28px);
   }
 
   .dialog-card__content {

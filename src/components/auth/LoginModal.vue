@@ -71,6 +71,7 @@ function closeModal() {
   width: 90%;
   max-width: rem(900px);
   min-height: rem(550px);
+  height: auto;
   display: flex;
   position: relative;
   border-radius: 4px;
@@ -110,6 +111,7 @@ function closeModal() {
   display: flex;
   justify-content: center;
   align-items: center;
+  min-height: rem(550px);
 
   @media (max-width: 768px) {
     display: none;
@@ -117,6 +119,7 @@ function closeModal() {
 
   .logo-overlay img {
     width: rem(180px);
+    height: auto;
   }
 }
 
