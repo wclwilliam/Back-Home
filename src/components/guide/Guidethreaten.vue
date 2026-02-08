@@ -13,10 +13,17 @@ const stats = ref({
 });
 
 
+
 const getApiUrl = () => {
     if (import.meta.env.VITE_API_BASE) {
         return import.meta.env.VITE_API_BASE;
     }
+    
+    // 備用方案
+    if (import.meta.env.DEV) {
+        return 'http://localhost:8888/';
+    }
+    return '/';
 };
 
 const animateValue = (obj, start, end, duration) => {
@@ -44,34 +51,26 @@ const fetchApiData = async () => {
         const fullUrl = `${apiBaseUrl}${apiPath}`;
         
         console.log('🔍 正在呼叫 API:', fullUrl);
+        console.log('📍 API Base URL:', apiBaseUrl);
+        console.log('🌐 當前環境:', import.meta.env.MODE);
 
         const response = await fetch(fullUrl, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
             },
-            cache: 'no-cache', // 🔥 關閉快取
+            cache: 'no-cache',
+            mode: 'cors',
         });
 
-        //console.log('📡 Response Status:', response.status);
+        console.log('📡 Response Status:', response.status);
 
         if (!response.ok) {
             throw new Error(`HTTP 錯誤! 狀態碼: ${response.status}`);
         }
 
         const result = await response.json();
-        //console.log("✅ 抓到資料了:", result);
-
-        // 檢查是否使用預設值
-        // if (result.using_fallback) {
-        //     //console.warn('⚠️ API 回傳預設值，外部資料可能抓取失敗');
-        //     apiError.value = 'API 資料抓取失敗，使用預設值';
-        // }
-
-        // 顯示 API 統計
-        // if (result.api_stats) {
-        //     console.log('📊 API 統計:', result.api_stats);
-        // }
+        console.log("✅ 抓到資料了:", result);
 
         if (result.status === 'success') {
             stats.value.plastic_sea = result.data.plastic_sea.value;
