@@ -312,7 +312,9 @@ watch(() => authStore.isLogin, () => {
         -webkit-box-orient: vertical;
         overflow: hidden;
         text-overflow: ellipsis;
-        
+        @media (min-width: 700px) {
+          min-height: 56px;
+        }
         @media (min-width: 768px) {
           min-height: 62px;
         }
