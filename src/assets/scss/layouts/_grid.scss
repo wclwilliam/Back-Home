@@ -39,7 +39,7 @@
 // 平板/中螢幕用 col-md-6
 @for $i from 1 through 12 {
   .col-md-#{$i} {
-    @media (min-width: 768px) {
+    @media (min-width: 720px) {
       flex: 0 0 calc(100% / 12 * #{$i});
       max-width: calc(100% / 12 * #{$i});
     }

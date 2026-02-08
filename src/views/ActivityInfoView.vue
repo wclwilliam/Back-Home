@@ -169,7 +169,10 @@ const fetchActivityData = async (id) => {
 
           const signupEnd = new Date(item.ACTIVITY_SIGNUP_END_DATETIME).getTime()
           if (now > signupEnd) return false // 排除報名截止的活動
-
+          
+          const activityEnd = new Date(item.ACTIVITY_END_DATETIME).getTime()
+          if (now > activityEnd) return false // 排除活動時間已過的 (已結束)
+          
           const max = Number(item.ACTIVITY_MAX_PEOPLE)
           const current = Number(item.ACTIVITY_SIGNUP_PEOPLE)
 
