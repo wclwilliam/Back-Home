@@ -200,6 +200,7 @@ p {
   color: $text-white;
   padding: 4px 8px;
   border-radius: 50px;
+  white-space: nowrap;
 }
 
 .turtle-progress {
