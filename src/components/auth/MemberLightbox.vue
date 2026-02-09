@@ -112,8 +112,8 @@ const close = () => {
         <Button variant="primary" @click="close">確定</Button>
       </div>
       <div class="member-lightbox-actions" v-else>
-        <Button variant="outline" @click="close">取消</Button>
         <Button variant="primary" @click="handleConfirm">確定</Button>
+        <Button variant="outline" @click="close">取消</Button>
       </div>
     </template>
   </Lightbox>
