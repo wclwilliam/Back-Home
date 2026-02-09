@@ -40,6 +40,9 @@ const modules = [EffectCards,Navigation]
 <style scoped lang="scss">
 .mySwiper {
   width: 60%;
+  -webkit-user-select: none; /* Safari */
+  -ms-user-select: none;     /* IE 10+ */
+  user-select: none;         /* 標準語法 */
   :deep(.swiper-button-next),
   :deep(.swiper-button-prev) {
     /* 改變顏色 */
@@ -54,6 +57,9 @@ const modules = [EffectCards,Navigation]
   }
   :deep(.swiper-button-prev) {
     left: -30%;
+  }
+  :deep(.cardInfo) {
+    min-height: 300px;
   }
   @media (width<=550px) {
     width: 90%;
