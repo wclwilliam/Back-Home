@@ -174,9 +174,13 @@ const filteredActivities = computed(() => {
   if (!activityList.value) return []
   // [第一層] Tab 狀態篩選
   if (currentActivityTab.value === '活動回顧') {
-    results = results.filter((act) => act.status === 'ended')
+    results = results
+    .filter((act) => act.status === 'ended')
+    .sort((a, b ) => new Date(b.endDate) - new Date(a.endDate)) // 活動回顧以結束日期排序，最近的在前
   } else {
-    results = results.filter((act) => act.status !== 'ended')
+    results = results
+    .filter((act) => act.status !== 'ended')
+    .sort((a, b) => new Date(a.date) - new Date(b.date)) // 目前活動以開始日期排序，最近的在前
   }
 
   // [第二層] 關鍵字搜尋 (標題、地點、描述)
