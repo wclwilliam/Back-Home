@@ -61,7 +61,7 @@ const changeTab = (index) => {
     display: flex;
     align-items: center;
     gap: rem(8px);
-    padding: rem(12px) 0;
+    padding: rem(12px) rem(20px);
     border: none;
     background: none;
     cursor: pointer;
@@ -69,15 +69,31 @@ const changeTab = (index) => {
     font-size: rem(16px);
     border-bottom: 4px solid transparent;
     transition: all 0.2s ease;
+    position: relative;
 
     @media (max-width: 768px) {
         flex-direction: column;
         gap: rem(4px);
+        padding: rem(12px) rem(10px);
+    }
+
+    &::after {
+        content: '';
+        position: absolute;
+        bottom: -4px;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background-color: transparent;
+        transition: background-color 0.2s ease;
     }
 
     &:hover, &.is-active {
         color: $secondary-color;
-        border-bottom: 4px solid $secondary-color;
+        
+        &::after {
+            background-color: $secondary-color;
+        }
         
         .icon {
             color: $secondary-color;
