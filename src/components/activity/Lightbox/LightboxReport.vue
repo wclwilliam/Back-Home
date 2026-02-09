@@ -2,6 +2,7 @@
 import Button from '../../auth/Button.vue'
 import LightboxReportCheck from './LightboxReportCheck.vue'
 import LightboxReportSuccess from './LightboxReportSuccess.vue'
+import LightboxReportRepeat from './LightboxReportRepeat.vue'
 import { ref, computed, watch } from 'vue'
 import { backHomeApi } from '@/utils/publicApi'
 import { useAuthStore } from '@/stores/auth'
@@ -9,7 +10,7 @@ import { useAuthStore } from '@/stores/auth'
 const authStore = useAuthStore()
 
 const props = defineProps({
-  modelValue:{
+  modelValue: {
     type: Boolean, // 控制顯示隱藏
     required: true,
   },
@@ -29,6 +30,7 @@ const currentLength = computed(() => otherReason.value.length)
 const showError = ref(false)
 const showCheckLightbox = ref(false)
 const showSuccessLightbox = ref(false)
+const showRepeat = ref(false)
 
 // 監聆燈箱關閉，清空資料
 watch(
@@ -39,8 +41,8 @@ watch(
       selectedReason.value = '商業廣告或垃圾訊息'
       otherReason.value = ''
       showError.value = false
-    } 
-  }
+    }
+  },
 )
 
 // 監聆選擇的理由，如果不是「其他」，隱藏錯誤提示
@@ -64,7 +66,7 @@ const handleConfirm = () => {
   showCheckLightbox.value = true
 }
 
-const handleCheckConfirm =  async () => {
+const handleCheckConfirm = async () => {
   // 關閉確認框，顯示成功框
   if (!authStore.user?.id || !props.review) {
     alert('身分驗證失效，請重新登入')
@@ -77,16 +79,22 @@ const handleCheckConfirm =  async () => {
   try {
     const payload = {
       user_id: authStore.user.id,
-      review_id: props.review,
-      reason: finalReason
+      review_id: props.review.id,
+      reason: finalReason,
     }
     const response = await backHomeApi.post(reportUrl, payload)
     if (response.data.status === 'success') {
-      showCheckLightbox.value = false 
+      emit('update:modelValue', false)
+      showCheckLightbox.value = false
       showSuccessLightbox.value = true
     } else {
-      alert(response.data.message)
-      showCheckLightbox.value = false
+      if (response.data.message.includes('已經檢舉過')) {
+        showCheckLightbox.value = false
+        showRepeat.value = true
+      } else {
+        alert(response.data.message)
+        showCheckLightbox.value = false
+      }
     }
   } catch (error) {
     console.error('檢舉失敗:', error)
@@ -96,6 +104,11 @@ const handleCheckConfirm =  async () => {
 
 const handleSuccessClose = () => {
   showSuccessLightbox.value = false
+  emit('update:modelValue', false)
+}
+
+const handleRepeatClose = () => {
+  showRepeat.value = false
   emit('update:modelValue', false)
 }
 
@@ -222,6 +235,9 @@ const handleInput = () => {
 
   <!-- 檢舉成功燈箱 -->
   <LightboxReportSuccess v-model="showSuccessLightbox" @update:modelValue="handleSuccessClose" />
+
+  <!-- 檢舉失敗燈箱 -->
+  <LightboxReportRepeat v-model="showRepeat" @update:modelValue="handleRepeatClose" />
 </template>
 
 <style lang="scss" scoped>
