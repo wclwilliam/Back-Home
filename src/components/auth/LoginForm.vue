@@ -161,7 +161,9 @@ const handleLineLogin = async () => {
         <div class="social-login">
             <div class="divider">或</div>
             <div class="social-icons">
-                <GoogleLogin :callback="callback" />
+                <div class="google-login-wrapper">
+                    <GoogleLogin :callback="callback" />
+                </div>
                 <button type="button" class="line-login-btn" @click="handleLineLogin" :disabled="isLoading">
                     <svg viewBox="0 0 24 24" class="line-icon">
                         <path fill="currentColor"
@@ -292,6 +294,7 @@ form {
 .social-login {
     width: 100%;
     margin-top: rem(30px);
+    min-height: rem(120px);
 
     .divider {
         text-align: center;
@@ -304,7 +307,15 @@ form {
         flex-direction: column;
         gap: rem(12px);
         align-items: center;
-        min-height: rem(100px);
+        min-height: rem(92px);
+    }
+
+    .google-login-wrapper {
+        height: 40px;
+        min-height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     .line-login-btn {
