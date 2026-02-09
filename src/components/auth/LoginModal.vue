@@ -131,16 +131,24 @@ function closeModal() {
   height: rem(550px);
   padding: rem(50px) rem(40px);
   overflow-y: auto;
+  min-height: rem(550px);
 
   @media (max-width: 768px) {
     flex: 1;
     width: 100%;
     height: auto;
+    min-height: rem(400px);
     padding: rem(40px) rem(24px);
+  }
+
+  // 防止內容載入時抖動
+  >* {
+    width: 100%;
+    max-width: rem(400px);
   }
 }
 
-/* .fade-enter-active,
+.fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.3s;
 }
@@ -148,5 +156,5 @@ function closeModal() {
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
-} */
+}
 </style>
