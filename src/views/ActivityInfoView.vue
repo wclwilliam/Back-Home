@@ -630,11 +630,22 @@ const handleReport = (review) => {
     alert('請先登入會員')
     return
   }
-  // console.log('點擊檢舉，留言ID:', review.id)
-  // 打開檢舉燈箱，並傳入被檢舉的留言物件
-  currentReportReview.value = review
-  showReportLightbox.value = true
+  let targetReview = review
+
+  if (typeof review === 'object') {
+    targetReview = review
+  } else if (typeof review === 'number' || typeof review === 'string') {
+    // 如果傳進來的是 ID，就去 messages 陣列裡面找對應的物件
+    // 這裡修復了 "reviewOrId is not defined" 的錯誤
+    targetReview = activityInfo.value.messages.find(m => m.id === review)
+  }
+
+  if (targetReview) {
+    currentReportReview.value = targetReview
+    showReportLightbox.value = true
+  }
 }
+
 // 返回列表頁，並帶回原本的查詢參數
 const goBackToList = () => {
   router.push({
@@ -973,10 +984,7 @@ const currentQueryParams = computed(() => ({
 
 
       <!-- 檢舉留言燈箱 -->
-      <LightboxReport v-model="showReportLightbox" :review="currentReportReview" />
-
-      <!-- 報名成功燈箱 -->
-      <LightboxRegisterSuccess v-model="showSuccessLightbox" />
+      <LightboxReport v-model="showReportLightbox" :review="currentReportReview"/>
     </div>
   </div>
 </template>

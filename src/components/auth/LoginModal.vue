@@ -1,26 +1,24 @@
 <template>
   <Teleport to="body">
-    <Transition name="fade">
-      <div v-if="isModalOpen" class="modal-overlay" @click.self="closeModal">
-        <div class="modal-container">
-          <button class="close-btn" @click="closeModal">✕</button>
-          <div class="auth-content">
-            <div class="auth-image">
-              <div class="logo-overlay">
-                <img src="/BackHomeLogo.png" alt="Logo" />
-              </div>
+    <div v-if="isModalOpen" class="modal-overlay" @click.self="closeModal">
+      <div class="modal-container">
+        <button class="close-btn" @click="closeModal">✕</button>
+        <div class="auth-content">
+          <div class="auth-image">
+            <div class="logo-overlay">
+              <img src="/BackHomeLogo.png" alt="Logo" />
             </div>
-            <div class="auth-form-side">
-              <LoginForm v-if="mode === 'login'" @change-mode="mode = $event" />
-              <RegisterForm v-else-if="mode === 'register' || mode === 'reg-success'" :current-mode="mode"
-                @change-mode="mode = $event" />
-              <ForgotForm v-else-if="mode === 'forgot' || mode === 'reset' || mode === 'reset-success'"
-                :current-mode="mode" @change-mode="mode = $event" />
-            </div>
+          </div>
+          <div class="auth-form-side">
+            <LoginForm v-if="mode === 'login'" @change-mode="mode = $event" />
+            <RegisterForm v-else-if="mode === 'register' || mode === 'reg-success'" :current-mode="mode"
+              @change-mode="mode = $event" />
+            <ForgotForm v-else-if="mode === 'forgot' || mode === 'reset' || mode === 'reset-success'"
+              :current-mode="mode" @change-mode="mode = $event" />
           </div>
         </div>
       </div>
-    </Transition>
+    </div>
   </Teleport>
 </template>
 
@@ -70,16 +68,15 @@ function closeModal() {
   background: $text-white;
   width: 90%;
   max-width: rem(900px);
-  min-height: rem(550px);
-  height: auto;
+  height: rem(550px);
   display: flex;
   position: relative;
   border-radius: 4px;
   overflow: hidden;
-  will-change: opacity;
 
   @media (max-width: 768px) {
     flex-direction: column;
+    height: auto;
     min-height: rem(400px);
     max-height: 90vh;
     overflow-y: auto;
@@ -111,7 +108,7 @@ function closeModal() {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: rem(550px);
+  height: rem(550px);
 
   @media (max-width: 768px) {
     display: none;
@@ -119,7 +116,8 @@ function closeModal() {
 
   .logo-overlay img {
     width: rem(180px);
-    height: auto;
+    height: rem(180px);
+    object-fit: contain;
   }
 }
 
@@ -130,11 +128,14 @@ function closeModal() {
   justify-content: center;
   align-items: center;
   width: 50%;
+  height: rem(550px);
   padding: rem(50px) rem(40px);
+  overflow-y: auto;
 
   @media (max-width: 768px) {
     flex: 1;
     width: 100%;
+    height: auto;
     padding: rem(40px) rem(24px);
   }
 }

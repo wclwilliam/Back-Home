@@ -38,7 +38,6 @@ watch(() => props.review.likes, (newVal) => {
 const toggleLike = async () => {
   if (!authStore.isLogin) {
     authStore.openLoginModal()
-    alert('請先登入才能按讚喔！')
     return
   }
 
@@ -83,6 +82,7 @@ const handleReport = () => {
     authStore.openLoginModal()
     return
   }
+  
   // 關閉選單
   isMenuOpen.value = false
   // 發送檢舉事件，將當前評論物件傳出去
