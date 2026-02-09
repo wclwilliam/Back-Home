@@ -10,11 +10,11 @@
             </div>
           </div>
           <div class="auth-form-side">
-            <LoginForm v-if="mode === 'login'" @change-mode="mode = $event" />
-            <RegisterForm v-else-if="mode === 'register' || mode === 'reg-success'" :current-mode="mode"
+            <LoginForm v-show="mode === 'login'" @change-mode="mode = $event" />
+            <RegisterForm v-show="mode === 'register' || mode === 'reg-success'" :current-mode="mode"
               @change-mode="mode = $event" />
-            <ForgotForm v-else-if="mode === 'forgot' || mode === 'reset' || mode === 'reset-success'"
-              :current-mode="mode" @change-mode="mode = $event" />
+            <ForgotForm v-show="mode === 'forgot' || mode === 'reset' || mode === 'reset-success'" :current-mode="mode"
+              @change-mode="mode = $event" />
           </div>
         </div>
       </div>

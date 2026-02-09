@@ -304,6 +304,7 @@ form {
         flex-direction: column;
         gap: rem(12px);
         align-items: center;
+        min-height: rem(100px);
     }
 
     .line-login-btn {
