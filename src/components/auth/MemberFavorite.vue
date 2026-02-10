@@ -117,7 +117,7 @@ const handleLightboxConfirm = async () => {
       
       // 顯示成功移除的燈箱
       setTimeout(() => {
-        lightboxType.value = 'updateSuccess';
+        lightboxType.value = 'removeSuccess';
         isLightboxOpen.value = true;
       }, 200);
     }
