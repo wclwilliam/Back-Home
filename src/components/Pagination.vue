@@ -28,7 +28,7 @@ const onPageClick = (page) => {
 </script>
 
 <template>
-  <div class="pagination-container" v-if="totalPages > 1">
+  <div class="pagination-container">
     <button 
       v-for="page in totalPages" 
       :key="page" 

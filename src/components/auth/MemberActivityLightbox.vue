@@ -159,7 +159,7 @@ const close = () => {
                 <Input v-model="formData.birthday" type="date" :readonly="true" />
               </div>
             </div>
-            <div class="f-row"><label>緊急聯絡* ：</label><div class="f-field"><Input v-model="formData.emergencyName" /></div></div>
+            <div class="f-row"><label>緊急聯絡人* ：</label><div class="f-field"><Input v-model="formData.emergencyName" /></div></div>
             <div class="f-row">
               <label>聯絡電話* ：</label>
               <div class="f-field">

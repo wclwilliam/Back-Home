@@ -5,7 +5,7 @@ import { backHomeApi, APIBase } from '@/utils/publicApi'
 import TabSwitcher from '@/components/TabSwitcher.vue'
 import ActivityCard from '@/components/cards/ActivityCard.vue'
 import Pagination from '@/components/Pagination.vue'
-import MemberLightbox from '@/components/auth/MemberLightbox.vue'
+import RemoveFavoriteLightbox from '@/components/auth/RemoveFavoriteLightbox.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -23,7 +23,7 @@ const itemsPerPage = ref(9)
 
 // --- 燈箱控制狀態 ---
 const isLightboxOpen = ref(false)
-const lightboxType = ref('')
+const lightboxType = ref('confirm') // 'confirm' 或 'success'
 const isLoading = ref(false)
 const selectedActivity = ref(null)
 
@@ -117,7 +117,7 @@ const handleLightboxConfirm = async () => {
       
       // 顯示成功移除的燈箱
       setTimeout(() => {
-        lightboxType.value = 'updateSuccess';
+        lightboxType.value = 'success';
         isLightboxOpen.value = true;
       }, 200);
     }
@@ -151,7 +151,7 @@ onUnmounted(() => {
 // --- 燈箱邏輯與點擊攔截 ---
 const openRemoveConfirm = (activity) => {
   selectedActivity.value = activity;
-  lightboxType.value = 'removeFavorite';
+  lightboxType.value = 'confirm';
   isLightboxOpen.value = true;
 };
 
@@ -241,7 +241,6 @@ watch(() => route.query, (newQuery) => {
       </div>
 
       <Pagination
-        v-if="totalPages > 1"
         class="col-sm-4"
         :total-pages="totalPages"
         :current-page="currentPage"
@@ -257,11 +256,11 @@ watch(() => route.query, (newQuery) => {
       </div>
     </div>
 
-    <!-- 使用 MemberLightbox -->
-    <MemberLightbox 
+    <!-- 使用 RemoveFavoriteLightbox -->
+    <RemoveFavoriteLightbox 
       v-model="isLightboxOpen" 
       :type="lightboxType"
-      @confirm="lightboxType === 'removeFavorite' ? handleLightboxConfirm() : closeLightbox()"
+      @confirm="handleLightboxConfirm"
     />
   </div>
 </template>

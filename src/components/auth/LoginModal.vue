@@ -10,11 +10,11 @@
             </div>
           </div>
           <div class="auth-form-side">
-            <LoginForm v-if="mode === 'login'" @change-mode="mode = $event" />
-            <RegisterForm v-else-if="mode === 'register' || mode === 'reg-success'" :current-mode="mode"
+            <LoginForm v-show="mode === 'login'" @change-mode="mode = $event" />
+            <RegisterForm v-show="mode === 'register' || mode === 'reg-success'" :current-mode="mode"
               @change-mode="mode = $event" />
-            <ForgotForm v-else-if="mode === 'forgot' || mode === 'reset' || mode === 'reset-success'"
-              :current-mode="mode" @change-mode="mode = $event" />
+            <ForgotForm v-show="mode === 'forgot' || mode === 'reset' || mode === 'reset-success'" :current-mode="mode"
+              @change-mode="mode = $event" />
           </div>
         </div>
       </div>
@@ -131,12 +131,20 @@ function closeModal() {
   height: rem(550px);
   padding: rem(50px) rem(40px);
   overflow-y: auto;
+  min-height: rem(550px);
 
   @media (max-width: 768px) {
     flex: 1;
     width: 100%;
     height: auto;
+    min-height: rem(400px);
     padding: rem(40px) rem(24px);
+  }
+
+  // 防止內容載入時抖動
+  >* {
+    width: 100%;
+    max-width: rem(400px);
   }
 }
 
