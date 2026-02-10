@@ -241,7 +241,6 @@ watch(() => route.query, (newQuery) => {
       </div>
 
       <Pagination
-        v-if="totalPages > 1"
         class="col-sm-4"
         :total-pages="totalPages"
         :current-page="currentPage"

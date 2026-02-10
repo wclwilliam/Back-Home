@@ -365,7 +365,6 @@ watch(() => route.query, (newQuery) => {
         </div>
 
         <Pagination
-          v-if="totalPages > 1"
           class="col-sm-4 pagination-spacing"
           :total-pages="totalPages"
           :current-page="currentPage"
