@@ -193,6 +193,16 @@ watch(donationType, (newValue) => {
   //付款切回ecpay
   payment.value = 'ecpay';
 })
+//在此頁面登入時捐款表單自動填入
+watch(() => auth.user, (newValue) => {
+  if (auth.isLogin) {//如果是登入才執行
+    form.userName = newValue.MEMBER_REALNAME.split(/[（(]/)[0] || '';  //避免google登入有括號
+    form.email = newValue.MEMBER_EMAIL ||'';
+    form.phone = newValue.MEMBER_PHONE ||'';
+    form.birthYear = userBirthYear.value ||'';
+    form.identity = newValue.ID_NUMBER ||'';
+  }
+})
 
 // //localstorage
 // const donationState = useLocalStorage('donationState', {
