@@ -50,9 +50,9 @@ const fetchApiData = async () => {
         const apiPath = 'news/threaten_get.php';
         const fullUrl = `${apiBaseUrl}${apiPath}`;
         
-        console.log('🔍 正在呼叫 API:', fullUrl);
-        console.log('📍 API Base URL:', apiBaseUrl);
-        console.log('🌐 當前環境:', import.meta.env.MODE);
+        // console.log('正在呼叫 API:', fullUrl);
+        // console.log('API Base URL:', apiBaseUrl);
+        // console.log('當前環境:', import.meta.env.MODE);
 
         const response = await fetch(fullUrl, {
             method: 'GET',
@@ -70,7 +70,7 @@ const fetchApiData = async () => {
         }
 
         const result = await response.json();
-        console.log("✅ 抓到資料了:", result);
+        // console.log("抓到資料了:", result);
 
         if (result.status === 'success') {
             stats.value.plastic_sea = result.data.plastic_sea.value;
@@ -81,7 +81,7 @@ const fetchApiData = async () => {
             throw new Error('API 回傳狀態異常');
         }
     } catch (error) {
-        console.error("❌ Fetch 發生錯誤:", error);
+        // console.error("Fetch 發生錯誤:", error);
         apiError.value = error.message;
         
         // 使用預設值
