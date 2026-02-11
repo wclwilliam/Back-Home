@@ -50,14 +50,13 @@ watch(currentNewsTab, () => {
 
 // 連資料庫 ，將資料存入 newslist
 onMounted(async () => {
-  isLoading.value = true; // 2. 開始請求前確保是 loading
+  isLoading.value = true; 
   try {
     const response = await backHomeApi.get('./news/news_get.php');
     newslist.value = response.data;
   } catch (error) {
     console.error('資料庫連線失敗:', error);
   } finally {
-    // 3. 不管成功或失敗，請求結束就關閉 loading
     isLoading.value = false; 
   }
 });
